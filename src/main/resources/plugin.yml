@@ -1,0 +1,22 @@
+main: com.cavetale.skills.SkillsPlugin
+name: Skills
+version: 0.1
+api-version: 1.13
+description: Skills Plugin
+author: StarTux
+website: https://cavetale.com
+depend: [WorldMarker]
+softdepend: []
+commands:
+  skills:
+    aliases: []
+    description: Skills Command
+    permission: skills.skills
+    permission-message: You do not have permission!
+    usage: /<command>
+permissions:
+  skills.skills:
+    description: Use /skills
+    default: op
+    children:
+      skills.child: true
