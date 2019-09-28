@@ -1,8 +1,10 @@
 package com.cavetale.skills;
 
 import lombok.NonNull;
+import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
@@ -12,12 +14,37 @@ import org.bukkit.block.Block;
 final class Effects {
     private Effects() { }
 
-    void waterBlock(@NonNull Block block) {
+    static void wateredBlockAmbient(@NonNull Block block) {
         World w = block.getWorld();
         w.spawnParticle(Particle.DRIP_WATER,
-                        block.getCenterLocation(),
-                        16, // count
-                        0.5, 0.5, 0.5, // offset
+                        block.getLocation().add(0.5, 0.125, 0.5),
+                        1, // count
+                        0.20, 0.1, 0.20, // offset
                         0.0); // extra/speed
+    }
+
+    static void waterBlock(@NonNull Block block) {
+        World w = block.getWorld();
+        Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+        w.spawnParticle(Particle.WATER_SPLASH,
+                        loc,
+                        32, // count
+                        0.25, 0.35, 0.25, // offset
+                        0.0); // extra/speed
+        w.playSound(loc, Sound.ENTITY_BOAT_PADDLE_WATER, SoundCategory.BLOCKS, 1.0f, 1.5f);
+    }
+
+    static void cropGrow(@NonNull Block block) {
+        World w = block.getWorld();
+        w.spawnParticle(Particle.VILLAGER_HAPPY,
+                        block.getLocation().add(0.5, 0.5, 0.5),
+                        2, // count
+                        0.25, 0.25, 0.25, // offset
+                        0.0); // extra/speed
+    }
+
+    static void rewardJingle(@NonNull Location location) {
+        World w = location.getWorld();
+        w.playSound(location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.BLOCKS, 0.5f, 2.0f);
     }
 }
