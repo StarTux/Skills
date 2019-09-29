@@ -25,18 +25,20 @@ final class Growstick {
     static final String GROWN_CROP = "skills:grown_crop";
 
     enum Crop {
-        WHEAT(Material.WHEAT),
-        CARROT(Material.CARROTS),
-        POTATO(Material.POTATOES),
-        BEETROOT(Material.BEETROOTS),
-        NETHER_WART(Material.NETHER_WART),
-        COCOA(Material.COCOA),
-        SWEET_BERRY(Material.SWEET_BERRY_BUSH);
+        WHEAT(Material.WHEAT, Material.WHEAT),
+        CARROT(Material.CARROTS, Material.CARROT),
+        POTATO(Material.POTATOES, Material.POTATO),
+        BEETROOT(Material.BEETROOTS, Material.BEETROOT),
+        NETHER_WART(Material.NETHER_WART, Material.NETHER_WART),
+        COCOA(Material.COCOA, Material.COCOA_BEANS);
 
         public final Material blockMaterial;
+        public final Material itemMaterial;
 
-        Crop(@NonNull final Material blockMaterial) {
+        Crop(@NonNull final Material blockMaterial,
+             @NonNull final Material itemMaterial) {
             this.blockMaterial = blockMaterial;
+            this.itemMaterial = itemMaterial;
         }
 
         static Crop of(Block block) {
@@ -63,12 +65,17 @@ final class Growstick {
 
     void waterBlock(@NonNull Player player, @NonNull Block block) {
         if (block.getType() == Material.FARMLAND) {
-            waterSoil(block);
-            waterCrop(player, block.getRelative(0, 1, 0));
-            Effects.waterBlock(block);
+            Block upper = block.getRelative(0, 1, 0);
+            if (waterSoil(block)
+                || waterCrop(player, upper)) {
+                Effects.waterBlock(upper);
+            }
             return;
+        } else {
+            if (waterCrop(player, block)) {
+                Effects.waterBlock(block);
+            }
         }
-        waterCrop(player, block);
     }
 
     /**
@@ -77,23 +84,23 @@ final class Growstick {
      *
      * Play the effect and set the id otherwise.
      */
-    void waterCrop(@NonNull Player player, @NonNull Block block) {
-        if (Crop.of(block) == null) return;
-        if (isRipe(block)) return;
-        if (BlockMarker.hasId(block)) return;
+    boolean waterCrop(@NonNull Player player, @NonNull Block block) {
+        if (Crop.of(block) == null) return false;
+        if (isRipe(block)) return false;
+        if (BlockMarker.hasId(block)) return false;
         BlockMarker.setId(block, WATERED_CROP);
-        Effects.waterBlock(block);
+        return true;
     }
 
-    void waterSoil(@NonNull Block block) {
+    boolean waterSoil(@NonNull Block block) {
         BlockData blockData = block.getBlockData();
-        if (!(blockData instanceof Farmland)) return;
+        if (!(blockData instanceof Farmland)) return false;
         Farmland farmland = (Farmland) blockData;
         int max = farmland.getMaximumMoisture();
-        if (farmland.getMoisture() != max) {
-            farmland.setMoisture(max);
-            block.setBlockData(farmland);
-        }
+        if (farmland.getMoisture() >= max) return false;
+        farmland.setMoisture(max);
+        block.setBlockData(farmland);
+        return true;
     }
 
     void tickWateredCrop(@NonNull MarkBlock markBlock) {
@@ -119,6 +126,9 @@ final class Growstick {
         if (Crop.of(markBlock.getBlock()) == null) {
             markBlock.resetId();
             return;
+        }
+        if ((markBlock.getTicksLoaded() % 40) == 0) {
+            Effects.grownBlockAmbient(markBlock.getBlock());
         }
     }
 
@@ -163,7 +173,10 @@ final class Growstick {
             block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             Effects.rewardJingle(loc);
         }
+        block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
+                                                     plugin.random.nextInt(3) + 1));
         // Exp
+        plugin.addSkillPoints(player, SkillType.FARMING, 1);
         block.getWorld().spawn(loc, ExperienceOrb.class, orb -> orb.setExperience(1));
     }
 }

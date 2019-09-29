@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,6 +23,7 @@ public final class SkillsPlugin extends JavaPlugin {
     final List<SQLSkill> skillColumns = new ArrayList<>();
     final Map<UUID, SQLPlayer> playerColumns = new HashMap<>();
     final Map<UUID, Session> sessions = new HashMap<>();
+    final Mining mining = new Mining(this);
 
     @Override
     public void onEnable() {
@@ -30,10 +32,25 @@ public final class SkillsPlugin extends JavaPlugin {
         database.registerTables(SQLSkill.class, SQLPlayer.class);
         database.createAllTables();
         loadDatabase();
+        for (Player player : getServer().getOnlinePlayers()) {
+            loadSession(player);
+        }
+        getServer().getScheduler().runTaskTimer(this, this::onTick, 1, 1);
     }
 
     @Override
     public void onDisable() {
+        for (Session session : sessions.values()) {
+            session.onDisable();
+            session.saveData();
+        }
+        sessions.clear();
+    }
+
+    void onTick() {
+        for (Session session : sessions.values()) {
+            session.onTick();
+        }
     }
 
     void loadDatabase() {
@@ -91,11 +108,14 @@ public final class SkillsPlugin extends JavaPlugin {
 
     void removeSession(@NonNull Player player) {
         Session session = sessions.remove(player.getUniqueId());
-        if (session != null) session.saveData();
+        if (session != null) {
+            session.onDisable();
+            session.saveData();
+        }
     }
 
     int pointsForLevelUp(final int toLevel) {
-        return toLevel * 10;
+        return toLevel * 100;
     }
 
     void addSkillPoints(@NonNull Player player, @NonNull SkillType skill, final int add) {
@@ -110,5 +130,9 @@ public final class SkillsPlugin extends JavaPlugin {
         }
         col.points = points;
         col.modified = true;
+        sessionOf(player).showSkillBar(skill, col.level, points, req);
+        player.sendActionBar(ChatColor.GRAY + "+"
+                             + ChatColor.GOLD + ChatColor.BOLD + add
+                             + ChatColor.GRAY + "SP");
     }
 }

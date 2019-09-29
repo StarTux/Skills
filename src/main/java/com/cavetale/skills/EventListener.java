@@ -5,6 +5,7 @@ import com.cavetale.worldmarker.MarkChunkTickEvent;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -41,18 +42,21 @@ final class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
         Block block = event.getBlock();
         String bid = BlockMarker.getId(block);
-        if (bid == null) return;
-        switch (bid) {
-        case Growstick.WATERED_CROP:
-            BlockMarker.resetId(block);
-            break;
-        case Growstick.GROWN_CROP:
-            plugin.growstick.harvest(event.getPlayer(), block);
-            break;
-        default: break;
+        if (bid != null) {
+            switch (bid) {
+            case Growstick.WATERED_CROP:
+                BlockMarker.resetId(block);
+                break;
+            case Growstick.GROWN_CROP:
+                plugin.growstick.harvest(player, block);
+                break;
+            default: break;
+            }
         }
+        plugin.mining.mine(player, block);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

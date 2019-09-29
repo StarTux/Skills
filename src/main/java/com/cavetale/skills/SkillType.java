@@ -3,12 +3,16 @@ package com.cavetale.skills;
 import lombok.NonNull;
 
 public enum SkillType {
-    MINING;
+    MINING,
+    FARMING;
 
     public final String key;
+    public final String displayName;
 
     SkillType() {
         key = name().toLowerCase();
+        displayName = name().substring(0, 1)
+            + name().substring(1).toLowerCase();
     }
 
     static SkillType ofKey(@NonNull String key) {

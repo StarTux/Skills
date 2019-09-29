@@ -84,10 +84,20 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- WorldMarker -->
+    <!-- SQL -->
     <dependency>
       <groupId>com.winthier.sql</groupId>
       <artifactId>sql</artifactId>
+      <version>0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+
+
+    <!-- Exploits -->
+    <dependency>
+      <groupId>com.winthier.exploits</groupId>
+      <artifactId>exploits</artifactId>
       <version>0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <optional>true</optional>
