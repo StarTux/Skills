@@ -12,6 +12,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 @RequiredArgsConstructor
@@ -58,5 +60,15 @@ final class EventListener implements Listener {
         if (BlockMarker.hasId(event.getBlock(), Growstick.WATERED_CROP)) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    void onPlayerJoin(PlayerJoinEvent event) {
+        plugin.loadSession(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    void onPlayerQuit(PlayerQuitEvent event) {
+        plugin.removeSession(event.getPlayer());
     }
 }
