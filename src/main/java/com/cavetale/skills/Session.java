@@ -18,6 +18,8 @@ final class Session {
     BossBar skillBar;
     SkillType shownSkill = null;
     int skillBarCountdown;
+    int kills = 0; // Combat
+    //
     int noSave = 0;
 
     Session(@NonNull final SkillsPlugin plugin,

@@ -1,20 +1,19 @@
 package com.cavetale.skills;
 
 import com.winthier.exploits.Exploits;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.Value;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 final class Mining {
     final SkillsPlugin plugin;
-    final HashMap<Material, Reward> rewards = new HashMap<>();
+    final EnumMap<Material, Reward> rewards = new EnumMap<>(Material.class);
 
     @Value
     static class Reward {
@@ -56,9 +55,9 @@ final class Mining {
         if (reward == null) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || item.getType() == Material.AIR) return;
-        boolean silkTouch = item.getEnchantmentLevel(Enchantment.SILK_TOUCH) > 0;
-        boolean dropSelf = dropSelf(material) || silkTouch;
-        if (dropSelf && Exploits.isPlayerPlaced(block)) return;
+        // boolean silkTouch = item.getEnchantmentLevel(Enchantment.SILK_TOUCH) > 0;
+        // boolean dropSelf = dropSelf(material) || silkTouch;
+        if (Exploits.isPlayerPlaced(block)) return;
         plugin.addSkillPoints(player, SkillType.MINING, reward.sp);
         if (reward.exp > 0) {
             block.getWorld().spawn(block.getLocation().add(0.5, 0.5, 0.5),

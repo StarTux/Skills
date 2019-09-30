@@ -5,6 +5,7 @@ import com.cavetale.worldmarker.MarkChunkTickEvent;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -38,6 +40,7 @@ final class EventListener implements Listener {
             .forEach(plugin.growstick::tickWateredCrop);
         event.getBlocksWithId(Growstick.GROWN_CROP)
             .forEach(plugin.growstick::tickGrownCrop);
+        plugin.combat.onTick(event.getChunk());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -74,5 +77,14 @@ final class EventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     void onPlayerQuit(PlayerQuitEvent event) {
         plugin.removeSession(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    void onEntityDeath(EntityDeathEvent event) {
+        LivingEntity entity = event.getEntity();
+        Player killer = entity.getKiller();
+        if (killer != null) {
+            plugin.combat.kill(killer, entity);
+        }
     }
 }

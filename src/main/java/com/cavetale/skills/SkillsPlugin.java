@@ -24,6 +24,8 @@ public final class SkillsPlugin extends JavaPlugin {
     final Map<UUID, SQLPlayer> playerColumns = new HashMap<>();
     final Map<UUID, Session> sessions = new HashMap<>();
     final Mining mining = new Mining(this);
+    final Combat combat = new Combat(this);
+    final Metadata meta = new Metadata(this);
 
     @Override
     public void onEnable() {
@@ -114,8 +116,8 @@ public final class SkillsPlugin extends JavaPlugin {
         }
     }
 
-    int pointsForLevelUp(final int toLevel) {
-        return toLevel * 100;
+    int pointsForLevelUp(final int lvl) {
+        return lvl * 50 + lvl * lvl * 10;
     }
 
     void addSkillPoints(@NonNull Player player, @NonNull SkillType skill, final int add) {

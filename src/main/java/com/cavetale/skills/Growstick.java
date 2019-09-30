@@ -56,26 +56,30 @@ final class Growstick {
     void use(@NonNull Player player, @NonNull Block block) {
         if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return;
         int radius = 1;
+        boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
             for (int dx = -radius; dx <= radius; dx += 1) {
-                waterBlock(player, block.getRelative(dx, 0, dz));
+                success |= waterBlock(player, block.getRelative(dx, 0, dz));
             }
         }
+        if (success) Effects.wateringCan(player);
     }
 
-    void waterBlock(@NonNull Player player, @NonNull Block block) {
+    boolean waterBlock(@NonNull Player player, @NonNull Block block) {
         if (block.getType() == Material.FARMLAND) {
             Block upper = block.getRelative(0, 1, 0);
-            if (waterSoil(block)
-                || waterCrop(player, upper)) {
+            if (waterSoil(block) || waterCrop(player, upper)) {
                 Effects.waterBlock(upper);
+                return true;
             }
-            return;
         } else {
-            if (waterCrop(player, block)) {
+            Block lower = block.getRelative(0, -1, 0);
+            if (waterSoil(lower) || waterCrop(player, block)) {
                 Effects.waterBlock(block);
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -142,9 +146,11 @@ final class Growstick {
             if (age >= max) {
                 markBlock.setId(GROWN_CROP);
                 return;
-            } else {
-                ageable.setAge(age + 1);
             }
+            if (block.getLightFromSky() < 1) return;
+            long time = block.getWorld().getTime();
+            if (time > 13000L && time < 23000L) return;
+            ageable.setAge(age + 1);
             block.setBlockData(blockData);
             Effects.cropGrow(block);
             if (age + 1 >= max) {
@@ -178,5 +184,6 @@ final class Growstick {
         // Exp
         plugin.addSkillPoints(player, SkillType.FARMING, 1);
         block.getWorld().spawn(loc, ExperienceOrb.class, orb -> orb.setExperience(1));
+        Effects.harvest(block);
     }
 }

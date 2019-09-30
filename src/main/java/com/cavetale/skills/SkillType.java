@@ -4,7 +4,8 @@ import lombok.NonNull;
 
 public enum SkillType {
     MINING,
-    FARMING;
+    FARMING,
+    COMBAT;
 
     public final String key;
     public final String displayName;
