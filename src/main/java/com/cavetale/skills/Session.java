@@ -18,9 +18,11 @@ final class Session {
     BossBar skillBar;
     SkillType shownSkill = null;
     int skillBarCountdown;
-    int kills = 0; // Combat
+    int bossProgress = 0; // Combat
+    int bossLevel = 0; // Boss bossLevel +1 will be spawned!
     //
     int noSave = 0;
+    int tick;
 
     Session(@NonNull final SkillsPlugin plugin,
             @NonNull final Player player,
@@ -45,7 +47,7 @@ final class Session {
     void showSkillBar(@NonNull SkillType skill, final int level,
                       final int points, final int totalPoints) {
         skillBar.setTitle(ChatColor.GOLD + skill.displayName
-                          + ChatColor.DARK_GRAY + " Level "
+                          + ChatColor.WHITE + " Level "
                           + ChatColor.GOLD + ChatColor.BOLD + level + " "
                           + ChatColor.WHITE + points
                           + ChatColor.DARK_GRAY + "/"
@@ -57,6 +59,10 @@ final class Session {
     }
 
     void onTick() {
+        tick += 1;
+        if (bossProgress > 0 && (tick % 200) == 0) {
+            bossProgress -= 1;
+        }
         if (shownSkill != null && skillBarCountdown > 0) {
             skillBarCountdown -= 1;
             if (skillBarCountdown == 0) {

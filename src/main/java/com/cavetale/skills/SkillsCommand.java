@@ -10,11 +10,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 @RequiredArgsConstructor
 final class SkillsCommand implements TabExecutor {
-    private final JavaPlugin plugin;
+    private final SkillsPlugin plugin;
 
     // Error Class
 
@@ -70,6 +69,13 @@ final class SkillsCommand implements TabExecutor {
         switch (cmd) {
         case "a": {
             sender.sendMessage("a");
+            return true;
+        }
+        case "boss": {
+            Player player = (Player) sender;
+            Boss boss = new Boss(plugin, Boss.Type.valueOf(args[0].toUpperCase()), 1);
+            boss.hero = player.getUniqueId();
+            boss.spawn(player.getLocation());
             return true;
         }
         default:

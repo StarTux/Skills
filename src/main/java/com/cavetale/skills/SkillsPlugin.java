@@ -4,6 +4,7 @@ import com.winthier.sql.SQLDatabase;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -11,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -26,6 +28,7 @@ public final class SkillsPlugin extends JavaPlugin {
     final Mining mining = new Mining(this);
     final Combat combat = new Combat(this);
     final Metadata meta = new Metadata(this);
+    List<Boss> bosses = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -47,11 +50,23 @@ public final class SkillsPlugin extends JavaPlugin {
             session.saveData();
         }
         sessions.clear();
+        for (Boss boss : bosses) {
+            boss.remove();
+        }
+        bosses.clear();
     }
 
     void onTick() {
         for (Session session : sessions.values()) {
             session.onTick();
+        }
+        for (Iterator<Boss> iter = bosses.iterator(); iter.hasNext();) {
+            Boss boss = iter.next();
+            if (!boss.isValid()) {
+                iter.remove();
+            } else {
+                boss.onTick();
+            }
         }
     }
 
@@ -128,7 +143,9 @@ public final class SkillsPlugin extends JavaPlugin {
         if (points >= req) {
             points -= req;
             col.level += 1;
-            // TODO effect
+            Effects.levelup(player);
+            player.sendTitle(ChatColor.GOLD + skill.displayName,
+                             ChatColor.WHITE + "Level " + col.level);
         }
         col.points = points;
         col.modified = true;
@@ -136,5 +153,9 @@ public final class SkillsPlugin extends JavaPlugin {
         player.sendActionBar(ChatColor.GRAY + "+"
                              + ChatColor.GOLD + ChatColor.BOLD + add
                              + ChatColor.GRAY + "SP");
+    }
+
+    Boss bossOf(@NonNull Entity entity) {
+        return meta.get(entity, Boss.META, Boss.class).orElse(null);
     }
 }

@@ -9,7 +9,7 @@ depend: [WorldMarker]
 softdepend: []
 commands:
   skills:
-    aliases: []
+    aliases: [skill, sk]
     description: Skills Command
     permission: skills.skills
     permission-message: You do not have permission!

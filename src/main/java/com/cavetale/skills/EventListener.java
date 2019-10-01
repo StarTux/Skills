@@ -1,19 +1,33 @@
 package com.cavetale.skills;
 
 import com.cavetale.worldmarker.BlockMarker;
+import com.cavetale.worldmarker.EntityMarker;
 import com.cavetale.worldmarker.MarkChunkTickEvent;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -22,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 @RequiredArgsConstructor
 final class EventListener implements Listener {
     final SkillsPlugin plugin;
+    boolean creatureSpawnLock;
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     void onPlayerInteract(PlayerInteractEvent event) {
@@ -82,9 +97,138 @@ final class EventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     void onEntityDeath(EntityDeathEvent event) {
         LivingEntity entity = event.getEntity();
+        if (!entity.isDead()) return;
+        Boss boss = plugin.bossOf(entity);
+        if (boss != null) {
+            plugin.bosses.remove(boss);
+            Player hero = plugin.getServer().getPlayer(boss.hero);
+            if (hero != null) {
+                plugin.addSkillPoints(hero, SkillType.COMBAT, 10);
+                Session session = plugin.sessionOf(hero);
+                session.bossLevel = Math.max(session.bossLevel, boss.level);
+                hero.sendTitle(ChatColor.RED + boss.type.displayName,
+                               ChatColor.WHITE + "Level " + boss.level + " Defeated!");
+                return;
+            }
+        }
         Player killer = entity.getKiller();
         if (killer != null) {
             plugin.combat.kill(killer, entity);
+        }
+    }
+
+    /**
+     * Replace spawned mobs with bosses if conditions are met.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    void onCreatureSpawn(CreatureSpawnEvent event) {
+        if (creatureSpawnLock) return;
+        switch (event.getSpawnReason()) {
+        case NATURAL:
+        case NETHER_PORTAL:
+        case REINFORCEMENTS:
+        case TRAP:
+        case VILLAGE_INVASION:
+            break;
+        default: return;
+        }
+        LivingEntity entity = event.getEntity();
+        Location loc = entity.getLocation();
+        World world = loc.getWorld();
+        for (Player player : world.getPlayers()) {
+            if (!Util.playMode(player)) continue;
+            Session session = plugin.sessionOf(player);
+            if (session.bossProgress < 10 + session.bossLevel * 10) continue;
+            if (Util.dst(player.getLocation(), loc) > 32) continue;
+            creatureSpawnLock = true;
+            Boss boss;
+            try {
+                boss = Boss.spawn(plugin, player, session.bossLevel + 1, entity);
+            } catch (Exception e) {
+                e.printStackTrace();
+                boss = null;
+            }
+            creatureSpawnLock = false;
+            if (boss == null) continue;
+            event.setCancelled(true);
+            return;
+        }
+    }
+
+    /**
+     * Bosses may not be set on fire.
+     */
+    @EventHandler(ignoreCancelled = true)
+    void onEntityCombust(EntityCombustEvent event) {
+        Entity entity = event.getEntity();
+        Boss boss = plugin.bossOf(entity);
+        if (boss != null) {
+            event.setCancelled(true);
+            return;
+        }
+        if (EntityMarker.hasId(entity, Boss.ADD)) {
+            event.setCancelled(true);
+            return;
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onEntityExplode(EntityExplodeEvent event) {
+        Entity entity = event.getEntity();
+        Boss boss = plugin.bossOf(entity);
+        if (boss != null) {
+            event.setCancelled(true);
+            return;
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onExplosionPrime(ExplosionPrimeEvent event) {
+        Entity entity = event.getEntity();
+        Boss boss = plugin.bossOf(entity);
+        if (boss != null) {
+            event.setCancelled(true);
+            boss.explosionPrime();
+            return;
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player damagee = (Player) event.getEntity();
+            Boss boss = null;
+            if (event.getDamager() instanceof Mob) {
+                boss = plugin.bossOf(event.getDamager());
+            } else if (event.getDamager() instanceof Projectile) {
+                Projectile proj = (Projectile) event.getDamager();
+                if (proj.getShooter() instanceof Mob) {
+                    boss = plugin.bossOf((Mob) proj.getShooter());
+                }
+            }
+            if (boss != null) {
+                boss.dealDamage(damagee);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onEntityDamage(EntityDamageEvent event) {
+        Entity entity = event.getEntity();
+        Boss boss = plugin.bossOf(entity);
+        if (boss != null) {
+            if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+                event.setCancelled(true);
+                boss.stuck = true;
+                return;
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
+        if (EntityMarker.hasId(event.getEntity(), Boss.AOE)) {
+            event.getAffectedEntities().removeIf(e -> plugin.bossOf(e) != null);
         }
     }
 }

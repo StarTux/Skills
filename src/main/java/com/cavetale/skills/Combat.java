@@ -73,9 +73,10 @@ final class Combat {
         Chonk chonk = BlockMarker.getChunk(chunk)
             .getTransientData(CHONK, Chonk.class, Chonk::new);
         chonk.kills += 1;
-        plugin.sessionOf(player).kills += 1;
         if (chonk.kills > 5) return;
+        plugin.sessionOf(player).bossProgress += reward.sp;
         plugin.addSkillPoints(player, SkillType.COMBAT, reward.sp);
+        player.sendMessage("" + plugin.sessionOf(player).bossProgress);
         Effects.kill(entity);
     }
 
