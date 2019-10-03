@@ -1,8 +1,12 @@
 package com.cavetale.skills;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
@@ -20,9 +24,20 @@ final class Session {
     int skillBarCountdown;
     int bossProgress = 0; // Combat
     int bossLevel = 0; // Boss bossLevel +1 will be spawned!
+    Tag tag;
+    Set<Talent> talents = new HashSet<>();
     //
     int noSave = 0;
     int tick;
+
+    static final class Tag {
+        Set<String> talents;
+        transient boolean modified;
+
+        void init() {
+            if (talents == null) talents = new HashSet<>();
+        }
+    }
 
     Session(@NonNull final SkillsPlugin plugin,
             @NonNull final Player player,
@@ -31,6 +46,13 @@ final class Session {
         this.plugin = plugin;
         this.uuid = player.getUniqueId();
         this.playerColumn = playerColumn;
+        if (playerColumn.json != null) {
+            tag = plugin.gson.fromJson(playerColumn.json, Tag.class);
+        } else {
+            tag = new Tag();
+        }
+        tag.init();
+        tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
         this.skillColumns.putAll(inSkillColumns);
         skillBar = plugin.getServer().createBossBar("skills",
                                                     BarColor.BLUE,
@@ -70,26 +92,41 @@ final class Session {
                 skillBar.setVisible(false);
             }
         }
-        if (noSave++ > 200) {
-            noSave = 0;
-            saveData();
-        }
+        if (noSave++ > 200) saveData();
     }
 
     void saveData() {
-        if (plugin.isEnabled()) {
-            plugin.database.saveAsync(playerColumn, null);
-        } else {
-            plugin.database.save(playerColumn);
+        noSave = 0;
+        if (playerColumn.modified || tag.modified) {
+            if (tag.modified) {
+                tag.modified = false;
+                tag.talents = talents.stream().map(t -> t.key).collect(Collectors.toSet());
+                playerColumn.json = plugin.gson.toJson(tag);
+            }
+            playerColumn.modified = false;
+            plugin.saveSQL(playerColumn);
         }
         for (SQLSkill col : skillColumns.values()) {
             if (!col.modified) continue;
             col.modified = false;
-            if (plugin.isEnabled()) {
-                plugin.database.saveAsync(col, null);
-            } else {
-                plugin.database.save(col);
-            }
+            plugin.saveSQL(col);
         }
+    }
+
+    boolean hasTalent(@NonNull Talent talent) {
+        return talents.contains(talent);
+    }
+
+    boolean canAccessTalent(@NonNull Talent talent) {
+        return talent.depends == null
+            || talents.contains(talent.depends);
+    }
+
+    int getTalentCost() {
+        return talents.size() + 1;
+    }
+
+    int getTalentPoints() {
+        return playerColumn.talentPoints;
     }
 }

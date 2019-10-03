@@ -1,0 +1,89 @@
+talents:
+  title: Skill Talents
+  description: Earn talent points to unlock new talents and improve your skillful abilities!
+  icon: golden_apple
+  background: 'minecraft:textures/block/diamond_ore.png'
+
+farm_growstick_radius:
+  title: Spoutcraft
+  icon: stick
+  description: |-
+    Effective growstick radius +1.
+
+    Up your gardening powers. Save lots of time by watering adjacent crops and soil, all at once!
+farm_crop_drops:
+  title: Cultivator
+  icon: wheat
+  description: |-
+    Increased crop yields.
+
+    Each fully grown watered plant yields additional drops when you harvest them.
+
+farm_diamond_drops:
+  title: Gem Growth
+  icon: diamond
+  description: |-
+    Diamond drops 100% more common.
+
+    Fully grown watered plants sometimes yield diamonds. This talent increases your chances drastically.
+
+farm_talent_points:
+  title: Grand Granger
+  icon: cornflower
+  description: |-
+    Talent points drop more often.
+
+    Whenever a fully grown and watered plant drops a diamond, there is also a small progress made toward your next talent point. Unlocking this skill increases your chances. This means even more talent points!
+
+farm_plant_radius:
+  title: Springtime
+  icon: wheat_seeds
+  description: |-
+    Plant seeds in a 3x3 area.
+
+    Save time with this talent. Plant any seed (wheat, carrot, potato, beetroot, nether wart) and the surrounding 8 blocks will also be seeded where possible.
+
+    You can plant as usual if you sneak.
+
+mine_strip:
+  title: Strip Mining
+  icon: diamond_pickaxe
+  description: |-
+    Mining with a Fortune pickaxe breaks many blocks.
+
+    Mining stone digs other stone in a straight line.
+    Mining ores digs the whole vein.
+
+mine_ore_alert:
+  title: Ore Alert
+  icon: diamond_ore
+  description: |-
+    Mining stone with a Fortune pickaxe will occasionally alert you of nearby ores.
+
+    A sound effect will lead you to nearby diamonds, if they exist.
+
+mine_xray:
+  title: X-Ray
+  icon: glowstone
+  description: |-
+    Cheat the game by looking through solid stone.
+
+    Mining stone with a Fortune pickaxe will occasionally make nearby stone see-through so you can identify ores more easily.
+
+mine_silk_strip:
+  title: Silk Stripping
+  icon: gold_nugget
+  description: |-
+    Use a Silk Touch pickaxe to strip an ore of its gems.
+
+    Use right-click to do this. Ores will drop their valuable blocks, turning the ore into stone.
+
+    This method may yield as much reward as Fortune 3. It works on diamond, emerald, iron, and gold ore.
+
+mine_silk_multi:
+  title: Silk Fortune
+  icon: gold_ingot
+  description: |-
+    Silk stripping may yield multiple drops from the same ore.
+
+    The yields of this method may exceed those of Fortune 3.

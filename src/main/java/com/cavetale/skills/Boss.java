@@ -7,8 +7,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -56,7 +54,7 @@ final class Boss {
     Mob entity;
     int ticksLived = 0;
     UUID hero;
-    static final String META = "skills:boss";
+    static final String BOSS = "skills:boss";
     static final String AOE = "skills:aoe";
     static final String ADD = "skills:add";
     EnumSet<Ability> abilities = EnumSet.noneOf(Ability.class);
@@ -95,9 +93,7 @@ final class Boss {
 
         Type(@NonNull final EntityType mobType) {
             this.mobType = mobType;
-            this.displayName = Stream.of(name().split("_"))
-                .map(s -> s.substring(0, 1) + s.substring(1).toLowerCase())
-                .collect(Collectors.joining(" "));
+            this.displayName = Util.niceEnumName(this);
         }
     }
 
@@ -207,13 +203,22 @@ final class Boss {
         entity = spawnEntity(loc);
         flying = entity instanceof Flying;
         if (entity == null) return false;
-        plugin.meta.set(entity, META, this);
+        plugin.meta.set(entity, BOSS, this);
         plugin.bosses.add(this);
-        double health = (double) level * 100.0 + 100.0;
+        // Name
+        entity.setCustomName(ChatColor.RED + type.displayName);
+        EntityMarker.setId(entity, BOSS);
+        // Health
+        double health = (double) level * 50.0 + 100.0;
         entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
         entity.setHealth(health);
-        entity.setCustomName(ChatColor.RED + type.displayName);
+        // Knockback Resistance
         entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0);
+        // Strength
+        double strength = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue();
+        strength += (double) level * 10.0;
+        entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(strength);
+        // Transient
         entity.setPersistent(false);
         List<Ability> abs = new ArrayList<>(Arrays.asList(Ability.values()));
         if (type == Type.MINERA) {

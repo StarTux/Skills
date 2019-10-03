@@ -1,5 +1,7 @@
 package com.cavetale.skills;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -21,5 +23,15 @@ final class Util {
         default:
             return false;
         }
+    }
+
+    static String niceEnumName(@NonNull String name) {
+        return Stream.of(name.split("_"))
+            .map(s -> s.substring(0, 1) + s.substring(1).toLowerCase())
+            .collect(Collectors.joining(" "));
+    }
+
+    static String niceEnumName(@NonNull Enum enom) {
+        return niceEnumName(enom.name());
     }
 }

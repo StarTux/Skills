@@ -2,7 +2,6 @@ package com.cavetale.skills;
 
 import com.winthier.exploits.Exploits;
 import java.util.EnumMap;
-import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.Value;
 import org.bukkit.Material;
@@ -22,22 +21,20 @@ final class Mining {
         final int exp;
     }
 
-    static Reward reward(@NonNull Material material, final int sp, final int exp) {
-        return new Reward(material, sp, exp);
+    private void reward(@NonNull Material material, final int sp, final int exp) {
+        rewards.put(material, new Reward(material, sp, exp));
     }
 
     Mining(@NonNull final SkillsPlugin plugin) {
         this.plugin = plugin;
-        Stream
-            .of(reward(Material.DIAMOND_ORE,       10, 0),
-                reward(Material.EMERALD_ORE,       5, 0),
-                reward(Material.IRON_ORE,          3, 1),
-                reward(Material.GOLD_ORE,          1, 1),
-                reward(Material.COAL_ORE,          1, 0),
-                reward(Material.LAPIS_ORE,         1, 0),
-                reward(Material.NETHER_QUARTZ_ORE, 1, 0),
-                reward(Material.REDSTONE_ORE,      1, 0))
-            .forEach(reward -> rewards.put(reward.material, reward));
+        reward(Material.DIAMOND_ORE,       10, 0);
+        reward(Material.EMERALD_ORE,       5, 0);
+        reward(Material.IRON_ORE,          3, 1);
+        reward(Material.GOLD_ORE,          1, 1);
+        reward(Material.COAL_ORE,          1, 0);
+        reward(Material.LAPIS_ORE,         1, 0);
+        reward(Material.NETHER_QUARTZ_ORE, 1, 0);
+        reward(Material.REDSTONE_ORE,      1, 0);
     }
 
     static boolean dropSelf(Material material) {
@@ -63,6 +60,9 @@ final class Mining {
             block.getWorld().spawn(block.getLocation().add(0.5, 0.5, 0.5),
                                    ExperienceOrb.class,
                                    orb -> orb.setExperience(reward.exp));
+        }
+        if (block.getType() == Material.DIAMOND_ORE) {
+            plugin.rollTalentPoint(player, 1);
         }
     }
 }

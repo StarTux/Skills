@@ -62,12 +62,33 @@ final class Effects {
                         0.0); // extra/speed
     }
 
+    static void cropPlaceMagic(@NonNull Block block) {
+        World w = block.getWorld();
+        Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+        w.spawnParticle(Particle.VILLAGER_HAPPY,
+                        loc,
+                        2, // count
+                        0.25, 0.25, 0.25, // offset
+                        0.0); // extra/speed
+        w.playSound(loc, Sound.BLOCK_GRASS_PLACE, SoundCategory.BLOCKS, 1.4f, 1.0f);
+    }
+
     static void rewardJingle(@NonNull Location location) {
         World w = location.getWorld();
         w.playSound(location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 2.0f);
     }
 
     static void levelup(@NonNull Player player) {
+        Location loc = player.getLocation();
+        player.playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1.0f, 1.0f);
+    }
+
+    static void talentPoint(@NonNull Player player) {
+        Location loc = player.getLocation();
+        player.playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.0f);
+    }
+
+    static void talentUnlock(@NonNull Player player) {
         Location loc = player.getLocation();
         player.playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1.0f, 1.0f);
     }

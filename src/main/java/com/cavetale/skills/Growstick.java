@@ -2,6 +2,7 @@ package com.cavetale.skills;
 
 import com.cavetale.worldmarker.BlockMarker;
 import com.cavetale.worldmarker.MarkBlock;
+import com.winthier.generic_events.GenericEvents;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
@@ -25,20 +26,27 @@ final class Growstick {
     static final String GROWN_CROP = "skills:grown_crop";
 
     enum Crop {
-        WHEAT(Material.WHEAT, Material.WHEAT),
+        WHEAT(Material.WHEAT, Material.WHEAT, Material.WHEAT_SEEDS),
         CARROT(Material.CARROTS, Material.CARROT),
         POTATO(Material.POTATOES, Material.POTATO),
-        BEETROOT(Material.BEETROOTS, Material.BEETROOT),
-        NETHER_WART(Material.NETHER_WART, Material.NETHER_WART),
-        COCOA(Material.COCOA, Material.COCOA_BEANS);
+        BEETROOT(Material.BEETROOTS, Material.BEETROOT, Material.BEETROOT_SEEDS),
+        NETHER_WART(Material.NETHER_WART, Material.NETHER_WART);
 
         public final Material blockMaterial;
         public final Material itemMaterial;
+        public final Material seedMaterial;
+
+        Crop(@NonNull final Material blockMaterial,
+             @NonNull final Material itemMaterial,
+             @NonNull final Material seedMaterial) {
+            this.blockMaterial = blockMaterial;
+            this.itemMaterial = itemMaterial;
+            this.seedMaterial = seedMaterial;
+        }
 
         Crop(@NonNull final Material blockMaterial,
              @NonNull final Material itemMaterial) {
-            this.blockMaterial = blockMaterial;
-            this.itemMaterial = itemMaterial;
+            this(blockMaterial, itemMaterial, itemMaterial);
         }
 
         static Crop of(Block block) {
@@ -55,7 +63,9 @@ final class Growstick {
      */
     void use(@NonNull Player player, @NonNull Block block) {
         if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return;
-        int radius = 1;
+        int radius = 0;
+        Session session = plugin.sessionOf(player);
+        if (session.hasTalent(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
         boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
             for (int dx = -radius; dx <= radius; dx += 1) {
@@ -173,17 +183,50 @@ final class Growstick {
         Crop crop = Crop.of(block);
         if (crop == null) return;
         if (!isRipe(block)) return;
-        // Reward diamond
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-        if (plugin.random.nextDouble() < 0.01) {
-            block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
-            Effects.rewardJingle(loc);
+        Session session = plugin.sessionOf(player);
+        // Extra crops
+        if (session.hasTalent(Talent.FARM_CROP_DROPS)) {
+            block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
+                                                         plugin.random.nextInt(3) + 1));
         }
-        block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
-                                                     plugin.random.nextInt(3) + 1));
+        // Reward Diamond
+        double gemChance = 0.01;
+        final double roll = plugin.random.nextDouble();
+        if (session.hasTalent(Talent.FARM_DIAMOND_DROPS)) gemChance = 0.02;
+        if (roll < gemChance) {
+            block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
+            int inc = 1;
+            if (session.hasTalent(Talent.FARM_TALENT_POINTS)) inc = 2;
+            boolean noEffect = plugin.rollTalentPoint(player, 2);
+            if (!noEffect) Effects.rewardJingle(loc);
+        }
         // Exp
         plugin.addSkillPoints(player, SkillType.FARMING, 1);
         block.getWorld().spawn(loc, ExperienceOrb.class, orb -> orb.setExperience(1));
         Effects.harvest(block);
+    }
+
+    void plant(@NonNull Player player, @NonNull Block block, @NonNull Crop crop,
+               @NonNull ItemStack item) {
+        Session session = plugin.sessionOf(player);
+        if (session.hasTalent(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
+            for (int z = -1; z <= 1; z += 1) {
+                for (int x = -1; x <= 1; x += 1) {
+                    if (item.getType() != crop.seedMaterial) break;
+                    if (item.getAmount() < 1) break;
+                    if (x == 0 && z == 0) continue;
+                    Block nbor = block.getRelative(x, 0, z);
+                    if (!nbor.isEmpty()) continue;
+                    Block lower = nbor.getRelative(0, -1, 0);
+                    if (crop == Crop.NETHER_WART && lower.getType() != Material.SOUL_SAND) continue;
+                    if (crop != Crop.NETHER_WART && lower.getType() != Material.FARMLAND) continue;
+                    if (!GenericEvents.playerCanBuild(player, nbor)) continue;
+                    nbor.setType(crop.blockMaterial);
+                    item.setAmount(item.getAmount() - 1);
+                    Effects.cropPlaceMagic(nbor);
+                }
+            }
+        }
     }
 }

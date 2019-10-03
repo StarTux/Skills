@@ -18,8 +18,11 @@ public final class SQLPlayer {
     UUID uuid;
     @Column(nullable = false)
     int talentPoints = 0;
+    @Column(nullable = false)
+    int talentChance = 0;
     @Column(nullable = true)
     String json;
+    transient boolean modified;
 
     public SQLPlayer() { }
 
