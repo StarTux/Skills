@@ -63,6 +63,7 @@ final class EventListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        if (!Util.playMode(player)) return;
         Block block = event.getBlock();
         String bid = BlockMarker.getId(block);
         if (bid != null) {
@@ -82,12 +83,18 @@ final class EventListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
+        if (!Util.playMode(player)) return;
+        Block block = event.getBlock();
         Growstick.Crop crop = Growstick.Crop.of(event.getBlock());
-        ItemStack item = event.getHand() == EquipmentSlot.HAND
-            ? player.getInventory().getItemInMainHand()
-            : player.getInventory().getItemInOffHand();
         if (crop != null) {
-            plugin.growstick.plant(player, event.getBlock(), crop, item);
+            Session session = plugin.sessionOf(player);
+            EquipmentSlot slot = event.getHand();
+            if (session.hasTalent(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                        if (!player.isValid()) return;
+                        plugin.growstick.plantRadius(player, block, crop, slot);
+                    });
+            }
         }
     }
 
@@ -120,8 +127,10 @@ final class EventListener implements Listener {
                 plugin.addSkillPoints(hero, SkillType.COMBAT, 10);
                 Session session = plugin.sessionOf(hero);
                 session.bossLevel = Math.max(session.bossLevel, boss.level);
-                hero.sendTitle(ChatColor.RED + boss.type.displayName,
-                               ChatColor.WHITE + "Level " + boss.level + " Defeated!");
+                if (!plugin.rollTalentPoint(hero, 1)) {
+                    hero.sendTitle(ChatColor.RED + boss.type.displayName,
+                                   ChatColor.WHITE + "Level " + boss.level + " Defeated!");
+                }
                 return;
             }
         }

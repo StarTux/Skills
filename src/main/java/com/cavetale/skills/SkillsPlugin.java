@@ -173,10 +173,7 @@ public final class SkillsPlugin extends JavaPlugin {
         }
         col.points = points;
         col.modified = true;
-        sessionOf(player).showSkillBar(skill, col.level, points, req);
-        player.sendActionBar(ChatColor.GRAY + "+"
-                             + ChatColor.GOLD + ChatColor.BOLD + add
-                             + ChatColor.GRAY + "SP");
+        sessionOf(player).showSkillBar(player, skill, col.level, points, req, add);
     }
 
     /**
@@ -218,7 +215,7 @@ public final class SkillsPlugin extends JavaPlugin {
         } else {
             chance = session.playerColumn.talentChance - 5;
             chance = Math.max(0, chance);
-            chance = Math.min(0, (total * 8) / 10);
+            chance = Math.min(chance, (total * 8) / 10);
         }
         int roll = random.nextInt(total);
         if (roll >= chance) return false;

@@ -5,7 +5,7 @@ api-version: 1.13
 description: Skills Plugin
 author: StarTux
 website: https://cavetale.com
-depend: [WorldMarker]
+depend: [WorldMarker, SQL, GenericEvents]
 softdepend: []
 commands:
   skills:

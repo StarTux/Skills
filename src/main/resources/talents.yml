@@ -54,6 +54,8 @@ mine_strip:
     Mining stone digs other stone in a straight line.
     Mining ores digs the whole vein.
 
+    You can disable this if you sneak while mining.
+
 mine_ore_alert:
   title: Ore Alert
   icon: diamond_ore

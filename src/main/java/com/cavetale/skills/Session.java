@@ -29,6 +29,7 @@ final class Session {
     //
     int noSave = 0;
     int tick;
+    int actionSP;
 
     static final class Tag {
         Set<String> talents;
@@ -66,8 +67,16 @@ final class Session {
         skillBar.setVisible(false);
     }
 
-    void showSkillBar(@NonNull SkillType skill, final int level,
-                      final int points, final int totalPoints) {
+    void showSkillBar(@NonNull Player player, @NonNull SkillType skill, final int level,
+                      final int points, final int totalPoints, final int newPoints) {
+        if (shownSkill == skill) {
+            actionSP += newPoints;
+        } else {
+            actionSP = newPoints;
+        }
+        player.sendActionBar(ChatColor.GRAY + "+"
+                             + ChatColor.GOLD + ChatColor.BOLD + actionSP
+                             + ChatColor.GRAY + "SP");
         skillBar.setTitle(ChatColor.GOLD + skill.displayName
                           + ChatColor.WHITE + " Level "
                           + ChatColor.GOLD + ChatColor.BOLD + level + " "

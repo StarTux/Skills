@@ -62,7 +62,7 @@ final class Effects {
                         0.0); // extra/speed
     }
 
-    static void cropPlaceMagic(@NonNull Block block) {
+    static void plantCropMagic(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
         w.spawnParticle(Particle.VILLAGER_HAPPY,
@@ -70,7 +70,7 @@ final class Effects {
                         2, // count
                         0.25, 0.25, 0.25, // offset
                         0.0); // extra/speed
-        w.playSound(loc, Sound.BLOCK_GRASS_PLACE, SoundCategory.BLOCKS, 1.4f, 1.0f);
+        w.playSound(loc, Sound.BLOCK_GRASS_PLACE, SoundCategory.BLOCKS, 0.8f, 1.0f);
     }
 
     static void rewardJingle(@NonNull Location location) {
@@ -140,5 +140,17 @@ final class Effects {
                         0.0, // extra/speed (REDSTONE does not care)
                         new Particle.DustOptions(Color.PURPLE, 2.0f));
         w.playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 1.0f, 1.0f);
+    }
+
+    static void breakMagic(@NonNull Block block) {
+        World w = block.getWorld();
+        Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+        w.spawnParticle(Particle.BLOCK_DUST,
+                        loc,
+                        16, // count
+                        0.25, 0.25, 0.25, // offset
+                        0.0, // extra/speed
+                        block.getBlockData());
+        w.playSound(loc, Sound.BLOCK_STONE_BREAK, SoundCategory.BLOCKS, 1.0f, 1.5f);
     }
 }
