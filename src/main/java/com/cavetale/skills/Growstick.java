@@ -129,7 +129,7 @@ final class Growstick {
             waterSoil(soilBlock);
         }
         // Grow
-        if (ticks > 0 && (ticks % 20) == 0) {
+        if (ticks > 0 && (ticks % 1200) == 0) {
             growCrop(markBlock);
         }
         // Water Effect
