@@ -2,11 +2,13 @@ package com.cavetale.skills;
 
 import com.winthier.exploits.Exploits;
 import com.winthier.generic_events.GenericEvents;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashSet;
 import lombok.NonNull;
 import lombok.Value;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -14,6 +16,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 final class Mining {
     final SkillsPlugin plugin;
@@ -132,18 +136,94 @@ final class Mining {
         return true;
     }
 
+    boolean oreAlert(@NonNull Player player, @NonNull Block block) {
+        final int radius = 3;
+        ArrayList<Block> bs = new ArrayList<>();
+        for (int y = -radius; y <= radius; y += 1) {
+            for (int z = -radius; z <= radius; z += 1) {
+                for (int x = -radius; x <= radius; x += 1) {
+                    if (x == 0 && y == 0 && z == 0) continue;
+                    Block nbor = block.getRelative(x, y, z);
+                    if (nbor.getY() < 0) continue;
+                    if (nbor.getType() == Material.DIAMOND_ORE) {
+                        bs.add(nbor);
+                    }
+                }
+            }
+        }
+        if (bs.isEmpty()) return false;
+        Block ore = bs.get(plugin.random.nextInt(bs.size()));
+        Effects.oreAlert(player, ore);
+        return true;
+    }
+
+    int xray(@NonNull Player player, @NonNull Block block) {
+        if (!player.isValid()) return 0;
+        if (!player.getWorld().equals(block.getWorld())) return 0;
+        Session session = plugin.sessionOf(player);
+        if (session.xrayActive) return 0;
+        session.xrayActive = true;
+        final int radius = 2;
+        final ArrayList<Block> bs = new ArrayList<>();
+        Location loc = player.getLocation();
+        int px = loc.getBlockX();
+        int pz = loc.getBlockZ();
+        for (int y = -radius; y <= radius; y += 1) {
+            for (int z = -radius; z <= radius; z += 1) {
+                for (int x = -radius; x <= radius; x += 1) {
+                    if (x == 0 && y == 0 && z == 0) continue;
+                    Block nbor = block.getRelative(x, y, z);
+                    if (nbor.getX() == px || nbor.getZ() == pz) continue;
+                    if (nbor.getY() < 0) continue;
+                    if (stone(nbor)) bs.add(nbor);
+                }
+            }
+        }
+        if (bs.isEmpty()) return 0;
+        int duration = 60;
+        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
+                                                duration,
+                                                0, // amplifier
+                                                true, // ambient
+                                                false, // particles
+                                                true)); // icon
+        for (Block b : bs) {
+            player.sendBlockChange(b.getLocation(), Material.BARRIER.createBlockData());
+        }
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                plugin.sessionOf(player).xrayActive = false;
+                for (Block b : bs) {
+                    if (!player.isValid()) return;
+                    if (!player.getWorld().equals(block.getWorld())) return;
+                    player.sendBlockChange(b.getLocation(), b.getBlockData());
+                }
+            }, (long) duration);
+        return bs.size();
+    }
+
     void mine(@NonNull Player player, @NonNull Block block) {
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || item.getType() == Material.AIR) return;
         int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         Session session = plugin.sessionOf(player);
+        boolean sneak = player.isSneaking();
         if (stone(block) && fortune > 0
-            && session.hasTalent(Talent.MINE_STRIP) && !player.isSneaking()) {
+            && session.hasTalent(Talent.MINE_STRIP) && !sneak) {
             stripMine(player, block, item, fortune);
+        }
+        if (block.getY() <= 16 && stone(block) && fortune > 0 && !sneak) {
+            if (session.hasTalent(Talent.MINE_ORE_ALERT)) {
+                oreAlert(player, block);
+            }
+            if (session.hasTalent(Talent.MINE_XRAY) && !session.xrayActive) {
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                        xray(player, block);
+                    });
+            }
         }
         Reward reward = rewards.get(block.getType());
         if (reward == null) return;
-        if (fortune > 0 && session.hasTalent(Talent.MINE_STRIP) && !player.isSneaking()) {
+        if (fortune > 0 && session.hasTalent(Talent.MINE_STRIP) && !sneak) {
             mineVein(player, block, item, reward);
         }
         rewardMineBlock(player, block, reward);

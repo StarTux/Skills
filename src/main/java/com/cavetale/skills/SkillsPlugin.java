@@ -366,6 +366,7 @@ public final class SkillsPlugin extends JavaPlugin {
         session.talents.add(talent);
         session.tag.modified = true;
         session.saveData();
+        giveAdvancement(player, talent);
         return true;
     }
 }

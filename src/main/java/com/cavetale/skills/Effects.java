@@ -153,4 +153,9 @@ final class Effects {
                         block.getBlockData());
         w.playSound(loc, Sound.BLOCK_STONE_BREAK, SoundCategory.BLOCKS, 1.0f, 1.5f);
     }
+
+    static void oreAlert(@NonNull Player player, @NonNull Block block) {
+        player.playSound(block.getLocation().add(0.5, 0.5, 0.5),
+                         Sound.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 1.0f, 2.0f);
+    }
 }

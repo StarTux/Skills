@@ -24,6 +24,7 @@ final class Session {
     int skillBarCountdown;
     int bossProgress = 0; // Combat
     int bossLevel = 0; // Boss bossLevel +1 will be spawned!
+    boolean xrayActive;
     Tag tag;
     Set<Talent> talents = new HashSet<>();
     //

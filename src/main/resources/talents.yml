@@ -60,7 +60,7 @@ mine_ore_alert:
   title: Ore Alert
   icon: diamond_ore
   description: |-
-    Mining stone with a Fortune pickaxe will occasionally alert you of nearby ores.
+    Mining stone with a Fortune pickaxe will occasionally alert you of nearby diamond ore.
 
     A sound effect will lead you to nearby diamonds, if they exist.
 
