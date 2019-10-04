@@ -43,34 +43,35 @@ farm_plant_radius:
 
     Save time with this talent. Plant any seed (wheat, carrot, potato, beetroot, nether wart) and the surrounding 8 blocks will also be seeded where possible.
 
-    You can plant as usual if you sneak.
+    Plant without this feature by sneaking.
 
 mine_strip:
   title: Strip Mining
   icon: diamond_pickaxe
   description: |-
-    Mining with a Fortune pickaxe breaks many blocks.
+    Mining with an Efficiency pickaxe breaks many blocks
 
-    Mining stone digs other stone in a straight line.
-    Mining ores digs the whole vein.
+    Unleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within your line of sight while mining straight. Breaking ores will attempt to break the entire vein.
 
-    You can disable this if you sneak while mining.
+    Mine without this feature by sneaking.
 
 mine_ore_alert:
   title: Ore Alert
   icon: diamond_ore
   description: |-
-    Mining stone with a Fortune pickaxe will occasionally alert you of nearby diamond ore.
+    Get alerts when diamond ore is nearby.
 
-    A sound effect will lead you to nearby diamonds, if they exist.
+    Never miss diamonds near your mine again! Whenever you mine stone at diamond level, and there is diamond ore nearby, an alert sound will notify you of its existence. Follow that lead to earn more diamonds.
 
 mine_xray:
   title: X-Ray
   icon: glowstone
   description: |-
-    Cheat the game by looking through solid stone.
+    Mining stone with a Fortune pickaxe allows you to see through solid stone.
 
-    Mining stone with a Fortune pickaxe will occasionally make nearby stone see-through so you can identify ores more easily.
+    Nearby stone will be rendered see-through for a few seconds so you can identify ores more easily.
+
+    This only works while mining stone near diamond level.
 
 mine_silk_strip:
   title: Silk Stripping
@@ -78,14 +79,16 @@ mine_silk_strip:
   description: |-
     Use a Silk Touch pickaxe to strip an ore of its gems.
 
-    Use right-click to do this. Ores will drop their valuable blocks, turning the ore into stone.
+    Right-click with a Silk Touch pickaxe to do use your fine motory skills and remove those gems right from the ore block. With any luck, you may repeat the procedure as long as the ore stays intact, getting more and more drops. Eventually, the ore will turn into stone and you get the usual skill points for mining.
 
-    This method may yield as much reward as Fortune 3. It works on diamond, emerald, iron, and gold ore.
+    This method may yield as much reward as Fortune 3 but is more random. It allows multiplying drops from ores usually unaffected by Fortune: Iron and gold.
 
 mine_silk_multi:
   title: Silk Fortune
   icon: gold_ingot
   description: |-
-    Silk stripping may yield multiple drops from the same ore.
+    Silk stripping may yield even more drops from the same ore.
 
-    The yields of this method may exceed those of Fortune 3.
+    While using your Silk Touch pickaxe on ores, this talent gives you an even greater chance at getting multiple drops, surpassing the yield capabilities of Fortune 3.
+
+    The yields of this method may exceed those of Fortune 3 but are more random. It allows multiple drops from ores usually unaffected by Fortune: Iron and gold.

@@ -48,6 +48,8 @@ final class EventListener implements Listener {
         final Block block = event.getClickedBlock();
         if (item.getType() == Material.STICK) {
             plugin.growstick.use(event.getPlayer(), block);
+        } else if (event.getHand() == EquipmentSlot.HAND) {
+            plugin.mining.use(event.getPlayer(), block, event.getBlockFace());
         }
     }
 

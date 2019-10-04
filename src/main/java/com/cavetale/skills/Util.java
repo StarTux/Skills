@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.bukkit.Location;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 
 final class Util {
@@ -33,5 +34,12 @@ final class Util {
 
     static String niceEnumName(@NonNull Enum enom) {
         return niceEnumName(enom.name());
+    }
+
+    static ExperienceOrb exp(Location location, int amount) {
+        if (amount <= 0) return null;
+        return location.getWorld().spawn(location,
+                                         ExperienceOrb.class,
+                                         orb -> orb.setExperience(amount));
     }
 }

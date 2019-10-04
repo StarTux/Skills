@@ -142,7 +142,7 @@ final class Effects {
         w.playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 1.0f, 1.0f);
     }
 
-    static void breakMagic(@NonNull Block block) {
+    static void mineBlockMagic(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
         w.spawnParticle(Particle.BLOCK_DUST,
@@ -172,5 +172,26 @@ final class Effects {
                              1, // count
                              0.1, 0.1, 0.1, // offset
                              0.05); // extra/speed
+    }
+
+    static void useSilk(@NonNull Player player, @NonNull Block block, @NonNull Location loc) {
+        World w = loc.getWorld();
+        w.playSound(loc,
+                    Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,
+                    1.0f, 2.0f);
+        w.spawnParticle(Particle.BLOCK_DUST,
+                        loc,
+                        3, // count
+                        0.0, 0.0, 0.0, // offset
+                        0.0, // extra/speed
+                        block.getBlockData());
+    }
+
+    static void failSilk(@NonNull Player player, @NonNull Block block) {
+        World w = block.getWorld();
+        Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+        w.playSound(loc,
+                    Sound.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS,
+                    1.0f, 2.0f);
     }
 }
