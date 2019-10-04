@@ -156,6 +156,21 @@ final class Effects {
 
     static void oreAlert(@NonNull Player player, @NonNull Block block) {
         player.playSound(block.getLocation().add(0.5, 0.5, 0.5),
-                         Sound.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 1.0f, 2.0f);
+                         Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS, 1.0f, 2.0f);
+    }
+
+    static void xray(@NonNull Player player) {
+        player.playSound(player.getEyeLocation(),
+                         Sound.ENTITY_ILLUSIONER_MIRROR_MOVE,
+                         SoundCategory.MASTER,
+                         0.5f, 1.5f);
+    }
+
+    static void xray(@NonNull Player player, @NonNull Block block) {
+        player.spawnParticle(Particle.END_ROD,
+                             block.getLocation().add(0.5, 0.5, 0.5),
+                             1, // count
+                             0.1, 0.1, 0.1, // offset
+                             0.05); // extra/speed
     }
 }

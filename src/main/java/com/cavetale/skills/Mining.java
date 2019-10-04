@@ -187,11 +187,16 @@ final class Mining {
                                                 true, // ambient
                                                 false, // particles
                                                 true)); // icon
+        Effects.xray(player);
         for (Block b : bs) {
             player.sendBlockChange(b.getLocation(), Material.BARRIER.createBlockData());
+            Effects.xray(player, b);
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (!player.isValid()) return;
                 plugin.sessionOf(player).xrayActive = false;
+                if (!player.getWorld().equals(block.getWorld())) return;
+                Effects.xray(player);
                 for (Block b : bs) {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
