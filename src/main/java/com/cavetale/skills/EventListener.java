@@ -28,7 +28,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -42,12 +44,14 @@ final class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (!Util.playMode(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (!event.hasItem()) return;
         final ItemStack item = event.getItem();
         final Block block = event.getClickedBlock();
         if (item.getType() == Material.STICK) {
-            plugin.growstick.use(event.getPlayer(), block);
+            plugin.growstick.use(player, block);
         } else if (event.getHand() == EquipmentSlot.HAND) {
             plugin.mining.use(event.getPlayer(), block, event.getBlockFace());
         }
@@ -120,25 +124,34 @@ final class EventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     void onEntityDeath(EntityDeathEvent event) {
         LivingEntity entity = event.getEntity();
-        if (!entity.isDead()) return;
-        Boss boss = plugin.bossOf(entity);
-        if (boss != null) {
-            plugin.bosses.remove(boss);
-            Player hero = plugin.getServer().getPlayer(boss.hero);
-            if (hero != null) {
-                plugin.addSkillPoints(hero, SkillType.COMBAT, 10);
-                Session session = plugin.sessionOf(hero);
-                session.bossLevel = Math.max(session.bossLevel, boss.level);
-                if (!plugin.rollTalentPoint(hero, 1)) {
-                    hero.sendTitle(ChatColor.RED + boss.type.displayName,
-                                   ChatColor.WHITE + "Level " + boss.level + " Defeated!");
+        if (entity instanceof Mob) {
+            Mob mob = (Mob) entity;
+            if (!mob.isDead()) return;
+            Boss boss = plugin.bossOf(mob);
+            if (boss != null) {
+                plugin.bosses.remove(boss);
+                Player hero = plugin.getServer().getPlayer(boss.hero);
+                if (hero != null && Util.playMode(hero)) {
+                    plugin.addSkillPoints(hero, SkillType.COMBAT, 10);
+                    Session session = plugin.sessionOf(hero);
+                    session.bossLevel = Math.max(session.bossLevel, boss.level);
+                    if (!plugin.rollTalentPoint(hero, 1)) {
+                        hero.sendTitle(ChatColor.RED + boss.type.displayName,
+                                       ChatColor.WHITE + "Level " + boss.level + " Defeated!");
+                    }
+                    return;
                 }
-                return;
             }
-        }
-        Player killer = entity.getKiller();
-        if (killer != null) {
-            plugin.combat.kill(killer, entity);
+            Player killer = entity.getKiller();
+            if (killer != null) {
+                plugin.combat.playerKillMob(killer, mob);
+            }
+        } else if (entity instanceof Player) {
+            Player player = (Player) entity;
+            if (!Util.playMode(player)) return;
+            Session session = plugin.sessionOf(player);
+            session.bossLevel = 0;
+            session.bossProgress = 0;
         }
     }
 
@@ -211,41 +224,75 @@ final class EventListener implements Listener {
     void onExplosionPrime(ExplosionPrimeEvent event) {
         Entity entity = event.getEntity();
         Boss boss = plugin.bossOf(entity);
-        if (boss != null) {
+        if (boss != null && boss.type == Boss.Type.FART_GOBLIN) {
             event.setCancelled(true);
-            boss.explosionPrime();
+            boss.fart();
             return;
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player) {
-            Player damagee = (Player) event.getEntity();
-            Boss boss = null;
+            // Mob attacks player
+            final Player player = (Player) event.getEntity();
+            if (!Util.playMode(player)) return;
+            Mob mob = null;
+            Projectile proj = null;
             if (event.getDamager() instanceof Mob) {
-                boss = plugin.bossOf(event.getDamager());
+                mob = (Mob) event.getDamager();
             } else if (event.getDamager() instanceof Projectile) {
-                Projectile proj = (Projectile) event.getDamager();
+                proj = (Projectile) event.getDamager();
                 if (proj.getShooter() instanceof Mob) {
-                    boss = plugin.bossOf((Mob) proj.getShooter());
+                    mob = (Mob) proj.getShooter();
                 }
             }
-            if (boss != null) {
-                boss.dealDamage(damagee);
+            if (mob != null) {
+                plugin.combat.mobDamagePlayer(player, mob, proj, event);
+            }
+            Boss boss = plugin.bossOf(mob);
+            if (boss != null) boss.damagePlayer(player, proj);
+        } else if (event.getEntity() instanceof Mob) {
+            // Player attacks mob
+            final Mob mob = (Mob) event.getEntity();
+            Player player = null;
+            Projectile proj = null;
+            if (event.getDamager() instanceof Player) {
+                player = (Player) event.getDamager();
+            } else if (event.getDamager() instanceof Projectile) {
+                proj = (Projectile) event.getDamager();
+                if (proj.getShooter() instanceof Player) {
+                    player = (Player) proj.getShooter();
+                }
+            }
+            if (player != null && Util.playMode(player)) {
+                plugin.combat.playerDamageMob(player, mob, proj, event);
             }
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onEntityDamage(EntityDamageEvent event) {
-        Entity entity = event.getEntity();
-        Boss boss = plugin.bossOf(entity);
-        if (boss != null) {
-            if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
-                event.setCancelled(true);
-                boss.stuck = true;
-                return;
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            Session session = plugin.sessionOf(player);
+            double health = player.getHealth();
+            if (session.hasTalent(Talent.COMBAT_GOD_MODE)
+                && session.immortal > 0
+                && health <= event.getFinalDamage()) {
+                event.setDamage(Math.max(0.0, health - 1.0));
+                Effects.godMode(player);
+                player.sendActionBar(ChatColor.GOLD + "God Mode Save!");
+            }
+        } else {
+            Entity entity = event.getEntity();
+            Boss boss = plugin.bossOf(entity);
+            if (boss != null) {
+                if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+                    event.setCancelled(true);
+                    boss.stuck = true;
+                    return;
+                }
             }
         }
     }
@@ -254,6 +301,32 @@ final class EventListener implements Listener {
     void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
         if (EntityMarker.hasId(event.getEntity(), Boss.AOE)) {
             event.getAffectedEntities().removeIf(e -> plugin.bossOf(e) != null);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onProjectileLaunch(ProjectileLaunchEvent event) {
+        Projectile proj = event.getEntity();
+        if (proj.getShooter() instanceof Mob) {
+            Mob mob = (Mob) proj.getShooter();
+            if (plugin.combat.statusEffectOf(mob).hasSilence()) {
+                Effects.denyLaunch(mob);
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onEntityPotionEffect(EntityPotionEffectEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            Session session = plugin.sessionOf(player);
+            if (session.hasTalent(Talent.COMBAT_SPIDERS)
+                && session.poisonFreebie
+                && event.getCause() == EntityPotionEffectEvent.Cause.ATTACK) {
+                session.poisonFreebie = false;
+                event.setCancelled(true);
+            }
         }
     }
 }

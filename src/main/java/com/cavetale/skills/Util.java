@@ -42,4 +42,8 @@ final class Util {
                                          ExperienceOrb.class,
                                          orb -> orb.setExperience(amount));
     }
+
+    static long now() {
+        return System.nanoTime() / 1000000000L;
+    }
 }

@@ -348,7 +348,7 @@ final class Mining {
         double factor = 2.20; // Fortune 3
         if (session.hasTalent(Talent.MINE_SILK_MULTI)) factor = 2.60;
         final double amount; // Expected value of additionally dropped items.
-        amount = (double) reward.drops * factor - 1.0;
+        amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.
         chance = 1.0 / amount;
         final double roll = plugin.random.nextDouble();

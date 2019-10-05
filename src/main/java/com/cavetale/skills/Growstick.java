@@ -129,13 +129,13 @@ final class Growstick {
             waterSoil(soilBlock);
         }
         // Grow
-        if (ticks > 0 && (ticks % 1200) == 0) {
+        if (ticks > 0 && (ticks % 2400) == 0) {
             growCrop(markBlock);
         }
         // Water Effect
         if (markBlock.getPlayerDistance() <= 1
             && (ticks % 10) == 0) {
-            Effects.wateredBlockAmbient(markBlock.getBlock());
+            Effects.wateredCropAmbient(markBlock.getBlock());
         }
     }
 
@@ -144,8 +144,8 @@ final class Growstick {
             markBlock.resetId();
             return;
         }
-        if ((markBlock.getTicksLoaded() % 40) == 0) {
-            Effects.grownBlockAmbient(markBlock.getBlock());
+        if (plugin.random.nextInt(20) == 0) {
+            Effects.grownCropAmbient(markBlock.getBlock());
         }
     }
 
@@ -193,6 +193,8 @@ final class Growstick {
             block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
                                                          plugin.random.nextInt(3) + 1));
         }
+        // Special Rule
+        if (crop == Crop.NETHER_WART) return;
         // Reward Diamond
         double gemChance = 0.01;
         final double roll = plugin.random.nextDouble();

@@ -337,7 +337,7 @@ public final class SkillsPlugin extends JavaPlugin {
             display.put("background", info.background);
         }
         display.put("hidden", false);
-        display.put("announce_to_chat", false);
+        display.put("announce_to_chat", true);
         display.put("show_toast", true);
         if (talent != null) {
             if (talent.isTerminal()) {

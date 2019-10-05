@@ -9,6 +9,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 
@@ -18,7 +19,7 @@ import org.bukkit.util.BoundingBox;
 final class Effects {
     private Effects() { }
 
-    static void wateredBlockAmbient(@NonNull Block block) {
+    static void wateredCropAmbient(@NonNull Block block) {
         World w = block.getWorld();
         w.spawnParticle(Particle.DRIP_WATER,
                         block.getLocation().add(0.5, 0.125, 0.5),
@@ -27,13 +28,14 @@ final class Effects {
                         0.0); // extra/speed
     }
 
-    static void grownBlockAmbient(@NonNull Block block) {
+    static void grownCropAmbient(@NonNull Block block) {
         World w = block.getWorld();
-        w.spawnParticle(Particle.END_ROD,
-                        block.getLocation().add(0.5, 0.5, 0.5),
+        w.spawnParticle(Particle.BLOCK_DUST,
+                        block.getLocation().add(0.5, 0.25, 0.5),
                         1, // count
-                        0.20, 0.20, 0.20, // offset
-                        0.0); // extra/speed
+                        0.1, 0.1, 0.1, // offset
+                        0.0, // extra/speed
+                        block.getBlockData());
     }
 
     static void waterBlock(@NonNull Block block) {
@@ -51,6 +53,7 @@ final class Effects {
         World w = player.getWorld();
         Location loc = player.getEyeLocation();
         w.playSound(loc, Sound.BLOCK_BREWING_STAND_BREW, SoundCategory.BLOCKS, 0.6f, 1.7f);
+        w.playSound(loc, Sound.WEATHER_RAIN, SoundCategory.BLOCKS, 0.3f, 2.0f);
     }
 
     static void cropGrow(@NonNull Block block) {
@@ -193,5 +196,45 @@ final class Effects {
         w.playSound(loc,
                     Sound.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS,
                     1.0f, 2.0f);
+    }
+
+    static void applyStatusEffect(@NonNull LivingEntity entity) {
+        World w = entity.getWorld();
+        Location loc = entity.getEyeLocation();
+        w.spawnParticle(Particle.ENCHANTMENT_TABLE,
+                        loc,
+                        64, // count
+                        0.4, 0.4, 0.4, // offset
+                        1.0); // extra/speed
+        w.playSound(loc,
+                    Sound.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS,
+                    0.5f, 1.8f);
+    }
+
+    static void godMode(@NonNull Player player) {
+        Location loc = player.getEyeLocation();
+        player.playSound(loc,
+                         Sound.ITEM_TOTEM_USE, SoundCategory.MASTER,
+                         0.5f, 1.5f);
+        player.spawnParticle(Particle.TOTEM,
+                             loc, 32, // count
+                             0, 0, 0, // offset
+                             0.35); // speed
+    }
+
+    static void archerZone(@NonNull Player player) {
+        player.playSound(player.getEyeLocation(),
+                         Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.MASTER,
+                         0.3f, 1.0f);
+    }
+
+    static void denyLaunch(@NonNull LivingEntity entity) {
+        World w = entity.getWorld();
+        Location loc = entity.getEyeLocation();
+        w.spawnParticle(Particle.ENCHANTMENT_TABLE,
+                        loc,
+                        4, // count
+                        0.1, 0.1, 0.1, // offset
+                        1.0); // extra/speed
     }
 }

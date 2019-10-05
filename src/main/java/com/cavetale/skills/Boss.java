@@ -216,7 +216,7 @@ final class Boss {
         entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0);
         // Strength
         double strength = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue();
-        strength += (double) level * 10.0;
+        strength += (double) (level - 1) * 10.0;
         entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(strength);
         // Transient
         entity.setPersistent(false);
@@ -378,6 +378,7 @@ final class Boss {
     }
 
     void shootArrow(Player target) {
+        if (plugin.combat.statusEffectOf(entity).hasSilence()) return;
         if (!entity.hasLineOfSight(target)) return;
         Vector v = target.getLocation().toVector().subtract(entity.getLocation().toVector())
             .normalize().multiply(3.0);
@@ -387,6 +388,7 @@ final class Boss {
     }
 
     void throwPotion(Player target) {
+        if (plugin.combat.statusEffectOf(entity).hasSilence()) return;
         if (!entity.hasLineOfSight(target)) return;
         if (throwPotion == null) {
             List<PotionEffect> opts = Arrays
@@ -416,6 +418,7 @@ final class Boss {
     }
 
     void throwProjectile(Player target) {
+        if (plugin.combat.statusEffectOf(entity).hasSilence()) return;
         if (!entity.hasLineOfSight(target)) return;
         if (projectileClass == null) {
             List<Class<? extends Projectile>> opts = Arrays
@@ -433,6 +436,7 @@ final class Boss {
     }
 
     void throwEnderPearl(Player target) {
+        if (plugin.combat.statusEffectOf(entity).hasSilence()) return;
         if (!entity.hasLineOfSight(target)) return;
         Vector v = target.getLocation().toVector().subtract(entity.getLocation().toVector())
             .normalize().multiply(1.5);
@@ -461,10 +465,7 @@ final class Boss {
         return boss;
     }
 
-    void dealDamage(@NonNull Player player) {
-    }
-
-    void explosionPrime() {
+    void fart() {
         Location loc = entity.getLocation();
         AreaEffectCloud aoe = entity.getWorld()
             .spawn(loc, AreaEffectCloud.class, e -> {
@@ -473,7 +474,7 @@ final class Boss {
                     e.setDuration(200);
                     e.setRadius(4.0f);
                     e.addCustomEffect(new PotionEffect(PotionEffectType.SLOW, 200, 0), true);
-                    e.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 20, 0), true);
+                    e.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 20, 1), true);
                 });
         AreaEffectCloud aoe2 = entity.getWorld()
             .spawn(loc.add(0.0, 2.0, 0.0), AreaEffectCloud.class, e -> {
@@ -482,9 +483,16 @@ final class Boss {
                     e.setDuration(200);
                     e.setRadius(2.0f);
                     e.addCustomEffect(new PotionEffect(PotionEffectType.SLOW, 200, 0), true);
-                    e.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 20, 0), true);
+                    e.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 20, 1), true);
                 });
         EntityMarker.setId(aoe, AOE);
         EntityMarker.setId(aoe2, AOE);
+    }
+
+    void damagePlayer(@NonNull Player player, Projectile proj) {
+        if (type == Type.QUEEN_SPIDER) {
+            if (plugin.combat.statusEffectOf(entity).hasNoPoison()) return;
+            player.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 600, 1));
+        }
     }
 }

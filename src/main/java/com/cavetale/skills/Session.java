@@ -27,6 +27,11 @@ final class Session {
     boolean xrayActive;
     Tag tag;
     Set<Talent> talents = new HashSet<>();
+    // Status effects, ticks remaining
+    int immortal = 0;
+    int archerZone = 0;
+    int archerZoneKills = 0;
+    boolean poisonFreebie = false;
     //
     int noSave = 0;
     int tick;
@@ -92,6 +97,11 @@ final class Session {
 
     void onTick() {
         tick += 1;
+        if (immortal > 0) immortal -= 1;
+        if (archerZone > 0) {
+            archerZone -= 1;
+            if (archerZone == 0) archerZoneKills = 0;
+        }
         if (bossProgress > 0 && (tick % 200) == 0) {
             bossProgress -= 1;
         }

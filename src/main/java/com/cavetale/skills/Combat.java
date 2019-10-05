@@ -5,15 +5,25 @@ import com.cavetale.worldmarker.MarkChunk;
 import java.util.EnumMap;
 import lombok.NonNull;
 import lombok.Value;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 final class Combat {
     final SkillsPlugin plugin;
     final EnumMap<EntityType, Reward> rewards = new EnumMap<>(EntityType.class);
-    static final String CHONK = "chonk";
+    static final String CHONK = "skills:chonk";
+    static final String STATUS_EFFECT = "skills:status_effect";
 
     @Value
     static class Reward {
@@ -40,7 +50,7 @@ final class Combat {
         reward(EntityType.SHULKER, 2);
         reward(EntityType.SPIDER, 2);
         reward(EntityType.CAVE_SPIDER, 2);
-        reward(EntityType.WITCH, 2);
+        reward(EntityType.WITCH, 5);
         reward(EntityType.ZOMBIE_VILLAGER, 2);
         reward(EntityType.ENDERMITE, 2);
         reward(EntityType.BLAZE, 3);
@@ -50,10 +60,10 @@ final class Combat {
         reward(EntityType.HUSK, 3);
         reward(EntityType.MAGMA_CUBE, 3);
         reward(EntityType.PHANTOM, 3);
-        reward(EntityType.VEX, 3);
+        reward(EntityType.VEX, 2);
         reward(EntityType.VINDICATOR, 3);
         reward(EntityType.WITHER_SKELETON, 4);
-        reward(EntityType.GHAST, 4);
+        reward(EntityType.GHAST, 5);
         reward(EntityType.STRAY, 1);
         reward(EntityType.ILLUSIONER, 1);
         reward(EntityType.GIANT, 1);
@@ -63,23 +73,139 @@ final class Combat {
         reward(EntityType.WITHER, 10);
     }
 
-    void kill(@NonNull Player player, @NonNull LivingEntity entity) {
-        Reward reward = rewards.get(entity.getType());
+    void playerKillMob(@NonNull Player player, @NonNull Mob mob) {
+        if (mob.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
+            EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) mob.getLastDamageCause();
+            sniperKill(mob, edbee);
+            meleeKill(mob, edbee);
+        }
+        Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
-        Chunk chunk = entity.getLocation().getChunk();
+        Chunk chunk = mob.getLocation().getChunk();
         Chonk chonk = BlockMarker.getChunk(chunk)
             .getTransientData(CHONK, Chonk.class, Chonk::new);
         chonk.kills += 1;
         if (chonk.kills > 5) return;
         plugin.sessionOf(player).bossProgress += reward.sp;
         plugin.addSkillPoints(player, SkillType.COMBAT, reward.sp);
-        Effects.kill(entity);
+        Effects.kill(mob);
+    }
+
+    private boolean sniperKill(@NonNull Mob mob, @NonNull EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Projectile)) return false;
+        Projectile proj = (Projectile) event.getDamager();
+        if (!(proj.getShooter() instanceof Player)) return false;
+        Player player = (Player) proj.getShooter();
+        Session session = plugin.sessionOf(player);
+        if (session.hasTalent(Talent.COMBAT_ARCHER_ZONE)) {
+            session.archerZone = 5 * 20;
+            player.sendMessage(ChatColor.GOLD + "In The Zone! "
+                               + ChatColor.LIGHT_PURPLE + ChatColor.BOLD
+                               + ++session.archerZoneKills);
+            Effects.archerZone(player);
+        }
+        return true;
+    }
+
+    private boolean meleeKill(@NonNull Mob mob, @NonNull EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player)) return false;
+        Player player = (Player) event.getDamager();
+        Session session = plugin.sessionOf(player);
+        if (session.hasTalent(Talent.COMBAT_GOD_MODE)) {
+            session.immortal = 3 * 20;
+            player.sendMessage(ChatColor.GOLD + "God Mode!");
+        }
+        return true;
     }
 
     void onTick(@NonNull MarkChunk markChunk) {
         if ((markChunk.getTicksLoaded() % 200) == 0) {
             Chonk chonk = markChunk.getTransientData(CHONK, Chonk.class, Chonk::new);
             if (chonk.kills > 0) chonk.kills -= 1;
+        }
+    }
+
+    StatusEffect statusEffectOf(@NonNull LivingEntity entity) {
+        StatusEffect result = plugin.meta.get(entity, STATUS_EFFECT, StatusEffect.class)
+            .orElse(null);
+        if (result == null) {
+            result = new StatusEffect();
+            plugin.meta.set(entity, STATUS_EFFECT, result);
+        }
+        return result;
+    }
+
+    void mobDamagePlayer(@NonNull Player player, @NonNull Mob mob,
+                         Projectile proj,
+                         @NonNull EntityDamageByEntityEvent event) {
+        final boolean ranged = proj != null;
+        Session session = plugin.sessionOf(player);
+        // -50% damage on melee
+        if (session.hasTalent(Talent.COMBAT_FIRE)
+            && !ranged
+            && mob.getFireTicks() > 0) {
+            event.setDamage(event.getFinalDamage() * 0.5);
+        }
+        // Spider
+        if (session.hasTalent(Talent.COMBAT_SPIDERS)
+            && !ranged
+            && statusEffectOf(mob).hasNoPoison()) {
+            session.poisonFreebie = true;
+        }
+    }
+
+    static boolean isSpider(Entity entity) {
+        switch (entity.getType()) {
+        case SPIDER:
+        case CAVE_SPIDER:
+        case SILVERFISH:
+        case ENDERMITE:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    static void potion(LivingEntity e, PotionEffectType type,
+                       final int level, final int seconds) {
+        e.addPotionEffect(new PotionEffect(type, seconds * 20,
+                                           level - 1, true, false));
+    }
+
+    void playerDamageMob(@NonNull Player player, @NonNull Mob mob,
+                         Projectile proj,
+                         @NonNull EntityDamageByEntityEvent event) {
+        final boolean ranged = proj != null;
+        Session session = plugin.sessionOf(player);
+        final ItemStack item = player.getInventory().getItemInMainHand();
+        // +50% damage
+        if (session.hasTalent(Talent.COMBAT_FIRE)
+            && mob.getFireTicks() > 0) {
+            event.setDamage(event.getFinalDamage() * 1.5);
+        }
+        // Knockback => Silence
+        if (session.hasTalent(Talent.COMBAT_SILENCE)
+            && !ranged
+            && item != null
+            && item.getEnchantmentLevel(Enchantment.KNOCKBACK) > 0) {
+            statusEffectOf(mob).silence = Util.now() + 20;
+            Effects.applyStatusEffect(mob);
+        }
+        // Spider => Slow + NoPoison
+        if (session.hasTalent(Talent.COMBAT_SPIDERS)
+            && !ranged
+            && item != null
+            && item.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS) > 0
+            && isSpider(mob)) {
+            statusEffectOf(mob).noPoison = Util.now() + 30;
+            potion(mob, PotionEffectType.SLOW, 3, 30);
+            Effects.applyStatusEffect(mob);
+        }
+        // In The Zone
+        if (session.hasTalent(Talent.COMBAT_ARCHER_ZONE)
+            && ranged
+            && session.archerZone > 0) {
+            event.setDamage(event.getFinalDamage() * 2.0);
         }
     }
 }

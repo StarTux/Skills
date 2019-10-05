@@ -92,3 +92,36 @@ mine_silk_multi:
     While using your Silk Touch pickaxe on ores, this talent gives you an even greater chance at getting multiple drops, surpassing the yield capabilities of Fortune 3.
 
     The yields of this method may exceed those of Fortune 3 but are more random. It allows multiple drops from ores usually unaffected by Fortune: Iron and gold.
+
+combat_fire:
+  title: Pyromaniac
+  icon: campfire
+  description: |-
+    Monsters set on fire deal -50% melee damage.
+    Monsters set on fire take +50% damage.
+
+combat_silence:
+  title: Denial
+  icon: barrier
+  description: |-
+    Monsters knocked back cannot shoot arrows or throw projectiles for 20 seconds.
+
+    Use a Knockback weapon on an enemy to give it this status effect.
+
+combat_spiders:
+  title: Vamonos
+  icon: spider_eye
+  description: |-
+    Bane of Arthropods slows spiders and denies their poison effect for 30 seconds.
+
+combat_god_mode:
+  title: God Mode
+  icon: totem_of_undying
+  description: |-
+    Melee kills give 3 seconds of immortality.
+
+combat_archer_zone:
+  title: In The Zone
+  icon: spectral_arrow
+  description: |-
+    Ranged kills give 5 seconds of double damage to ranged attacks.
