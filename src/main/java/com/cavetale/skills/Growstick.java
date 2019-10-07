@@ -122,15 +122,21 @@ final class Growstick {
 
     void tickWateredCrop(@NonNull MarkBlock markBlock) {
         if (markBlock.getPlayerDistance() > 4) return;
+        Block block = markBlock.getBlock();
+        Crop crop = Crop.of(block);
+        if (crop == null) {
+            markBlock.resetId();
+            return;
+        }
         // Soil
         int ticks = markBlock.getTicksLoaded();
-        Block soilBlock = markBlock.getBlock().getRelative(0, -1, 0);
+        Block soilBlock = block.getRelative(0, -1, 0);
         if (soilBlock.getType() == Material.FARMLAND) {
             waterSoil(soilBlock);
         }
         // Grow
         if (ticks > 0 && (ticks % 2400) == 0) {
-            growCrop(markBlock);
+            growCrop(markBlock, crop);
         }
         // Water Effect
         if (markBlock.getPlayerDistance() <= 1
@@ -149,7 +155,7 @@ final class Growstick {
         }
     }
 
-    void growCrop(@NonNull MarkBlock markBlock) {
+    void growCrop(@NonNull MarkBlock markBlock, @NonNull Crop crop) {
         Block block = markBlock.getBlock();
         BlockData blockData = block.getBlockData();
         if (blockData instanceof Ageable) {
@@ -160,9 +166,11 @@ final class Growstick {
                 markBlock.setId(GROWN_CROP);
                 return;
             }
-            if (block.getLightFromSky() < 1) return;
-            long time = block.getWorld().getTime();
-            if (time > 13000L && time < 23000L) return;
+            if (crop != Crop.NETHER_WART) {
+                if (block.getLightFromSky() < 1) return;
+                long time = block.getWorld().getTime();
+                if (time > 13000L && time < 23000L) return;
+            }
             ageable.setAge(age + 1);
             block.setBlockData(blockData);
             Effects.cropGrow(block);
