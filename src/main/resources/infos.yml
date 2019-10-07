@@ -1,0 +1,20 @@
+combat:
+  title: Combat Skill
+  description: |-
+    Kill monsters to get SP. Unlock talents to enhance your combat strength.
+
+    Each monster kill gives some skill points. However, they decrease quickly if you stay in place. Long kill chains will spawn boss mobs which are stronger than your usual enemies. Defeating them yields a chance at talent points.
+
+mining:
+  title: Mining Skill
+  description: |-
+    Mine ores to get SP. Talents help you finding and exploiting ores.
+
+    Every ore you mind yields some skill points. Diamonds give you an additional chance at earning talent points.
+
+farming:
+  title: Farming Skill
+  description: |-
+    Water your crops with the growstick and harvest them once they are fully grown.
+
+    Use a stick on any freshly planted crop to water it. In the daylight it will grow quickly. Fully grown watered crops yield a chance at dropping diamonds and talent points.

@@ -20,7 +20,11 @@ public final class SQLPlayer {
     int talentPoints = 0;
     @Column(nullable = false)
     int talentChance = 0;
-    @Column(nullable = true)
+    @Column(nullable = false)
+    int levels = 0;
+    @Column(nullable = false)
+    int talents = 0;
+    @Column(nullable = true, length = 4096)
     String json;
     transient boolean modified;
 

@@ -40,6 +40,7 @@ public final class SkillsPlugin extends JavaPlugin {
     Gson gson = new Gson();
     Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
     Map<String, TalentInfo> talentInfos;
+    Map<String, Info> infos;
 
     @Override
     public void onEnable() {
@@ -167,6 +168,8 @@ public final class SkillsPlugin extends JavaPlugin {
         if (points >= req) {
             points -= req;
             col.level += 1;
+            session.playerColumn.levels += 1;
+            session.playerColumn.modified = true;
             Effects.levelup(player);
             player.sendTitle(ChatColor.GOLD + skill.displayName,
                              ChatColor.WHITE + "Level " + col.level);
@@ -261,6 +264,19 @@ public final class SkillsPlugin extends JavaPlugin {
         return YamlConfiguration.loadConfiguration(new InputStreamReader(getResource(name)));
     }
 
+    // May return null
+    Info getInfo(String name) {
+        if (infos == null) {
+            infos = new HashMap<>();
+            ConfigurationSection conf = loadYamlResource("infos.yml");
+            for (String key : conf.getKeys(false)) {
+                infos.put(key, new Info(conf.getConfigurationSection(key)));
+            }
+        }
+        return infos.get(name);
+    }
+
+    // Never returns null
     TalentInfo getTalentInfo(String name) {
         if (talentInfos == null) {
             talentInfos = new HashMap<>();
@@ -362,8 +378,9 @@ public final class SkillsPlugin extends JavaPlugin {
         if (session.hasTalent(talent)) return false;
         if (!session.canAccessTalent(talent)) return false;
         session.playerColumn.talentPoints -= cost;
-        session.playerColumn.modified = true;
         session.talents.add(talent);
+        session.playerColumn.talents = session.talents.size();
+        session.playerColumn.modified = true;
         session.tag.modified = true;
         session.saveData();
         giveAdvancement(player, talent);

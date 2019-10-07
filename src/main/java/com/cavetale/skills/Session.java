@@ -149,4 +149,12 @@ final class Session {
     int getTalentPoints() {
         return playerColumn.talentPoints;
     }
+
+    int getLevel(SkillType skill) {
+        return skillColumns.get(skill).level;
+    }
+
+    int getSkillPoints(SkillType skill) {
+        return skillColumns.get(skill).points;
+    }
 }
