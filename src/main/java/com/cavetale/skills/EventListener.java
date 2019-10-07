@@ -250,9 +250,9 @@ final class EventListener implements Listener {
             }
             if (mob != null) {
                 plugin.combat.mobDamagePlayer(player, mob, proj, event);
+                Boss boss = plugin.bossOf(mob);
+                if (boss != null) boss.damagePlayer(player, proj);
             }
-            Boss boss = plugin.bossOf(mob);
-            if (boss != null) boss.damagePlayer(player, proj);
         } else if (event.getEntity() instanceof Mob) {
             // Player attacks mob
             final Mob mob = (Mob) event.getEntity();
