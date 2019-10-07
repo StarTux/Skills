@@ -188,6 +188,7 @@ final class EventListener implements Listener {
             }
             creatureSpawnLock = false;
             if (boss == null) continue;
+            session.bossProgress = 0;
             event.setCancelled(true);
             return;
         }
