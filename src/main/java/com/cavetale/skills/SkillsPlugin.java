@@ -115,6 +115,7 @@ public final class SkillsPlugin extends JavaPlugin {
             if (map.containsKey(skill)) continue;
             SQLSkill col = new SQLSkill(uuid, skill.key);
             database.saveAsync(col, null);
+            skillColumns.add(col);
             map.put(skill, col);
         }
         return map;
