@@ -176,8 +176,8 @@ final class Mining {
             }
         }
         for (Block v : vein) {
-            if (!Exploits.isPlayerPlaced(block)) {
-                giveReward(player, block, reward);
+            if (!Exploits.isPlayerPlaced(v)) {
+                giveReward(player, v, reward);
                 if (reward.dropSelf() && reward.exp > 0) {
                     // If reward drops self, vanilla gives no exp, so we do it.
                     Util.exp(v.getLocation().add(0.5, 0.5, 0.5), reward.exp);
