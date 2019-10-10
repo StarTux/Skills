@@ -236,9 +236,9 @@ final class Mining {
             }
         }
         if (bs.isEmpty()) return 0;
-        int duration = 60;
+        int duration = 3; // seconds
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
-                                                duration,
+                                                10 * 20,
                                                 0, // amplifier
                                                 true, // ambient
                                                 false, // particles
@@ -258,7 +258,7 @@ final class Mining {
                     if (!player.getWorld().equals(block.getWorld())) return;
                     player.sendBlockChange(b.getLocation(), b.getBlockData());
                 }
-            }, (long) duration);
+            }, (long) (duration * 20));
         return bs.size();
     }
 
