@@ -209,7 +209,7 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     boolean rollTalentPoint(@NonNull Player player, int increase) {
-        final int total = 1000;
+        final int total = 800;
         Session session = sessionOf(player);
         session.playerColumn.talentChance += increase;
         session.playerColumn.modified = true;
@@ -219,7 +219,7 @@ public final class SkillsPlugin extends JavaPlugin {
         } else {
             chance = session.playerColumn.talentChance - 5;
             chance = Math.max(0, chance);
-            chance = Math.min(chance, (total * 8) / 10);
+            chance = Math.min(chance, total / 2);
         }
         int roll = random.nextInt(total);
         if (roll >= chance) return false;
