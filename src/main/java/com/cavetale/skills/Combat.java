@@ -112,8 +112,10 @@ final class Combat {
         Player player = (Player) event.getDamager();
         Session session = plugin.sessionOf(player);
         if (session.hasTalent(Talent.COMBAT_GOD_MODE)) {
+            if (session.immortal <= 0) {
+                player.sendMessage(ChatColor.GOLD + "God Mode!");
+            }
             session.immortal = 3 * 20;
-            player.sendMessage(ChatColor.GOLD + "God Mode!");
         }
         return true;
     }
