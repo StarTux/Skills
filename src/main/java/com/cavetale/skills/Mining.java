@@ -269,9 +269,10 @@ final class Mining {
         final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         Session session = plugin.sessionOf(player);
-        boolean sneak = player.isSneaking();
+        final boolean sneak = player.isSneaking();
+        final boolean stone = stone(block);
         if (session.hasTalent(Talent.MINE_STRIP)
-            && !sneak && stone(block) && efficiency > 0) {
+            && !sneak && stone && efficiency > 0) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
@@ -287,10 +288,14 @@ final class Mining {
                     mineVein(player, block, item, reward, efficiency);
                 });
         }
-        if (block.getY() <= 16 && stone(block) && fortune > 0 && !sneak) {
+        // Ore Alert
+        if (block.getY() <= 16 && stone) {
             if (session.hasTalent(Talent.MINE_ORE_ALERT)) {
                 oreAlert(player, block);
             }
+        }
+        // Xray
+        if (block.getY() <= 16 && stone && fortune > 0 && !sneak) {
             if (session.hasTalent(Talent.MINE_XRAY) && !session.xrayActive) {
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
                         xray(player, block);
