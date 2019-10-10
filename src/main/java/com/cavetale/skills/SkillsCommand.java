@@ -110,9 +110,17 @@ final class SkillsCommand implements TabExecutor {
         case "boss": {
             Player player = requirePlayer(sender);
             if (!player.isOp()) return false;
-            Boss boss = new Boss(plugin, Boss.Type.valueOf(args[0].toUpperCase()), 1);
-            boss.hero = player.getUniqueId();
-            boss.spawn(player.getLocation());
+            if (args.length == 0) {
+                Session session = plugin.sessionOf(player);
+                session.bossProgress = session.bossLevel * 10 + 10;
+                player.sendMessage("Boss progress set to " + session.bossProgress);
+            } else {
+                Boss.Type type = Boss.Type.valueOf(args[0].toUpperCase());
+                Boss boss = new Boss(plugin, type, 1);
+                boss.hero = player.getUniqueId();
+                boss.spawn(player.getLocation());
+                player.sendMessage("Boss spawned: " + type);
+            }
             return true;
         }
         case "reloadadvancements": {
@@ -413,7 +421,7 @@ final class SkillsCommand implements TabExecutor {
         player.spigot().sendMessage(cb.create());
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Talent Points: "
                            + ChatColor.WHITE + session.getTalentPoints());
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Next Unlock: "
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Unlock Cost: "
                            + ChatColor.WHITE + session.getTalentCost());
         player.sendMessage("");
     }
