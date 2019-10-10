@@ -139,6 +139,8 @@ final class EventListener implements Listener {
                         hero.sendTitle(ChatColor.RED + boss.type.displayName,
                                        ChatColor.WHITE + "Level " + boss.level + " Defeated!");
                     }
+                    mob.getWorld().dropItem(mob.getEyeLocation(),
+                                            new ItemStack(Material.DIAMOND, boss.level));
                     return;
                 }
             }
