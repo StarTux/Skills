@@ -278,8 +278,9 @@ final class Mining {
         final boolean sneak = player.isSneaking();
         final boolean stone = stone(block);
         // Strip Mining
+        final boolean miningLevel = block.getY() < 32;
         if (session.hasTalent(Talent.MINE_STRIP) && !sneak && stone && efficiency > 0
-            && block.getY() < 32) {
+            && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
@@ -289,7 +290,7 @@ final class Mining {
         Reward reward = rewards.get(block.getType());
         // Vein Mining
         if (session.hasTalent(Talent.MINE_STRIP)
-            && !sneak && reward != null && efficiency > 0) {
+            && !sneak && reward != null && efficiency > 0 && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
@@ -297,12 +298,12 @@ final class Mining {
                 });
         }
         // Ore Alert
-        if (session.hasTalent(Talent.MINE_ORE_ALERT) && block.getY() <= 32 && stone) {
+        if (session.hasTalent(Talent.MINE_ORE_ALERT) && miningLevel && stone) {
             oreAlert(player, block);
         }
         // Xray
         if (session.hasTalent(Talent.MINE_XRAY) && !session.xrayActive && stone
-            && fortune > 0 && !sneak && block.getY() <= 32) {
+            && fortune > 0 && !sneak && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     xray(player, block);
                 });
