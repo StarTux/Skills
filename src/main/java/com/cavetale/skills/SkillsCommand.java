@@ -448,7 +448,7 @@ final class SkillsCommand implements TabExecutor {
 
     void commandHelp(@NonNull Player player, @NonNull String cmd) {
         final String desc;
-        String args = "";
+        String args = null;
         switch (cmd) {
         case "combat": case "mining": case "farming":
             desc = "Skill overview";
@@ -471,13 +471,20 @@ final class SkillsCommand implements TabExecutor {
             desc = null;
             break;
         }
-        player.sendMessage(""
-                           + ChatColor.YELLOW + "/sk "
-                           + ChatColor.GOLD + cmd
-                           + ChatColor.YELLOW + ChatColor.ITALIC + args
-                           + (desc == null ? ""
-                              : ChatColor.DARK_GRAY + " - "
-                              + ChatColor.WHITE + desc));
+        String ccmd = ""
+            + ChatColor.YELLOW + "/sk "
+            + ChatColor.GOLD + cmd
+            + (args == null ? ""
+               : "" + ChatColor.YELLOW + ChatColor.ITALIC + args);
+        String cdesc = desc == null
+            ? ""
+            : ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + desc;
+        String tooltip = ccmd + ChatColor.RESET + "\n" + desc;
+        ComponentBuilder cb = new ComponentBuilder(ccmd + cdesc);
+        cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sk " +  cmd));
+        cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                TextComponent.fromLegacyText(tooltip)));
+        player.spigot().sendMessage(cb.create());
     }
 
     // Helpers
