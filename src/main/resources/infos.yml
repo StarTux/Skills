@@ -10,7 +10,7 @@ mining:
   description: |-
     Mine ores to get SP. Talents help you finding and exploiting ores.
 
-    Every ore you mind yields some skill points. Diamonds give you an additional chance at earning talent points.
+    Every ore you mine yields some skill points. Diamonds give you an additional chance at earning talent points.
 
 farming:
   title: Farming Skill
