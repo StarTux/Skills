@@ -459,6 +459,8 @@ final class Boss {
         boss.entity.setTarget(player);
         player.sendActionBar(ChatColor.RED + type.displayName
                              + ChatColor.WHITE + " Level " + level);
+        player.sendMessage(ChatColor.RED + type.displayName
+                           + ChatColor.WHITE + " Level " + level);
         return boss;
     }
 
