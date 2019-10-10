@@ -217,6 +217,19 @@ final class Mining {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
         Session session = plugin.sessionOf(player);
+        // Night Vision
+        final int potionDuration = 220; // ticks
+        PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
+        if (nightVision == null || nightVision.getDuration() < potionDuration) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
+                                                    potionDuration,
+                                                    0, // amplifier
+                                                    true, // ambient
+                                                    false, // particles
+                                                    true), // icon
+                                   true);
+        }
+        // Actual XRay
         if (session.xrayActive) return 0;
         session.xrayActive = true;
         final int radius = 2;
@@ -236,13 +249,6 @@ final class Mining {
             }
         }
         if (bs.isEmpty()) return 0;
-        int duration = 3; // seconds
-        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
-                                                10 * 20,
-                                                0, // amplifier
-                                                true, // ambient
-                                                false, // particles
-                                                true)); // icon
         Effects.xray(player);
         for (Block b : bs) {
             player.sendBlockChange(b.getLocation(), Material.BARRIER.createBlockData());
@@ -258,7 +264,7 @@ final class Mining {
                     if (!player.getWorld().equals(block.getWorld())) return;
                     player.sendBlockChange(b.getLocation(), b.getBlockData());
                 }
-            }, (long) (duration * 20));
+            }, 60L); // 3 seconds
         return bs.size();
     }
 
