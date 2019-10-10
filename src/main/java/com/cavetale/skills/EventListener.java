@@ -177,10 +177,8 @@ final class EventListener implements Listener {
             if (!Util.playMode(player)) continue;
             Session session = plugin.sessionOf(player);
             if (session.bossProgress < 10 + session.bossLevel * 10) continue;
-            System.out.println("BOSS? " + player.getName() + " " + session.bossProgress + " " + entity.getType());
             if (Util.dst(player.getLocation(), loc) > 128) continue;
             if (!player.hasLineOfSight(entity)) continue;
-            System.out.println("BOSS? LOS");
             creatureSpawnLock = true;
             Boss boss;
             try {
