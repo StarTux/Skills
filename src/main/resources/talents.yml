@@ -51,7 +51,7 @@ mine_strip:
   description: |-
     Mining with an Efficiency pickaxe breaks many blocks
 
-    Unleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within your line of sight while mining straight. Breaking ores will attempt to break the entire vein.
+    Unleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within your line of sight while mining straight. Breaking ores will attempt to break the entire vein. This only works deep underground.
 
     Mine without this feature by sneaking.
 
@@ -61,7 +61,7 @@ mine_ore_alert:
   description: |-
     Get alerts when diamond ore is nearby.
 
-    Never miss diamonds near your mine again! Whenever you mine stone at diamond level, and there is diamond ore nearby, an alert sound will notify you of its existence. Follow that lead to earn more diamonds.
+    Never miss diamonds near your mine again! Whenever you mine stone at diamond level, and there is diamond ore nearby, an alert sound will notify you of its existence. Follow that lead to earn more diamonds. This only works deep underground.
 
 mine_xray:
   title: X-Ray

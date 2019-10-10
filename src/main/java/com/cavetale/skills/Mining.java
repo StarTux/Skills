@@ -271,8 +271,9 @@ final class Mining {
         Session session = plugin.sessionOf(player);
         final boolean sneak = player.isSneaking();
         final boolean stone = stone(block);
-        if (session.hasTalent(Talent.MINE_STRIP)
-            && !sneak && stone && efficiency > 0) {
+        // Strip Mining
+        if (session.hasTalent(Talent.MINE_STRIP) && !sneak && stone && efficiency > 0
+            && block.getY() < 32) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
@@ -280,6 +281,7 @@ final class Mining {
                 });
         }
         Reward reward = rewards.get(block.getType());
+        // Vein Mining
         if (session.hasTalent(Talent.MINE_STRIP)
             && !sneak && reward != null && efficiency > 0) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
@@ -289,18 +291,15 @@ final class Mining {
                 });
         }
         // Ore Alert
-        if (block.getY() <= 16 && stone) {
-            if (session.hasTalent(Talent.MINE_ORE_ALERT)) {
-                oreAlert(player, block);
-            }
+        if (session.hasTalent(Talent.MINE_ORE_ALERT) && block.getY() <= 32 && stone) {
+            oreAlert(player, block);
         }
         // Xray
-        if (block.getY() <= 16 && stone && fortune > 0 && !sneak) {
-            if (session.hasTalent(Talent.MINE_XRAY) && !session.xrayActive) {
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                        xray(player, block);
-                    });
-            }
+        if (session.hasTalent(Talent.MINE_XRAY) && !session.xrayActive && stone
+            && fortune > 0 && !sneak && block.getY() <= 32) {
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    xray(player, block);
+                });
         }
         if (reward == null) return;
         giveReward(player, block, reward);
