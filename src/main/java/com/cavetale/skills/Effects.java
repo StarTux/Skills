@@ -110,10 +110,10 @@ final class Effects {
         BoundingBox bb = e.getBoundingBox();
         w.spawnParticle(Particle.REDSTONE,
                         bb.getCenter().toLocation(w),
-                        64,
-                        bb.getWidthX() * 0.5, bb.getHeight() * 0.5, bb.getWidthZ() * 0.5, // offset
+                        48,
+                        bb.getWidthX() * 0.35, bb.getHeight() * 0.35, bb.getWidthZ() * 0.35, // offset
                         0.0, // extra/speed (REDSTONE does not care)
-                        new Particle.DustOptions(Color.RED, 4.0f));
+                        new Particle.DustOptions(Color.RED, 2.0f));
     }
 
     static void bossSwirl(@NonNull Entity e, final int tick) {
