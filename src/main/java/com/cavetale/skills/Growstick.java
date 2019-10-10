@@ -29,9 +29,11 @@ final class Growstick {
     static final String GROWN_CROP = "skills:grown_crop";
 
     enum Crop {
+        // 8 grow stages (0-7)
         WHEAT(Material.WHEAT, Material.WHEAT, Material.WHEAT_SEEDS),
         CARROT(Material.CARROTS, Material.CARROT),
         POTATO(Material.POTATOES, Material.POTATO),
+        // 4 grow stages (0-3)
         BEETROOT(Material.BEETROOTS, Material.BEETROOT, Material.BEETROOT_SEEDS),
         NETHER_WART(Material.NETHER_WART, Material.NETHER_WART);
 
@@ -202,7 +204,9 @@ final class Growstick {
                                                          plugin.random.nextInt(3) + 1));
         }
         // Special Rule
-        if (crop == Crop.NETHER_WART) return;
+        if (crop == Crop.NETHER_WART || crop == Crop.BEETROOT) {
+            if (plugin.random.nextBoolean()) return;
+        }
         // Reward Diamond
         double gemChance = 0.01;
         final double roll = plugin.random.nextDouble();
