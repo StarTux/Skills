@@ -158,18 +158,15 @@ final class Boss {
                     noDrop(eq);
                     potion(e, PotionEffectType.FIRE_RESISTANCE, 1);
                     potion(e, PotionEffectType.SPEED, 1);
-                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(20.0);
                 });
         case QUEEN_SPIDER:
             return w.spawn(loc, Spider.class, e -> {
                     potion(e, PotionEffectType.SPEED, 2);
                     potion(e, PotionEffectType.REGENERATION, 2);
-                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(20.0);
                 });
         case MINERA:
             return w.spawn(loc, Phantom.class, e -> {
                     e.setSize(20);
-                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(20.0);
                 });
         default: return null;
         }
@@ -215,8 +212,8 @@ final class Boss {
         // Knockback Resistance
         entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0);
         // Strength
-        double strength = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue();
-        strength += (double) (level - 1) * 10.0;
+        double strength = 10;
+        strength += (double) (level - 1) * 5.0;
         entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(strength);
         // Transient
         entity.setPersistent(false);
