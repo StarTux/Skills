@@ -135,7 +135,7 @@ final class EventListener implements Listener {
                     plugin.addSkillPoints(hero, SkillType.COMBAT, 10);
                     Session session = plugin.sessionOf(hero);
                     session.bossLevel = Math.max(session.bossLevel, boss.level);
-                    if (!plugin.rollTalentPoint(hero, 1)) {
+                    if (!plugin.rollTalentPoint(hero, boss.level)) {
                         hero.sendTitle(ChatColor.RED + boss.type.displayName,
                                        ChatColor.WHITE + "Level " + boss.level + " Defeated!");
                     }
