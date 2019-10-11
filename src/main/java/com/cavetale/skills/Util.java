@@ -6,6 +6,8 @@ import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 final class Util {
     private Util() { }
@@ -45,5 +47,17 @@ final class Util {
 
     static long now() {
         return System.nanoTime() / 1000000000L;
+    }
+
+    static ItemStack getHand(@NonNull Player player,
+                             @NonNull EquipmentSlot slot) {
+        switch (slot) {
+        case HAND:
+            return player.getInventory().getItemInMainHand();
+        case OFF_HAND:
+            return player.getInventory().getItemInOffHand();
+        default:
+            return null;
+        }
     }
 }

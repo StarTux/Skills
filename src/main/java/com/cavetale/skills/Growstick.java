@@ -2,6 +2,7 @@ package com.cavetale.skills;
 
 import com.cavetale.worldmarker.BlockMarker;
 import com.cavetale.worldmarker.MarkBlock;
+import com.winthier.exploits.Exploits;
 import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +16,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Farmland;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -61,13 +61,21 @@ final class Growstick {
             }
             return null;
         }
+
+        static Crop ofSeed(ItemStack item) {
+            Material mat = item.getType();
+            for (Crop crop : Crop.values()) {
+                if (crop.seedMaterial == mat) return crop;
+            }
+            return null;
+        }
     }
 
     /**
      * Player uses a growstick on a certain block.
      */
-    void use(@NonNull Player player, @NonNull Block block) {
-        if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return;
+    boolean useStick(@NonNull Player player, @NonNull Block block) {
+        if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return false;
         int radius = 0;
         Session session = plugin.sessionOf(player);
         if (session.hasTalent(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
@@ -78,6 +86,7 @@ final class Growstick {
             }
         }
         if (success) Effects.wateringCan(player);
+        return success;
     }
 
     boolean waterBlock(@NonNull Player player, @NonNull Block block) {
@@ -224,20 +233,27 @@ final class Growstick {
         Effects.harvest(block);
     }
 
-    /**
-     * Called via scheduler.
-     */
-    int plantRadius(@NonNull Player player, @NonNull Block orig, @NonNull Crop crop,
-                    @NonNull EquipmentSlot slot) {
-        ItemStack item = slot == EquipmentSlot.HAND
-            ? player.getInventory().getItemInMainHand()
-            : player.getInventory().getItemInOffHand();
-        if (item.getType() != crop.seedMaterial) return 0;
+    boolean useSeed(@NonNull Player player, @NonNull Block block,
+                    @NonNull Crop crop, @NonNull ItemStack item) {
+        Session session = plugin.sessionOf(player);
+        if (session.hasTalent(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
+            if (block.getType() == Material.FARMLAND) {
+                return 0 < plantRadius(player, block.getRelative(0, 1, 0), crop, item);
+            }
+            Block lower = block.getRelative(0, -1, 0);
+            if (lower.getType() == Material.FARMLAND) {
+                return 0 < plantRadius(player, block, crop, item);
+            }
+        }
+        return false;
+    }
+
+    int plantRadius(@NonNull Player player, @NonNull Block orig,
+                    @NonNull Crop crop, @NonNull ItemStack item) {
         int result = 0;
         ArrayList<Block> bs = new ArrayList<>(8);
         for (int z = -1; z <= 1; z += 1) {
             for (int x = -1; x <= 1; x += 1) {
-                if (x == 0 && z == 0) continue;
                 bs.add(orig.getRelative(x, 0, z));
             }
         }
@@ -251,6 +267,7 @@ final class Growstick {
             if (crop != Crop.NETHER_WART && lower.getType() != Material.FARMLAND) continue;
             if (!GenericEvents.playerCanBuild(player, block)) continue;
             block.setType(crop.blockMaterial);
+            Exploits.setPlayerPlaced(block, true);
             item.setAmount(item.getAmount() - 1);
             Effects.plantCropMagic(block);
             result += 1;

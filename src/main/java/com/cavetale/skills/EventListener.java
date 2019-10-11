@@ -20,7 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockGrowEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
@@ -48,12 +47,26 @@ final class EventListener implements Listener {
         if (!Util.playMode(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (!event.hasItem()) return;
-        final ItemStack item = event.getItem();
+        // Item
+        final ItemStack item = Util.getHand(player, event.getHand());
         final Block block = event.getClickedBlock();
         if (item.getType() == Material.STICK) {
-            plugin.growstick.use(player, block);
-        } else if (event.getHand() == EquipmentSlot.HAND) {
-            plugin.mining.use(event.getPlayer(), block, event.getBlockFace());
+            if (plugin.growstick.useStick(player, block)) {
+                event.setCancelled(true);
+            }
+            return;
+        } else if (event.getHand() == EquipmentSlot.HAND && Mining.isPickaxe(item)) {
+            if (plugin.mining.usePickaxe(player, block, event.getBlockFace(), item)) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+        Growstick.Crop crop = Growstick.Crop.ofSeed(item);
+        if (crop != null) {
+            if (plugin.growstick.useSeed(player, block, crop, item)) {
+                event.setCancelled(true);
+            }
+            return;
         }
     }
 
@@ -84,24 +97,6 @@ final class EventListener implements Listener {
             }
         }
         plugin.mining.mine(player, block);
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    void onBlockPlace(BlockPlaceEvent event) {
-        Player player = event.getPlayer();
-        if (!Util.playMode(player)) return;
-        Block block = event.getBlock();
-        Growstick.Crop crop = Growstick.Crop.of(event.getBlock());
-        if (crop != null) {
-            Session session = plugin.sessionOf(player);
-            EquipmentSlot slot = event.getHand();
-            if (session.hasTalent(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                        if (!player.isValid()) return;
-                        plugin.growstick.plantRadius(player, block, crop, slot);
-                    });
-            }
-        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

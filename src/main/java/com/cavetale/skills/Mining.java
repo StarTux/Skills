@@ -50,14 +50,14 @@ final class Mining {
     Mining(@NonNull final SkillsPlugin plugin) {
         this.plugin = plugin;
         // exp values are maxima according to the wiki
-        reward(Material.DIAMOND_ORE,       10, 7, Material.DIAMOND, 1);
-        reward(Material.EMERALD_ORE,        5, 7, Material.EMERALD, 1);
-        reward(Material.IRON_ORE,           3, 3, Material.IRON_NUGGET, 9);
-        reward(Material.GOLD_ORE,           5, 3, Material.GOLD_NUGGET, 9);
-        reward(Material.COAL_ORE,           1, 2, Material.COAL, 1);
-        reward(Material.LAPIS_ORE,          1, 5, Material.LAPIS_LAZULI, 6); // 4-8
-        reward(Material.NETHER_QUARTZ_ORE,  1, 5, Material.QUARTZ, 1);
-        reward(Material.REDSTONE_ORE,       1, 5, Material.REDSTONE, 5); // 4-5
+        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
+        reward(Material.EMERALD_ORE, 5, 7, Material.EMERALD, 1);
+        reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
+        reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
+        reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
+        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6); // 4-8
+        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1);
+        reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5); // 4-5
     }
 
     static boolean stone(@NonNull Block block) {
@@ -316,13 +316,12 @@ final class Mining {
         }
     }
 
-    boolean use(@NonNull Player player, @NonNull Block block, @NonNull BlockFace face) {
+    boolean usePickaxe(@NonNull Player player, @NonNull Block block,
+                       @NonNull BlockFace face, @NonNull ItemStack item) {
         Reward reward = rewards.get(block.getType());
         if (reward == null) return false;
         Session session = plugin.sessionOf(player);
         if (!session.hasTalent(Talent.MINE_SILK_STRIP)) return false;
-        final ItemStack item = player.getInventory().getItemInMainHand();
-        if (!isPickaxe(item)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
         if (!GenericEvents.playerCanBuild(player, block)) return false;
         int silk = item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
@@ -376,7 +375,6 @@ final class Mining {
                 block.setType(Material.STONE);
             }
         }
-        // Finis
         return true;
     }
 
