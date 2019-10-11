@@ -51,7 +51,7 @@ final class EventListener implements Listener {
         final ItemStack item = Util.getHand(player, event.getHand());
         final Block block = event.getClickedBlock();
         if (item.getType() == Material.STICK) {
-            if (plugin.growstick.useStick(player, block)) {
+            if (plugin.farming.useStick(player, block)) {
                 event.setCancelled(true);
             }
             return;
@@ -61,9 +61,9 @@ final class EventListener implements Listener {
             }
             return;
         }
-        Growstick.Crop crop = Growstick.Crop.ofSeed(item);
+        Farming.Crop crop = Farming.Crop.ofSeed(item);
         if (crop != null) {
-            if (plugin.growstick.useSeed(player, block, crop, item)) {
+            if (plugin.farming.useSeed(player, block, crop, item)) {
                 event.setCancelled(true);
             }
             return;
@@ -72,10 +72,10 @@ final class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     void onMarkChunkTick(MarkChunkTickEvent event) {
-        event.getBlocksWithId(Growstick.WATERED_CROP)
-            .forEach(plugin.growstick::tickWateredCrop);
-        event.getBlocksWithId(Growstick.GROWN_CROP)
-            .forEach(plugin.growstick::tickGrownCrop);
+        event.getBlocksWithId(Farming.WATERED_CROP)
+            .forEach(plugin.farming::tickWateredCrop);
+        event.getBlocksWithId(Farming.GROWN_CROP)
+            .forEach(plugin.farming::tickGrownCrop);
         plugin.combat.onTick(event.getChunk());
     }
 
@@ -87,11 +87,11 @@ final class EventListener implements Listener {
         String bid = BlockMarker.getId(block);
         if (bid != null) {
             switch (bid) {
-            case Growstick.WATERED_CROP:
+            case Farming.WATERED_CROP:
                 BlockMarker.resetId(block);
                 break;
-            case Growstick.GROWN_CROP:
-                plugin.growstick.harvest(player, block);
+            case Farming.GROWN_CROP:
+                plugin.farming.harvest(player, block);
                 break;
             default: break;
             }
@@ -101,7 +101,7 @@ final class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     void onBlockGrow(BlockGrowEvent event) {
-        if (BlockMarker.hasId(event.getBlock(), Growstick.WATERED_CROP)) {
+        if (BlockMarker.hasId(event.getBlock(), Farming.WATERED_CROP)) {
             event.setCancelled(true);
         }
     }

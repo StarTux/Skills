@@ -27,7 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class SkillsPlugin extends JavaPlugin {
     SkillsCommand skillsCommand = new SkillsCommand(this);
     EventListener eventListener = new EventListener(this);
-    Growstick growstick = new Growstick(this);
+    Farming farming = new Farming(this);
     Random random = ThreadLocalRandom.current();
     SQLDatabase database = new SQLDatabase(this);
     final List<SQLSkill> skillColumns = new ArrayList<>();

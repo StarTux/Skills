@@ -19,11 +19,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Object to manage growstick and watered block related features.
+ * Object to manage the Farming skill.
  * Called by EventListener et al, owned by SkillsPlugin.
  */
 @RequiredArgsConstructor
-final class Growstick {
+final class Farming {
     final SkillsPlugin plugin;
     static final String WATERED_CROP = "skills:watered_crop";
     static final String GROWN_CROP = "skills:grown_crop";
