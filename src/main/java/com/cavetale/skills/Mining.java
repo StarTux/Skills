@@ -51,7 +51,7 @@ final class Mining {
         this.plugin = plugin;
         // exp values are maxima according to the wiki
         reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
-        reward(Material.EMERALD_ORE, 5, 7, Material.EMERALD, 1);
+        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1);
         reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
         reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
         reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
@@ -198,7 +198,8 @@ final class Mining {
                     if (x == 0 && y == 0 && z == 0) continue;
                     Block nbor = block.getRelative(x, y, z);
                     if (nbor.getY() < 0) continue;
-                    if (nbor.getType() == Material.DIAMOND_ORE) {
+                    Material mat = nbor.getType();
+                    if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
                         bs.add(nbor);
                     }
                 }
@@ -393,7 +394,8 @@ final class Mining {
                        @NonNull Reward reward) {
         if (Exploits.isPlayerPlaced(block)) return false;
         plugin.addSkillPoints(player, SkillType.MINING, reward.sp);
-        if (block.getType() == Material.DIAMOND_ORE) {
+        Material mat = block.getType();
+        if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
             plugin.rollTalentPoint(player, 1);
         }
         return true;
