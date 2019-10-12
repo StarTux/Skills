@@ -236,12 +236,15 @@ final class Farming {
     boolean useSeed(@NonNull Player player, @NonNull Block block,
                     @NonNull Crop crop, @NonNull ItemStack item) {
         Session session = plugin.sessionOf(player);
+        Material soil = crop == Crop.NETHER_WART
+            ? Material.SOUL_SAND
+            : Material.FARMLAND;
         if (session.hasTalent(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
-            if (block.getType() == Material.FARMLAND) {
+            if (block.getType() == soil) {
                 return 0 < plantRadius(player, block.getRelative(0, 1, 0), crop, item);
             }
             Block lower = block.getRelative(0, -1, 0);
-            if (lower.getType() == Material.FARMLAND) {
+            if (lower.getType() == soil) {
                 return 0 < plantRadius(player, block, crop, item);
             }
         }
