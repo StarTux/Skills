@@ -152,6 +152,7 @@ final class SkillsCommand implements TabExecutor {
         long talents = Stream.of(Talent.values())
             .filter(t -> t.skill == skill).count();
         long talentsHas = Stream.of(Talent.values())
+            .filter(t -> t.skill == skill)
             .filter(session::hasTalent).count();
         player.sendMessage("");
         player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + skill.displayName);
