@@ -63,9 +63,8 @@ final class EventListener implements Listener {
         }
         Farming.Crop crop = Farming.Crop.ofSeed(item);
         if (crop != null) {
-            if (plugin.farming.useSeed(player, block, crop, item)) {
-                event.setCancelled(true);
-            }
+            // Cancelling with edibles may trigger infinite eating animation.
+            plugin.farming.useSeed(player, block, crop, item);
             return;
         }
     }
