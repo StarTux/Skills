@@ -178,9 +178,10 @@ final class Farming {
                 return;
             }
             if (crop != Crop.NETHER_WART) {
-                if (block.getLightFromSky() < 1) return;
-                long time = block.getWorld().getTime();
-                if (time > 13000L && time < 23000L) return;
+                if (block.getLightLevel() < 10) {
+                    Effects.cropUnlit(block);
+                    return;
+                }
             }
             ageable.setAge(age + 1);
             block.setBlockData(blockData);

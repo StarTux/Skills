@@ -65,6 +65,15 @@ final class Effects {
                         0.0); // extra/speed
     }
 
+    static void cropUnlit(@NonNull Block block) {
+        World w = block.getWorld();
+        w.spawnParticle(Particle.SMOKE_NORMAL,
+                        block.getLocation().add(0.5, 0.5, 0.5),
+                        2, // count
+                        0.25, 0.25, 0.25, // offset
+                        0.0); // extra/speed
+    }
+
     static void plantCropMagic(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
