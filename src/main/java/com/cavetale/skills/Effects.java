@@ -177,15 +177,15 @@ final class Effects {
         player.playSound(player.getEyeLocation(),
                          Sound.ENTITY_ILLUSIONER_MIRROR_MOVE,
                          SoundCategory.MASTER,
-                         0.5f, 1.5f);
+                         0.35f, 1.5f);
     }
 
     static void xray(@NonNull Player player, @NonNull Block block) {
-        player.spawnParticle(Particle.END_ROD,
+        player.spawnParticle(Particle.SPELL_INSTANT,
                              block.getLocation().add(0.5, 0.5, 0.5),
                              1, // count
                              0.1, 0.1, 0.1, // offset
-                             0.05); // extra/speed
+                             0.0); // extra/speed
     }
 
     static void useSilk(@NonNull Player player, @NonNull Block block, @NonNull Location loc) {
