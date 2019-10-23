@@ -71,6 +71,22 @@ final class Farming {
         }
     }
 
+    boolean isHoe(ItemStack item) {
+        if (item == null) return false;
+        switch (item.getType()) {
+        case AIR:
+            return false;
+        case DIAMOND_HOE:
+        case IRON_HOE:
+        case STONE_HOE:
+        case WOODEN_HOE:
+        case GOLDEN_HOE:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     /**
      * Player uses a growstick on a certain block.
      */

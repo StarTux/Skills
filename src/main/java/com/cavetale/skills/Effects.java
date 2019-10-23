@@ -3,11 +3,13 @@ package com.cavetale.skills;
 import lombok.NonNull;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -247,5 +249,18 @@ final class Effects {
                         4, // count
                         0.1, 0.1, 0.1, // offset
                         1.0); // extra/speed
+    }
+
+    static void hoe(@NonNull Block block, @NonNull BlockData old) {
+        World w = block.getWorld();
+        if (old.getMaterial() == Material.GRASS_BLOCK) {
+            old = Material.GRASS.createBlockData();
+        }
+        w.spawnParticle(Particle.BLOCK_DUST,
+                        block.getLocation().add(0.5, 1.0, 0.5),
+                        20, // count
+                        0.2, 0.0, 0.2, // offset
+                        0.0, // extra/speed
+                        old);
     }
 }

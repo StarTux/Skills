@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
@@ -327,4 +328,16 @@ final class EventListener implements Listener {
             }
         }
     }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
+        ItemStack item = event.getItemInHand();
+        if (plugin.farming.isHoe(item)) {
+            if (block.getType() == Material.FARMLAND) {
+                Effects.hoe(block, event.getBlockReplacedState().getBlockData());
+            }
+        }
+    }
 }
+
