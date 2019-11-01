@@ -112,6 +112,7 @@ public final class SkillsPlugin extends JavaPlugin {
             case Farming.GROWN_CROP:
                 Effects.grownCropAmbient(player, markBlock.getBlock());
                 break;
+            default: break;
             }
         }
     }
