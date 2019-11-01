@@ -1,10 +1,13 @@
 package com.cavetale.skills;
 
+import com.cavetale.worldmarker.BlockMarker;
+import com.cavetale.worldmarker.MarkBlock;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.winthier.sql.SQLDatabase;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +16,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -41,6 +45,7 @@ public final class SkillsPlugin extends JavaPlugin {
     Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
     Map<String, TalentInfo> talentInfos;
     Map<String, Info> infos;
+    long ticks = 0;
 
     @Override
     public void onEnable() {
@@ -70,6 +75,7 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     void onTick() {
+        ticks += 1;
         for (Session session : sessions.values()) {
             session.onTick();
         }
@@ -79,6 +85,33 @@ public final class SkillsPlugin extends JavaPlugin {
                 iter.remove();
             } else {
                 boss.onTick();
+            }
+        }
+        if ((ticks % 10) == 0) {
+            for (Player player : getServer().getOnlinePlayers()) {
+                tickPlayer(player);
+            }
+        }
+    }
+
+    // Show ambient particle effects of nearby blocks
+    void tickPlayer(@NonNull Player player) {
+        List<MarkBlock> blocks =
+            BlockMarker.getNearbyBlocks(player.getLocation().getBlock(), 24)
+            .stream().filter(mb -> mb.hasId() && mb.getId().startsWith("skills:"))
+            .collect(Collectors.toList());
+        if (blocks.isEmpty()) return;
+        Collections.shuffle(blocks, random);
+        final int max = Math.min(blocks.size(), 48);
+        for (int i = 0; i < max; i += 1) {
+            MarkBlock markBlock = blocks.get(i);
+            switch (markBlock.getId()) {
+            case Farming.WATERED_CROP:
+                Effects.wateredCropAmbient(player, markBlock.getBlock());
+                break;
+            case Farming.GROWN_CROP:
+                Effects.grownCropAmbient(player, markBlock.getBlock());
+                break;
             }
         }
     }

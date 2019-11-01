@@ -165,20 +165,12 @@ final class Farming {
         if (ticks > 0 && (ticks % 2400) == 0) {
             growCrop(markBlock, crop);
         }
-        // Water Effect
-        if (markBlock.getPlayerDistance() <= 1
-            && (ticks % 10) == 0) {
-            Effects.wateredCropAmbient(markBlock.getBlock());
-        }
     }
 
     void tickGrownCrop(@NonNull MarkBlock markBlock) {
         if (Crop.of(markBlock.getBlock()) == null) {
             markBlock.resetId();
             return;
-        }
-        if (plugin.random.nextInt(20) == 0) {
-            Effects.grownCropAmbient(markBlock.getBlock());
         }
     }
 
