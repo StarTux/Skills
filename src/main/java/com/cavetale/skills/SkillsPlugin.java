@@ -96,6 +96,7 @@ public final class SkillsPlugin extends JavaPlugin {
 
     // Show ambient particle effects of nearby blocks
     void tickPlayer(@NonNull Player player) {
+        if (sessionOf(player).noParticles) return;
         List<MarkBlock> blocks =
             BlockMarker.getNearbyBlocks(player.getLocation().getBlock(), 24)
             .stream().filter(mb -> mb.hasId() && mb.getId().startsWith("skills:"))

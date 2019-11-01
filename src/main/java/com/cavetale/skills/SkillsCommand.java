@@ -137,6 +137,14 @@ final class SkillsCommand implements TabExecutor {
             plugin.addTalentPoints(player, 1);
             return true;
         }
+        case "particles": {
+            Player player = requirePlayer(sender);
+            if (!player.isOp()) return false;
+            Session session = plugin.sessionOf(player);
+            session.noParticles = !session.noParticles;
+            player.sendMessage("Particles: " + (session.noParticles ? "off" : "on"));
+            return true;
+        }
         default:
             return false;
         }

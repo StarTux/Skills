@@ -32,6 +32,7 @@ final class Session {
     int archerZone = 0;
     int archerZoneKills = 0;
     boolean poisonFreebie = false;
+    boolean noParticles = false;
     //
     int noSave = 0;
     int tick;
