@@ -1,6 +1,7 @@
 package com.cavetale.skills;
 
 import com.cavetale.worldmarker.BlockMarker;
+import com.cavetale.worldmarker.EntityMarker;
 import com.cavetale.worldmarker.MarkChunk;
 import java.util.EnumMap;
 import lombok.NonNull;
@@ -8,6 +9,7 @@ import lombok.Value;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Boss;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -175,6 +177,15 @@ final class Combat {
                                            level - 1, true, false));
     }
 
+    boolean silenceEffect(@NonNull Mob mob) {
+        statusEffectOf(mob).silence = Util.now() + 20;
+        if (mob instanceof Boss) return false;
+        String id = EntityMarker.getId(mob);
+        if (id != null && id.contains("boss")) return false;
+        Effects.applyStatusEffect(mob);
+        return true;
+    }
+
     void playerDamageMob(@NonNull Player player, @NonNull Mob mob,
                          Projectile proj,
                          @NonNull EntityDamageByEntityEvent event) {
@@ -191,8 +202,7 @@ final class Combat {
             && !ranged
             && item != null
             && item.getEnchantmentLevel(Enchantment.KNOCKBACK) > 0) {
-            statusEffectOf(mob).silence = Util.now() + 20;
-            Effects.applyStatusEffect(mob);
+            silenceEffect(mob);
         }
         // Spider => Slow + NoPoison
         if (session.hasTalent(Talent.COMBAT_SPIDERS)
