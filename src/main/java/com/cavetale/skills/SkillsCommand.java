@@ -452,7 +452,7 @@ final class SkillsCommand implements TabExecutor {
         for (String cmd : commands) {
             commandHelp(player, cmd);
         }
-        sendTimeLeft(player);
+        // sendTimeLeft(player);
     }
 
     void commandHelp(@NonNull Player player, @NonNull String cmd) {
