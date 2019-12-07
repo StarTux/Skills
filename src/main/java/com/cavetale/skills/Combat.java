@@ -178,10 +178,10 @@ final class Combat {
     }
 
     boolean silenceEffect(@NonNull Mob mob) {
-        statusEffectOf(mob).silence = Util.now() + 20;
         if (mob instanceof Boss) return false;
         String id = EntityMarker.getId(mob);
         if (id != null && id.contains("boss")) return false;
+        statusEffectOf(mob).silence = Util.now() + 20;
         Effects.applyStatusEffect(mob);
         return true;
     }
