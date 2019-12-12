@@ -311,7 +311,7 @@ final class Mining {
         }
         if (reward == null) return;
         giveReward(player, block, reward);
-        if (reward.dropSelf() && reward.exp > 0) {
+        if (reward.dropSelf() && reward.exp > 0 && !Exploits.isPlayerPlaced(block)) {
             // If reward drops self, vanilla gives no exp, so we do it.
             Util.exp(block.getLocation().add(0.5, 0.5, 0.5), reward.exp);
         }
