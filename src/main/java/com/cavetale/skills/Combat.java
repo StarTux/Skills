@@ -79,8 +79,17 @@ final class Combat {
     void playerKillMob(@NonNull Player player, @NonNull Mob mob) {
         if (mob.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) mob.getLastDamageCause();
-            sniperKill(mob, edbee);
-            meleeKill(mob, edbee);
+            switch (edbee.getCause()) {
+            case PROJECTILE:
+                sniperKill(mob, edbee);
+                break;
+            case ENTITY_ATTACK:
+            case ENTITY_SWEEP_ATTACK:
+                meleeKill(mob, edbee);
+                break;
+            default:
+                break;
+            }
         }
         Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
