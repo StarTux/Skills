@@ -240,7 +240,6 @@ final class EventListener implements Listener {
             Projectile proj = null;
             switch (event.getCause()) {
             case ENTITY_ATTACK:
-            case ENTITY_SWEEP_ATTACK:
                 if (event.getDamager() instanceof Mob) {
                     mob = (Mob) event.getDamager();
                 }
@@ -266,13 +265,22 @@ final class EventListener implements Listener {
             final Mob mob = (Mob) event.getEntity();
             Player player = null;
             Projectile proj = null;
-            if (event.getDamager() instanceof Player) {
-                player = (Player) event.getDamager();
-            } else if (event.getDamager() instanceof Projectile) {
-                proj = (Projectile) event.getDamager();
-                if (proj.getShooter() instanceof Player) {
-                    player = (Player) proj.getShooter();
+            switch (event.getCause()) {
+            case ENTITY_ATTACK:
+                if (event.getDamager() instanceof Player) {
+                    player = (Player) event.getDamager();
                 }
+                break;
+            case PROJECTILE:
+                if (event.getDamager() instanceof Projectile) {
+                    proj = (Projectile) event.getDamager();
+                    if (proj.getShooter() instanceof Player) {
+                        player = (Player) proj.getShooter();
+                    }
+                }
+                break;
+            default:
+                break;
             }
             if (player != null && Util.playMode(player)) {
                 plugin.combat.playerDamageMob(player, mob, proj, event);
