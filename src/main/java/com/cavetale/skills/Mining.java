@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -233,8 +234,10 @@ final class Mining {
         // Actual XRay
         if (session.xrayActive) return 0;
         session.xrayActive = true;
-        final int radius = 2;
+        final int radius = 3;
+        final int realRadius = 2;
         final ArrayList<Block> bs = new ArrayList<>();
+        final ArrayList<Block> br = new ArrayList<>();
         Location loc = player.getLocation();
         int px = loc.getBlockX();
         int pz = loc.getBlockZ();
@@ -243,17 +246,25 @@ final class Mining {
                 for (int x = -radius; x <= radius; x += 1) {
                     if (x == 0 && y == 0 && z == 0) continue;
                     Block nbor = block.getRelative(x, y, z);
-                    if (nbor.getX() == px || nbor.getZ() == pz) continue;
                     if (nbor.getY() < 0) continue;
-                    if (stone(nbor)) bs.add(nbor);
+                    if (nbor.isEmpty() || nbor.isLiquid()) continue;
+                    int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
+                    if (nbor.getX() == px || nbor.getZ() == pz || !stone(nbor) || d > realRadius) {
+                        br.add(nbor);
+                    } else {
+                        bs.add(nbor);
+                    }
                 }
             }
         }
         if (bs.isEmpty()) return 0;
         Effects.xray(player);
+        BlockData fakeBlockData = Material.BLACK_STAINED_GLASS.createBlockData();
         for (Block b : bs) {
-            player.sendBlockChange(b.getLocation(), Material.BARRIER.createBlockData());
-            Effects.xray(player, b);
+            player.sendBlockChange(b.getLocation(), fakeBlockData);
+        }
+        for (Block b : br) {
+            player.sendBlockChange(b.getLocation(), b.getBlockData());
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
