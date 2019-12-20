@@ -98,7 +98,6 @@ final class Combat {
             .getTransientData(CHONK, Chonk.class, Chonk::new);
         chonk.kills += 1;
         if (chonk.kills > 5) return;
-        plugin.sessionOf(player).bossProgress += reward.sp;
         plugin.addSkillPoints(player, SkillType.COMBAT, reward.sp);
         Effects.kill(mob);
     }

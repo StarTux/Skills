@@ -24,7 +24,6 @@ import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -40,7 +39,6 @@ public final class SkillsPlugin extends JavaPlugin {
     final Mining mining = new Mining(this);
     final Combat combat = new Combat(this);
     final Metadata meta = new Metadata(this);
-    List<Boss> bosses = new ArrayList<>();
     Gson gson = new Gson();
     Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
     Map<String, TalentInfo> talentInfos;
@@ -68,24 +66,12 @@ public final class SkillsPlugin extends JavaPlugin {
             session.saveData();
         }
         sessions.clear();
-        for (Boss boss : bosses) {
-            boss.remove();
-        }
-        bosses.clear();
     }
 
     void onTick() {
         ticks += 1;
         for (Session session : sessions.values()) {
             session.onTick();
-        }
-        for (Iterator<Boss> iter = bosses.iterator(); iter.hasNext();) {
-            Boss boss = iter.next();
-            if (!boss.isValid()) {
-                iter.remove();
-            } else {
-                boss.onTick();
-            }
         }
         if ((ticks % 10) == 0) {
             for (Player player : getServer().getOnlinePlayers()) {
@@ -282,10 +268,6 @@ public final class SkillsPlugin extends JavaPlugin {
             player.sendTitle(ChatColor.LIGHT_PURPLE + "Talent Points",
                              ChatColor.WHITE + "Progress " + points + "/" + cost);
         }
-    }
-
-    Boss bossOf(@NonNull Entity entity) {
-        return meta.get(entity, Boss.BOSS, Boss.class).orElse(null);
     }
 
     void saveSQL(@NonNull Object row) {

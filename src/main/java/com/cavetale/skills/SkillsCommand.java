@@ -107,22 +107,6 @@ final class SkillsCommand implements TabExecutor {
             return infoCommand(requirePlayer(sender), args);
         case "hi":
             return hiCommand(requirePlayer(sender), args);
-        case "boss": {
-            Player player = requirePlayer(sender);
-            if (!player.isOp()) return false;
-            if (args.length == 0) {
-                Session session = plugin.sessionOf(player);
-                session.bossProgress = session.bossLevel * 10 + 10;
-                player.sendMessage("Boss progress set to " + session.bossProgress);
-            } else {
-                Boss.Type type = Boss.Type.valueOf(args[0].toUpperCase());
-                Boss boss = new Boss(plugin, type, 1);
-                boss.hero = player.getUniqueId();
-                boss.spawn(player.getLocation());
-                player.sendMessage("Boss spawned: " + type);
-            }
-            return true;
-        }
         case "reloadadvancements": {
             if (!sender.isOp()) return false;
             sender.sendMessage("Reloading advancements...");

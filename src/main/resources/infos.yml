@@ -3,7 +3,7 @@ combat:
   description: |-
     Kill monsters to get SP. Unlock talents to enhance your combat strength.
 
-    Each monster kill gives some skill points. However, they decrease quickly if you stay in place. Long kill chains will spawn boss mobs which are stronger than your usual enemies. Defeating them yields a chance at talent points.
+    Each monster kill gives some skill points. However, they decrease quickly if you stay in place.
 
 mining:
   title: Mining Skill

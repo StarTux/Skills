@@ -127,22 +127,6 @@ final class Effects {
                         new Particle.DustOptions(Color.RED, 2.0f));
     }
 
-    static void bossSwirl(@NonNull Entity e, final int tick) {
-        World w = e.getWorld();
-        BoundingBox bb = e.getBoundingBox();
-        double t = (double) tick * 0.2;
-        Location loc = bb.getCenter().toLocation(w)
-            .add(Math.cos(t) * bb.getWidthX() * 1.125,
-                 Math.sin(t * 1.5) * bb.getHeight() * 0.25,
-                 Math.sin(t) * bb.getWidthZ() * 1.125);
-        w.spawnParticle(Particle.REDSTONE,
-                        loc,
-                        1,
-                        0, 0, 0, // offset
-                        0.0, // extra/speed (REDSTONE does not care)
-                        new Particle.DustOptions(Color.BLUE, 1.0f));
-    }
-
     static void warp(@NonNull Entity e) {
         World w = e.getWorld();
         BoundingBox bb = e.getBoundingBox();

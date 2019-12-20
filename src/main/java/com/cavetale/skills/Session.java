@@ -22,8 +22,6 @@ final class Session {
     BossBar skillBar;
     SkillType shownSkill = null;
     int skillBarCountdown;
-    int bossProgress = 0; // Combat
-    int bossLevel = 0; // Boss bossLevel +1 will be spawned!
     boolean xrayActive;
     Tag tag;
     Set<Talent> talents = new HashSet<>();
@@ -102,9 +100,6 @@ final class Session {
         if (archerZone > 0) {
             archerZone -= 1;
             if (archerZone == 0) archerZoneKills = 0;
-        }
-        if (bossProgress > 0 && (tick % 200) == 0) {
-            bossProgress -= 1;
         }
         if (shownSkill != null && skillBarCountdown > 0) {
             skillBarCountdown -= 1;
