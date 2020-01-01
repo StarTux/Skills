@@ -129,6 +129,36 @@ final class SkillsCommand implements TabExecutor {
             player.sendMessage("Particles: " + (session.noParticles ? "off" : "on"));
             return true;
         }
+        case "median": {
+            if (!sender.isOp()) return false;
+            for (SkillType skill : SkillType.values()) {
+                List<SQLSkill> rows = plugin.skillColumns.stream()
+                    .filter(s -> s.level > 0)
+                    .filter(s -> skill.key.equals(s.skill))
+                    .sorted((b, a) -> Integer.compare(a.getTotalPoints(),
+                                                      b.getTotalPoints()))
+                    .collect(Collectors.toList());
+                if (rows.isEmpty()) continue;
+                int sumSP = 0;
+                int sumLevel = 0;
+                for (SQLSkill row : rows) {
+                    sumSP += row.getTotalPoints();
+                    sumLevel += row.level;
+                }
+                int avgSP = sumSP / rows.size();
+                int avgLevel = sumLevel / rows.size();
+                SQLSkill median = rows.get(rows.size() / 2);
+                SQLSkill max = rows.get(0);
+                sender.sendMessage(skill.displayName
+                                   + "\t"
+                                   + " Sample=" + rows.size()
+                                   + " Sum=" + sumSP + "," + sumLevel
+                                   + " Avg=" + avgSP + "," + avgLevel
+                                   + " Max=" + max.getTotalPoints() + "," + max.level
+                                   + " Med=" + median.getTotalPoints() + "," + median.level);
+            }
+            return true;
+        }
         default:
             return false;
         }

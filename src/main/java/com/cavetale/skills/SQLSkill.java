@@ -36,4 +36,12 @@ public final class SQLSkill {
     SkillType getSkillType() {
         return SkillType.ofKey(skill);
     }
+
+    int getTotalPoints() {
+        int result = points;
+        for (int i = 1; i < level; i += 1) {
+            result += SkillsPlugin.pointsForLevelUp(i);
+        }
+        return result;
+    }
 }

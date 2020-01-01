@@ -178,7 +178,7 @@ public final class SkillsPlugin extends JavaPlugin {
         }
     }
 
-    int pointsForLevelUp(final int lvl) {
+    static int pointsForLevelUp(final int lvl) {
         return lvl * 50 + lvl * lvl * 10;
     }
 
