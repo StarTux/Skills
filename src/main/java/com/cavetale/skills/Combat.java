@@ -107,7 +107,7 @@ final class Combat {
         Projectile proj = (Projectile) event.getDamager();
         if (!(proj.getShooter() instanceof Player)) return false;
         Player player = (Player) proj.getShooter();
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         if (session.hasTalent(Talent.COMBAT_ARCHER_ZONE)) {
             session.archerZone = 5 * 20;
             player.sendMessage(ChatColor.GOLD + "In The Zone! "
@@ -121,7 +121,7 @@ final class Combat {
     private boolean meleeKill(@NonNull Mob mob, @NonNull EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player)) return false;
         Player player = (Player) event.getDamager();
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         if (session.hasTalent(Talent.COMBAT_GOD_MODE)) {
             if (session.immortal <= 0) {
                 player.sendMessage(ChatColor.GOLD + "God Mode!");
@@ -152,7 +152,7 @@ final class Combat {
                          Projectile proj,
                          @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         // -50% damage on melee
         if (session.hasTalent(Talent.COMBAT_FIRE)
             && !ranged
@@ -198,7 +198,7 @@ final class Combat {
                          Projectile proj,
                          @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         final ItemStack item = player.getInventory().getItemInMainHand();
         // +50% damage
         if (session.hasTalent(Talent.COMBAT_FIRE)

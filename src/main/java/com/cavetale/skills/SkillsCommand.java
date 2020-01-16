@@ -74,8 +74,7 @@ final class SkillsCommand implements TabExecutor {
             return complete(arg, commands);
         }
         if (args.length == 2 && args[0].equals("info")) {
-            plugin.getInfo("");
-            return complete(args[1], plugin.infos.keySet());
+            return complete(args[1], plugin.infos.allKeys());
         }
         if (args.length == 2 && args[0].equals("hi")) {
             return complete(arg, Stream.concat(Stream.of("total", "talents"),
@@ -110,21 +109,21 @@ final class SkillsCommand implements TabExecutor {
         case "reloadadvancements": {
             if (!sender.isOp()) return false;
             sender.sendMessage("Reloading advancements...");
-            plugin.unloadAdvancements();
-            plugin.loadAdvancements();
+            plugin.advancements.unloadAll();
+            plugin.advancements.loadAll();
             sender.sendMessage("Advancements reloaded.");
             return true;
         }
         case "gimme": {
             Player player = requirePlayer(sender);
             if (!player.isOp()) return false;
-            plugin.addTalentPoints(player, 1);
+            plugin.talents.addPoints(player, 1);
             return true;
         }
         case "particles": {
             Player player = requirePlayer(sender);
             if (!player.isOp()) return false;
-            Session session = plugin.sessionOf(player);
+            Session session = plugin.sessions.of(player);
             session.noParticles = !session.noParticles;
             player.sendMessage("Particles: " + (session.noParticles ? "off" : "on"));
             return true;
@@ -132,7 +131,7 @@ final class SkillsCommand implements TabExecutor {
         case "median": {
             if (!sender.isOp()) return false;
             for (SkillType skill : SkillType.values()) {
-                List<SQLSkill> rows = plugin.skillColumns.stream()
+                List<SQLSkill> rows = plugin.sql.skillRows.stream()
                     .filter(s -> s.level > 0)
                     .filter(s -> skill.key.equals(s.skill))
                     .sorted((b, a) -> Integer.compare(a.getTotalPoints(),
@@ -167,7 +166,7 @@ final class SkillsCommand implements TabExecutor {
     boolean skillCommand(@NonNull Player player, @NonNull SkillType skill,
                          String[] args) {
         if (args.length != 0) return false;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         int level = session.getLevel(skill);
         int points = session.getSkillPoints(skill);
         int req = plugin.pointsForLevelUp(level + 1);
@@ -179,7 +178,7 @@ final class SkillsCommand implements TabExecutor {
         player.sendMessage("");
         player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + skill.displayName);
         player.sendMessage("");
-        Info info = plugin.getInfo(skill.key);
+        Info info = plugin.infos.get(skill.key);
         if (info != null) {
             player.sendMessage(info.description.split("\n\n")[0]);
         }
@@ -201,7 +200,7 @@ final class SkillsCommand implements TabExecutor {
     boolean listCommand(@NonNull Player player, String[] args) {
         if (args.length != 0) return false;
         player.sendMessage("");
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         for (SkillType skill : SkillType.values()) {
             int level = session.getLevel(skill);
             int points = session.getSkillPoints(skill);
@@ -217,7 +216,7 @@ final class SkillsCommand implements TabExecutor {
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Talents: "
                            + Stream.of(Talent.values())
                            .filter(session::hasTalent)
-                           .map(e -> ChatColor.GOLD + plugin.getTalentInfo(e.key).title)
+                           .map(e -> ChatColor.GOLD + plugin.talents.getInfo(e.key).title)
                            .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
         player.sendMessage("");
         return true;
@@ -226,7 +225,7 @@ final class SkillsCommand implements TabExecutor {
     boolean infoCommand(@NonNull Player player, String[] args) throws Wrong {
         if (args.length > 1) return false;
         if (args.length == 1) {
-            Info info = plugin.getInfo(args[0]);
+            Info info = plugin.infos.get(args[0]);
             if (info == null) {
                 throw new Wrong("Not found: " + args[0]);
             }
@@ -239,9 +238,8 @@ final class SkillsCommand implements TabExecutor {
             player.sendMessage("");
             return true;
         }
-        plugin.getInfo("");
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Pages: "
-                           + plugin.infos.keySet().stream()
+                           + plugin.infos.allKeys().stream()
                            .map(s -> ChatColor.YELLOW + s)
                            .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
         return true;
@@ -255,7 +253,7 @@ final class SkillsCommand implements TabExecutor {
         switch (args[0]) {
         case "unlock": {
             if (args.length != 2) return false;
-            Session session = plugin.sessionOf(player);
+            Session session = plugin.sessions.of(player);
             if (session.getTalentPoints() < session.getTalentCost()) {
                 throw new Wrong("You don't have enough Talent Points!");
             }
@@ -269,7 +267,7 @@ final class SkillsCommand implements TabExecutor {
             if (!session.canAccessTalent(talent)) {
                 throw new Wrong("Parent not yet available!");
             }
-            if (!plugin.unlockTalent(player, talent)) {
+            if (!plugin.talents.unlock(player, talent)) {
                 throw new Wrong("An unknown error occured.");
             }
             Effects.talentUnlock(player);
@@ -345,13 +343,13 @@ final class SkillsCommand implements TabExecutor {
         if (skill == null) {
             if (args[0].equals("total")) {
                 title = "Total";
-                scores = plugin.playerColumns.values().stream()
+                scores = plugin.sql.playerRows.values().stream()
                     .filter(p -> p.levels > 0)
                     .map(p -> new Score(p.levels, p.uuid))
                     .collect(Collectors.toList());
             } else if (args[0].equals("talents")) {
                 title = "Talents";
-                scores = plugin.playerColumns.values().stream()
+                scores = plugin.sql.playerRows.values().stream()
                     .filter(p -> p.talents > 0)
                     .map(p -> new Score(p.talents, p.uuid))
                     .collect(Collectors.toList());
@@ -360,7 +358,7 @@ final class SkillsCommand implements TabExecutor {
             }
         } else {
             title = skill.displayName;
-            scores = plugin.skillColumns.stream()
+            scores = plugin.sql.skillRows.stream()
                 .filter(s -> s.level > 0)
                 .filter(s -> skill.key.equals(s.skill))
                 .map(s -> new Score(s.level, s.player))
@@ -398,7 +396,7 @@ final class SkillsCommand implements TabExecutor {
     void talentMenu(@NonNull Player player) {
         player.sendMessage("");
         player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + "Skill Talents");
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         ComponentBuilder cb = null;
         for (Talent talent : Talent.values()) {
             if (cb != null && talent.depends == null) {
@@ -409,7 +407,7 @@ final class SkillsCommand implements TabExecutor {
                 cb = new ComponentBuilder("");
             }
             cb.append("  ").reset();
-            TalentInfo info = plugin.getTalentInfo(talent.key);
+            TalentInfo info = plugin.talents.getInfo(talent.key);
             ChatColor talentColor;
             if (session.hasTalent(talent)) {
                 cb.append(info.title).color(ChatColor.GREEN);
@@ -432,7 +430,7 @@ final class SkillsCommand implements TabExecutor {
                     ? ChatColor.GREEN
                     : ChatColor.DARK_RED;
                 dependency = ChatColor.LIGHT_PURPLE + "\nRequires: "
-                    + depColor + plugin.getTalentInfo(talent.depends.key).title;
+                    + depColor + plugin.talents.getInfo(talent.depends.key).title;
             }
             cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                     TextComponent

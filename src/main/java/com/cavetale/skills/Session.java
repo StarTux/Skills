@@ -17,8 +17,8 @@ import org.bukkit.entity.Player;
 final class Session {
     final SkillsPlugin plugin;
     final UUID uuid;
-    SQLPlayer playerColumn;
-    EnumMap<SkillType, SQLSkill> skillColumns = new EnumMap<>(SkillType.class);
+    SQLPlayer playerRow;
+    EnumMap<SkillType, SQLSkill> skillRows = new EnumMap<>(SkillType.class);
     BossBar skillBar;
     SkillType shownSkill = null;
     int skillBarCountdown;
@@ -37,29 +37,20 @@ final class Session {
     int actionSP;
 
     static final class Tag {
-        Set<String> talents;
+        Set<String> talents = new HashSet<>();
         transient boolean modified;
-
-        void init() {
-            if (talents == null) talents = new HashSet<>();
-        }
     }
 
     Session(@NonNull final SkillsPlugin plugin,
             @NonNull final Player player,
-            @NonNull final SQLPlayer playerColumn,
-            @NonNull final Map<SkillType, SQLSkill> inSkillColumns) {
+            @NonNull final SQLPlayer playerRow,
+            @NonNull final Map<SkillType, SQLSkill> inSkillRows) {
         this.plugin = plugin;
         this.uuid = player.getUniqueId();
-        this.playerColumn = playerColumn;
-        if (playerColumn.json != null) {
-            tag = plugin.gson.fromJson(playerColumn.json, Tag.class);
-        } else {
-            tag = new Tag();
-        }
-        tag.init();
+        this.playerRow = playerRow;
+        tag = plugin.json.deserialize(playerRow.json, Tag.class, Tag::new);
         tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
-        this.skillColumns.putAll(inSkillColumns);
+        this.skillRows.putAll(inSkillRows);
         skillBar = plugin.getServer().createBossBar("skills",
                                                     BarColor.BLUE,
                                                     BarStyle.SEGMENTED_10);
@@ -113,19 +104,19 @@ final class Session {
 
     void saveData() {
         noSave = 0;
-        if (playerColumn.modified || tag.modified) {
+        if (playerRow.modified || tag.modified) {
             if (tag.modified) {
                 tag.modified = false;
                 tag.talents = talents.stream().map(t -> t.key).collect(Collectors.toSet());
-                playerColumn.json = plugin.gson.toJson(tag);
+                playerRow.json = plugin.json.serialize(tag);
             }
-            playerColumn.modified = false;
-            plugin.saveSQL(playerColumn);
+            playerRow.modified = false;
+            plugin.sql.save(playerRow);
         }
-        for (SQLSkill col : skillColumns.values()) {
+        for (SQLSkill col : skillRows.values()) {
             if (!col.modified) continue;
             col.modified = false;
-            plugin.saveSQL(col);
+            plugin.sql.save(col);
         }
     }
 
@@ -143,14 +134,14 @@ final class Session {
     }
 
     int getTalentPoints() {
-        return playerColumn.talentPoints;
+        return playerRow.talentPoints;
     }
 
     int getLevel(SkillType skill) {
-        return skillColumns.get(skill).level;
+        return skillRows.get(skill).level;
     }
 
     int getSkillPoints(SkillType skill) {
-        return skillColumns.get(skill).points;
+        return skillRows.get(skill).points;
     }
 }

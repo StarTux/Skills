@@ -218,7 +218,7 @@ final class Mining {
     private int xray(@NonNull Player player, @NonNull Block block) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         // Night Vision
         final int potionDuration = 15 * 20; // ticks
         PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
@@ -268,7 +268,7 @@ final class Mining {
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
-                plugin.sessionOf(player).xrayActive = false;
+                plugin.sessions.of(player).xrayActive = false;
                 if (!player.getWorld().equals(block.getWorld())) return;
                 Effects.xray(player);
                 for (Block b : bs) {
@@ -286,7 +286,7 @@ final class Mining {
         if (!isPickaxe(item)) return;
         final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         final boolean sneak = player.isSneaking();
         final boolean stone = stone(block);
         // Strip Mining
@@ -332,7 +332,7 @@ final class Mining {
                        @NonNull BlockFace face, @NonNull ItemStack item) {
         Reward reward = rewards.get(block.getType());
         if (reward == null) return false;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         if (!session.hasTalent(Talent.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
         if (!GenericEvents.playerCanBuild(player, block)) return false;
@@ -407,7 +407,7 @@ final class Mining {
         plugin.addSkillPoints(player, SkillType.MINING, reward.sp);
         Material mat = block.getType();
         if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
-            plugin.rollTalentPoint(player, 1);
+            plugin.talents.rollPoint(player, 1);
         }
         return true;
     }

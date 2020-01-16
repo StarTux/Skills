@@ -93,7 +93,7 @@ final class Farming {
     boolean useStick(@NonNull Player player, @NonNull Block block) {
         if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return false;
         int radius = 0;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         if (session.hasTalent(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
         boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
@@ -215,7 +215,7 @@ final class Farming {
         if (crop == null) return;
         if (!isRipe(block)) return;
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         // Extra crops
         if (session.hasTalent(Talent.FARM_CROP_DROPS)) {
             block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
@@ -233,7 +233,7 @@ final class Farming {
             block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             int inc = 1;
             if (session.hasTalent(Talent.FARM_TALENT_POINTS)) inc = 2;
-            boolean noEffect = plugin.rollTalentPoint(player, inc);
+            boolean noEffect = plugin.talents.rollPoint(player, inc);
             if (!noEffect) Effects.rewardJingle(loc);
         }
         // Exp
@@ -244,7 +244,7 @@ final class Farming {
 
     boolean useSeed(@NonNull Player player, @NonNull Block block,
                     @NonNull Crop crop, @NonNull ItemStack item) {
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
         Material soil = crop == Crop.NETHER_WART
             ? Material.SOUL_SAND
             : Material.FARMLAND;

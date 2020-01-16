@@ -100,12 +100,12 @@ final class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     void onPlayerJoin(PlayerJoinEvent event) {
-        plugin.loadSession(event.getPlayer());
+        plugin.sessions.load(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.removeSession(event.getPlayer());
+        plugin.sessions.remove(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -181,7 +181,7 @@ final class EventListener implements Listener {
     void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            Session session = plugin.sessionOf(player);
+            Session session = plugin.sessions.of(player);
             double health = player.getHealth();
             if (session.hasTalent(Talent.COMBAT_GOD_MODE)
                 && session.immortal > 0
@@ -211,7 +211,7 @@ final class EventListener implements Listener {
     void onEntityPotionEffect(EntityPotionEffectEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            Session session = plugin.sessionOf(player);
+            Session session = plugin.sessions.of(player);
             if (session.hasTalent(Talent.COMBAT_SPIDERS)
                 && session.poisonFreebie
                 && event.getCause() == EntityPotionEffectEvent.Cause.ATTACK) {
