@@ -249,7 +249,7 @@ final class Mining {
                     if (nbor.getY() < 0) continue;
                     if (nbor.isEmpty() || nbor.isLiquid()) continue;
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
-                    if (nbor.getX() == px || nbor.getZ() == pz || !stone(nbor) || d > realRadius) {
+                    if (!stone(nbor) || d > realRadius) {
                         br.add(nbor);
                     } else {
                         bs.add(nbor);
