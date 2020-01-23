@@ -270,7 +270,7 @@ final class Mining {
         if (bs.isEmpty()) return 0;
         Effects.xray(player);
         BlockData fakeBlockData = Material.BLACK_STAINED_GLASS.createBlockData();
-        BlockData fakeDirtData = Material.GRAY_STAINED_GLASS.createBlockData();
+        BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
         for (Block b : bs) {
             if (dirt(b)) {
                 player.sendBlockChange(b.getLocation(), fakeDirtData);
