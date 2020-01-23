@@ -73,6 +73,16 @@ final class Mining {
         }
     }
 
+    static boolean dirt(@NonNull Block block) {
+        switch (block.getType()) {
+        case GRAVEL:
+        case DIRT:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     static boolean isPickaxe(@NonNull ItemStack item) {
         switch (item.getType()) {
         case DIAMOND_PICKAXE:
@@ -249,7 +259,7 @@ final class Mining {
                     if (nbor.getY() < 0) continue;
                     if (nbor.isEmpty() || nbor.isLiquid()) continue;
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
-                    if (!stone(nbor) || d > realRadius) {
+                    if ((!stone(nbor) && !dirt(nbor)) || d > realRadius) {
                         br.add(nbor);
                     } else {
                         bs.add(nbor);
