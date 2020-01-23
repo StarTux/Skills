@@ -220,7 +220,7 @@ final class Mining {
         if (!player.getWorld().equals(block.getWorld())) return 0;
         Session session = plugin.sessionOf(player);
         // Night Vision
-        final int potionDuration = 15 * 20; // ticks
+        final int potionDuration = 45 * 20; // ticks
         PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
         if (nightVision == null || nightVision.getDuration() < potionDuration) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
