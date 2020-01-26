@@ -73,6 +73,16 @@ final class Mining {
         }
     }
 
+    static boolean dirt(@NonNull Block block) {
+        switch (block.getType()) {
+        case GRAVEL:
+        case DIRT:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     static boolean isPickaxe(@NonNull ItemStack item) {
         switch (item.getType()) {
         case DIAMOND_PICKAXE:
@@ -220,7 +230,7 @@ final class Mining {
         if (!player.getWorld().equals(block.getWorld())) return 0;
         Session session = plugin.sessions.of(player);
         // Night Vision
-        final int potionDuration = 15 * 20; // ticks
+        final int potionDuration = 45 * 20; // ticks
         PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
         if (nightVision == null || nightVision.getDuration() < potionDuration) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
@@ -249,7 +259,7 @@ final class Mining {
                     if (nbor.getY() < 0) continue;
                     if (nbor.isEmpty() || nbor.isLiquid()) continue;
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
-                    if (nbor.getX() == px || nbor.getZ() == pz || !stone(nbor) || d > realRadius) {
+                    if ((!stone(nbor) && !dirt(nbor)) || d > realRadius) {
                         br.add(nbor);
                     } else {
                         bs.add(nbor);
@@ -260,8 +270,13 @@ final class Mining {
         if (bs.isEmpty()) return 0;
         Effects.xray(player);
         BlockData fakeBlockData = Material.BLACK_STAINED_GLASS.createBlockData();
+        BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
         for (Block b : bs) {
-            player.sendBlockChange(b.getLocation(), fakeBlockData);
+            if (dirt(b)) {
+                player.sendBlockChange(b.getLocation(), fakeDirtData);
+            } else {
+                player.sendBlockChange(b.getLocation(), fakeBlockData);
+            }
         }
         for (Block b : br) {
             player.sendBlockChange(b.getLocation(), b.getBlockData());
