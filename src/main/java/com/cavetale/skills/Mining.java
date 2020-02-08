@@ -7,12 +7,14 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import lombok.NonNull;
 import lombok.Value;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -218,7 +220,7 @@ final class Mining {
         }
         if (bs.isEmpty()) return false;
         Block ore = bs.get(plugin.random.nextInt(bs.size()));
-        Effects.oreAlert(player, ore);
+        Effects.oreAlert(ore);
         return true;
     }
 
@@ -268,31 +270,41 @@ final class Mining {
             }
         }
         if (bs.isEmpty()) return 0;
-        Effects.xray(player);
         BlockData fakeBlockData = Material.BLACK_STAINED_GLASS.createBlockData();
         BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
         for (Block b : bs) {
             if (dirt(b)) {
-                player.sendBlockChange(b.getLocation(), fakeDirtData);
+                fakeBlock(player, b, fakeDirtData);
             } else {
-                player.sendBlockChange(b.getLocation(), fakeBlockData);
+                fakeBlock(player, b, fakeBlockData);
             }
         }
         for (Block b : br) {
-            player.sendBlockChange(b.getLocation(), b.getBlockData());
+            fakeBlock(player, b, b.getBlockData());
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
                 plugin.sessionOf(player).xrayActive = false;
                 if (!player.getWorld().equals(block.getWorld())) return;
-                Effects.xray(player);
                 for (Block b : bs) {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
-                    player.sendBlockChange(b.getLocation(), b.getBlockData());
+                    fakeBlock(player, b, b.getBlockData());
                 }
             }, 60L); // 3 seconds
         return bs.size();
+    }
+
+    void fakeBlock(Player player, Block block, BlockData fake) {
+        player.sendBlockChange(block.getLocation(), fake);
+        // Find spectators
+        for (Player p : player.getWorld().getPlayers()) {
+            if (p.equals(player)) continue;
+            if (p.getGameMode() != GameMode.SPECTATOR) continue;
+            Entity t = p.getSpectatorTarget();
+            if (t == null || !t.equals(player)) continue;
+            p.sendBlockChange(block.getLocation(), fake);
+        }
     }
 
     void mine(@NonNull Player player, @NonNull Block block) {
