@@ -153,15 +153,9 @@ final class Effects {
     }
 
     static void oreAlert(@NonNull Player player, @NonNull Block block) {
-        player.playSound(block.getLocation().add(0.5, 0.5, 0.5),
-                         Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS, 1.0f, 2.0f);
-    }
-
-    static void xray(@NonNull Player player) {
-        player.playSound(player.getEyeLocation(),
-                         Sound.ENTITY_ILLUSIONER_MIRROR_MOVE,
-                         SoundCategory.MASTER,
-                         0.1f, 1.5f);
+        World w = player.getWorld();
+        w.playSound(block.getLocation().add(0.5, 0.5, 0.5),
+                    Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS, 1.0f, 2.0f);
     }
 
     static void useSilk(@NonNull Player player, @NonNull Block block, @NonNull Location loc) {

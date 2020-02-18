@@ -268,24 +268,28 @@ final class Mining {
             }
         }
         if (bs.isEmpty()) return 0;
-        Effects.xray(player);
         BlockData fakeBlockData = Material.BLACK_STAINED_GLASS.createBlockData();
         BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
         for (Block b : bs) {
+            Location bl = b.getLocation();
             if (dirt(b)) {
-                player.sendBlockChange(b.getLocation(), fakeDirtData);
+                Spectators.apply(player, p ->
+                                 p.sendBlockChange(bl, fakeDirtData));
             } else {
-                player.sendBlockChange(b.getLocation(), fakeBlockData);
+                Spectators.apply(player, p ->
+                                 p.sendBlockChange(bl, fakeBlockData));
             }
         }
         for (Block b : br) {
-            player.sendBlockChange(b.getLocation(), b.getBlockData());
+            Location bl = b.getLocation();
+            BlockData data = b.getBlockData();
+            Spectators.apply(player, p ->
+                             p.sendBlockChange(bl, data));
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
                 plugin.sessions.of(player).xrayActive = false;
                 if (!player.getWorld().equals(block.getWorld())) return;
-                Effects.xray(player);
                 for (Block b : bs) {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
