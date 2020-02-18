@@ -11,24 +11,45 @@ import org.bukkit.entity.Player;
 @RequiredArgsConstructor
 final class Talents {
     final SkillsPlugin plugin;
-    Map<String, TalentInfo> talentInfos;
+    Map<Talent, TalentInfo> infos = new HashMap<>();
+    TalentInfo baseInfo;
+
+    /**
+     * Load ALL the talent infos.
+     */
+    void load() {
+        infos = new HashMap<>();
+        ConfigurationSection conf = plugin.yaml.load("talents.yml");
+        for (String key : conf.getKeys(false)) {
+            Talent talent = Talent.of(key.toLowerCase());
+            if (talent == null) {
+                plugin.getLogger().warning("talents.yml: Invalid key:" + key);
+                continue;
+            }
+            if (!conf.isConfigurationSection(talent.key)) {
+                plugin.getLogger().warning("talents.yml: Not a section:" + key);
+                continue;
+            }
+            TalentInfo info = new TalentInfo(conf.getConfigurationSection(talent.key));
+            infos.put(talent, info);
+        }
+        for (Talent talent : Talent.values()) {
+            if (infos.containsKey(talent)) continue;
+            plugin.getLogger().warning("talents.yml: Missing section: " + talent.key);
+            infos.put(talent, new TalentInfo(talent));
+        }
+        final String talents = "talents";
+        if (conf.isConfigurationSection(talents)) {
+            baseInfo = new TalentInfo(conf.getConfigurationSection(talents));
+        } else {
+            plugin.getLogger().warning("talents.yml: Missing section: talents");
+            baseInfo = new TalentInfo("Talents");
+        }
+    }
 
     // Never returns null
-    TalentInfo getInfo(String name) {
-        if (talentInfos == null) {
-            talentInfos = new HashMap<>();
-            ConfigurationSection conf = plugin.yaml.load("talents.yml");
-            for (String key : conf.getKeys(false)) {
-                talentInfos.put(key, new TalentInfo(conf.getConfigurationSection(key)));
-            }
-        }
-        TalentInfo result = talentInfos.get(name);
-        if (result == null) {
-            plugin.getLogger().warning("Missing talent info: " + name);
-            result = new TalentInfo(name);
-            talentInfos.put(name, result);
-        }
-        return result;
+    TalentInfo getInfo(Talent talent) {
+        return infos.get(talent);
     }
 
     boolean unlock(@NonNull Player player, @NonNull Talent talent) {

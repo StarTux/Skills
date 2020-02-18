@@ -51,7 +51,7 @@ public enum Talent {
               COMBAT_ARCHER_ZONE);
         for (Talent talent : values()) {
             KEY_MAP.put(talent.key, talent);
-            System.out.println(talent + " dep=" + talent.depends);
+            KEY_MAP.put(talent.key.replace("_", ""), talent);
         }
     }
 

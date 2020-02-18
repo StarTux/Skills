@@ -18,6 +18,12 @@ final class TalentInfo {
         background = config.getString("background");
     }
 
+    TalentInfo(@NonNull final Talent talent) {
+        title = talent.displayName;
+        description = talent.displayName;
+        icon = "barrier";
+    }
+
     TalentInfo(@NonNull final String name) {
         title = name;
         description = name;

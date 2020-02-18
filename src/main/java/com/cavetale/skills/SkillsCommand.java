@@ -216,7 +216,7 @@ final class SkillsCommand implements TabExecutor {
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Talents: "
                            + Stream.of(Talent.values())
                            .filter(session::hasTalent)
-                           .map(e -> ChatColor.GOLD + plugin.talents.getInfo(e.key).title)
+                           .map(t -> ChatColor.GOLD + plugin.talents.getInfo(t).title)
                            .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
         player.sendMessage("");
         return true;
@@ -407,7 +407,7 @@ final class SkillsCommand implements TabExecutor {
                 cb = new ComponentBuilder("");
             }
             cb.append("  ").reset();
-            TalentInfo info = plugin.talents.getInfo(talent.key);
+            TalentInfo info = plugin.talents.getInfo(talent);
             ChatColor talentColor;
             if (session.hasTalent(talent)) {
                 cb.append(info.title).color(ChatColor.GREEN);
@@ -430,7 +430,7 @@ final class SkillsCommand implements TabExecutor {
                     ? ChatColor.GREEN
                     : ChatColor.DARK_RED;
                 dependency = ChatColor.LIGHT_PURPLE + "\nRequires: "
-                    + depColor + plugin.talents.getInfo(talent.depends.key).title;
+                    + depColor + plugin.talents.getInfo(talent.depends).title;
             }
             cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                     TextComponent

@@ -37,12 +37,13 @@ public final class SkillsPlugin extends JavaPlugin {
     public void onEnable() {
         getCommand("skills").setExecutor(skillsCommand);
         getServer().getPluginManager().registerEvents(eventListener, this);
+        talents.load();
         sql.enable();
         advancements.loadAll();
+        infos.load();
         for (Player player : getServer().getOnlinePlayers()) {
             sessions.load(player);
         }
-        infos.load();
         getServer().getScheduler().runTaskTimer(this, this::onTick, 1, 1);
     }
 

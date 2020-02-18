@@ -51,15 +51,12 @@ final class Advancements {
     }
 
     String make(Talent talent) {
-        String name;
         String parent;
         if (talent != null) {
-            name = talent.key;
             parent = talent.depends == null
                 ? "skills:talents/talents"
                 : "skills:talents/" + talent.depends.key;
         } else {
-            name = "talents";
             parent = null;
         }
         Map<String, Object> map = new HashMap<>();
@@ -67,7 +64,9 @@ final class Advancements {
         map.put("display", display);
         Map<String, Object> iconMap = new HashMap<>();
         display.put("icon", iconMap);
-        TalentInfo info = plugin.talents.getInfo(name);
+        TalentInfo info = talent != null
+            ? plugin.talents.getInfo(talent)
+            : plugin.talents.baseInfo;
         iconMap.put("item", "minecraft:" + info.icon);
         if (info.iconNBT != null) iconMap.put("nbt", info.iconNBT);
         display.put("title", info.title);
