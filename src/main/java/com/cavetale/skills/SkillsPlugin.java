@@ -87,25 +87,35 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     static int pointsForLevelUp(final int lvl) {
-        return lvl * 50 + lvl * lvl * 10;
+        return 100 + lvl * 10 + lvl * lvl;
     }
 
     void addSkillPoints(@NonNull Player player, @NonNull SkillType skill, final int add) {
         Session session = sessions.of(player);
-        SQLSkill col = session.skillRows.get(skill);
-        int points = col.points + add;
-        int req = pointsForLevelUp(col.level + 1);
+        SQLSkill row = session.skillRows.get(skill);
+        int level = row.level;
+        int req = pointsForLevelUp(level + 1);
+        double oldProg = (double) row.points / (double) req;
+        int points = row.points + add;
+        double newProg = (double) points / (double) req;
+        boolean levelup = false;
         if (points >= req) {
+            levelup = true;
             points -= req;
-            col.level += 1;
+            req = pointsForLevelUp(row.level + 2);
+            newProg = (double) points / (double) req;
+            row.level += 1;
             session.playerRow.levels += 1;
             session.playerRow.modified = true;
             Effects.levelup(player);
             player.sendTitle(ChatColor.GOLD + skill.displayName,
-                             ChatColor.WHITE + "Level " + col.level);
+                             ChatColor.WHITE + "Level " + row.level);
         }
-        col.points = points;
-        col.modified = true;
-        sessions.of(player).showSkillBar(player, skill, col.level, points, req, add);
+        row.points = points;
+        row.modified = true;
+        sessions.of(player).showSkillBar(player, skill,
+                                         oldProg, newProg,
+                                         level, row.level,
+                                         levelup);
     }
 }

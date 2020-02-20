@@ -11,7 +11,6 @@ import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
 final class Session {
@@ -19,9 +18,6 @@ final class Session {
     final UUID uuid;
     SQLPlayer playerRow;
     EnumMap<SkillType, SQLSkill> skillRows = new EnumMap<>(SkillType.class);
-    BossBar skillBar;
-    SkillType shownSkill = null;
-    int skillBarCountdown;
     boolean xrayActive;
     Tag tag;
     Set<Talent> talents = new HashSet<>();
@@ -32,9 +28,9 @@ final class Session {
     boolean poisonFreebie = false;
     boolean noParticles = false;
     //
+    ProgressBar skillBar;
     int noSave = 0;
     int tick;
-    int actionSP;
 
     static final class Tag {
         Set<String> talents = new HashSet<>();
@@ -51,38 +47,59 @@ final class Session {
         tag = plugin.json.deserialize(playerRow.json, Tag.class, Tag::new);
         tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
         this.skillRows.putAll(inSkillRows);
-        skillBar = plugin.getServer().createBossBar("skills",
-                                                    BarColor.BLUE,
-                                                    BarStyle.SEGMENTED_10);
-        skillBar.setVisible(false);
-        skillBar.addPlayer(player);
+        skillBar = new ProgressBar("skills", BarColor.WHITE, BarStyle.SEGMENTED_20);
+        skillBar.add(player);
+        skillBar.hide();
     }
 
     void onDisable() {
-        skillBar.removeAll();
-        skillBar.setVisible(false);
+        skillBar.clear();
+        skillBar.hide();
     }
 
-    void showSkillBar(@NonNull Player player, @NonNull SkillType skill, final int level,
-                      final int points, final int totalPoints, final int newPoints) {
-        if (shownSkill == skill) {
-            actionSP += newPoints;
-        } else {
-            actionSP = newPoints;
+    void setSkillBarTitle(SkillType skill, int level) {
+        skillBar.setTitle(ChatColor.GRAY + skill.displayName + " level " + level);
+    }
+
+    void showSkillBar(@NonNull Player player, @NonNull SkillType skill,
+                      final double oldProg, final double newProg,
+                      final int oldLevel, final int newLevel,
+                      final boolean levelup) {
+        if (!skillBar.isAlive() || skillBar.skill != skill) {
+            skillBar.setProgress(oldProg);
+            skillBar.skill = skill;
         }
-        player.sendActionBar(ChatColor.GRAY + "+"
-                             + ChatColor.GOLD + ChatColor.BOLD + actionSP
-                             + ChatColor.GRAY + "SP");
-        skillBar.setTitle(ChatColor.GOLD + skill.displayName
-                          + ChatColor.WHITE + " Level "
-                          + ChatColor.GOLD + ChatColor.BOLD + level + " "
-                          + ChatColor.WHITE + points
-                          + ChatColor.DARK_GRAY + "/"
-                          + ChatColor.WHITE + totalPoints);
-        skillBar.setProgress((double) points / (double) totalPoints);
-        shownSkill = skill;
-        skillBarCountdown = 100;
-        skillBar.setVisible(true);
+        final int timer = 10;
+        if (levelup) {
+            setSkillBarTitle(skill, oldLevel);
+            skillBar.animateProgress(1.0, timer);
+            skillBar.setPostAnimation(() -> {
+                    setSkillBarTitle(skill, newLevel);
+                    skillBar.setProgress(0.0);
+                    if (newProg > 0.0) {
+                        skillBar.animateProgress(newProg, timer);
+                    }
+                });
+        } else if (newProg < skillBar.getProgress()) {
+            if (skillBar.isAnimating()) {
+                skillBar.setPostAnimation(() -> {
+                        setSkillBarTitle(skill, newLevel);
+                        skillBar.setProgress(0.0);
+                        if (newProg > 0.0) {
+                            skillBar.animateProgress(newProg, timer);
+                        }
+                    });
+            } else {
+                // Should not happen
+                plugin.getLogger().warning("Session: The improbable just happened.");
+                setSkillBarTitle(skill, newLevel);
+                skillBar.setProgress(newProg);
+            }
+        } else {
+            setSkillBarTitle(skill, oldLevel);
+            skillBar.animateProgress(newProg, timer);
+        }
+        skillBar.setLifespan(200);
     }
 
     void onTick() {
@@ -92,11 +109,9 @@ final class Session {
             archerZone -= 1;
             if (archerZone == 0) archerZoneKills = 0;
         }
-        if (shownSkill != null && skillBarCountdown > 0) {
-            skillBarCountdown -= 1;
-            if (skillBarCountdown == 0) {
-                shownSkill = null;
-                skillBar.setVisible(false);
+        if (skillBar.skill != null && skillBar.isAlive()) {
+            if (!skillBar.tick()) {
+                skillBar.skill = null;
             }
         }
         if (noSave++ > 200) saveData();
