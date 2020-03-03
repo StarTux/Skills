@@ -237,7 +237,7 @@ final class Farming {
             if (!noEffect) Effects.rewardJingle(loc);
         }
         // Exp
-        plugin.addSkillPoints(player, SkillType.FARMING, 1);
+        plugin.points.give(player, SkillType.FARMING, 1);
         block.getWorld().spawn(loc, ExperienceOrb.class, orb -> orb.setExperience(1));
         Effects.harvest(block);
     }

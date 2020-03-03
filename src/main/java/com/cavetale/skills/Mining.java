@@ -423,7 +423,7 @@ final class Mining {
                        @NonNull Block block,
                        @NonNull Reward reward) {
         if (Exploits.isPlayerPlaced(block)) return false;
-        plugin.addSkillPoints(player, SkillType.MINING, reward.sp);
+        plugin.points.give(player, SkillType.MINING, reward.sp);
         Material mat = block.getType();
         if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
             plugin.talents.rollPoint(player, 1);

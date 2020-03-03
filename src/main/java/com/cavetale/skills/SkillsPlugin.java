@@ -1,14 +1,7 @@
 package com.cavetale.skills;
 
-import com.cavetale.worldmarker.BlockMarker;
-import com.cavetale.worldmarker.MarkBlock;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-import lombok.NonNull;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,10 +21,11 @@ public final class SkillsPlugin extends JavaPlugin {
     // Components
     final SQL sql = new SQL(this);
     final Sessions sessions = new Sessions(this);
+    final Points points = new Points(this);
     final Talents talents = new Talents(this);
     final Advancements advancements = new Advancements(this);
     final Infos infos = new Infos(this);
-    long ticks = 0;
+    final Timer timer = new Timer(this);
 
     @Override
     public void onEnable() {
@@ -44,78 +38,11 @@ public final class SkillsPlugin extends JavaPlugin {
         for (Player player : getServer().getOnlinePlayers()) {
             sessions.load(player);
         }
-        getServer().getScheduler().runTaskTimer(this, this::onTick, 1, 1);
+        timer.start();
     }
 
     @Override
     public void onDisable() {
         sessions.disable();
-    }
-
-    void onTick() {
-        ticks += 1;
-        sessions.tick();
-        if ((ticks % 10) == 0) {
-            for (Player player : getServer().getOnlinePlayers()) {
-                tickPlayer(player);
-            }
-        }
-    }
-
-    // Show ambient particle effects of nearby blocks
-    void tickPlayer(@NonNull Player player) {
-        if (sessions.of(player).noParticles) return;
-        List<MarkBlock> blocks =
-            BlockMarker.getNearbyBlocks(player.getLocation().getBlock(), 24)
-            .stream().filter(mb -> mb.hasId() && mb.getId().startsWith("skills:"))
-            .collect(Collectors.toList());
-        if (blocks.isEmpty()) return;
-        Collections.shuffle(blocks, random);
-        final int max = Math.min(blocks.size(), 48);
-        for (int i = 0; i < max; i += 1) {
-            MarkBlock markBlock = blocks.get(i);
-            switch (markBlock.getId()) {
-            case Farming.WATERED_CROP:
-                Effects.wateredCropAmbient(player, markBlock.getBlock());
-                break;
-            case Farming.GROWN_CROP:
-                Effects.grownCropAmbient(player, markBlock.getBlock());
-                break;
-            default: break;
-            }
-        }
-    }
-
-    static int pointsForLevelUp(final int lvl) {
-        return 100 + lvl * 10 + lvl * lvl;
-    }
-
-    void addSkillPoints(@NonNull Player player, @NonNull SkillType skill, final int add) {
-        Session session = sessions.of(player);
-        SQLSkill row = session.skillRows.get(skill);
-        int level = row.level;
-        int req = pointsForLevelUp(level + 1);
-        double oldProg = (double) row.points / (double) req;
-        int points = row.points + add;
-        double newProg = (double) points / (double) req;
-        boolean levelup = false;
-        if (points >= req) {
-            levelup = true;
-            points -= req;
-            req = pointsForLevelUp(row.level + 2);
-            newProg = (double) points / (double) req;
-            row.level += 1;
-            session.playerRow.levels += 1;
-            session.playerRow.modified = true;
-            Effects.levelup(player);
-            player.sendTitle(ChatColor.GOLD + skill.displayName,
-                             ChatColor.WHITE + "Level " + row.level);
-        }
-        row.points = points;
-        row.modified = true;
-        sessions.of(player).showSkillBar(player, skill,
-                                         oldProg, newProg,
-                                         level, row.level,
-                                         levelup);
     }
 }

@@ -169,7 +169,7 @@ final class SkillsCommand implements TabExecutor {
         Session session = plugin.sessions.of(player);
         int level = session.getLevel(skill);
         int points = session.getSkillPoints(skill);
-        int req = plugin.pointsForLevelUp(level + 1);
+        int req = Points.forLevel(level + 1);
         long talents = Stream.of(Talent.values())
             .filter(t -> t.skill == skill).count();
         long talentsHas = Stream.of(Talent.values())
@@ -204,7 +204,7 @@ final class SkillsCommand implements TabExecutor {
         for (SkillType skill : SkillType.values()) {
             int level = session.getLevel(skill);
             int points = session.getSkillPoints(skill);
-            int req = plugin.pointsForLevelUp(level + 1);
+            int req = plugin.points.forLevel(level + 1);
             player.sendMessage(""
                                + ChatColor.DARK_PURPLE + "lvl"
                                + ChatColor.YELLOW + ChatColor.BOLD + level

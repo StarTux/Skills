@@ -40,7 +40,7 @@ public final class SQLSkill {
     int getTotalPoints() {
         int result = points;
         for (int i = 1; i < level; i += 1) {
-            result += SkillsPlugin.pointsForLevelUp(i);
+            result += Points.forLevel(i);
         }
         return result;
     }
