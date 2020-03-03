@@ -64,7 +64,7 @@ public enum Talent {
 
     Talent() {
         key = name().toLowerCase();
-        this.displayName = Util.niceEnumName(this);
+        this.displayName = Msg.enumToCamelCase(this);
     }
 
     public static Talent of(@NonNull String key) {

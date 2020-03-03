@@ -18,7 +18,7 @@ public enum Ability {
 
     Ability() {
         key = name().toLowerCase();
-        this.displayName = Util.niceEnumName(this);
+        this.displayName = Msg.enumToCamelCase(this);
     }
 
     public static Ability of(@NonNull String key) {

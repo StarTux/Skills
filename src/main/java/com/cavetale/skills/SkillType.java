@@ -12,7 +12,7 @@ public enum SkillType {
 
     SkillType() {
         key = name().toLowerCase();
-        displayName = Util.niceEnumName(this);
+        displayName = Msg.enumToCamelCase(this);
     }
 
     static SkillType ofKey(@NonNull String key) {
