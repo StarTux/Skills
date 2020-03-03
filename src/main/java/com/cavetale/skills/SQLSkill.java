@@ -23,6 +23,8 @@ public final class SQLSkill {
     @Column(nullable = false)
     int points = 0;
     @Column(nullable = false)
+    int totalPoints = 0;
+    @Column(nullable = false)
     int level = 0;
     transient boolean modified;
 
@@ -35,13 +37,5 @@ public final class SQLSkill {
 
     SkillType getSkillType() {
         return SkillType.ofKey(skill);
-    }
-
-    int getTotalPoints() {
-        int result = points;
-        for (int i = 1; i < level; i += 1) {
-            result += Points.forLevel(i);
-        }
-        return result;
     }
 }

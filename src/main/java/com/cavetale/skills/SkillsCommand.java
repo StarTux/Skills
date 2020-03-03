@@ -134,14 +134,14 @@ final class SkillsCommand implements TabExecutor {
                 List<SQLSkill> rows = plugin.sql.skillRows.stream()
                     .filter(s -> s.level > 0)
                     .filter(s -> skill.key.equals(s.skill))
-                    .sorted((b, a) -> Integer.compare(a.getTotalPoints(),
-                                                      b.getTotalPoints()))
+                    .sorted((b, a) -> Integer.compare(a.totalPoints,
+                                                      b.totalPoints))
                     .collect(Collectors.toList());
                 if (rows.isEmpty()) continue;
                 int sumSP = 0;
                 int sumLevel = 0;
                 for (SQLSkill row : rows) {
-                    sumSP += row.getTotalPoints();
+                    sumSP += row.totalPoints;
                     sumLevel += row.level;
                 }
                 int avgSP = sumSP / rows.size();
@@ -153,8 +153,8 @@ final class SkillsCommand implements TabExecutor {
                                    + " Sample=" + rows.size()
                                    + " Sum=" + sumSP + "," + sumLevel
                                    + " Avg=" + avgSP + "," + avgLevel
-                                   + " Max=" + max.getTotalPoints() + "," + max.level
-                                   + " Med=" + median.getTotalPoints() + "," + median.level);
+                                   + " Max=" + max.totalPoints + "," + max.level
+                                   + " Med=" + median.totalPoints + "," + median.level);
             }
             return true;
         }

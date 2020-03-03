@@ -13,34 +13,50 @@ public final class Points {
         return 100 + lvl * 10 + lvl * lvl;
     }
 
+    public static int totalForLevel(final int lvl) {
+        int result = 0;
+        for (int i = 1; i <= lvl; i += 1) {
+            result += forLevel(i);
+        }
+        return result;
+    }
+
+    /**
+     * Add points to the player's account and level them up with all
+     * effects if possible.
+     */
     public void give(@NonNull Player player,
                      @NonNull SkillType skill,
                      final int add) {
         Session session = plugin.sessions.of(player);
         SQLSkill row = session.skillRows.get(skill);
-        int level = row.level;
-        int req = forLevel(level + 1);
-        double oldProg = (double) row.points / (double) req;
-        int points = row.points + add;
-        double newProg = (double) points / (double) req;
+        int oldLevel = row.level;
+        int newLevel = oldLevel;
+        int req = forLevel(oldLevel + 1);
+        int oldPoints = row.points;
+        int newPoints = oldPoints + add;
+        double oldProg = (double) oldPoints / (double) req;
+        double newProg = (double) newPoints / (double) req;
         boolean levelup = false;
-        if (points >= req) {
+        if (newPoints >= req) {
             levelup = true;
-            points -= req;
-            req = forLevel(row.level + 2);
-            newProg = (double) points / (double) req;
-            row.level += 1;
+            newPoints -= req;
+            req = forLevel(oldLevel + 2);
+            newProg = (double) newPoints / (double) req;
+            newLevel += 1;
             session.playerRow.levels += 1;
             session.playerRow.modified = true;
             Effects.levelup(player);
             player.sendTitle(ChatColor.GOLD + skill.displayName,
-                             ChatColor.WHITE + "Level " + row.level);
+                             ChatColor.WHITE + "Level " + newLevel);
         }
-        row.points = points;
+        row.points = newPoints;
+        row.totalPoints += add;
         row.modified = true;
+        row.level = newLevel;
         session.showSkillBar(player, skill,
                              oldProg, newProg,
-                             level, row.level,
+                             oldLevel, newLevel,
                              levelup);
     }
 }
