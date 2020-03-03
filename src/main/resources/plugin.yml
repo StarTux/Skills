@@ -12,11 +12,27 @@ commands:
     aliases: [skill, sk]
     description: Skills Command
     permission: skills.skills
-    permission-message: You do not have permission!
-    usage: /<command>
+    usage: |-
+      /sk mining - Mining skill info
+      /sk farming - Farming skill info
+      /sk combat - Combat skill info
+      /sk talent - Talent tree
+      /sk list - List skills and talents
+      /sk info - Info pages
+      /sk hi - Highscore
+  skadmin:
+    aliases: [skadm, skilladmin, skillsadmin]
+    description: Skills admin interface
+    permission: skills.admin
+    usage: |-
+      /skadm reloadadvancements
+      /skadm gime - Give yourself a talent point
+      /skadm particles - Toggle particles
+      /skadm median - Display median skill points
 permissions:
   skills.skills:
     description: Use /skills
+    default: false
+  skills.admin:
+    description: Use /skadmin
     default: op
-    children:
-      skills.child: true

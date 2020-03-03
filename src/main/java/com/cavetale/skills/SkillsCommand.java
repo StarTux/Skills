@@ -2,13 +2,11 @@ package com.cavetale.skills;
 
 import com.winthier.generic_events.GenericEvents;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import net.md_5.bungee.api.ChatColor;
@@ -22,45 +20,64 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-final class SkillsCommand implements TabExecutor {
+final class SkillsCommand extends CommandBase implements TabExecutor {
     final SkillsPlugin plugin;
-    final List<String> commands = Arrays
-        .asList("combat", "mining", "farming", "list", "talent", "info", "hi");
 
-    // Error Class
+    enum CMD {
+        LIST,
+        TALENT,
+        INFO,
+        HI;
 
-    static class Wrong extends Exception {
-        Wrong(final String msg) {
-            super(msg);
+        public final String key;
+
+        CMD() {
+            key = name().toLowerCase();
         }
     }
-
-    // Overrides
 
     @Override
     public boolean onCommand(CommandSender sender, Command command,
                              String alias, String[] args) {
-        if (args.length == 0) {
-            if (!(sender instanceof Player)) return false;
-            commandHelp((Player) sender);
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Player required");
             return true;
         }
+        Player player = (Player) sender;
+        if (args.length == 0) {
+            commandHelp(player);
+            return true;
+        }
+        // SkillType command, e.g. /sk mining
+        SkillType skillType;
         try {
-            String cmd = args[0];
-            String[] argl = Arrays.copyOfRange(args, 1, args.length);
-            boolean res = onCommand(sender, cmd, argl);
-            if (!res) {
-                if (commands.contains(cmd)) {
-                    commandHelp(requirePlayer(sender), cmd);
-                } else {
-                    commandHelp(requirePlayer(sender));
-                }
+            skillType = SkillType.valueOf(args[0].toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            skillType = null;
+        }
+        if (skillType != null) {
+            if (!skillCommand(player, skillType,
+                              Arrays.copyOfRange(args, 1, args.length))) {
+                commandHelp(player, skillType);
             }
             return true;
-        } catch (Wrong e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
-            return true;
         }
+        // Other command
+        CMD cmd;
+        try {
+            cmd = CMD.valueOf(args[0].toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            return false;
+        }
+        try {
+            if (!onCommand(player, cmd,
+                           Arrays.copyOfRange(args, 1, args.length))) {
+                commandHelp(player, cmd);
+            }
+        } catch (Wrong e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        }
+        return true;
     }
 
     @Override
@@ -71,100 +88,56 @@ final class SkillsCommand implements TabExecutor {
         }
         String arg = args[args.length - 1];
         if (args.length == 1) {
-            return complete(arg, commands);
+            return complete(arg, Stream
+                            .concat(Stream.of(CMD.values()).map(c -> c.key),
+                                    Stream.of(SkillType.values()).map(s -> s.key)));
         }
-        if (args.length == 2 && args[0].equals("info")) {
-            return complete(args[1], plugin.infos.allKeys());
+        CMD cmd;
+        try {
+            cmd = CMD.valueOf(args[0]);
+        } catch (IllegalArgumentException iae) {
+            cmd = null;
         }
-        if (args.length == 2 && args[0].equals("hi")) {
-            return complete(arg, Stream.concat(Stream.of("total", "talents"),
-                                               Stream.of(SkillType.values())
-                                               .map(s -> s.key)));
+        SkillType skillType;
+        try {
+            skillType = SkillType.valueOf(args[0].toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            skillType = null;
         }
-        if (args.length == 3 && args[0].equals("hi")) {
+        if (cmd == null && skillType == null) {
             return Collections.emptyList();
         }
-        return null;
+        if (cmd != null) {
+            return Collections.emptyList();
+        }
+        if (args.length == 2 && cmd == CMD.INFO) {
+            return complete(args[1], plugin.infos.allKeys());
+        }
+        if (args.length == 2 && cmd == CMD.HI) {
+            return complete(arg, Stream
+                            .concat(Stream.of("total", "talents"),
+                                    Stream.of(SkillType.values())
+                                    .map(s -> s.key)));
+        }
+        return Collections.emptyList();
     }
 
-    // Effective Implementations
-
-    private boolean onCommand(CommandSender sender, String cmd,
-                              String[] args) throws Wrong {
+    boolean onCommand(Player player, CMD cmd, String[] args) throws Wrong {
         switch (cmd) {
-        case "mining":
-            return skillCommand(requirePlayer(sender), SkillType.MINING, args);
-        case "farming":
-            return skillCommand(requirePlayer(sender), SkillType.FARMING, args);
-        case "combat":
-            return skillCommand(requirePlayer(sender), SkillType.COMBAT, args);
-        case "talent":
-            return talentCommand(requirePlayer(sender), args);
-        case "list":
-            return listCommand(requirePlayer(sender), args);
-        case "info":
-            return infoCommand(requirePlayer(sender), args);
-        case "hi":
-            return hiCommand(requirePlayer(sender), args);
-        case "reloadadvancements": {
-            if (!sender.isOp()) return false;
-            sender.sendMessage("Reloading advancements...");
-            plugin.advancements.unloadAll();
-            plugin.advancements.loadAll();
-            sender.sendMessage("Advancements reloaded.");
-            return true;
-        }
-        case "gimme": {
-            Player player = requirePlayer(sender);
-            if (!player.isOp()) return false;
-            plugin.talents.addPoints(player, 1);
-            return true;
-        }
-        case "particles": {
-            Player player = requirePlayer(sender);
-            if (!player.isOp()) return false;
-            Session session = plugin.sessions.of(player);
-            session.noParticles = !session.noParticles;
-            player.sendMessage("Particles: " + (session.noParticles ? "off" : "on"));
-            return true;
-        }
-        case "median": {
-            if (!sender.isOp()) return false;
-            for (SkillType skill : SkillType.values()) {
-                List<SQLSkill> rows = plugin.sql.skillRows.stream()
-                    .filter(s -> s.level > 0)
-                    .filter(s -> skill.key.equals(s.skill))
-                    .sorted((b, a) -> Integer.compare(a.totalPoints,
-                                                      b.totalPoints))
-                    .collect(Collectors.toList());
-                if (rows.isEmpty()) continue;
-                int sumSP = 0;
-                int sumLevel = 0;
-                for (SQLSkill row : rows) {
-                    sumSP += row.totalPoints;
-                    sumLevel += row.level;
-                }
-                int avgSP = sumSP / rows.size();
-                int avgLevel = sumLevel / rows.size();
-                SQLSkill median = rows.get(rows.size() / 2);
-                SQLSkill max = rows.get(0);
-                sender.sendMessage(skill.displayName
-                                   + "\t"
-                                   + " Sample=" + rows.size()
-                                   + " Sum=" + sumSP + "," + sumLevel
-                                   + " Avg=" + avgSP + "," + avgLevel
-                                   + " Max=" + max.totalPoints + "," + max.level
-                                   + " Med=" + median.totalPoints + "," + median.level);
-            }
-            return true;
-        }
+        case TALENT:
+            return talentCommand(player, args);
+        case LIST:
+            return listCommand(player, args);
+        case INFO:
+            return infoCommand(player, args);
+        case HI:
+            return hiCommand(player, args);
         default:
             return false;
         }
     }
 
-    boolean skillCommand(@NonNull Player player, @NonNull SkillType skill,
-                         String[] args) {
+    boolean skillCommand(Player player, SkillType skill, String[] args) {
         if (args.length != 0) return false;
         Session session = plugin.sessions.of(player);
         int level = session.getLevel(skill);
@@ -197,7 +170,7 @@ final class SkillsCommand implements TabExecutor {
         return true;
     }
 
-    boolean listCommand(@NonNull Player player, String[] args) {
+    boolean listCommand(Player player, String[] args) {
         if (args.length != 0) return false;
         player.sendMessage("");
         Session session = plugin.sessions.of(player);
@@ -222,7 +195,7 @@ final class SkillsCommand implements TabExecutor {
         return true;
     }
 
-    boolean infoCommand(@NonNull Player player, String[] args) throws Wrong {
+    boolean infoCommand(Player player, String[] args) throws Wrong {
         if (args.length > 1) return false;
         if (args.length == 1) {
             Info info = plugin.infos.get(args[0]);
@@ -245,7 +218,7 @@ final class SkillsCommand implements TabExecutor {
         return true;
     }
 
-    boolean talentCommand(@NonNull Player player, String[] args) throws Wrong {
+    boolean talentCommand(Player player, String[] args) throws Wrong {
         if (args.length == 0) {
             talentMenu(player);
             return true;
@@ -290,7 +263,7 @@ final class SkillsCommand implements TabExecutor {
         }
     }
 
-    boolean hiCommand(@NonNull Player player, String[] args) throws Wrong {
+    boolean hiCommand(Player player, String[] args) throws Wrong {
         if (args.length == 0) {
             ComponentBuilder cb = new ComponentBuilder("Options: ")
                 .color(ChatColor.LIGHT_PURPLE);
@@ -393,7 +366,7 @@ final class SkillsCommand implements TabExecutor {
         return true;
     }
 
-    void talentMenu(@NonNull Player player) {
+    void talentMenu(Player player) {
         player.sendMessage("");
         player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + "Skill Talents");
         Session session = plugin.sessions.of(player);
@@ -447,7 +420,7 @@ final class SkillsCommand implements TabExecutor {
         player.sendMessage("");
     }
 
-    void sendTimeLeft(@NonNull Player player) {
+    void sendTimeLeft(Player player) {
         long dst = 1573063200000L - System.currentTimeMillis();
         long seconds = dst / 1000L;
         long minutes = seconds / 60L;
@@ -459,44 +432,56 @@ final class SkillsCommand implements TabExecutor {
                            + ChatColor.WHITE + fmt);
     }
 
-    void commandHelp(@NonNull final Player player) {
+    void commandHelp(final Player player) {
         player.sendMessage(ChatColor.GOLD + "Skills Usage:");
-        for (String cmd : commands) {
+        for (SkillType skillType : SkillType.values()) {
+            commandHelp(player, skillType);
+        }
+        for (CMD cmd : CMD.values()) {
             commandHelp(player, cmd);
         }
         // sendTimeLeft(player);
     }
 
-    void commandHelp(@NonNull Player player, @NonNull String cmd) {
-        final String desc;
+    void commandHelp(Player player, SkillType skillType) {
+        commandHelp(player, skillType.key, null,
+                    skillType.displayName + " overview");
+    }
+
+    void commandHelp(Player player, CMD cmd) {
         String args = null;
         switch (cmd) {
-        case "combat": case "mining": case "farming":
-            desc = "Skill overview";
+        case LIST:
+            commandHelp(player, cmd.key, null,
+                        "List your skills and talents");
             break;
-        case "list":
-            desc = "List your skills and talents";
+        case TALENT:
+            commandHelp(player, cmd.key, null,
+                        "Talent overview and management");
             break;
-        case "talent":
-            desc = "Talent overview and management";
+        case INFO:
+            commandHelp(player, cmd.key,
+                        "[name]",
+                        "View info pages");
             break;
-        case "info":
-            desc = "View info pages";
-            args = " [name]";
-            break;
-        case "hi":
-            desc = "Highscores";
-            args = " [skill] [page]";
+        case HI:
+            commandHelp(player, cmd.key,
+                        "[skill] [page]",
+                        "Highscores");
             break;
         default:
-            desc = null;
-            break;
+            commandHelp(player, cmd.key, null, null);
         }
+    }
+
+    private void commandHelp(Player player,
+                             String cmd, String args, String desc) {
         String ccmd = ""
             + ChatColor.YELLOW + "/sk "
             + ChatColor.GOLD + cmd
-            + (args == null ? ""
-               : "" + ChatColor.YELLOW + ChatColor.ITALIC + args);
+            + (args == null
+               ? ""
+               : " " + ChatColor.YELLOW + ChatColor.ITALIC + args);
         String cdesc = desc == null
             ? ""
             : ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + desc;
@@ -506,28 +491,5 @@ final class SkillsCommand implements TabExecutor {
         cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                 TextComponent.fromLegacyText(tooltip)));
         player.spigot().sendMessage(cb.create());
-    }
-
-    // Helpers
-
-    private List<String> complete(final String arg,
-                                  final Collection<String> opt) {
-        return opt.stream().filter(o -> o.startsWith(arg))
-            .collect(Collectors.toList());
-    }
-
-    private List<String> complete(final String arg,
-                                  final Stream<String> opt) {
-        return opt.filter(o -> o.startsWith(arg))
-            .collect(Collectors.toList());
-    }
-
-    // Wrong Throwers
-
-    Player requirePlayer(final CommandSender sender) throws Wrong {
-        if (!(sender instanceof Player)) {
-            throw new Wrong("Player required");
-        }
-        return (Player) sender;
     }
 }

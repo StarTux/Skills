@@ -13,6 +13,7 @@ public final class SkillsPlugin extends JavaPlugin {
     final Metadata meta = new Metadata(this);
     // Listeners
     final SkillsCommand skillsCommand = new SkillsCommand(this);
+    final AdminCommand adminCommand = new AdminCommand(this);
     final EventListener eventListener = new EventListener(this);
     // Skills
     final Farming farming = new Farming(this);
@@ -30,6 +31,7 @@ public final class SkillsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getCommand("skills").setExecutor(skillsCommand);
+        getCommand("skadmin").setExecutor(adminCommand);
         getServer().getPluginManager().registerEvents(eventListener, this);
         talents.load();
         sql.enable();
