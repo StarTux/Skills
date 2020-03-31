@@ -68,7 +68,6 @@ final class EventListener implements Listener {
             .forEach(plugin.farming::tickWateredCrop);
         event.getBlocksWithId(Farming.GROWN_CROP)
             .forEach(plugin.farming::tickGrownCrop);
-        plugin.combat.onTick(event.getChunk());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

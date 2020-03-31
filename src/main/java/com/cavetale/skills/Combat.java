@@ -1,8 +1,6 @@
 package com.cavetale.skills;
 
-import com.cavetale.worldmarker.BlockMarker;
 import com.cavetale.worldmarker.EntityMarker;
-import com.cavetale.worldmarker.MarkChunk;
 import java.util.EnumMap;
 import lombok.NonNull;
 import lombok.Value;
@@ -34,7 +32,12 @@ final class Combat {
     }
 
     static class Chonk {
+        Chonk() {
+            time = Util.now();
+        }
+
         int kills;
+        long time;
     }
 
     private void reward(@NonNull EntityType type, final int sp) {
@@ -94,10 +97,12 @@ final class Combat {
         Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
         Chunk chunk = mob.getLocation().getChunk();
-        Chonk chonk = BlockMarker.getChunk(chunk)
-            .getTransientData(CHONK, Chonk.class, Chonk::new);
-        chonk.kills += 1;
-        if (chonk.kills > 5) return;
+        Chonk chonk = plugin.meta.getOrSet(chunk.getBlock(0, 0, 0),
+                                           CHONK, Chonk.class, Chonk::new);
+        long now = Util.now();
+        chonk.kills = Math.max(0, chonk.kills + 10 - (int) (now - chonk.time));
+        chonk.time = Util.now();
+        if (chonk.kills > 50) return;
         plugin.addSkillPoints(player, SkillType.COMBAT, reward.sp);
         Effects.kill(mob);
     }
@@ -129,13 +134,6 @@ final class Combat {
             session.immortal = 3 * 20;
         }
         return true;
-    }
-
-    void onTick(@NonNull MarkChunk markChunk) {
-        if ((markChunk.getTicksLoaded() % 200) == 0) {
-            Chonk chonk = markChunk.getTransientData(CHONK, Chonk.class, Chonk::new);
-            if (chonk.kills > 0) chonk.kills -= 1;
-        }
     }
 
     StatusEffect statusEffectOf(@NonNull LivingEntity entity) {

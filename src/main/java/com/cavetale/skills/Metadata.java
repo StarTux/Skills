@@ -1,6 +1,7 @@
 package com.cavetale.skills;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -24,6 +25,23 @@ final class Metadata {
             }
         }
         return Optional.empty();
+    }
+
+    <T> T getOrSet(final Metadatable entity,
+                   final String key,
+                   final Class<T> theClass,
+                   final Supplier<T> dfl) {
+        for (MetadataValue meta : entity.getMetadata(key)) {
+            if (meta.getOwningPlugin() == plugin) {
+                Object value = meta.value();
+                if (theClass.isInstance(value)) {
+                    return theClass.cast(value);
+                }
+            }
+        }
+        T value = dfl.get();
+        set(entity, key, value);
+        return value;
     }
 
     void set(final Metadatable entity,
