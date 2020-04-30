@@ -70,7 +70,7 @@ final class EventListener implements Listener {
             .forEach(plugin.farming::tickGrownCrop);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!Util.playMode(player)) return;
