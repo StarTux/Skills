@@ -232,6 +232,7 @@ public final class SkillsPlugin extends JavaPlugin {
     boolean rollTalentPoint(@NonNull Player player, int increase) {
         final int total = 800;
         Session session = sessionOf(player);
+        if (session.talents.size() >= Talent.COUNT) return false;
         session.playerColumn.talentChance += increase;
         session.playerColumn.modified = true;
         int chance;

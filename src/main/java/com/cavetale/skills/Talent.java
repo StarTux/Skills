@@ -26,6 +26,7 @@ enum Talent {
     public final Talent depends;
     public final String displayName;
     public final SkillType skill;
+    public static final int COUNT = 15;
 
     Talent(final Talent depends) {
         key = name().toLowerCase();
