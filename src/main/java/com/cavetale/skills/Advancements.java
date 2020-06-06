@@ -31,7 +31,6 @@ final class Advancements {
     }
 
     void loadAll() {
-        load(null);
         for (Talent talent : Talent.values()) {
             load(talent);
         }
@@ -39,40 +38,36 @@ final class Advancements {
     }
 
     void load(Talent talent) {
-        String name = talent != null ? talent.key : "talents";
-        NamespacedKey key = new NamespacedKey(plugin, "talents/" + name);
+        NamespacedKey key = new NamespacedKey(plugin, "talents/" + talent.key);
         if (plugin.getServer().getAdvancement(key) != null) return;
         try {
             plugin.getServer().getUnsafe().loadAdvancement(key, make(talent));
         } catch (IllegalArgumentException iae) {
             iae.printStackTrace();
         }
-        plugin.getLogger().info("Talent advancement loaded: " + name);
+        plugin.getLogger().info("Talent advancement loaded: " + talent.key);
     }
 
     String make(Talent talent) {
         String parent;
-        if (talent != null) {
-            parent = talent.depends == null
-                ? "skills:talents/talents"
-                : "skills:talents/" + talent.depends.key;
-        } else {
+        if (talent == Talent.ROOT) {
             parent = null;
+        } else {
+            parent = talent.depends == null
+                ? "skills:talents/root"
+                : "skills:talents/" + talent.depends.key;
         }
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> display = new HashMap<>();
         map.put("display", display);
         Map<String, Object> iconMap = new HashMap<>();
         display.put("icon", iconMap);
-        TalentInfo info = talent != null
-            ? plugin.talents.getInfo(talent)
-            : plugin.talents.baseInfo;
-        iconMap.put("item", "minecraft:" + info.icon);
-        if (info.iconNBT != null) iconMap.put("nbt", info.iconNBT);
-        display.put("title", info.title);
-        display.put("description", info.description);
-        if (parent == null && info.background != null) {
-            display.put("background", info.background);
+        iconMap.put("item", "minecraft:" + talent.material.name().toLowerCase());
+        if (talent.iconNBT != null) iconMap.put("nbt", talent.iconNBT);
+        display.put("title", talent.displayName);
+        display.put("description", talent.description);
+        if (talent == Talent.ROOT) {
+            display.put("background", "minecraft:textures/block/diamond_ore.png");
         }
         display.put("hidden", false);
         display.put("announce_to_chat", true);

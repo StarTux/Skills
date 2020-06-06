@@ -1,6 +1,8 @@
 package com.cavetale.skills;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         case "gimme": return gimmeCommand(sender, args);
         case "particles": return particlesCommand(sender, args);
         case "median": return medianCommand(sender, args);
+        case "gui": return guiCommand(requirePlayer(sender), args);
         default: return false;
         }
     }
@@ -95,6 +98,111 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
                                + " Max=" + max.totalPoints + "," + max.level
                                + " Med=" + median.totalPoints + "," + median.level);
         }
+        return true;
+    }
+
+    public static final class GuiState implements Cloneable {
+        Talent[] slots = new Talent[6 * 9];
+        Talent talent;
+        int x;
+        int y;
+        Dir dir;
+
+        @Override
+        public GuiState clone() {
+            GuiState c = new GuiState();
+            for (int i = 0; i < slots.length; i += 1) {
+                c.slots[i] = slots[i];
+            }
+            c.talent = talent;
+            c.x = x;
+            c.y = y;
+            c.dir = dir;
+            return c;
+        }
+    }
+
+    enum Dir {
+        UP(0, -1),
+        DOWN(0, 1),
+        LEFT(-1, 0),
+        RIGHT(1, 0),
+        UP_LEFT(-1, -1),
+        DOWN_LEFT(-1, 1),
+        UP_RIGHT(-1, 1),
+        DOWN_RIGHT(1, 1);
+
+        public final int x;
+        public final int y;
+
+        Dir(final int x, final int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        int dist(Dir o) {
+            return Math.abs(o.x - x) + Math.abs(o.y - y);
+        }
+    }
+
+    GuiState recur(GuiState in, int level) {
+        GuiState tmp = in.clone();
+        List<Talent> dependants = in.talent.getDependants();
+        if (dependants.isEmpty()) return in;
+        for (Talent talent : dependants) {
+            List<Dir> dirs = new ArrayList<>(Arrays.asList(Dir.values()));
+            if (in.dir != null) {
+                int index = dirs.indexOf(in.dir);
+                dirs.set(index, dirs.get(0));
+                dirs.set(0, in.dir);
+                Collections.sort(dirs, (a, b) -> Integer.compare(a.dist(in.dir), b.dist(in.dir)));
+            } else {
+                Collections.shuffle(dirs);
+            }
+            GuiState res = null;
+            for (Dir dir : dirs) {
+                int x = in.x + dir.x;
+                if (x < 0 || x > 8) continue;
+                int y = in.y + dir.y;
+                if (y < 0 || y > 5) continue;
+                boolean empty = tmp.slots[x + y * 9] == null;
+                if (!empty) continue;
+                GuiState nx = tmp.clone();
+                nx.talent = talent;
+                nx.x = x;
+                nx.y = y;
+                nx.slots[x + y * 9] = talent;
+                nx.dir = dir;
+                nx = recur(nx.clone(), level + 1);
+                if (nx == null) continue;
+                res = nx;
+                break;
+            }
+            if (res == null) return null;
+            tmp = res;
+        }
+        tmp.dir = in.dir;
+        return tmp;
+    }
+
+    boolean guiCommand(Player player, String[] args) {
+        GuiState state = new GuiState();
+        state.x = 0;
+        state.y = 2;
+        state.talent = Talent.ROOT;
+        state.slots[state.x + state.y * 9] = state.talent;
+        state = recur(state, 0);
+        if (state == null) {
+            player.sendMessage("fail!");
+            return true;
+        }
+        Gui gui = new Gui(plugin).rows(6).title("Talents");
+        for (int i = 0; i < state.slots.length; i += 1) {
+            Talent talent = state.slots[i];
+            if (talent == null) continue;
+            gui.setItem(i, talent.getIcon());
+        }
+        gui.open(player);
         return true;
     }
 }

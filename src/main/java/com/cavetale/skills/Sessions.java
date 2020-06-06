@@ -45,9 +45,9 @@ final class Sessions {
     void load(@NonNull Player player) {
         Session session = of(player);
         if (session.talents.isEmpty() && session.getTalentPoints() == 0) {
-            plugin.advancements.revoke(player, null);
+            plugin.advancements.revoke(player, Talent.ROOT);
         } else {
-            plugin.advancements.give(player, null);
+            plugin.advancements.give(player, Talent.ROOT);
         }
         for (Talent talent : Talent.values()) {
             if (session.hasTalent(talent)) {

@@ -189,7 +189,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Talents: "
                            + Stream.of(Talent.values())
                            .filter(session::hasTalent)
-                           .map(t -> ChatColor.GOLD + plugin.talents.getInfo(t).title)
+                           .map(t -> ChatColor.GOLD + t.displayName)
                            .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
         player.sendMessage("");
         return true;
@@ -380,19 +380,18 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
                 cb = new ComponentBuilder("");
             }
             cb.append("  ").reset();
-            TalentInfo info = plugin.talents.getInfo(talent);
             ChatColor talentColor;
             if (session.hasTalent(talent)) {
-                cb.append(info.title).color(ChatColor.GREEN);
+                cb.append(talent.displayName).color(ChatColor.GREEN);
                 talentColor = ChatColor.GREEN;
             } else if (session.canAccessTalent(talent)
                        && session.getTalentPoints() >= session.getTalentCost()) {
-                cb.append("[" + info.title + "]").color(ChatColor.GOLD);
+                cb.append("[" + talent.displayName + "]").color(ChatColor.GOLD);
                 cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                         "/sk talent unlock " + talent.key));
                 talentColor = ChatColor.GOLD;
             } else {
-                cb.append(info.title).color(ChatColor.GRAY);
+                cb.append(talent.displayName).color(ChatColor.GRAY);
                 talentColor = ChatColor.GRAY;
             }
             String dependency;
@@ -403,14 +402,14 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
                     ? ChatColor.GREEN
                     : ChatColor.DARK_RED;
                 dependency = ChatColor.LIGHT_PURPLE + "\nRequires: "
-                    + depColor + plugin.talents.getInfo(talent.depends).title;
+                    + depColor + talent.depends.displayName;
             }
             cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                     TextComponent
-                                    .fromLegacyText("" + ChatColor.WHITE + info.title
+                                    .fromLegacyText("" + ChatColor.WHITE + talent.displayName
                                                     + dependency
                                                     + "\n" + talentColor
-                                                    + info.description)));
+                                                    + talent.description)));
         }
         player.spigot().sendMessage(cb.create());
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Talent Points: "
