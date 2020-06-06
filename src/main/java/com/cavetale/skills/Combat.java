@@ -2,7 +2,8 @@ package com.cavetale.skills;
 
 import com.cavetale.worldmarker.BlockMarker;
 import com.cavetale.worldmarker.EntityMarker;
-import com.cavetale.worldmarker.MarkChunk;
+import com.cavetale.worldmarker.MarkTagContainer;
+import com.cavetale.worldmarker.Persistent;
 import java.util.EnumMap;
 import lombok.NonNull;
 import lombok.Value;
@@ -33,8 +34,18 @@ final class Combat {
         final int sp;
     }
 
-    static class Chonk {
+    static class Chonk implements Persistent {
+        transient int ticks = 0;
         int kills;
+
+        @Override
+        public void onTick(MarkTagContainer container) {
+            ticks += 1;
+            if (ticks % 200 == 0) {
+                kills -= 1;
+                container.save();
+            }
+        }
     }
 
     private void reward(@NonNull EntityType type, final int sp) {
@@ -95,7 +106,7 @@ final class Combat {
         if (reward == null) return;
         Chunk chunk = mob.getLocation().getChunk();
         Chonk chonk = BlockMarker.getChunk(chunk)
-            .getTransientData(CHONK, Chonk.class, Chonk::new);
+            .getPersistent(CHONK, Chonk.class, Chonk::new);
         chonk.kills += 1;
         if (chonk.kills > 5) return;
         plugin.points.give(player, SkillType.COMBAT, reward.sp);
@@ -129,13 +140,6 @@ final class Combat {
             session.immortal = 3 * 20;
         }
         return true;
-    }
-
-    void onTick(@NonNull MarkChunk markChunk) {
-        if ((markChunk.getTicksLoaded() % 200) == 0) {
-            Chonk chonk = markChunk.getTransientData(CHONK, Chonk.class, Chonk::new);
-            if (chonk.kills > 0) chonk.kills -= 1;
-        }
     }
 
     StatusEffect statusEffectOf(@NonNull LivingEntity entity) {

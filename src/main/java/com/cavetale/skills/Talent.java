@@ -2,6 +2,7 @@ package com.cavetale.skills;
 
 import java.util.HashMap;
 import lombok.NonNull;
+import org.bukkit.inventory.ItemStack;
 
 public enum Talent {
     // Mining
@@ -25,6 +26,7 @@ public enum Talent {
 
     public final String key;
     public final String displayName;
+    private ItemStack icon;
     Talent depends = null;
     SkillType skill = null;
     boolean terminal = true;
