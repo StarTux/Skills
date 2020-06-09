@@ -1,7 +1,7 @@
 package com.cavetale.skills;
 
 import java.util.EnumMap;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -19,8 +19,7 @@ final class Session {
     SQLPlayer playerRow;
     EnumMap<SkillType, SQLSkill> skillRows = new EnumMap<>(SkillType.class);
     boolean xrayActive;
-    Tag tag;
-    Set<Talent> talents = new HashSet<>();
+    Set<Talent> talents = EnumSet.noneOf(Talent.class);
     // Status effects, ticks remaining
     int immortal = 0;
     int archerZone = 0;
@@ -32,11 +31,6 @@ final class Session {
     int noSave = 0;
     int tick;
 
-    static final class Tag {
-        Set<String> talents = new HashSet<>();
-        transient boolean modified;
-    }
-
     Session(@NonNull final SkillsPlugin plugin,
             @NonNull final Player player,
             @NonNull final SQLPlayer playerRow,
@@ -44,8 +38,8 @@ final class Session {
         this.plugin = plugin;
         this.uuid = player.getUniqueId();
         this.playerRow = playerRow;
-        tag = plugin.json.deserialize(playerRow.json, Tag.class, Tag::new);
-        tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
+        playerRow.unpack();
+        playerRow.tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
         this.skillRows.putAll(inSkillRows);
         skillBar = new ProgressBar("skills", BarColor.WHITE, BarStyle.SEGMENTED_20);
         skillBar.add(player);
@@ -119,13 +113,10 @@ final class Session {
 
     void saveData() {
         noSave = 0;
-        if (playerRow.modified || tag.modified) {
-            if (tag.modified) {
-                tag.modified = false;
-                tag.talents = talents.stream().map(t -> t.key).collect(Collectors.toSet());
-                playerRow.json = plugin.json.serialize(tag);
-            }
-            playerRow.modified = false;
+        if (playerRow.dirty) {
+            playerRow.dirty = false;
+            playerRow.tag.talents = talents.stream().map(t -> t.key).collect(Collectors.toSet());
+            playerRow.pack();
             plugin.sql.save(playerRow);
         }
         for (SQLSkill col : skillRows.values()) {

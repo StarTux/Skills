@@ -2,10 +2,13 @@ package com.cavetale.skills;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Getter
 public final class SkillsPlugin extends JavaPlugin {
+    @Getter static SkillsPlugin instance;
     // Utility
     final Random random = ThreadLocalRandom.current();
     final Yaml yaml = new Yaml(this);
@@ -30,11 +33,14 @@ public final class SkillsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
         getCommand("skills").setExecutor(skillsCommand);
         getCommand("skadmin").setExecutor(adminCommand);
+        SkillType.setup();
         Talent.setup();
         getServer().getPluginManager().registerEvents(eventListener, this);
         sql.enable();
+        sql.loadDatabase();
         advancements.loadAll();
         infos.load();
         for (Player player : getServer().getOnlinePlayers()) {

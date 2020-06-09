@@ -31,6 +31,7 @@ public final class Timer {
                 tickPlayer(player);
             }
         }
+        Gui.onTick(plugin);
     }
 
     // Show ambient particle effects of nearby blocks

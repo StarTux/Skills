@@ -29,6 +29,7 @@ commands:
       /skadm gime - Give yourself a talent point
       /skadm particles - Toggle particles
       /skadm median - Display median skill points
+      /skadm give <player> <skill> <points>
 permissions:
   skills.skills:
     description: Use /skills

@@ -6,10 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 @RequiredArgsConstructor
 public final class AdminCommand extends CommandBase implements TabExecutor {
@@ -35,6 +37,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         case "particles": return particlesCommand(sender, args);
         case "median": return medianCommand(sender, args);
         case "gui": return guiCommand(requirePlayer(sender), args);
+        case "give": return giveCommand(sender, args);
         default: return false;
         }
     }
@@ -187,7 +190,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
 
     boolean guiCommand(Player player, String[] args) {
         GuiState state = new GuiState();
-        state.x = 0;
+        state.x = 4;
         state.y = 2;
         state.talent = Talent.ROOT;
         state.slots[state.x + state.y * 9] = state.talent;
@@ -197,12 +200,42 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
             return true;
         }
         Gui gui = new Gui(plugin).rows(6).title("Talents");
-        for (int i = 0; i < state.slots.length; i += 1) {
-            Talent talent = state.slots[i];
-            if (talent == null) continue;
-            gui.setItem(i, talent.getIcon());
+        try (java.io.PrintStream out = new java.io.PrintStream(new java.io.File("tmp.txt"))) {
+            for (int i = 0; i < state.slots.length; i += 1) {
+                Talent talent = state.slots[i];
+                if (talent == null) continue;
+                ItemStack a = talent.getIcon();
+                ItemStack b = Items.of(Material.CHEST)
+                    .strings(Items.of(a).strings())
+                    .create();
+                gui.setItem(i, talent.getIcon());
+                final int index = i;
+                gui.addTask(() -> {
+                        int time = gui.ticks / 10;
+                        if (time % 2 == 0) {
+                            gui.setItem(index, a);
+                        } else {
+                            gui.setItem(index, b);
+                        }
+                    });
+                out.println(talent.name() + ".guiIndex = " + i + ";");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         gui.open(player);
+        return true;
+    }
+
+    boolean giveCommand(CommandSender sender, String[] args) throws Wrong {
+        if (args.length != 3) return false;
+        Player target = findPlayer(args[0]);
+        SkillType skillType = SkillType.ofKey(args[1]);
+        if (skillType == null) throw new Wrong("Skill not found: " + args[1]);
+        int points = parseInt(args[2]);
+        if (points < 1) throw new Wrong("Must be positive");
+        plugin.points.give(target, skillType, points);
+        sender.sendMessage("" + points + " " + skillType.displayName + " points given to " + target.getName());
         return true;
     }
 }

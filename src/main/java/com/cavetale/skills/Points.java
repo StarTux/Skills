@@ -10,7 +10,7 @@ public final class Points {
     private final SkillsPlugin plugin;
 
     public static int forLevel(final int lvl) {
-        return 100 + lvl * 10 + lvl * lvl;
+        return 100 + (lvl - 1) * 10;
     }
 
     public static int totalForLevel(final int lvl) {
@@ -25,9 +25,7 @@ public final class Points {
      * Add points to the player's account and level them up with all
      * effects if possible.
      */
-    public void give(@NonNull Player player,
-                     @NonNull SkillType skill,
-                     final int add) {
+    public void give(@NonNull Player player, @NonNull SkillType skill, final int add) {
         Session session = plugin.sessions.of(player);
         SQLSkill row = session.skillRows.get(skill);
         int oldLevel = row.level;
@@ -36,16 +34,16 @@ public final class Points {
         int oldPoints = row.points;
         int newPoints = oldPoints + add;
         double oldProg = (double) oldPoints / (double) req;
-        double newProg = (double) newPoints / (double) req;
+        double newProg = Math.min(1, (double) newPoints / (double) req);
         boolean levelup = false;
         if (newPoints >= req) {
             levelup = true;
             newPoints -= req;
             req = forLevel(oldLevel + 2);
-            newProg = (double) newPoints / (double) req;
+            newProg = Math.min(1, (double) newPoints / (double) req);
             newLevel += 1;
             session.playerRow.levels += 1;
-            session.playerRow.modified = true;
+            session.playerRow.dirty = true;
             Effects.levelup(player);
             player.sendTitle(ChatColor.GOLD + skill.displayName,
                              ChatColor.WHITE + "Level " + newLevel);

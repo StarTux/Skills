@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -32,5 +33,19 @@ abstract class CommandBase {
             throw new Wrong("Player required");
         }
         return (Player) sender;
+    }
+
+    protected Player findPlayer(String arg) throws Wrong {
+        Player player = Bukkit.getPlayer(arg);
+        if (player == null) throw new Wrong("Player not found: " + arg);
+        return player;
+    }
+
+    protected int parseInt(String arg) throws Wrong {
+        try {
+            return Integer.parseInt(arg);
+        } catch (NumberFormatException nfe) {
+            throw new Wrong("Number expected: " + arg);
+        }
     }
 }

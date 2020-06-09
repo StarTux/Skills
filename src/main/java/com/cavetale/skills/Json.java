@@ -8,21 +8,22 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.function.Supplier;
-import org.bukkit.plugin.java.JavaPlugin;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.plugin.java.JavaPlugin;
 
 @RequiredArgsConstructor
 public final class Json {
+    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
+    public static final Gson PRETTY = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting()
+        .create();
     private final JavaPlugin plugin;
-    private final Gson gson = new Gson();
-    private final Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
 
-    public <T> T load(final File file, final Class<T> clazz, final Supplier<T> dfl) {
+    public static <T> T load(final File file, Class<T> type, Supplier<T> dfl) {
         if (!file.exists()) {
             return dfl.get();
         }
         try (FileReader fr = new FileReader(file)) {
-            return gson.fromJson(fr, clazz);
+            return GSON.fromJson(fr, type);
         } catch (FileNotFoundException fnfr) {
             return dfl.get();
         } catch (IOException ioe) {
@@ -30,38 +31,43 @@ public final class Json {
         }
     }
 
-    public <T> T load(final File file, final Class<T> clazz) {
-        return load(file, clazz, () -> null);
+    public static <T> T load(final File file, Class<T> type) {
+        return load(file, type, () -> null);
     }
 
-    public void save(final File file, final Object obj, final boolean pretty) {
+    public static void save(final File file, Object obj, boolean pretty) {
         try (FileWriter fw = new FileWriter(file)) {
-            Gson gs = pretty ? prettyGson : gson;
+            Gson gs = pretty ? PRETTY : GSON;
             gs.toJson(obj, fw);
         } catch (IOException ioe) {
             throw new IllegalStateException("Saving " + file, ioe);
         }
     }
 
-    public String serialize(Object o) {
-        return gson.toJson(o);
+    public static void save(final File file, Object obj) {
+        save(file, obj, false);
     }
 
-    public String pretty(Object o) {
-        return prettyGson.toJson(o);
+    public static String serialize(Object obj) {
+        return GSON.toJson(obj);
     }
 
-    public <T> T deserialize(String inp, Class<T> clazz, Supplier<T> dfl) {
-        if (inp == null) return dfl.get();
-        try {
-            return gson.fromJson(inp, clazz);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return dfl.get();
-        }
+    public static String pretty(Object obj) {
+        return GSON.toJson(obj);
     }
 
-    public <T> T deserialize(String inp, Class<T> clazz) {
-        return deserialize(inp, clazz, () -> null);
+    public static <T> T deserialize(String json, Class<T> type, Supplier<T> dfl) {
+        T result = GSON.fromJson(json, type);
+        return result != null ? result : dfl.get();
+    }
+
+    public <T> T load(String path, Class<T> type, Supplier<T> dfl) {
+        File file = new File(plugin.getDataFolder(), path);
+        return load(file, type, dfl);
+    }
+
+    public void save(String path, Object obj, boolean pretty) {
+        File file = new File(plugin.getDataFolder(), path);
+        save(file, obj, pretty);
     }
 }

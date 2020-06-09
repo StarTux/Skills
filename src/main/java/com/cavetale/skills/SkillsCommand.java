@@ -45,7 +45,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         }
         Player player = (Player) sender;
         if (args.length == 0) {
-            commandHelp(player);
+            openSkillsMenu(player);
             return true;
         }
         // SkillType command, e.g. /sk mining
@@ -490,5 +490,18 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                 TextComponent.fromLegacyText(tooltip)));
         player.spigot().sendMessage(cb.create());
+    }
+
+    void openSkillsMenu(Player player) {
+        Gui gui = new Gui(plugin)
+            .rows(3)
+            .title(ChatColor.DARK_BLUE + "Skills Mk2");
+        for (SkillType skillType : SkillType.values()) {
+            gui.setItem(skillType.guiIndex, skillType.getIcon(player), click -> {
+                    Gui.click(player);
+                    return true;
+                });
+        }
+        gui.open(player);
     }
 }

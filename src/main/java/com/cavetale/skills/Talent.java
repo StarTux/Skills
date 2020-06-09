@@ -38,7 +38,15 @@ public enum Talent {
     Talent depends = null;
     SkillType skill = null;
     boolean terminal = true;
+    int guiIndex;
     private static final HashMap<String, Talent> KEY_MAP = new HashMap<>();
+
+    static {
+        for (Talent talent : values()) {
+            KEY_MAP.put(talent.key, talent);
+            KEY_MAP.put(talent.key.replace("_", ""), talent);
+        }
+    }
 
     static void setup() {
         // Chaining
@@ -67,21 +75,6 @@ public enum Talent {
         ROOT.displayName = "Skill Talents";
         ROOT.description = "Earn talent points to unlock new talents and improve your skillful abilities!";
         ROOT.material = Material.GOLDEN_APPLE;
-        FARM_GROWSTICK_RADIUS.displayName = "Spoutcraft";
-        FARM_GROWSTICK_RADIUS.description = "Effective growstick radius +1.\n\nUp your gardening powers. Save lots of time by watering adjacent crops and soil, all at once!";
-        FARM_GROWSTICK_RADIUS.material = Material.STICK;
-        FARM_CROP_DROPS.displayName = "Cultivator";
-        FARM_CROP_DROPS.description = "Increased crop yields.\n\nEach fully grown watered plant yields additional drops when you harvest them.";
-        FARM_CROP_DROPS.material = Material.WHEAT;
-        FARM_DIAMOND_DROPS.displayName = "Gem Growth";
-        FARM_DIAMOND_DROPS.description = "Diamond drops 100% more common.\n\nFully grown watered plants sometimes yield diamonds. This talent increases your chances drastically.";
-        FARM_DIAMOND_DROPS.material = Material.DIAMOND;
-        FARM_TALENT_POINTS.displayName = "Grand Granger";
-        FARM_TALENT_POINTS.description = "Talent points drop more often.\n\nWhenever a fully grown and watered plant drops a diamond, there is also a small progress made toward your next talent point. Unlocking this skill increases your chances. This means even more talent points!";
-        FARM_TALENT_POINTS.material = Material.CORNFLOWER;
-        FARM_PLANT_RADIUS.displayName = "Springtime";
-        FARM_PLANT_RADIUS.description = "Plant seeds in a 3x3 area.\n\nSave time with this talent. Plant any seed (wheat, carrot, potato, beetroot, nether wart) and the surrounding 8 blocks will also be seeded where possible.\n\nPlant without this feature by sneaking.";
-        FARM_PLANT_RADIUS.material = Material.WHEAT_SEEDS;
         MINE_STRIP.displayName = "Strip Mining";
         MINE_STRIP.description = "Mining with an Efficiency pickaxe breaks many blocks\n\nUnleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within your line of sight while mining straight. Breaking ores will attempt to break the entire vein. This only works deep underground.\n\nMine without this feature by sneaking.";
         MINE_STRIP.material = Material.DIAMOND_PICKAXE;
@@ -97,6 +90,21 @@ public enum Talent {
         MINE_SILK_MULTI.displayName = "Silk Fortune";
         MINE_SILK_MULTI.description = "Silk stripping may yield even more drops from the same ore.\n\nWhile using your Silk Touch pickaxe on ores, this talent gives you an even greater chance at getting multiple drops, surpassing the yield capabilities of Fortune 3.\n\nThe yields of this method may exceed those of Fortune 3 but are more random. It allows multiple drops from ores usually unaffected by Fortune: Iron and gold.";
         MINE_SILK_MULTI.material = Material.GOLD_INGOT;
+        FARM_GROWSTICK_RADIUS.displayName = "Spoutcraft";
+        FARM_GROWSTICK_RADIUS.description = "Effective growstick radius +1.\n\nUp your gardening powers. Save lots of time by watering adjacent crops and soil, all at once!";
+        FARM_GROWSTICK_RADIUS.material = Material.STICK;
+        FARM_CROP_DROPS.displayName = "Cultivator";
+        FARM_CROP_DROPS.description = "Increased crop yields.\n\nEach fully grown watered plant yields additional drops when you harvest them.";
+        FARM_CROP_DROPS.material = Material.WHEAT;
+        FARM_DIAMOND_DROPS.displayName = "Gem Growth";
+        FARM_DIAMOND_DROPS.description = "Diamond drops 100% more common.\n\nFully grown watered plants sometimes yield diamonds. This talent increases your chances drastically.";
+        FARM_DIAMOND_DROPS.material = Material.DIAMOND;
+        FARM_TALENT_POINTS.displayName = "Grand Granger";
+        FARM_TALENT_POINTS.description = "Talent points drop more often.\n\nWhenever a fully grown and watered plant drops a diamond, there is also a small progress made toward your next talent point. Unlocking this skill increases your chances. This means even more talent points!";
+        FARM_TALENT_POINTS.material = Material.CORNFLOWER;
+        FARM_PLANT_RADIUS.displayName = "Springtime";
+        FARM_PLANT_RADIUS.description = "Plant seeds in a 3x3 area.\n\nSave time with this talent. Plant any seed (wheat, carrot, potato, beetroot, nether wart) and the surrounding 8 blocks will also be seeded where possible.\n\nPlant without this feature by sneaking.";
+        FARM_PLANT_RADIUS.material = Material.WHEAT_SEEDS;
         COMBAT_FIRE.displayName = "Pyromaniac";
         COMBAT_FIRE.description = "Monsters set on fire deal -50% melee damage.\nMonsters set on fire take +50% damage.";
         COMBAT_FIRE.material = Material.CAMPFIRE;
@@ -112,10 +120,23 @@ public enum Talent {
         COMBAT_ARCHER_ZONE.displayName = "In The Zone";
         COMBAT_ARCHER_ZONE.description = "Ranged kills give 5 seconds of double damage to ranged attacks.";
         COMBAT_ARCHER_ZONE.material = Material.SPECTRAL_ARROW;
-        for (Talent talent : values()) {
-            KEY_MAP.put(talent.key, talent);
-            KEY_MAP.put(talent.key.replace("_", ""), talent);
-        }
+        // Gui
+        MINE_SILK_MULTI.guiIndex = 1;
+        MINE_SILK_STRIP.guiIndex = 11;
+        MINE_XRAY.guiIndex = 19;
+        MINE_ORE_ALERT.guiIndex = 20;
+        MINE_STRIP.guiIndex = 21;
+        ROOT.guiIndex = 22;
+        FARM_GROWSTICK_RADIUS.guiIndex = 23;
+        FARM_PLANT_RADIUS.guiIndex = 24;
+        COMBAT_FIRE.guiIndex = 32;
+        FARM_CROP_DROPS.guiIndex = 33;
+        COMBAT_ARCHER_ZONE.guiIndex = 41;
+        COMBAT_SILENCE.guiIndex = 42;
+        FARM_DIAMOND_DROPS.guiIndex = 43;
+        COMBAT_GOD_MODE.guiIndex = 51;
+        COMBAT_SPIDERS.guiIndex = 52;
+        FARM_TALENT_POINTS.guiIndex = 53;
     }
 
     private static void chain(Talent... talents) {
@@ -144,6 +165,7 @@ public enum Talent {
         return Items.of(material)
             .name(ChatColor.GOLD + displayName)
             .lore(wrap(description))
+            .hide()
             .create();
     }
 

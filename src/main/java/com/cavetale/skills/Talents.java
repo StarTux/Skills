@@ -6,8 +6,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-final class Talents {
+public final class Talents {
     final SkillsPlugin plugin;
+
+    public boolean has(Player player, Talent talent) {
+        return plugin.sessions.of(player).hasTalent(talent);
+    }
 
     boolean unlock(@NonNull Player player, @NonNull Talent talent) {
         Session session = plugin.sessions.of(player);
@@ -18,8 +22,7 @@ final class Talents {
         session.playerRow.talentPoints -= cost;
         session.talents.add(talent);
         session.playerRow.talents = session.talents.size();
-        session.playerRow.modified = true;
-        session.tag.modified = true;
+        session.playerRow.dirty = true;
         session.saveData();
         plugin.advancements.give(player, talent);
         return true;
@@ -29,7 +32,7 @@ final class Talents {
         final int total = 800;
         Session session = plugin.sessions.of(player);
         session.playerRow.talentChance += increase;
-        session.playerRow.modified = true;
+        session.playerRow.dirty = true;
         int chance;
         if (session.talents.isEmpty() && session.getTalentPoints() == 0) {
             chance = total / 2;
@@ -50,7 +53,7 @@ final class Talents {
         int points = session.playerRow.talentPoints + amount;
         session.playerRow.talentPoints = points;
         session.playerRow.talentChance = 0;
-        session.playerRow.modified = true;
+        session.playerRow.dirty = true;
         session.saveData();
         if (amount < 1) return;
         boolean noEffect = plugin.advancements.give(player, null);

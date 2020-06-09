@@ -85,7 +85,7 @@ final class Advancements {
         Map<String, Object> impossibleMap = new HashMap<>();
         criteriaMap.put("impossible", impossibleMap);
         impossibleMap.put("trigger", "minecraft:impossible");
-        return plugin.json.pretty(map);
+        return Json.pretty(map);
     }
     /**
      * Unlock the advancement belonging to the given talent.

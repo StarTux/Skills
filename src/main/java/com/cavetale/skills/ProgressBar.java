@@ -66,6 +66,7 @@ final class ProgressBar {
      * @param ticks the ticks
      */
     void animateProgress(double progress, int ticks) {
+        if (progress < 0 || progress > 1) throw new IllegalStateException("progress = " + progress);
         progressTarget = progress;
         animationTicks = ticks;
     }

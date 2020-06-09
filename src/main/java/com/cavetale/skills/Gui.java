@@ -41,7 +41,7 @@ public final class Gui implements InventoryHolder {
     boolean locked = false;
     // Ticking
     final List<Runnable> tickTasks = new ArrayList<>();
-    private int ticks = 0;
+    int ticks = 0;
 
     @RequiredArgsConstructor @AllArgsConstructor
     private static final class Slot {
@@ -176,8 +176,6 @@ public final class Gui implements InventoryHolder {
                     locked = false;
                     slot.onClick.apply(event);
                 });
-        } else {
-            fail(player);
         }
     }
 
