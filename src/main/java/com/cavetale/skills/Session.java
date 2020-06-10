@@ -27,7 +27,7 @@ final class Session {
     boolean poisonFreebie = false;
     boolean noParticles = false;
     //
-    ProgressBar skillBar;
+    Map<SkillType, ProgressBar> skillBars = new EnumMap<>(SkillType.class);
     int noSave = 0;
     int tick;
 
@@ -41,59 +41,19 @@ final class Session {
         playerRow.unpack();
         playerRow.tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
         this.skillRows.putAll(inSkillRows);
-        skillBar = new ProgressBar("skills", BarColor.WHITE, BarStyle.SEGMENTED_20);
-        skillBar.add(player);
-        skillBar.hide();
+        for (SkillType skillType : SkillType.values()) {
+            ProgressBar skillBar = new ProgressBar(skillType, "skills." + skillType, BarColor.WHITE, BarStyle.SEGMENTED_20);
+            skillBar.add(player);
+            skillBar.hide();
+            skillBars.put(skillType, skillBar);
+        }
     }
 
     void onDisable() {
-        skillBar.clear();
-        skillBar.hide();
-    }
-
-    void setSkillBarTitle(SkillType skill, int level) {
-        skillBar.setTitle(ChatColor.GRAY + skill.displayName + " level " + level);
-    }
-
-    void showSkillBar(@NonNull Player player, @NonNull SkillType skill,
-                      final double oldProg, final double newProg,
-                      final int oldLevel, final int newLevel,
-                      final boolean levelup) {
-        if (!skillBar.isAlive() || skillBar.skill != skill) {
-            skillBar.setProgress(oldProg);
-            skillBar.skill = skill;
+        for (ProgressBar skillBar : skillBars.values()) {
+            skillBar.clear();
+            skillBar.hide();
         }
-        final int timer = 10;
-        if (levelup) {
-            setSkillBarTitle(skill, oldLevel);
-            skillBar.animateProgress(1.0, timer);
-            skillBar.setPostAnimation(() -> {
-                    setSkillBarTitle(skill, newLevel);
-                    skillBar.setProgress(0.0);
-                    if (newProg > 0.0) {
-                        skillBar.animateProgress(newProg, timer);
-                    }
-                });
-        } else if (newProg < skillBar.getProgress()) {
-            if (skillBar.isAnimating()) {
-                skillBar.setPostAnimation(() -> {
-                        setSkillBarTitle(skill, newLevel);
-                        skillBar.setProgress(0.0);
-                        if (newProg > 0.0) {
-                            skillBar.animateProgress(newProg, timer);
-                        }
-                    });
-            } else {
-                // Should not happen
-                plugin.getLogger().warning("Session: The improbable just happened.");
-                setSkillBarTitle(skill, newLevel);
-                skillBar.setProgress(newProg);
-            }
-        } else {
-            setSkillBarTitle(skill, oldLevel);
-            skillBar.animateProgress(newProg, timer);
-        }
-        skillBar.setLifespan(200);
     }
 
     void onTick() {
@@ -103,10 +63,8 @@ final class Session {
             archerZone -= 1;
             if (archerZone == 0) archerZoneKills = 0;
         }
-        if (skillBar.skill != null && skillBar.isAlive()) {
-            if (!skillBar.tick()) {
-                skillBar.skill = null;
-            }
+        for (ProgressBar skillBar : skillBars.values()) {
+            if (skillBar.isAlive()) skillBar.tick();
         }
         if (noSave++ > 200) saveData();
     }
@@ -149,5 +107,9 @@ final class Session {
 
     int getSkillPoints(SkillType skill) {
         return skillRows.get(skill).points;
+    }
+
+    ProgressBar getSkillBar(SkillType skillType) {
+        return skillBars.get(skillType);
     }
 }

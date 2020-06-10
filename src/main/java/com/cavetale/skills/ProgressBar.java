@@ -1,7 +1,11 @@
 package com.cavetale.skills;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -10,101 +14,72 @@ import org.bukkit.entity.Player;
 final class ProgressBar {
     private BossBar bossBar;
     int lifespan = -1;
-    double progressTarget;
-    @Setter private Runnable postAnimation;
-    int animationTicks;
-    SkillType skill;
+    SkillType skillType;
+    List<Task> tasks = new ArrayList<>();
 
-    ProgressBar(final String name, final BarColor color, final BarStyle style) {
+    ProgressBar(final SkillType skillType, final String name, final BarColor color, final BarStyle style) {
+        this.skillType = skillType;
         bossBar = Bukkit.getServer().createBossBar(name, color, style);
     }
 
-    ProgressBar(final String name) {
-        this(name, BarColor.BLUE, BarStyle.SOLID);
+    ProgressBar(final SkillType skillType, final String name) {
+        this(skillType, name, BarColor.BLUE, BarStyle.SOLID);
     }
 
-    void add(Player player) {
+    ProgressBar add(Player player) {
         bossBar.addPlayer(player);
+        return this;
     }
 
-    void remove(Player player) {
+    ProgressBar remove(Player player) {
         bossBar.removePlayer(player);
+        return this;
     }
 
-    void clear() {
+    ProgressBar clear() {
         bossBar.removeAll();
+        return this;
     }
 
-    void show() {
+    ProgressBar show() {
         bossBar.setVisible(true);
+        return this;
     }
 
-    void hide() {
+    ProgressBar hide() {
         bossBar.setVisible(false);
+        return this;
     }
 
-    void setTitle(String title) {
+    ProgressBar title(String title) {
         bossBar.setTitle(title);
+        return this;
     }
 
     /**
-     * Set the current progress.  This cancels the ongoing animation,
-     * if any.
+     * Set the current progress.
      *
      * @param progress the progress
      */
     void setProgress(double progress) {
         bossBar.setProgress(progress);
-        animationTicks = 0;
-        postAnimation = null;
     }
 
     /**
-     * Reach a progress within some ticks.
-     *
-     * @param progress the progress
-     * @param ticks the ticks
-     */
-    void animateProgress(double progress, int ticks) {
-        if (progress < 0 || progress > 1) throw new IllegalStateException("progress = " + progress);
-        progressTarget = progress;
-        animationTicks = ticks;
-    }
-
-    /**
-     * Cancel the current animation.
-     */
-    void cancelAnimation() {
-        animationTicks = 0;
-    }
-
-    /**
-     * Reduce lifespan by 1 and hide if 0 is reached.
-     *
      * @return true if still alive, false otherwise.
      */
     boolean tick() {
-        if (lifespan == 0) return false;
-        if (lifespan > 0) {
+        if (!tasks.isEmpty()) {
+            boolean r = tasks.get(0).tick();
+            if (!r) tasks.remove(0);
+            show();
+            lifespan = 100;
+        } else if (lifespan > 0) {
             lifespan -= 1;
             if (lifespan == 0) {
                 hide();
                 return false;
             }
-        }
-        if (animationTicks == 1) {
-            animationTicks = 0;
-            bossBar.setProgress(progressTarget);
-            if (postAnimation != null) {
-                postAnimation.run();
-                postAnimation = null;
-            }
-        } else if (animationTicks > 0) {
-            double current = bossBar.getProgress();
-            double step = progressTarget - current;
-            step /= (double) animationTicks;
-            bossBar.setProgress(current + step);
-            animationTicks -= 1;
         }
         return true;
     }
@@ -113,32 +88,58 @@ final class ProgressBar {
      * @return true if lifespan greater than 0, false otherwise.
      */
     boolean isAlive() {
-        return lifespan > 0;
-    }
-
-    boolean isAnimating() {
-        return animationTicks > 0;
-    }
-
-    /**
-     * Set the lifespan.  A positive livespan implies the bar is
-     * visible but will hide once the life ticks run out.  A zeri
-     * lifespan implies hiding.  A negative lifespan implies infinite
-     * life but manual hiding or showing.
-     *
-     * @args life the lifespan ticks
-     */
-    void setLifespan(final int life) {
-        if (life > 0) {
-            show();
-        } else if (life == 0) {
-            hide();
-        }
-        lifespan = life;
+        return lifespan > 0 || !tasks.isEmpty();
     }
 
     double getProgress() {
-        if (animationTicks > 0) return progressTarget;
         return bossBar.getProgress();
+    }
+
+    interface Task {
+        /**
+         * Return true if this object is continues to be alive, false
+         * otherwise. Returning false will remove it from the tasks
+         * list.
+         */
+        boolean tick();
+    }
+
+    void skillPointsProgress(final int level, final int from, final int to, final int max) {
+        for (Task task : tasks) {
+            if (!(task instanceof SkillPointsProgressTask)) continue;
+            SkillPointsProgressTask prog = (SkillPointsProgressTask) task;
+            if (prog.level != level) continue;
+            // Found it!
+            prog.to = to;
+            return;
+        }
+        // New
+        SkillPointsProgressTask prog = new SkillPointsProgressTask(level);
+        prog.from = from;
+        prog.current = from;
+        prog.to = to;
+        prog.max = max;
+        tasks.add(prog);
+    }
+
+    @RequiredArgsConstructor
+    final class SkillPointsProgressTask implements Task {
+        final int level;
+        int ticks = 0;
+        int from;
+        int current;
+        int to;
+        int max;
+
+        @Override
+        public boolean tick() {
+            if (ticks > 0) current += 1;
+            bossBar.setProgress((double) current / (double) max);
+            bossBar.setTitle(ChatColor.GRAY + skillType.displayName + " " + level);
+            bossBar.setColor(BarColor.WHITE);
+            bossBar.setStyle(BarStyle.SEGMENTED_20);
+            ticks += 1;
+            return current < to;
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.cavetale.skills;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
@@ -29,32 +30,30 @@ public final class Points {
         Session session = plugin.sessions.of(player);
         SQLSkill row = session.skillRows.get(skill);
         int oldLevel = row.level;
-        int newLevel = oldLevel;
-        int req = forLevel(oldLevel + 1);
+        int newLevel = row.level;
+        int req = forLevel(newLevel + 1);
         int oldPoints = row.points;
         int newPoints = oldPoints + add;
-        double oldProg = (double) oldPoints / (double) req;
-        double newProg = Math.min(1, (double) newPoints / (double) req);
         boolean levelup = false;
-        if (newPoints >= req) {
+        while (newPoints >= req) {
+            session.getSkillBar(skill).skillPointsProgress(newLevel, oldPoints, req, req);
             levelup = true;
+            oldPoints = 0;
             newPoints -= req;
-            req = forLevel(oldLevel + 2);
-            newProg = Math.min(1, (double) newPoints / (double) req);
             newLevel += 1;
+            req = forLevel(newLevel + 1);
             session.playerRow.levels += 1;
             session.playerRow.dirty = true;
             Effects.levelup(player);
-            player.sendTitle(ChatColor.GOLD + skill.displayName,
-                             ChatColor.WHITE + "Level " + newLevel);
+            //final String title = ChatColor.GOLD + skill.displayName;
+            //final String subtitle = ChatColor.WHITE + "Level " + newLevel;
+            //Bukkit.getScheduler().runTask(plugin, () -> player.sendTitle(title, subtitle));
         }
         row.points = newPoints;
         row.totalPoints += add;
-        row.modified = true;
         row.level = newLevel;
-        session.showSkillBar(player, skill,
-                             oldProg, newProg,
-                             oldLevel, newLevel,
-                             levelup);
+        row.modified = true;
+        // session.showSkillBar(player, skill, oldProg, newProg, oldLevel, newLevel, levelup);
+        session.getSkillBar(skill).skillPointsProgress(newLevel, oldPoints, newPoints, req);
     }
 }
