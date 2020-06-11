@@ -3,7 +3,6 @@ package com.cavetale.skills;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
@@ -45,9 +44,9 @@ public final class Points {
             session.playerRow.levels += 1;
             session.playerRow.dirty = true;
             Effects.levelup(player);
-            //final String title = ChatColor.GOLD + skill.displayName;
-            //final String subtitle = ChatColor.WHITE + "Level " + newLevel;
-            //Bukkit.getScheduler().runTask(plugin, () -> player.sendTitle(title, subtitle));
+            final String title = ChatColor.GOLD + skill.displayName;
+            final String subtitle = ChatColor.WHITE + "Level " + newLevel;
+            session.getSkillBar(skill).levelUp(newLevel, () -> player.sendTitle(title, subtitle));
         }
         row.points = newPoints;
         row.totalPoints += add;

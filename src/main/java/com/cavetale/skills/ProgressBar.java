@@ -1,17 +1,16 @@
 package com.cavetale.skills;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
-final class ProgressBar {
+public final class ProgressBar {
     private BossBar bossBar;
     int lifespan = -1;
     SkillType skillType;
@@ -104,6 +103,9 @@ final class ProgressBar {
         boolean tick();
     }
 
+    /**
+     * Called by Points::give.
+     */
     void skillPointsProgress(final int level, final int from, final int to, final int max) {
         for (Task task : tasks) {
             if (!(task instanceof SkillPointsProgressTask)) continue;
@@ -122,6 +124,13 @@ final class ProgressBar {
         tasks.add(prog);
     }
 
+    /**
+     * Called by Points::give.
+     */
+    void levelUp(final int level, Runnable completion) {
+        tasks.add(new LevelUpTask(level, completion));
+    }
+
     @RequiredArgsConstructor
     final class SkillPointsProgressTask implements Task {
         final int level;
@@ -133,13 +142,63 @@ final class ProgressBar {
 
         @Override
         public boolean tick() {
-            if (ticks > 0) current += 1;
-            bossBar.setProgress((double) current / (double) max);
+            if (ticks > 0) {
+                current += 2;
+                if (current > max) current = max;
+            }
+            double progress = (double) current / (double) max;
+            bossBar.setProgress(progress);
             bossBar.setTitle(ChatColor.GRAY + skillType.displayName + " " + level);
-            bossBar.setColor(BarColor.WHITE);
-            bossBar.setStyle(BarStyle.SEGMENTED_20);
+            if (progress < 0.2) {
+                bossBar.setColor(BarColor.PURPLE);
+            } else if (progress < 0.4) {
+                bossBar.setColor(BarColor.BLUE);
+            } else if (progress < 0.6) {
+                bossBar.setColor(BarColor.GREEN);
+            } else if (progress < 0.8) {
+                bossBar.setColor(BarColor.YELLOW);
+            } else {
+                bossBar.setColor(BarColor.WHITE);
+            }
+            bossBar.setStyle(BarStyle.SEGMENTED_10);
             ticks += 1;
             return current < to;
+        }
+    }
+
+    @RequiredArgsConstructor
+    final class LevelUpTask implements Task {
+        final int level;
+        final Runnable endTask;
+        int ticks = 0;
+        double progress = 1.0;
+        List<BarColor> colors;
+
+        @Override
+        public boolean tick() {
+            if (ticks == 0) {
+                colors = Arrays.asList(BarColor.RED, BarColor.GREEN, BarColor.BLUE);
+            }
+            bossBar.setProgress(progress);
+            bossBar.setStyle(BarStyle.SOLID);
+            if ((ticks % 10) == 0) {
+                bossBar.setColor(colors.get((ticks / 10) % colors.size()));
+            }
+            if (progress > 0) {
+                bossBar.setTitle("" + ChatColor.WHITE + ChatColor.BOLD + skillType.displayName + " " + (level - 1));
+            } else {
+                bossBar.setTitle("" + ChatColor.WHITE + ChatColor.BOLD + skillType.displayName + " " + level);
+            }
+            ticks += 1;
+            if (ticks > 10 && progress > 0) {
+                progress -= 0.02;
+                if (progress < 0) progress = 0;
+            }
+            if (ticks >= 90) {
+                endTask.run();
+                return false;
+            }
+            return true;
         }
     }
 }

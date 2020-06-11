@@ -1,7 +1,5 @@
 package com.cavetale.skills;
 
-import java.util.Arrays;
-import java.util.List;
 import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
