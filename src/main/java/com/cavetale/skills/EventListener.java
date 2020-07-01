@@ -1,7 +1,7 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.worldmarker.MarkerId;
 import com.cavetale.worldmarker.BlockMarker;
-import com.cavetale.worldmarker.MarkChunkTickEvent;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -54,7 +54,7 @@ final class EventListener implements Listener {
             }
             return;
         }
-        Farming.Crop crop = Farming.Crop.ofSeed(item);
+        CropType crop = CropType.ofSeed(item);
         if (crop != null) {
             // Cancelling with edibles may trigger infinite eating animation.
             plugin.farming.useSeed(player, block, crop, item);
@@ -62,27 +62,17 @@ final class EventListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    void onMarkChunkTick(MarkChunkTickEvent event) {
-        event.getChunk().streamBlocksWithId(Farming.WATERED_CROP)
-            .forEach(plugin.farming::tickWateredCrop);
-        event.getChunk().streamBlocksWithId(Farming.GROWN_CROP)
-            .forEach(plugin.farming::tickGrownCrop);
-    }
-
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!Util.playMode(player)) return;
         Block block = event.getBlock();
-        String bid = BlockMarker.getId(block);
-        if (bid != null) {
-            switch (bid) {
-            case Farming.WATERED_CROP:
+        String stringId = BlockMarker.getId(block);
+        if (stringId != null) {
+            MarkerId id = MarkerId.of(stringId);
+            switch (id) {
+            case WATERED_CROP:
                 BlockMarker.resetId(block);
-                break;
-            case Farming.GROWN_CROP:
-                plugin.farming.harvest(player, block);
                 break;
             default: break;
             }
@@ -92,7 +82,7 @@ final class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     void onBlockGrow(BlockGrowEvent event) {
-        if (BlockMarker.hasId(event.getBlock(), Farming.WATERED_CROP)) {
+        if (BlockMarker.hasId(event.getBlock(), MarkerId.WATERED_CROP.key)) {
             event.setCancelled(true);
         }
     }

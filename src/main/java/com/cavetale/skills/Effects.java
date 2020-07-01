@@ -18,16 +18,8 @@ import org.bukkit.util.BoundingBox;
 /**
  * Utility class to launch sound and particle effects.
  */
-final class Effects {
+public final class Effects {
     private Effects() { }
-
-    static void wateredCropAmbient(@NonNull Player player, @NonNull Block block) {
-        player.spawnParticle(Particle.DRIP_WATER,
-                             block.getLocation().add(0.5, 0.125, 0.5),
-                             1, // count
-                             0.20, 0.1, 0.20, // offset
-                             0.0); // extra/speed
-    }
 
     static void grownCropAmbient(@NonNull Player player, @NonNull Block block) {
         player.spawnParticle(Particle.BLOCK_DUST,
@@ -56,7 +48,7 @@ final class Effects {
         w.playSound(loc, Sound.WEATHER_RAIN, SoundCategory.BLOCKS, 0.3f, 2.0f);
     }
 
-    static void cropGrow(@NonNull Block block) {
+    public static void cropGrow(@NonNull Block block) {
         World w = block.getWorld();
         w.spawnParticle(Particle.VILLAGER_HAPPY,
                         block.getLocation().add(0.5, 0.5, 0.5),

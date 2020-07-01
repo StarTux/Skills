@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.worldmarker.WorldMarkerManager;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public final class SkillsPlugin extends JavaPlugin {
     final Advancements advancements = new Advancements(this);
     final Infos infos = new Infos(this);
     final Timer timer = new Timer(this);
+    final WorldMarkerManager worldMarkerManager = new WorldMarkerManager(this);
 
     @Override
     public void onEnable() {
@@ -38,9 +40,10 @@ public final class SkillsPlugin extends JavaPlugin {
         getCommand("skadmin").setExecutor(adminCommand);
         SkillType.setup();
         Talent.setup();
-        getServer().getPluginManager().registerEvents(eventListener, this);
         sql.enable();
         sql.loadDatabase();
+        getServer().getPluginManager().registerEvents(eventListener, this);
+        worldMarkerManager.enable();
         advancements.loadAll();
         infos.load();
         for (Player player : getServer().getOnlinePlayers()) {

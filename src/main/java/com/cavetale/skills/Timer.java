@@ -26,35 +26,6 @@ public final class Timer {
     void onTick() {
         ticks += 1;
         plugin.sessions.tick();
-        if ((ticks % 10) == 0) {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
-                tickPlayer(player);
-            }
-        }
         Gui.onTick(plugin);
-    }
-
-    // Show ambient particle effects of nearby blocks
-    void tickPlayer(@NonNull Player player) {
-        if (plugin.sessions.of(player).noParticles) return;
-        List<MarkBlock> blocks =
-            BlockMarker.getNearbyBlocks(player.getLocation().getBlock(), 24)
-            .stream().filter(mb -> mb.hasId() && mb.getId().startsWith("skills:"))
-            .collect(Collectors.toList());
-        if (blocks.isEmpty()) return;
-        Collections.shuffle(blocks, plugin.random);
-        final int max = Math.min(blocks.size(), 48);
-        for (int i = 0; i < max; i += 1) {
-            MarkBlock markBlock = blocks.get(i);
-            switch (markBlock.getId()) {
-            case Farming.WATERED_CROP:
-                Effects.wateredCropAmbient(player, markBlock.getBlock());
-                break;
-            case Farming.GROWN_CROP:
-                Effects.grownCropAmbient(player, markBlock.getBlock());
-                break;
-            default: break;
-            }
-        }
     }
 }

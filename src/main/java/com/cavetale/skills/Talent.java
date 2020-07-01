@@ -23,6 +23,9 @@ public enum Talent {
     FARM_CROP_DROPS,
     FARM_DIAMOND_DROPS,
     FARM_TALENT_POINTS,
+    FARM_IRON_GROWTH,
+    FARM_GOLD_GROWTH,
+    FARM_DIAMOND_GROWTH,
     // Combat
     COMBAT_FIRE,
     COMBAT_SILENCE,
@@ -120,7 +123,7 @@ public enum Talent {
         COMBAT_ARCHER_ZONE.displayName = "In The Zone";
         COMBAT_ARCHER_ZONE.description = "Ranged kills give 5 seconds of double damage to ranged attacks.";
         COMBAT_ARCHER_ZONE.material = Material.SPECTRAL_ARROW;
-        // Gui
+        // Gui (generated)
         MINE_SILK_MULTI.guiIndex = 1;
         MINE_SILK_STRIP.guiIndex = 11;
         MINE_XRAY.guiIndex = 19;
