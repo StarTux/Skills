@@ -499,9 +499,25 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         for (SkillType skillType : SkillType.values()) {
             gui.setItem(skillType.guiIndex, skillType.getIcon(player), click -> {
                     Gui.click(player);
+                    openSkillMenu(player, skillType);
                     return true;
                 });
         }
+        gui.open(player);
+    }
+
+    void openSkillMenu(Player player, SkillType skillType) {
+        Gui gui = new Gui(plugin)
+            .rows(3)
+            .title(ChatColor.DARK_PURPLE + skillType.displayName);
+        gui.setItem(-999, null, click -> {
+                Gui.click(player);
+                openSkillsMenu(player);
+                return true;
+            });
+        gui.setItem(4, 0, skillType.getIcon(player), click -> {
+                return false;
+            });
         gui.open(player);
     }
 }

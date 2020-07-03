@@ -22,6 +22,11 @@ public final class Rnd {
         return list.get(index);
     }
 
+    public static <T> T getEntry(T... ts) {
+        int index = getInt(ts.length);
+        return ts[index];
+    }
+
     public static <T> List<T> shuffle(List<T> list) {
         Collections.shuffle(list, random());
         return list;
