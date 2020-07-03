@@ -81,7 +81,7 @@ final class Combat {
         reward(EntityType.DROWNED, 1);
         reward(EntityType.ILLUSIONER, 1);
         reward(EntityType.GIANT, 1);
-        reward(EntityType.PIG_ZOMBIE, 1);
+        reward(EntityType.ZOMBIFIED_PIGLIN, 1);
         reward(EntityType.ENDERMAN, 1);
         reward(EntityType.ENDER_DRAGON, 10);
         reward(EntityType.WITHER, 10);
