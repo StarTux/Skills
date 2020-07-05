@@ -73,13 +73,15 @@ final class Combat {
         reward(EntityType.DROWNED, 1);
         reward(EntityType.ILLUSIONER, 1);
         reward(EntityType.GIANT, 1);
-        reward(EntityType.PIG_ZOMBIE, 1);
+        reward(EntityType.ZOMBIFIED_PIGLIN, 1);
         reward(EntityType.ENDERMAN, 1);
         reward(EntityType.ENDER_DRAGON, 10);
         reward(EntityType.WITHER, 10);
     }
 
     void playerKillMob(@NonNull Player player, @NonNull Mob mob) {
+        Reward reward = rewards.get(mob.getType());
+        if (reward == null) return;
         if (mob.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) mob.getLastDamageCause();
             switch (edbee.getCause()) {
@@ -94,8 +96,6 @@ final class Combat {
                 break;
             }
         }
-        Reward reward = rewards.get(mob.getType());
-        if (reward == null) return;
         Chunk chunk = mob.getLocation().getChunk();
         Chonk chonk = plugin.meta.getOrSet(chunk.getBlock(0, 0, 0),
                                            CHONK, Chonk.class, Chonk::new);

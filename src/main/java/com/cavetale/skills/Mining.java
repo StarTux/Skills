@@ -92,6 +92,7 @@ final class Mining {
         case STONE_PICKAXE:
         case WOODEN_PICKAXE:
         case GOLDEN_PICKAXE:
+        case NETHERITE_PICKAXE:
             return true;
         default:
             return false;
