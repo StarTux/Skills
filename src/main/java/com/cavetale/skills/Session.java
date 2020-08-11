@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
@@ -31,21 +32,30 @@ final class Session {
     int tick;
 
     Session(@NonNull final SkillsPlugin plugin,
-            @NonNull final Player player,
+            @NonNull final UUID uuid,
             @NonNull final SQLPlayer playerRow,
             @NonNull final Map<SkillType, SQLSkill> inSkillRows) {
         this.plugin = plugin;
-        this.uuid = player.getUniqueId();
+        this.uuid = uuid;
         this.playerRow = playerRow;
         playerRow.unpack();
         playerRow.tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
-        this.skillRows.putAll(inSkillRows);
+        skillRows.putAll(inSkillRows);
+        Player player = getPlayer();
         for (SkillType skillType : SkillType.values()) {
             ProgressBar skillBar = new ProgressBar(skillType, "skills." + skillType, BarColor.WHITE, BarStyle.SEGMENTED_20);
-            skillBar.add(player);
+            if (player != null) skillBar.add(player);
             skillBar.hide();
             skillBars.put(skillType, skillBar);
         }
+    }
+
+    Session(final SkillsPlugin plugin, final UUID uuid) {
+        this(plugin, uuid, plugin.sql.playerRowOf(uuid), plugin.sql.skillRowsOf(uuid));
+    }
+
+    public Player getPlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 
     void onDisable() {

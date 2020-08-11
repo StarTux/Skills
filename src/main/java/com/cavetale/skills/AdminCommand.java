@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 @RequiredArgsConstructor
 public final class AdminCommand extends CommandBase implements TabExecutor {
     private final SkillsPlugin plugin;
+    static final String CMD = "/skadm";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command,
@@ -38,6 +39,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         case "median": return medianCommand(sender, args);
         case "gui": return guiCommand(requirePlayer(sender), args);
         case "give": return giveCommand(sender, args);
+        case "talent": return talentCommand(sender, args);
         default: return false;
         }
     }
@@ -236,6 +238,21 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         if (points < 1) throw new Wrong("Must be positive");
         plugin.points.give(target, skillType, points);
         sender.sendMessage("" + points + " " + skillType.displayName + " points given to " + target.getName());
+        return true;
+    }
+
+    boolean talentCommand(CommandSender sender, String[] args) throws Wrong {
+        if (args.length == 0) {
+            String cmd = CMD + " talent ";
+            sender.sendMessage(cmd + "unlock <player> <talent> - Unlock talent");
+            sender.sendMessage(cmd + "lock <player> <talent> - Lock talent");
+            return true;
+        }
+        String cmd = args[0];
+        args = Arrays.copyOfRange(args, 1, args.length);
+        switch (cmd) {
+        case "unlock":
+        }
         return true;
     }
 }

@@ -28,13 +28,7 @@ final class Sessions {
 
     Session of(@NonNull Player player) {
         final UUID uuid = player.getUniqueId();
-        Session session = sessions.get(uuid);
-        if (session == null) {
-            session = new Session(plugin, player,
-                                  plugin.sql.playerRowOf(uuid),
-                                  plugin.sql.skillRowsOf(uuid));
-            sessions.put(session.uuid, session);
-        }
+        Session session = sessions.computeIfAbsent(uuid, u -> new Session(plugin, u));
         return session;
     }
 
