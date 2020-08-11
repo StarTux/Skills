@@ -8,7 +8,7 @@ public enum CropType {
     // 8 grow stages (0-7)
     WHEAT(10, Material.WHEAT, Material.WHEAT, Material.WHEAT_SEEDS),
     CARROT(10, Material.CARROTS, Material.CARROT),
-    POTATO(10,Material.POTATOES, Material.POTATO),
+    POTATO(10, Material.POTATOES, Material.POTATO),
     // 4 grow stages (0-3)
     BEETROOT(5, Material.BEETROOTS, Material.BEETROOT, Material.BEETROOT_SEEDS),
     NETHER_WART(5, Material.NETHER_WART, Material.NETHER_WART);

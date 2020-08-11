@@ -252,7 +252,9 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         args = Arrays.copyOfRange(args, 1, args.length);
         switch (cmd) {
         case "unlock":
+            return false;
+        default:
+            return false;
         }
-        return true;
     }
 }

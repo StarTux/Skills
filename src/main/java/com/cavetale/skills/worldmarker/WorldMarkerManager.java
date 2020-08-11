@@ -1,6 +1,5 @@
 package com.cavetale.skills.worldmarker;
 
-import com.cavetale.skills.Farming;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.worldmarker.BlockMarker;
 import com.cavetale.worldmarker.MarkChunk;

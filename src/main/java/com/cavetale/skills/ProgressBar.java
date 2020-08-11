@@ -68,7 +68,7 @@ public final class ProgressBar {
     /**
      * @return true if still alive, false otherwise.
      */
-    boolean tick() {
+    boolean tick(int ticks) {
         if (!tasks.isEmpty()) {
             boolean r = tasks.get(0).tick();
             if (!r) tasks.remove(0);

@@ -20,9 +20,9 @@ final class Sessions {
         sessions.clear();
     }
 
-    void tick() {
+    void tick(int ticks) {
         for (Session session : sessions.values()) {
-            session.onTick();
+            session.tick(ticks);
         }
     }
 

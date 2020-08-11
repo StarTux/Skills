@@ -29,7 +29,6 @@ final class Session {
     //
     Map<SkillType, ProgressBar> skillBars = new EnumMap<>(SkillType.class);
     int noSave = 0;
-    int tick;
 
     Session(@NonNull final SkillsPlugin plugin,
             @NonNull final UUID uuid,
@@ -65,15 +64,14 @@ final class Session {
         }
     }
 
-    void onTick() {
-        tick += 1;
+    void tick(int ticks) {
         if (immortal > 0) immortal -= 1;
         if (archerZone > 0) {
             archerZone -= 1;
             if (archerZone == 0) archerZoneKills = 0;
         }
         for (ProgressBar skillBar : skillBars.values()) {
-            if (skillBar.isAlive()) skillBar.tick();
+            if (skillBar.isAlive()) skillBar.tick(ticks);
         }
         if (noSave++ > 200) saveData();
     }

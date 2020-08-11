@@ -51,6 +51,15 @@ public enum Talent {
         }
     }
 
+    private static String lore(String... in) {
+        return String.join("\n\n", in);
+    }
+
+    private static String par(String... in) {
+        return String.join(" ", in);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
     static void setup() {
         // Chaining
         chain(ROOT, MINE_STRIP);
@@ -79,7 +88,12 @@ public enum Talent {
         ROOT.description = "Earn talent points to unlock new talents and improve your skillful abilities!";
         ROOT.material = Material.GOLDEN_APPLE;
         MINE_STRIP.displayName = "Strip Mining";
-        MINE_STRIP.description = "Mining with an Efficiency pickaxe breaks many blocks\n\nUnleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within your line of sight while mining straight. Breaking ores will attempt to break the entire vein. This only works deep underground.\n\nMine without this feature by sneaking.";
+        MINE_STRIP.description =
+            lore("Mining with an Efficiency pickaxe breaks many blocks",
+                 par("Unleash the full power of the Efficency enchantment.",
+                     "Mining stone type blocks will break several blocks within your line of sight while mining straight.",
+                     "Breaking ores will attempt to break the entire vein. This only works deep underground."),
+                 "Mine without this feature by sneaking.");
         MINE_STRIP.material = Material.DIAMOND_PICKAXE;
         MINE_ORE_ALERT.displayName = "Ore Alert";
         MINE_ORE_ALERT.description = "Get alerts when diamond ore is nearby.\n\nNever miss diamonds near your mine again! Whenever you mine stone at diamond level, and there is diamond ore nearby, an alert sound will notify you of its existence. Follow that lead to earn more diamonds. This only works deep underground.";
