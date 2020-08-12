@@ -1,7 +1,9 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.command.CommandContext;
+import com.cavetale.skills.command.CommandNode;
+import com.cavetale.skills.command.CommandWarn;
 import com.winthier.generic_events.GenericEvents;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -22,119 +24,80 @@ import org.bukkit.entity.Player;
 @RequiredArgsConstructor
 final class SkillsCommand extends CommandBase implements TabExecutor {
     final SkillsPlugin plugin;
+    final CommandNode root = new CommandNode("skills");
 
-    enum CMD {
-        LIST,
-        TALENT,
-        INFO,
-        HI;
+    enum HighscoreType {
+        TOTAL,
+        TALENTS;
 
         public final String key;
+        public final String displayName;
 
-        CMD() {
+        HighscoreType() {
             key = name().toLowerCase();
+            displayName = Msg.enumToCamelCase(this);
         }
+    }
+
+    private String commandHelp(String cmd, String args, String desc) {
+        return ""
+            + ChatColor.YELLOW + "/sk "
+            + ChatColor.GOLD + cmd
+            + (args == null
+               ? ""
+               : " " + ChatColor.YELLOW + ChatColor.ITALIC + args)
+            + (desc == null
+               ? ""
+               : ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + desc);
+    }
+
+    void enable() {
+        root.helpLine(ChatColor.YELLOW + "/sk" + ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + "Skills Command Interface");
+        root.addChild("list")
+            .terminal()
+            .caller((ctx, nod, args) -> listCommand(ctx.requirePlayer(), args))
+            .helpLine(commandHelp("list", null, "List your skills and talents"));
+        CommandNode talentNode = root.addChild("talent")
+            .caller(this::talentCommand)
+            .helpLine(commandHelp("talent", null, "Talent menu"));
+        talentNode.addChild("unlock")
+            .caller(this::talentUnlockCommand)
+            .completer(this::talentUnlockComplete);
+        root.addChild("info")
+            .caller(this::infoCommand)
+            .completionList(this::infoCompletionList)
+            .helpLine(commandHelp("info", null, "Info pages"));
+        CommandNode highscoreNode = root.addChild("highscore")
+            .alias("hi")
+            .caller(this::highscoreCommand)
+            .helpLine(commandHelp("hi", null, "Highscore lists"));
+        for (SkillType skillType : SkillType.values()) {
+            root.addChild(skillType.key)
+                .terminal()
+                .caller((ctx, nod, args) -> skillCommand(ctx.requirePlayer(), skillType, args))
+                .helpLine(commandHelp(skillType.key, null, skillType.displayName + " skill menu"));
+            highscoreNode.addChild(skillType.key)
+                .terminal()
+                .caller((ctx, nod, args) -> highscoreFinalCommand(ctx.requirePlayer(), args, skillType, null))
+                .helpLine(commandHelp("hi " + skillType.key, null, skillType.displayName + " highscores"));
+        }
+        for (HighscoreType highscoreType : HighscoreType.values()) {
+            highscoreNode.addChild(highscoreType.key)
+                .terminal()
+                .caller((ctx, nod, args) -> highscoreFinalCommand(ctx.requirePlayer(), args, null, highscoreType))
+                .helpLine(commandHelp("hi " + highscoreType.key, null, highscoreType.displayName + " highscores"));
+        }
+        plugin.getCommand("skills").setExecutor(this);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command,
-                             String alias, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Player required");
-            return true;
-        }
-        Player player = (Player) sender;
-        if (args.length == 0) {
-            openSkillsMenu(player);
-            return true;
-        }
-        // SkillType command, e.g. /sk mining
-        SkillType skillType;
-        try {
-            skillType = SkillType.valueOf(args[0].toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            skillType = null;
-        }
-        if (skillType != null) {
-            if (!skillCommand(player, skillType,
-                              Arrays.copyOfRange(args, 1, args.length))) {
-                commandHelp(player, skillType);
-            }
-            return true;
-        }
-        // Other command
-        CMD cmd;
-        try {
-            cmd = CMD.valueOf(args[0].toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            return false;
-        }
-        try {
-            if (!onCommand(player, cmd,
-                           Arrays.copyOfRange(args, 1, args.length))) {
-                commandHelp(player, cmd);
-            }
-        } catch (Wrong e) {
-            player.sendMessage(ChatColor.RED + e.getMessage());
-        }
-        return true;
+    public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
+        return root.call(new CommandContext(sender, command, alias, args), args);
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command,
-                                      String alias, String[] args) {
-        if (args.length == 0) {
-            return null;
-        }
-        String arg = args[args.length - 1];
-        if (args.length == 1) {
-            return complete(arg, Stream
-                            .concat(Stream.of(CMD.values()).map(c -> c.key),
-                                    Stream.of(SkillType.values()).map(s -> s.key)));
-        }
-        CMD cmd;
-        try {
-            cmd = CMD.valueOf(args[0]);
-        } catch (IllegalArgumentException iae) {
-            cmd = null;
-        }
-        SkillType skillType;
-        try {
-            skillType = SkillType.valueOf(args[0].toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            skillType = null;
-        }
-        if (cmd == null && skillType == null) {
-            return Collections.emptyList();
-        }
-        if (cmd != null) {
-            return Collections.emptyList();
-        }
-        if (args.length == 2 && cmd == CMD.INFO) {
-            return complete(args[1], plugin.infos.allKeys());
-        }
-        if (args.length == 2 && cmd == CMD.HI) {
-            return complete(arg, Stream
-                            .concat(Stream.of("total", "talents"),
-                                    Stream.of(SkillType.values())
-                                    .map(s -> s.key)));
-        }
-        return Collections.emptyList();
-    }
-
-    boolean onCommand(Player player, CMD cmd, String[] args) throws Wrong {
-        switch (cmd) {
-        case TALENT:
-            return talentCommand(player, args);
-        case LIST:
-            return listCommand(player, args);
-        case INFO:
-            return infoCommand(player, args);
-        case HI:
-            return hiCommand(player, args);
-        default:
-            return false;
-        }
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return root.complete(new CommandContext(sender, command, alias, args), args);
     }
 
     boolean skillCommand(Player player, SkillType skill, String[] args) {
@@ -195,12 +158,13 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         return true;
     }
 
-    boolean infoCommand(Player player, String[] args) throws Wrong {
+    boolean infoCommand(CommandContext context, CommandNode node, String[] args) {
+        Player player = context.requirePlayer();
         if (args.length > 1) return false;
         if (args.length == 1) {
             Info info = plugin.infos.get(args[0]);
             if (info == null) {
-                throw new Wrong("Not found: " + args[0]);
+                throw new CommandWarn("Not found: " + args[0]);
             }
             player.sendMessage("");
             player.sendMessage("" + ChatColor.YELLOW + ChatColor.BOLD + info.title);
@@ -218,38 +182,51 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         return true;
     }
 
-    boolean talentCommand(Player player, String[] args) throws Wrong {
-        if (args.length == 0) {
-            talentMenu(player);
-            return true;
+    List<String> infoCompletionList(CommandContext context) {
+        return plugin.infos.allKeys();
+    }
+
+    boolean talentCommand(CommandContext context, CommandNode node, String[] args) {
+        if (args.length != 0) return false;
+        talentMenu(context.requirePlayer());
+        return true;
+    }
+
+    List<String> talentUnlockComplete(CommandContext context, CommandNode node, String[] args) {
+        if (args.length == 0) return null;
+        Player player = context.requirePlayer();
+        Session session = plugin.sessions.of(player);
+        String arg = args[args.length - 1].toLowerCase();
+        return Stream.of(Talent.values())
+            .filter(t -> !session.hasTalent(t) && session.canAccessTalent(t))
+            .map(t -> t.key)
+            .filter(s -> s.startsWith(arg))
+            .collect(Collectors.toList());
+    }
+
+    boolean talentUnlockCommand(CommandContext context, CommandNode node, String[] args) {
+        Player player = context.requirePlayer();
+        if (args.length != 1) return false;
+        Session session = plugin.sessions.of(player);
+        if (session.getTalentPoints() < session.getTalentCost()) {
+            throw new CommandWarn("You don't have enough Talent Points!");
         }
-        switch (args[0]) {
-        case "unlock": {
-            if (args.length != 2) return false;
-            Session session = plugin.sessions.of(player);
-            if (session.getTalentPoints() < session.getTalentCost()) {
-                throw new Wrong("You don't have enough Talent Points!");
-            }
-            Talent talent = Talent.of(args[1]);
-            if (talent == null) {
-                throw new Wrong("Invalid talent!");
-            }
-            if (session.hasTalent(talent)) {
-                throw new Wrong("Already unlocked!");
-            }
-            if (!session.canAccessTalent(talent)) {
-                throw new Wrong("Parent not yet available!");
-            }
-            if (!plugin.talents.unlock(player, talent)) {
-                throw new Wrong("An unknown error occured.");
-            }
-            Effects.talentUnlock(player);
-            talentMenu(player);
-            return true;
+        Talent talent = Talent.of(args[0]);
+        if (talent == null) {
+            throw new CommandWarn("Invalid talent!");
         }
-        default: break;
+        if (session.hasTalent(talent)) {
+            throw new CommandWarn("Already unlocked!");
         }
-        return false;
+        if (!session.canAccessTalent(talent)) {
+            throw new CommandWarn("Parent not yet available!");
+        }
+        if (!plugin.talents.unlock(player, talent)) {
+            throw new CommandWarn("An unknown error occured.");
+        }
+        Effects.talentUnlock(player);
+        talentMenu(player);
+        return true;
     }
 
     @Value
@@ -263,83 +240,86 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         }
     }
 
-    boolean hiCommand(Player player, String[] args) throws Wrong {
-        if (args.length == 0) {
-            ComponentBuilder cb = new ComponentBuilder("Options: ")
-                .color(ChatColor.LIGHT_PURPLE);
-            String cmd = "/sk hi total";
-            cb.append("Total").color(ChatColor.YELLOW);
-            cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
-            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    TextComponent
-                                    .fromLegacyText(ChatColor.YELLOW + cmd)));
+    boolean highscoreCommand(CommandContext context, CommandNode node, String[] args) {
+        Player player = context.requirePlayer();
+        if (args.length != 0) return false;
+        ComponentBuilder cb = new ComponentBuilder("Options: ")
+            .color(ChatColor.LIGHT_PURPLE);
+        String cmd = "/sk hi total";
+        cb.append("Total").color(ChatColor.YELLOW);
+        cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
+        cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                TextComponent
+                                .fromLegacyText(ChatColor.YELLOW + cmd)));
+        cb.append(", ").color(ChatColor.DARK_PURPLE);
+        cmd = "/sk hi talents";
+        cb.append("Talents").color(ChatColor.YELLOW);
+        cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
+        cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                TextComponent
+                                .fromLegacyText(ChatColor.YELLOW + cmd)));
+        for (SkillType skill : SkillType.values()) {
             cb.append(", ").color(ChatColor.DARK_PURPLE);
-            cmd = "/sk hi talents";
-            cb.append("Talents").color(ChatColor.YELLOW);
+            cmd = "/sk hi " + skill.key;
+            cb.append(skill.displayName).color(ChatColor.GOLD);
             cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
             cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                     TextComponent
-                                    .fromLegacyText(ChatColor.YELLOW + cmd)));
-            for (SkillType skill : SkillType.values()) {
-                cb.append(", ").color(ChatColor.DARK_PURPLE);
-                cmd = "/sk hi " + skill.key;
-                cb.append(skill.displayName).color(ChatColor.GOLD);
-                cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
-                cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        TextComponent
-                                        .fromLegacyText(ChatColor.GOLD + cmd)));
-            }
-            player.spigot().sendMessage(cb.create());
-            return true;
+                                    .fromLegacyText(ChatColor.GOLD + cmd)));
         }
-        if (args.length > 2) return false;
-        // Skill
-        SkillType skill = SkillType.ofKey(args[0]);
-        if (!"total".equals(args[0]) && !"talents".equals(args[0]) && skill == null) {
-            throw new Wrong("Invalid skill: " + args[0]);
-        }
+        player.spigot().sendMessage(cb.create());
+        return true;
+    }
+
+    boolean highscoreFinalCommand(Player player, String[] args, SkillType skillType, HighscoreType highscoreType) {
+        if (args.length > 1) return false;
         // Page Number
         int page = 0;
-        if (args.length >= 2) {
+        if (args.length >= 1) {
             try {
-                page = Integer.parseInt(args[1]) - 1;
+                page = Integer.parseInt(args[0]) - 1;
             } catch (NumberFormatException nfe) {
                 page = -1;
             }
             if (page < 0) {
-                throw new Wrong("Invalid page number: " + args[1]);
+                throw new CommandWarn("Invalid page number: " + args[0]);
             }
         }
         // Collect
         List<Score> scores;
         final String title;
-        if (skill == null) {
-            if (args[0].equals("total")) {
+        if (highscoreType != null) {
+            switch (highscoreType) {
+            case TOTAL:
                 title = "Total";
                 scores = plugin.sql.playerRows.values().stream()
                     .filter(p -> p.levels > 0)
                     .map(p -> new Score(p.levels, p.uuid))
                     .collect(Collectors.toList());
-            } else if (args[0].equals("talents")) {
+                break;
+            case TALENTS:
                 title = "Talents";
                 scores = plugin.sql.playerRows.values().stream()
                     .filter(p -> p.talents > 0)
                     .map(p -> new Score(p.talents, p.uuid))
                     .collect(Collectors.toList());
-            } else {
-                throw new IllegalStateException("arg=" + args[0]);
+                break;
+            default:
+                throw new IllegalStateException("highscoreType=" + highscoreType);
             }
-        } else {
-            title = skill.displayName;
+        } else if (skillType != null) {
+            title = skillType.displayName;
             scores = plugin.sql.skillRows.stream()
                 .filter(s -> s.level > 0)
-                .filter(s -> skill.key.equals(s.skill))
+                .filter(s -> skillType.key.equals(s.skill))
                 .map(s -> new Score(s.level, s.player))
                 .collect(Collectors.toList());
+        } else {
+            throw new IllegalStateException("highscoreType == null && skillType == null");
         }
         int offset = page * 10;
         if (offset >= scores.size()) {
-            throw new Wrong("Page " + (page + 1) + " unavailable!");
+            throw new CommandWarn("Page " + (page + 1) + " unavailable!");
         }
         Collections.sort(scores);
         player.sendMessage("");
@@ -429,67 +409,6 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
                                    days, hours % 24, minutes % 60);
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Time Left: "
                            + ChatColor.WHITE + fmt);
-    }
-
-    void commandHelp(final Player player) {
-        player.sendMessage(ChatColor.GOLD + "Skills Usage:");
-        for (SkillType skillType : SkillType.values()) {
-            commandHelp(player, skillType);
-        }
-        for (CMD cmd : CMD.values()) {
-            commandHelp(player, cmd);
-        }
-        // sendTimeLeft(player);
-    }
-
-    void commandHelp(Player player, SkillType skillType) {
-        commandHelp(player, skillType.key, null,
-                    skillType.displayName + " overview");
-    }
-
-    void commandHelp(Player player, CMD cmd) {
-        String args = null;
-        switch (cmd) {
-        case LIST:
-            commandHelp(player, cmd.key, null,
-                        "List your skills and talents");
-            break;
-        case TALENT:
-            commandHelp(player, cmd.key, null,
-                        "Talent overview and management");
-            break;
-        case INFO:
-            commandHelp(player, cmd.key,
-                        "[name]",
-                        "View info pages");
-            break;
-        case HI:
-            commandHelp(player, cmd.key,
-                        "[skill] [page]",
-                        "Highscores");
-            break;
-        default:
-            commandHelp(player, cmd.key, null, null);
-        }
-    }
-
-    private void commandHelp(Player player,
-                             String cmd, String args, String desc) {
-        String ccmd = ""
-            + ChatColor.YELLOW + "/sk "
-            + ChatColor.GOLD + cmd
-            + (args == null
-               ? ""
-               : " " + ChatColor.YELLOW + ChatColor.ITALIC + args);
-        String cdesc = desc == null
-            ? ""
-            : ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + desc;
-        String tooltip = ccmd + ChatColor.RESET + "\n" + desc;
-        ComponentBuilder cb = new ComponentBuilder(ccmd + cdesc);
-        cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sk " +  cmd));
-        cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                TextComponent.fromLegacyText(tooltip)));
-        player.spigot().sendMessage(cb.create());
     }
 
     void openSkillsMenu(Player player) {

@@ -36,7 +36,7 @@ public final class SkillsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        getCommand("skills").setExecutor(skillsCommand);
+        skillsCommand.enable();
         getCommand("skadmin").setExecutor(adminCommand);
         SkillType.setup();
         Talent.setup();
