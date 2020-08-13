@@ -1,5 +1,8 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.command.CommandContext;
+import com.cavetale.skills.command.CommandNode;
+import com.cavetale.skills.command.CommandWarn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,66 +19,75 @@ import org.bukkit.inventory.ItemStack;
 @RequiredArgsConstructor
 public final class AdminCommand extends CommandBase implements TabExecutor {
     private final SkillsPlugin plugin;
-    static final String CMD = "/skadm";
+    private CommandNode root = new CommandNode("skadm");
+
+    void enable() {
+        root.helpLine("/skadm - Skills admin command");
+        root.addChild("reloadadvancements")
+            .helpLine("/skadm reloadadvancements - Reload all advanements")
+            .caller(this::reloadAdvancementsCommand);
+        root.addChild("gimme")
+            .helpLine("/skadm gimme - Give yourself a talent point")
+            .caller(this::gimmeCommand);
+        root.addChild("particles")
+            .helpLine("/skadm particles - Toggle particles")
+            .caller(this::particlesCommand);
+        root.addChild("median")
+            .helpLine("/skadm median - Show some player stats")
+            .caller(this::medianCommand);
+        root.addChild("gui")
+            .helpLine("/skadm median - Generate a talent gui")
+            .caller(this::guiCommand);
+        root.addChild("give")
+            .helpLine("/skadm give <player> <skill> <amount> - Give a player skill points")
+            .caller(this::giveCommand);
+        CommandNode talentNode = root.addChild("talent")
+            .helpLine("/skadm talent - Talent commands");
+        talentNode.addChild("unlock")
+            .caller(this::talentUnlockCommand)
+            .helpLine("/skadm talent unlock <player> <talent> - Unlock talent");
+        talentNode.addChild("lock")
+            .caller(this::talentLockCommand)
+            .helpLine("/skadm talent lock <player> <talent> - Lock talent");
+        plugin.getCommand("skadmin").setExecutor(this);
+    }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command,
-                             String alias, String[] args) {
-        if (args.length == 0) return false;
-        try {
-            return onCommand(sender, args[0],
-                             Arrays.copyOfRange(args, 1, args.length));
-        } catch (Wrong wrong) {
-            sender.sendMessage(wrong.getMessage());
-            return true;
-        }
-    }
-
-    boolean onCommand(CommandSender sender, String cmd, String[] args) throws Wrong {
-        switch (cmd) {
-        case "reloadadvancements": return reloadAdvancementsCommand(sender, args);
-        case "gimme": return gimmeCommand(sender, args);
-        case "particles": return particlesCommand(sender, args);
-        case "median": return medianCommand(sender, args);
-        case "gui": return guiCommand(requirePlayer(sender), args);
-        case "give": return giveCommand(sender, args);
-        case "talent": return talentCommand(sender, args);
-        default: return false;
-        }
+    public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
+        return root.call(new CommandContext(sender, command, alias, args), args);
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command,
-                                      String alias, String[] args) {
-        return null;
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return root.complete(new CommandContext(sender, command, alias, args), args);
     }
 
-    boolean reloadAdvancementsCommand(CommandSender sender, String[] args) throws Wrong {
+    boolean reloadAdvancementsCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
-        sender.sendMessage("Reloading advancements...");
+        context.sender.sendMessage("Reloading advancements...");
         plugin.advancements.unloadAll();
         plugin.advancements.loadAll();
-        sender.sendMessage("Advancements reloaded.");
+        context.sender.sendMessage("Advancements reloaded.");
         return true;
     }
 
-    boolean gimmeCommand(CommandSender sender, String[] args) throws Wrong {
+    boolean gimmeCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
-        Player player = requirePlayer(sender);
+        Player player = context.requirePlayer();
         plugin.talents.addPoints(player, 1);
         return true;
     }
 
-    boolean particlesCommand(CommandSender sender, String[] args) throws Wrong {
+    boolean particlesCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
-        Player player = requirePlayer(sender);
+        Player player = context.requirePlayer();
         Session session = plugin.sessions.of(player);
         session.noParticles = !session.noParticles;
         player.sendMessage("Particles: " + (session.noParticles ? "off" : "on"));
         return true;
     }
 
-    boolean medianCommand(CommandSender sender, String[] args) {
+    boolean medianCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
         for (SkillType skill : SkillType.values()) {
             List<SQLSkill> rows = plugin.sql.skillRows.stream()
@@ -95,7 +107,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
             int avgLevel = sumLevel / rows.size();
             SQLSkill median = rows.get(rows.size() / 2);
             SQLSkill max = rows.get(0);
-            sender.sendMessage(skill.displayName
+            context.sender.sendMessage(skill.displayName
                                + "\t"
                                + " Sample=" + rows.size()
                                + " Sum=" + sumSP + "," + sumLevel
@@ -190,7 +202,8 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         return tmp;
     }
 
-    boolean guiCommand(Player player, String[] args) {
+    boolean guiCommand(CommandContext context, CommandNode node, String[] args) {
+        Player player = context.requirePlayer();
         GuiState state = new GuiState();
         state.x = 4;
         state.y = 2;
@@ -229,32 +242,23 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         return true;
     }
 
-    boolean giveCommand(CommandSender sender, String[] args) throws Wrong {
+    boolean giveCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 3) return false;
-        Player target = findPlayer(args[0]);
+        Player target = playerOf(args[0]);
         SkillType skillType = SkillType.ofKey(args[1]);
-        if (skillType == null) throw new Wrong("Skill not found: " + args[1]);
+        if (skillType == null) throw new CommandWarn("Skill not found: " + args[1]);
         int points = parseInt(args[2]);
-        if (points < 1) throw new Wrong("Must be positive");
+        if (points < 1) throw new CommandWarn("Must be positive");
         plugin.points.give(target, skillType, points);
-        sender.sendMessage("" + points + " " + skillType.displayName + " points given to " + target.getName());
+        context.sender.sendMessage("" + points + " " + skillType.displayName + " points given to " + target.getName());
         return true;
     }
 
-    boolean talentCommand(CommandSender sender, String[] args) throws Wrong {
-        if (args.length == 0) {
-            String cmd = CMD + " talent ";
-            sender.sendMessage(cmd + "unlock <player> <talent> - Unlock talent");
-            sender.sendMessage(cmd + "lock <player> <talent> - Lock talent");
-            return true;
-        }
-        String cmd = args[0];
-        args = Arrays.copyOfRange(args, 1, args.length);
-        switch (cmd) {
-        case "unlock":
-            return false;
-        default:
-            return false;
-        }
+    boolean talentUnlockCommand(CommandContext context, CommandNode node, String[] args) {
+        return false;
+    }
+
+    boolean talentLockCommand(CommandContext context, CommandNode node, String[] args) {
+        return false;
     }
 }

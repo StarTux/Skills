@@ -37,7 +37,7 @@ public final class SkillsPlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
         skillsCommand.enable();
-        getCommand("skadmin").setExecutor(adminCommand);
+        adminCommand.enable();
         SkillType.setup();
         Talent.setup();
         sql.enable();
