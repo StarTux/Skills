@@ -1,8 +1,8 @@
 package com.cavetale.skills;
 
-import com.cavetale.skills.command.CommandContext;
-import com.cavetale.skills.command.CommandNode;
-import com.cavetale.skills.command.CommandWarn;
+import com.cavetale.core.command.CommandContext;
+import com.cavetale.core.command.CommandNode;
+import com.cavetale.core.command.CommandWarn;
 import com.winthier.generic_events.GenericEvents;
 import java.util.Collections;
 import java.util.List;
@@ -52,40 +52,45 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
     }
 
     void enable() {
-        root.helpLine(ChatColor.YELLOW + "/sk" + ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + "Skills Command Interface");
+        root.description("Skills Command Interface");
         root.addChild("list")
-            .terminal()
+            .denyTabCompletion()
             .caller((ctx, nod, args) -> listCommand(ctx.requirePlayer(), args))
-            .helpLine(commandHelp("list", null, "List your skills and talents"));
+            .description("List your skills and talents");
         CommandNode talentNode = root.addChild("talent")
             .caller(this::talentCommand)
-            .helpLine(commandHelp("talent", null, "Talent menu"));
+            .description("Talent menu");
         talentNode.addChild("unlock")
             .caller(this::talentUnlockCommand)
-            .completer(this::talentUnlockComplete);
+            .completer(this::talentUnlockComplete)
+            .arguments("<talent>")
+            .description("Unlock a talent");
         root.addChild("info")
             .caller(this::infoCommand)
-            .completionList(this::infoCompletionList)
-            .helpLine(commandHelp("info", null, "Info pages"));
+            .completableList(this::infoCompletableList)
+            .arguments("[page]")
+            .description("Info pages");
         CommandNode highscoreNode = root.addChild("highscore")
             .alias("hi")
             .caller(this::highscoreCommand)
-            .helpLine(commandHelp("hi", null, "Highscore lists"));
+            .description("Highscore lists");
         for (SkillType skillType : SkillType.values()) {
             root.addChild(skillType.key)
-                .terminal()
+                .denyTabCompletion()
                 .caller((ctx, nod, args) -> skillCommand(ctx.requirePlayer(), skillType, args))
-                .helpLine(commandHelp(skillType.key, null, skillType.displayName + " skill menu"));
+                .description(skillType.displayName + " skill menu");
             highscoreNode.addChild(skillType.key)
-                .terminal()
+                .denyTabCompletion()
                 .caller((ctx, nod, args) -> highscoreFinalCommand(ctx.requirePlayer(), args, skillType, null))
-                .helpLine(commandHelp("hi " + skillType.key, null, skillType.displayName + " highscores"));
+                .arguments("[page]")
+                .description(skillType.displayName + " highscores");
         }
         for (HighscoreType highscoreType : HighscoreType.values()) {
             highscoreNode.addChild(highscoreType.key)
-                .terminal()
+                .denyTabCompletion()
                 .caller((ctx, nod, args) -> highscoreFinalCommand(ctx.requirePlayer(), args, null, highscoreType))
-                .helpLine(commandHelp("hi " + highscoreType.key, null, highscoreType.displayName + " highscores"));
+                .arguments("[page]")
+                .description(highscoreType.displayName + " highscores");
         }
         plugin.getCommand("skills").setExecutor(this);
     }
@@ -182,7 +187,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         return true;
     }
 
-    List<String> infoCompletionList(CommandContext context) {
+    List<String> infoCompletableList(CommandContext context) {
         return plugin.infos.allKeys();
     }
 

@@ -1,8 +1,8 @@
 package com.cavetale.skills;
 
-import com.cavetale.skills.command.CommandContext;
-import com.cavetale.skills.command.CommandNode;
-import com.cavetale.skills.command.CommandWarn;
+import com.cavetale.core.command.CommandContext;
+import com.cavetale.core.command.CommandNode;
+import com.cavetale.core.command.CommandWarn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,33 +22,36 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
     private CommandNode root = new CommandNode("skadm");
 
     void enable() {
-        root.helpLine("/skadm - Skills admin command");
+        root.description("Skills admin command");
         root.addChild("reloadadvancements")
-            .helpLine("/skadm reloadadvancements - Reload all advanements")
+            .description("Reload all advanements")
             .caller(this::reloadAdvancementsCommand);
         root.addChild("gimme")
-            .helpLine("/skadm gimme - Give yourself a talent point")
+            .description("Give yourself a talent point")
             .caller(this::gimmeCommand);
         root.addChild("particles")
-            .helpLine("/skadm particles - Toggle particles")
+            .description("Toggle particles")
             .caller(this::particlesCommand);
         root.addChild("median")
-            .helpLine("/skadm median - Show some player stats")
+            .description("Show some player stats")
             .caller(this::medianCommand);
         root.addChild("gui")
-            .helpLine("/skadm median - Generate a talent gui")
+            .description("Generate a talent gui")
             .caller(this::guiCommand);
         root.addChild("give")
-            .helpLine("/skadm give <player> <skill> <amount> - Give a player skill points")
+            .arguments("<player> <skill> <amount>")
+            .description("Give a player skill points")
             .caller(this::giveCommand);
         CommandNode talentNode = root.addChild("talent")
-            .helpLine("/skadm talent - Talent commands");
+            .description("Talent commands");
         talentNode.addChild("unlock")
             .caller(this::talentUnlockCommand)
-            .helpLine("/skadm talent unlock <player> <talent> - Unlock talent");
+            .arguments("<player> <talent>")
+            .description("Unlock talent");
         talentNode.addChild("lock")
             .caller(this::talentLockCommand)
-            .helpLine("/skadm talent lock <player> <talent> - Lock talent");
+            .arguments("<player> <talent>")
+            .description("Lock talent");
         plugin.getCommand("skadmin").setExecutor(this);
     }
 

@@ -1,6 +1,6 @@
 package com.cavetale.skills;
 
-import com.cavetale.skills.command.CommandWarn;
+import com.cavetale.core.command.CommandWarn;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
