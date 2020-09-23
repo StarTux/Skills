@@ -26,6 +26,6 @@ public final class WorldMarkerManager implements Listener {
 
     private void handleChunk(MarkChunk markChunk) {
         markChunk.streamBlocksWithId(MarkerId.WATERED_CROP.key)
-            .forEach(b -> b.getPersistent(MarkerId.WATERED_CROP.key, WateredCrop.class, WateredCrop::new));
+            .forEach(b -> b.getPersistent(plugin, MarkerId.WATERED_CROP.key, WateredCrop.class, WateredCrop::new));
     }
 }

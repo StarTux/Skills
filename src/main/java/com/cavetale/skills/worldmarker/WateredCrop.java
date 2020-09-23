@@ -1,6 +1,7 @@
 package com.cavetale.skills.worldmarker;
 
 import com.cavetale.skills.Effects;
+import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.worldmarker.MarkBlock;
 import com.cavetale.worldmarker.MarkTagContainer;
 import com.cavetale.worldmarker.Persistent;
@@ -25,6 +26,11 @@ public final class WateredCrop implements Persistent {
     @Setter int water = 0;
     int growth = 0;
     static final int TICKS_PER_GROWTH = 20 * 60;
+
+    @Override
+    public SkillsPlugin getPlugin() {
+        return SkillsPlugin.getInstance();
+    }
 
     @Override
     public void onUnload(MarkTagContainer container) {

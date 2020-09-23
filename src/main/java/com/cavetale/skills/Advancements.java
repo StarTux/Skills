@@ -87,6 +87,7 @@ final class Advancements {
         impossibleMap.put("trigger", "minecraft:impossible");
         return Json.pretty(map);
     }
+
     /**
      * Unlock the advancement belonging to the given talent.
      * @param player The player

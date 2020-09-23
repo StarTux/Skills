@@ -96,7 +96,7 @@ public final class Farming {
         } else {
             markBlock.setId(MarkerId.WATERED_CROP.key);
         }
-        WateredCrop wateredCrop = markBlock.getPersistent(MarkerId.WATERED_CROP.key, WateredCrop.class, WateredCrop::new);
+        WateredCrop wateredCrop = markBlock.getPersistent(plugin, MarkerId.WATERED_CROP.key, WateredCrop.class, WateredCrop::new);
         wateredCrop.setWater(24000); // One MC day?
         wateredCrop.updateAoeCloud(markBlock);
         markBlock.save();

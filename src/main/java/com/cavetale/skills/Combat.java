@@ -39,6 +39,11 @@ final class Combat {
         int kills;
 
         @Override
+        public SkillsPlugin getPlugin() {
+            return SkillsPlugin.instance;
+        }
+
+        @Override
         public void onTick(MarkTagContainer container) {
             ticks += 1;
             if (ticks % 200 == 0) {
@@ -106,7 +111,7 @@ final class Combat {
         if (reward == null) return;
         Chunk chunk = mob.getLocation().getChunk();
         Chonk chonk = BlockMarker.getChunk(chunk)
-            .getPersistent(CHONK, Chonk.class, Chonk::new);
+            .getPersistent(plugin, CHONK, Chonk.class, Chonk::new);
         chonk.kills += 1;
         if (chonk.kills > 5) return;
         plugin.points.give(player, SkillType.COMBAT, reward.sp);
