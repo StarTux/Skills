@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.command;
 
 import com.cavetale.core.command.CommandWarn;
 import org.bukkit.Bukkit;

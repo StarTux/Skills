@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 
-final class Text {
+public final class Text {
     private Text() { }
 
     public static List<String> wrap(@NonNull String what,

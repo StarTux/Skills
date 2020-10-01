@@ -6,7 +6,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-public final class Points {
+public final class SkillPoints {
     private final SkillsPlugin plugin;
 
     public static int forLevel(final int lvl) {

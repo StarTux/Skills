@@ -1,8 +1,16 @@
-package com.cavetale.skills;
+package com.cavetale.skills.command;
 
 import com.cavetale.core.command.CommandContext;
 import com.cavetale.core.command.CommandNode;
 import com.cavetale.core.command.CommandWarn;
+import com.cavetale.skills.Effects;
+import com.cavetale.skills.Info;
+import com.cavetale.skills.Session;
+import com.cavetale.skills.SkillPoints;
+import com.cavetale.skills.SkillType;
+import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.Talent;
+import com.cavetale.skills.util.Msg;
 import com.winthier.generic_events.GenericEvents;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +30,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-final class SkillsCommand extends CommandBase implements TabExecutor {
+public final class SkillsCommand extends CommandBase implements TabExecutor {
     final SkillsPlugin plugin;
     final CommandNode root = new CommandNode("skills");
 
@@ -51,7 +59,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
                : ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + desc);
     }
 
-    void enable() {
+    public void enable() {
         root.description("Skills Command Interface");
         root.addChild("list")
             .denyTabCompletion()
@@ -77,7 +85,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         for (SkillType skillType : SkillType.values()) {
             root.addChild(skillType.key)
                 .denyTabCompletion()
-                .caller((ctx, nod, args) -> skillCommand(ctx.requirePlayer(), skillType, args))
+                .playerCaller((player, args) -> skillCommand(player, skillType, args))
                 .description(skillType.displayName + " skill menu");
             highscoreNode.addChild(skillType.key)
                 .denyTabCompletion()
@@ -107,10 +115,10 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
 
     boolean skillCommand(Player player, SkillType skill, String[] args) {
         if (args.length != 0) return false;
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         int level = session.getLevel(skill);
         int points = session.getSkillPoints(skill);
-        int req = Points.forLevel(level + 1);
+        int req = SkillPoints.forLevel(level + 1);
         long talents = Stream.of(Talent.values())
             .filter(t -> t.skill == skill).count();
         long talentsHas = Stream.of(Talent.values())
@@ -119,7 +127,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         player.sendMessage("");
         player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + skill.displayName);
         player.sendMessage("");
-        Info info = plugin.infos.get(skill.key);
+        Info info = plugin.getInfos().get(skill.key);
         if (info != null) {
             player.sendMessage(info.description.split("\n\n")[0]);
         }
@@ -141,11 +149,11 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
     boolean listCommand(Player player, String[] args) {
         if (args.length != 0) return false;
         player.sendMessage("");
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         for (SkillType skill : SkillType.values()) {
             int level = session.getLevel(skill);
             int points = session.getSkillPoints(skill);
-            int req = plugin.points.forLevel(level + 1);
+            int req = plugin.getSkillPoints().forLevel(level + 1);
             player.sendMessage(""
                                + ChatColor.DARK_PURPLE + "lvl"
                                + ChatColor.YELLOW + ChatColor.BOLD + level
@@ -167,7 +175,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         Player player = context.requirePlayer();
         if (args.length > 1) return false;
         if (args.length == 1) {
-            Info info = plugin.infos.get(args[0]);
+            Info info = plugin.getInfos().get(args[0]);
             if (info == null) {
                 throw new CommandWarn("Not found: " + args[0]);
             }
@@ -181,14 +189,14 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
             return true;
         }
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Pages: "
-                           + plugin.infos.allKeys().stream()
+                           + plugin.getInfos().allKeys().stream()
                            .map(s -> ChatColor.YELLOW + s)
                            .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
         return true;
     }
 
     List<String> infoCompletableList(CommandContext context) {
-        return plugin.infos.allKeys();
+        return plugin.getInfos().allKeys();
     }
 
     boolean talentCommand(CommandContext context, CommandNode node, String[] args) {
@@ -200,7 +208,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
     List<String> talentUnlockComplete(CommandContext context, CommandNode node, String[] args) {
         if (args.length == 0) return null;
         Player player = context.requirePlayer();
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         String arg = args[args.length - 1].toLowerCase();
         return Stream.of(Talent.values())
             .filter(t -> !session.hasTalent(t) && session.canAccessTalent(t))
@@ -212,7 +220,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
     boolean talentUnlockCommand(CommandContext context, CommandNode node, String[] args) {
         Player player = context.requirePlayer();
         if (args.length != 1) return false;
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         if (session.getTalentPoints() < session.getTalentCost()) {
             throw new CommandWarn("You don't have enough Talent Points!");
         }
@@ -226,7 +234,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
         if (!session.canAccessTalent(talent)) {
             throw new CommandWarn("Parent not yet available!");
         }
-        if (!plugin.talents.unlock(player, talent)) {
+        if (!plugin.getTalents().unlock(player, talent)) {
             throw new CommandWarn("An unknown error occured.");
         }
         Effects.talentUnlock(player);
@@ -297,16 +305,16 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
             switch (highscoreType) {
             case TOTAL:
                 title = "Total";
-                scores = plugin.sql.playerRows.values().stream()
-                    .filter(p -> p.levels > 0)
-                    .map(p -> new Score(p.levels, p.uuid))
+                scores = plugin.getSql().getPlayerRows().values().stream()
+                    .filter(p -> p.getLevels() > 0)
+                    .map(p -> new Score(p.getLevels(), p.getUuid()))
                     .collect(Collectors.toList());
                 break;
             case TALENTS:
                 title = "Talents";
-                scores = plugin.sql.playerRows.values().stream()
-                    .filter(p -> p.talents > 0)
-                    .map(p -> new Score(p.talents, p.uuid))
+                scores = plugin.getSql().getPlayerRows().values().stream()
+                    .filter(p -> p.getTalents() > 0)
+                    .map(p -> new Score(p.getTalents(), p.getUuid()))
                     .collect(Collectors.toList());
                 break;
             default:
@@ -314,10 +322,10 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
             }
         } else if (skillType != null) {
             title = skillType.displayName;
-            scores = plugin.sql.skillRows.stream()
-                .filter(s -> s.level > 0)
-                .filter(s -> skillType.key.equals(s.skill))
-                .map(s -> new Score(s.level, s.player))
+            scores = plugin.getSql().getSkillRows().stream()
+                .filter(s -> s.getLevel() > 0)
+                .filter(s -> skillType.key.equals(s.getSkill()))
+                .map(s -> new Score(s.getLevel(), s.getPlayer()))
                 .collect(Collectors.toList());
         } else {
             throw new IllegalStateException("highscoreType == null && skillType == null");
@@ -354,7 +362,7 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
     void talentMenu(Player player) {
         player.sendMessage("");
         player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + "Skill Talents");
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         ComponentBuilder cb = null;
         for (Talent talent : Talent.values()) {
             if (cb != null && talent.depends == null) {
@@ -414,34 +422,5 @@ final class SkillsCommand extends CommandBase implements TabExecutor {
                                    days, hours % 24, minutes % 60);
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Time Left: "
                            + ChatColor.WHITE + fmt);
-    }
-
-    void openSkillsMenu(Player player) {
-        Gui gui = new Gui(plugin)
-            .rows(3)
-            .title(ChatColor.DARK_BLUE + "Skills Mk2");
-        for (SkillType skillType : SkillType.values()) {
-            gui.setItem(skillType.guiIndex, skillType.getIcon(player), click -> {
-                    Gui.click(player);
-                    openSkillMenu(player, skillType);
-                    return true;
-                });
-        }
-        gui.open(player);
-    }
-
-    void openSkillMenu(Player player, SkillType skillType) {
-        Gui gui = new Gui(plugin)
-            .rows(3)
-            .title(ChatColor.DARK_PURPLE + skillType.displayName);
-        gui.setItem(-999, null, click -> {
-                Gui.click(player);
-                openSkillsMenu(player);
-                return true;
-            });
-        gui.setItem(4, 0, skillType.getIcon(player), click -> {
-                return false;
-            });
-        gui.open(player);
     }
 }

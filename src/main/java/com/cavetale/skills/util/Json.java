@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

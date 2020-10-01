@@ -1,8 +1,15 @@
-package com.cavetale.skills;
+package com.cavetale.skills.command;
 
 import com.cavetale.core.command.CommandContext;
 import com.cavetale.core.command.CommandNode;
 import com.cavetale.core.command.CommandWarn;
+import com.cavetale.skills.SQLSkill;
+import com.cavetale.skills.Session;
+import com.cavetale.skills.SkillType;
+import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.Talent;
+import com.cavetale.skills.util.Gui;
+import com.cavetale.skills.util.Items;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +28,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
     private final SkillsPlugin plugin;
     private CommandNode root = new CommandNode("skadm");
 
-    void enable() {
+    public void enable() {
         root.description("Skills admin command");
         root.addChild("reloadadvancements")
             .description("Reload all advanements")
@@ -68,8 +75,8 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
     boolean reloadAdvancementsCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
         context.sender.sendMessage("Reloading advancements...");
-        plugin.advancements.unloadAll();
-        plugin.advancements.loadAll();
+        plugin.getAdvancements().unloadAll();
+        plugin.getAdvancements().loadAll();
         context.sender.sendMessage("Advancements reloaded.");
         return true;
     }
@@ -77,46 +84,48 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
     boolean gimmeCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
         Player player = context.requirePlayer();
-        plugin.talents.addPoints(player, 1);
+        plugin.getTalents().addPoints(player, 1);
         return true;
     }
 
     boolean particlesCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
         Player player = context.requirePlayer();
-        Session session = plugin.sessions.of(player);
-        session.noParticles = !session.noParticles;
-        player.sendMessage("Particles: " + (session.noParticles ? "off" : "on"));
+        Session session = plugin.getSessions().of(player);
+        boolean noParticles = !session.isNoParticles();
+        session.setNoParticles(noParticles);
+        player.sendMessage("Particles: " + (noParticles ? "off" : "on"));
         return true;
     }
 
     boolean medianCommand(CommandContext context, CommandNode node, String[] args) {
         if (args.length != 0) return false;
         for (SkillType skill : SkillType.values()) {
-            List<SQLSkill> rows = plugin.sql.skillRows.stream()
-                .filter(s -> s.level > 0)
-                .filter(s -> skill.key.equals(s.skill))
-                .sorted((b, a) -> Integer.compare(a.totalPoints,
-                                                  b.totalPoints))
+            List<SQLSkill> rows = plugin.getSql().getSkillRows().stream()
+                .filter(s -> s.getLevel() > 0)
+                .filter(s -> skill.key.equals(s.getSkill()))
+                .sorted((b, a) -> Integer.compare(a.getTotalPoints(),
+                                                  b.getTotalPoints()))
                 .collect(Collectors.toList());
             if (rows.isEmpty()) continue;
             int sumSP = 0;
             int sumLevel = 0;
             for (SQLSkill row : rows) {
-                sumSP += row.totalPoints;
-                sumLevel += row.level;
+                sumSP += row.getTotalPoints();
+                sumLevel += row.getLevel();
             }
             int avgSP = sumSP / rows.size();
             int avgLevel = sumLevel / rows.size();
             SQLSkill median = rows.get(rows.size() / 2);
             SQLSkill max = rows.get(0);
-            context.sender.sendMessage(skill.displayName
-                               + "\t"
-                               + " Sample=" + rows.size()
-                               + " Sum=" + sumSP + "," + sumLevel
-                               + " Avg=" + avgSP + "," + avgLevel
-                               + " Max=" + max.totalPoints + "," + max.level
-                               + " Med=" + median.totalPoints + "," + median.level);
+            String msg = skill.displayName
+                + "\t"
+                + " Sample=" + rows.size()
+                + " Sum=" + sumSP + "," + sumLevel
+                + " Avg=" + avgSP + "," + avgLevel
+                + " Max=" + max.getTotalPoints() + "," + max.getLevel()
+                + " Med=" + median.getTotalPoints() + "," + median.getLevel();
+            context.sender.sendMessage(msg);
         }
         return true;
     }
@@ -224,12 +233,12 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
                 if (talent == null) continue;
                 ItemStack a = talent.getIcon();
                 ItemStack b = Items.of(Material.CHEST)
-                    .strings(Items.of(a).strings())
+                    .tooltip(Items.of(a).tooltip())
                     .create();
                 gui.setItem(i, talent.getIcon());
                 final int index = i;
                 gui.addTask(() -> {
-                        int time = gui.ticks / 10;
+                        int time = gui.getTicks() / 10;
                         if (time % 2 == 0) {
                             gui.setItem(index, a);
                         } else {
@@ -252,7 +261,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
         if (skillType == null) throw new CommandWarn("Skill not found: " + args[1]);
         int points = parseInt(args[2]);
         if (points < 1) throw new CommandWarn("Must be positive");
-        plugin.points.give(target, skillType, points);
+        plugin.getSkillPoints().give(target, skillType, points);
         context.sender.sendMessage("" + points + " " + skillType.displayName + " points given to " + target.getName());
         return true;
     }

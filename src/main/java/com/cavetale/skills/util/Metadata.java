@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +8,10 @@ import org.bukkit.metadata.Metadatable;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @RequiredArgsConstructor
-final class Metadata {
+public final class Metadata {
     private final JavaPlugin plugin;
 
-    <T> Optional<T> get(final Metadatable entity,
+    public <T> Optional<T> get(final Metadatable entity,
                         final String key,
                         final Class<T> theClass) {
         for (MetadataValue meta : entity.getMetadata(key)) {
@@ -26,20 +26,20 @@ final class Metadata {
         return Optional.empty();
     }
 
-    void set(final Metadatable entity,
+    public void set(final Metadatable entity,
              final String key,
              final Object value) {
         entity.setMetadata(key, new FixedMetadataValue(plugin, value));
     }
 
-    void remove(final Metadatable entity, final String key) {
+    public void remove(final Metadatable entity, final String key) {
         entity.removeMetadata(key, plugin);
     }
 
     /**
      * {@link Metadatable::hasMetadata(String)} may be preferable.
      */
-    boolean has(final Metadatable entity,
+    public boolean has(final Metadatable entity,
                 final String key) {
         for (MetadataValue meta : entity.getMetadata(key)) {
             if (meta.getOwningPlugin() == plugin) {

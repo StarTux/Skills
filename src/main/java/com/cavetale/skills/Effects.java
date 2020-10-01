@@ -21,7 +21,7 @@ import org.bukkit.util.BoundingBox;
 public final class Effects {
     private Effects() { }
 
-    static void grownCropAmbient(@NonNull Player player, @NonNull Block block) {
+    public static void grownCropAmbient(@NonNull Player player, @NonNull Block block) {
         player.spawnParticle(Particle.BLOCK_DUST,
                              block.getLocation().add(0.5, 0.25, 0.5),
                              1, // count
@@ -30,7 +30,7 @@ public final class Effects {
                              block.getBlockData());
     }
 
-    static void waterBlock(@NonNull Block block) {
+    public static void waterBlock(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
         w.spawnParticle(Particle.WATER_SPLASH,
@@ -41,7 +41,7 @@ public final class Effects {
         w.playSound(loc, Sound.ENTITY_BOAT_PADDLE_WATER, SoundCategory.BLOCKS, 1.0f, 1.5f);
     }
 
-    static void wateringCan(@NonNull Player player) {
+    public static void wateringCan(@NonNull Player player) {
         World w = player.getWorld();
         Location loc = player.getEyeLocation();
         w.playSound(loc, Sound.BLOCK_BREWING_STAND_BREW, SoundCategory.BLOCKS, 0.6f, 1.7f);
@@ -57,7 +57,7 @@ public final class Effects {
                         0.0); // extra/speed
     }
 
-    static void cropUnlit(@NonNull Block block) {
+    public static void cropUnlit(@NonNull Block block) {
         World w = block.getWorld();
         w.spawnParticle(Particle.SMOKE_NORMAL,
                         block.getLocation().add(0.5, 0.5, 0.5),
@@ -66,7 +66,7 @@ public final class Effects {
                         0.0); // extra/speed
     }
 
-    static void plantCropMagic(@NonNull Block block) {
+    public static void plantCropMagic(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
         w.spawnParticle(Particle.VILLAGER_HAPPY,
@@ -77,27 +77,27 @@ public final class Effects {
         w.playSound(loc, Sound.BLOCK_GRASS_PLACE, SoundCategory.BLOCKS, 0.8f, 1.0f);
     }
 
-    static void rewardJingle(@NonNull Location location) {
+    public static void rewardJingle(@NonNull Location location) {
         World w = location.getWorld();
         w.playSound(location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 2.0f);
     }
 
-    static void levelup(@NonNull Player player) {
+    public static void levelup(@NonNull Player player) {
         Location loc = player.getLocation();
         player.playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1.0f, 1.0f);
     }
 
-    static void talentPoint(@NonNull Player player) {
+    public static void talentPoint(@NonNull Player player) {
         Location loc = player.getLocation();
         player.playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.0f);
     }
 
-    static void talentUnlock(@NonNull Player player) {
+    public static void talentUnlock(@NonNull Player player) {
         Location loc = player.getLocation();
         player.playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1.0f, 1.0f);
     }
 
-    static void harvest(@NonNull Block block) {
+    public static void harvest(@NonNull Block block) {
         World w = block.getWorld();
         w.spawnParticle(Particle.END_ROD,
                         block.getLocation().add(0.5, 0.5, 0.5),
@@ -106,7 +106,7 @@ public final class Effects {
                         0.25); // extra/speed
     }
 
-    static void kill(@NonNull Entity e) {
+    public static void kill(@NonNull Entity e) {
         World w = e.getWorld();
         BoundingBox bb = e.getBoundingBox();
         w.spawnParticle(Particle.REDSTONE,
@@ -119,7 +119,7 @@ public final class Effects {
                         new Particle.DustOptions(Color.RED, 2.0f));
     }
 
-    static void warp(@NonNull Entity e) {
+    public static void warp(@NonNull Entity e) {
         World w = e.getWorld();
         BoundingBox bb = e.getBoundingBox();
         Location loc = bb.getCenter().toLocation(w);
@@ -132,7 +132,7 @@ public final class Effects {
         w.playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 1.0f, 1.0f);
     }
 
-    static void mineBlockMagic(@NonNull Block block) {
+    public static void mineBlockMagic(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
         w.spawnParticle(Particle.BLOCK_DUST,
@@ -144,13 +144,13 @@ public final class Effects {
         w.playSound(loc, Sound.BLOCK_STONE_BREAK, SoundCategory.BLOCKS, 1.0f, 1.5f);
     }
 
-    static void oreAlert(@NonNull Player player, @NonNull Block block) {
+    public static void oreAlert(@NonNull Player player, @NonNull Block block) {
         World w = player.getWorld();
         w.playSound(block.getLocation().add(0.5, 0.5, 0.5),
                     Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS, 1.0f, 2.0f);
     }
 
-    static void useSilk(@NonNull Player player, @NonNull Block block, @NonNull Location loc) {
+    public static void useSilk(@NonNull Player player, @NonNull Block block, @NonNull Location loc) {
         World w = loc.getWorld();
         w.playSound(loc,
                     Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,
@@ -163,7 +163,7 @@ public final class Effects {
                         block.getBlockData());
     }
 
-    static void failSilk(@NonNull Player player, @NonNull Block block) {
+    public static void failSilk(@NonNull Player player, @NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
         w.playSound(loc,
@@ -171,7 +171,7 @@ public final class Effects {
                     1.0f, 2.0f);
     }
 
-    static void applyStatusEffect(@NonNull LivingEntity entity) {
+    public static void applyStatusEffect(@NonNull LivingEntity entity) {
         World w = entity.getWorld();
         Location loc = entity.getEyeLocation();
         w.spawnParticle(Particle.ENCHANTMENT_TABLE,
@@ -184,7 +184,7 @@ public final class Effects {
                     0.5f, 1.8f);
     }
 
-    static void godMode(@NonNull Player player) {
+    public static void godMode(@NonNull Player player) {
         Location loc = player.getEyeLocation();
         player.playSound(loc,
                          Sound.ITEM_TOTEM_USE, SoundCategory.MASTER,
@@ -195,13 +195,13 @@ public final class Effects {
                              0.35); // speed
     }
 
-    static void archerZone(@NonNull Player player) {
+    public static void archerZone(@NonNull Player player) {
         player.playSound(player.getEyeLocation(),
                          Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.MASTER,
                          0.3f, 1.0f);
     }
 
-    static void denyLaunch(@NonNull LivingEntity entity) {
+    public static void denyLaunch(@NonNull LivingEntity entity) {
         World w = entity.getWorld();
         Location loc = entity.getEyeLocation();
         w.spawnParticle(Particle.ENCHANTMENT_TABLE,
@@ -211,7 +211,7 @@ public final class Effects {
                         1.0); // extra/speed
     }
 
-    static void hoe(@NonNull Block block, @NonNull BlockData old) {
+    public static void hoe(@NonNull Block block, @NonNull BlockData old) {
         World w = block.getWorld();
         if (old.getMaterial() == Material.GRASS_BLOCK) {
             old = Material.GRASS.createBlockData();

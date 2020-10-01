@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public final class Gui implements InventoryHolder {
     boolean locked = false;
     // Ticking
     final List<Runnable> tickTasks = new ArrayList<>();
-    int ticks = 0;
+    @Getter int ticks = 0;
 
     @RequiredArgsConstructor @AllArgsConstructor
     private static final class Slot {

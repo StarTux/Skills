@@ -7,33 +7,35 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
-final class Session {
+public final class Session {
     final SkillsPlugin plugin;
     final UUID uuid;
     SQLPlayer playerRow;
     EnumMap<SkillType, SQLSkill> skillRows = new EnumMap<>(SkillType.class);
-    boolean xrayActive;
+    @Getter @Setter boolean xrayActive;
     Set<Talent> talents = EnumSet.noneOf(Talent.class);
     // Status effects, ticks remaining
-    int immortal = 0;
-    int archerZone = 0;
-    int archerZoneKills = 0;
-    boolean poisonFreebie = false;
-    boolean noParticles = false;
+    @Getter @Setter int immortal = 0;
+    @Getter @Setter int archerZone = 0;
+    @Getter @Setter int archerZoneKills = 0;
+    @Getter @Setter boolean poisonFreebie = false;
+    @Getter @Setter boolean noParticles = false;
     //
     Map<SkillType, ProgressBar> skillBars = new EnumMap<>(SkillType.class);
     int noSave = 0;
 
-    Session(@NonNull final SkillsPlugin plugin,
-            @NonNull final UUID uuid,
-            @NonNull final SQLPlayer playerRow,
-            @NonNull final Map<SkillType, SQLSkill> inSkillRows) {
+    public Session(@NonNull final SkillsPlugin plugin,
+                   @NonNull final UUID uuid,
+                   @NonNull final SQLPlayer playerRow,
+                   @NonNull final Map<SkillType, SQLSkill> inSkillRows) {
         this.plugin = plugin;
         this.uuid = uuid;
         this.playerRow = playerRow;
@@ -49,7 +51,7 @@ final class Session {
         }
     }
 
-    Session(final SkillsPlugin plugin, final UUID uuid) {
+    public Session(final SkillsPlugin plugin, final UUID uuid) {
         this(plugin, uuid, plugin.sql.playerRowOf(uuid), plugin.sql.skillRowsOf(uuid));
     }
 
@@ -57,14 +59,14 @@ final class Session {
         return Bukkit.getPlayer(uuid);
     }
 
-    void onDisable() {
+    public void onDisable() {
         for (ProgressBar skillBar : skillBars.values()) {
             skillBar.clear();
             skillBar.hide();
         }
     }
 
-    void tick(int ticks) {
+    public void tick(int ticks) {
         if (immortal > 0) immortal -= 1;
         if (archerZone > 0) {
             archerZone -= 1;
@@ -76,7 +78,7 @@ final class Session {
         if (noSave++ > 200) saveData();
     }
 
-    void saveData() {
+    public void saveData() {
         noSave = 0;
         if (playerRow.dirty) {
             playerRow.dirty = false;
@@ -91,32 +93,32 @@ final class Session {
         }
     }
 
-    boolean hasTalent(@NonNull Talent talent) {
+    public boolean hasTalent(@NonNull Talent talent) {
         return talents.contains(talent);
     }
 
-    boolean canAccessTalent(@NonNull Talent talent) {
+    public boolean canAccessTalent(@NonNull Talent talent) {
         return talent.depends == null
             || talents.contains(talent.depends);
     }
 
-    int getTalentCost() {
+    public int getTalentCost() {
         return talents.size() + 1;
     }
 
-    int getTalentPoints() {
+    public int getTalentPoints() {
         return playerRow.talentPoints;
     }
 
-    int getLevel(SkillType skill) {
+    public int getLevel(SkillType skill) {
         return skillRows.get(skill).level;
     }
 
-    int getSkillPoints(SkillType skill) {
+    public int getSkillPoints(SkillType skill) {
         return skillRows.get(skill).points;
     }
 
-    ProgressBar getSkillBar(SkillType skillType) {
+    public ProgressBar getSkillBar(SkillType skillType) {
         return skillBars.get(skillType);
     }
 }

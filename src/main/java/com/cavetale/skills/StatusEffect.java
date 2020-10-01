@@ -1,10 +1,15 @@
 package com.cavetale.skills;
 
-final class StatusEffect {
-    long silence;
-    long noPoison;
+import com.cavetale.skills.util.Util;
+import lombok.Getter;
+import lombok.Setter;
 
-    boolean hasSilence() {
+@Getter @Setter
+public final class StatusEffect {
+    private long silence;
+    private long noPoison;
+
+    public boolean hasSilence() {
         if (silence == 0L) return false;
         if (silence < Util.now()) {
             silence = 0L;
@@ -13,7 +18,7 @@ final class StatusEffect {
         return true;
     }
 
-    boolean hasNoPoison() {
+    public boolean hasNoPoison() {
         if (noPoison == 0L) return false;
         if (noPoison < Util.now()) {
             noPoison = 0L;

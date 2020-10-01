@@ -1,5 +1,8 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.util.Items;
+import com.cavetale.skills.util.Msg;
+import com.cavetale.skills.util.Text;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,15 +37,20 @@ public enum Talent {
     COMBAT_ARCHER_ZONE;
 
     public final String key;
-    String displayName;
-    String description = "";
-    Material material = Material.STICK;
-    String iconNBT = null;
-    Talent depends = null;
-    SkillType skill = null;
-    boolean terminal = true;
-    int guiIndex;
+    public String displayName;
+    public String description = "";
+    public Material material = Material.STICK;
+    public String iconNBT = null;
+    public Talent depends = null;
+    public final SkillType skill = null;
+    public boolean terminal = true;
+    public int guiIndex;
     private static final HashMap<String, Talent> KEY_MAP = new HashMap<>();
+
+    Talent() {
+        key = name().toLowerCase();
+        this.displayName = Msg.enumToCamelCase(this);
+    }
 
     static {
         for (Talent talent : values()) {
@@ -163,16 +171,11 @@ public enum Talent {
         }
     }
 
-    Talent() {
-        key = name().toLowerCase();
-        this.displayName = Msg.enumToCamelCase(this);
-    }
-
     public static Talent of(@NonNull String key) {
         return KEY_MAP.get(key);
     }
 
-    List<Talent> getDependants() {
+    public List<Talent> getDependants() {
         return Stream.of(Talent.values())
             .filter(t -> t.depends == this)
             .collect(Collectors.toList());

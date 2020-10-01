@@ -3,11 +3,11 @@ package com.cavetale.skills;
 import lombok.NonNull;
 import org.bukkit.configuration.ConfigurationSection;
 
-final class Info {
-    String title;
-    String description;
+public final class Info {
+    public final String title;
+    public final String description;
 
-    Info(@NonNull final ConfigurationSection config) {
+    public Info(@NonNull final ConfigurationSection config) {
         title = config.getString("title");
         description = config.getString("description");
     }

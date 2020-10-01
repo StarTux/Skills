@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import java.util.ArrayList;
@@ -73,20 +73,20 @@ public final class Items {
             : new ArrayList<>();
     }
 
-    public List<String> strings() {
+    public List<String> tooltip() {
         List<String> result = new ArrayList<>();
         if (meta().hasDisplayName()) result.add(name());
         result.addAll(lore());
         return result;
     }
 
-    public Items strings(List<String> in) {
+    public Items tooltip(List<String> in) {
         name(!in.isEmpty() ? in.get(0) : "");
         lore(in.size() > 1 ? in.subList(1, in.size()) : Collections.emptyList());
         return this;
     }
 
-    public Items strings(String... in) {
+    public Items tooltip(String... in) {
         name(in.length > 0 ? in[0] : "");
         if (in.length > 1) {
             lore(Arrays.copyOfRange(in, 1, in.length));
@@ -139,7 +139,7 @@ public final class Items {
         return this;
     }
 
-    public Items applyStrings(Function<String, String> fun) {
+    public Items applyTooltip(Function<String, String> fun) {
         name(fun.apply(name()));
         lore(lore().stream().map(fun).collect(Collectors.toList()));
         return this;

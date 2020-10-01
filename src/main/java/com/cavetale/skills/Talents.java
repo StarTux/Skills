@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.util.Rnd;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
@@ -13,7 +14,7 @@ public final class Talents {
         return plugin.sessions.of(player).hasTalent(talent);
     }
 
-    boolean unlock(@NonNull Player player, @NonNull Talent talent) {
+    public boolean unlock(@NonNull Player player, @NonNull Talent talent) {
         Session session = plugin.sessions.of(player);
         int cost = session.getTalentCost();
         if (session.getTalentPoints() < cost) return false;
@@ -28,7 +29,7 @@ public final class Talents {
         return true;
     }
 
-    boolean rollPoint(@NonNull Player player, int increase) {
+    public boolean rollPoint(@NonNull Player player, int increase) {
         final int total = 800;
         Session session = plugin.sessions.of(player);
         session.playerRow.talentChance += increase;
@@ -41,13 +42,13 @@ public final class Talents {
             chance = Math.max(0, chance);
             chance = Math.min(chance, total / 2);
         }
-        int roll = plugin.random.nextInt(total);
+        int roll = Rnd.random().nextInt(total);
         if (roll >= chance) return false;
         plugin.talents.addPoints(player, 1);
         return true;
     }
 
-    void addPoints(@NonNull Player player, final int amount) {
+    public void addPoints(@NonNull Player player, final int amount) {
         if (amount == 0) return;
         Session session = plugin.sessions.of(player);
         int points = session.playerRow.talentPoints + amount;

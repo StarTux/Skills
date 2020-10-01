@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.util.Json;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;

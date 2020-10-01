@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.util.Gui;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 

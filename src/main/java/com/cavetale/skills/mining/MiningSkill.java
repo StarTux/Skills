@@ -1,5 +1,13 @@
-package com.cavetale.skills;
+package com.cavetale.skills.mining;
 
+import com.cavetale.skills.Effects;
+import com.cavetale.skills.Session;
+import com.cavetale.skills.SkillType;
+import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.Talent;
+import com.cavetale.skills.util.Rnd;
+import com.cavetale.skills.util.Spectators;
+import com.cavetale.skills.util.Util;
 import com.winthier.exploits.Exploits;
 import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
@@ -21,9 +29,28 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-final class Mining {
+public final class MiningSkill {
     final SkillsPlugin plugin;
     final EnumMap<Material, Reward> rewards = new EnumMap<>(Material.class);
+    final MiningListener listener;
+
+    public MiningSkill(final SkillsPlugin plugin) {
+        this.plugin = plugin;
+        this.listener = new MiningListener(plugin, this);
+    }
+
+    public void enable() {
+        // exp values are maxima according to the wiki
+        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
+        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1);
+        reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
+        reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
+        reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
+        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6); // 4-8
+        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1);
+        reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5); // 4-5
+        listener.enable();
+    }
 
     @Value
     static class Reward {
@@ -46,19 +73,6 @@ final class Mining {
     private void reward(@NonNull Material material, final int sp, final int exp,
                         @NonNull Material item, int drops) {
         rewards.put(material, new Reward(material, sp, exp, item, drops));
-    }
-
-    Mining(@NonNull final SkillsPlugin plugin) {
-        this.plugin = plugin;
-        // exp values are maxima according to the wiki
-        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
-        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1);
-        reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
-        reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
-        reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
-        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6); // 4-8
-        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1);
-        reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5); // 4-5
     }
 
     static boolean stone(@NonNull Block block) {
@@ -139,7 +153,7 @@ final class Mining {
             // Damage the pickaxe and cancel if it is used up.
             if (dmg != null) {
                 if (dmg.getDamage() >= item.getType().getMaxDurability()) break;
-                if (unbreaking == 0 || plugin.random.nextInt(unbreaking) == 0) {
+                if (unbreaking == 0 || Rnd.random().nextInt(unbreaking) == 0) {
                     dmg.setDamage(dmg.getDamage() + 1);
                     item.setItemMeta(meta);
                 }
@@ -217,7 +231,7 @@ final class Mining {
             }
         }
         if (bs.isEmpty()) return false;
-        Block ore = bs.get(plugin.random.nextInt(bs.size()));
+        Block ore = bs.get(Rnd.random().nextInt(bs.size()));
         Effects.oreAlert(player, ore);
         return true;
     }
@@ -228,7 +242,7 @@ final class Mining {
     private int xray(@NonNull Player player, @NonNull Block block) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         // Night Vision
         final int potionDuration = 45 * 20; // ticks
         PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
@@ -242,8 +256,8 @@ final class Mining {
                                    true);
         }
         // Actual XRay
-        if (session.xrayActive) return 0;
-        session.xrayActive = true;
+        if (session.isXrayActive()) return 0;
+        session.setXrayActive(true);
         final int radius = 3;
         final int realRadius = 2;
         final ArrayList<Block> bs = new ArrayList<>();
@@ -288,7 +302,7 @@ final class Mining {
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
-                plugin.sessions.of(player).xrayActive = false;
+                plugin.getSessions().of(player).setXrayActive(false);
                 if (!player.getWorld().equals(block.getWorld())) return;
                 for (Block b : bs) {
                     if (!player.isValid()) return;
@@ -305,7 +319,7 @@ final class Mining {
         if (!isPickaxe(item)) return;
         final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         final boolean sneak = player.isSneaking();
         final boolean stone = stone(block);
         // Strip Mining
@@ -333,7 +347,7 @@ final class Mining {
             oreAlert(player, block);
         }
         // Xray
-        if (session.hasTalent(Talent.MINE_XRAY) && !session.xrayActive && stone
+        if (session.hasTalent(Talent.MINE_XRAY) && !session.isXrayActive() && stone
             && fortune > 0 && !sneak && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     xray(player, block);
@@ -351,7 +365,7 @@ final class Mining {
                        @NonNull BlockFace face, @NonNull ItemStack item) {
         Reward reward = rewards.get(block.getType());
         if (reward == null) return false;
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         if (!session.hasTalent(Talent.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
         if (!GenericEvents.playerCanBuild(player, block)) return false;
@@ -363,7 +377,7 @@ final class Mining {
             Damageable dmg = (Damageable) meta;
             if (dmg.getDamage() >= item.getType().getMaxDurability()) return false;
             int unbreaking = item.getEnchantmentLevel(Enchantment.DURABILITY);
-            if (unbreaking == 0 || plugin.random.nextInt(unbreaking) == 0) {
+            if (unbreaking == 0 || Rnd.random().nextInt(unbreaking) == 0) {
                 dmg.setDamage(dmg.getDamage() + 1);
                 item.setItemMeta(meta);
             }
@@ -392,7 +406,7 @@ final class Mining {
         amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.
         chance = 1.0 / amount;
-        final double roll = plugin.random.nextDouble();
+        final double roll = Rnd.random().nextDouble();
         Effects.useSilk(player, block, dropLocation);
         if (roll < chance) {
             giveReward(player, block, reward);
@@ -419,14 +433,12 @@ final class Mining {
      * Do NOT drop any items because they only drop when silk
      * stripping.
      */
-    private boolean giveReward(@NonNull Player player,
-                       @NonNull Block block,
-                       @NonNull Reward reward) {
+    private boolean giveReward(@NonNull Player player, @NonNull Block block, @NonNull Reward reward) {
         if (Exploits.isPlayerPlaced(block)) return false;
-        plugin.points.give(player, SkillType.MINING, reward.sp);
+        plugin.getSkillPoints().give(player, SkillType.MINING, reward.sp);
         Material mat = block.getType();
         if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
-            plugin.talents.rollPoint(player, 1);
+            plugin.getTalents().rollPoint(player, 1);
         }
         return true;
     }

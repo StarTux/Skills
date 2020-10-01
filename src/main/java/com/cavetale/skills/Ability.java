@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.util.Msg;
 import java.util.HashMap;
 import lombok.NonNull;
 

@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.util.Json;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,10 +14,10 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-final class Advancements {
+public final class Advancements {
     final SkillsPlugin plugin;
 
-    void unloadAll() {
+    public void unloadAll() {
         List<NamespacedKey> keys = new ArrayList<>();
         Iterator<Advancement> iter = plugin.getServer().advancementIterator();
         while (iter.hasNext()) {
@@ -30,14 +31,14 @@ final class Advancements {
         plugin.getServer().reloadData();
     }
 
-    void loadAll() {
+    public void loadAll() {
         for (Talent talent : Talent.values()) {
             load(talent);
         }
         plugin.getServer().reloadData();
     }
 
-    void load(Talent talent) {
+    public void load(Talent talent) {
         NamespacedKey key = new NamespacedKey(plugin, "talents/" + talent.key);
         if (plugin.getServer().getAdvancement(key) != null) return;
         try {
@@ -48,7 +49,7 @@ final class Advancements {
         plugin.getLogger().info("Talent advancement loaded: " + talent.key);
     }
 
-    String make(Talent talent) {
+    public String make(Talent talent) {
         String parent;
         if (talent == Talent.ROOT) {
             parent = null;
@@ -94,7 +95,7 @@ final class Advancements {
      * @param talent The talent, or null for the root advancement.
      * @return true if advancements were changed, false otherwise.
      */
-    boolean give(@NonNull Player player, Talent talent) {
+    public boolean give(@NonNull Player player, Talent talent) {
         // talent == null => root advancement ("talents/talents")
         String name = talent != null ? talent.key : "talents";
         NamespacedKey key = new NamespacedKey(plugin, "talents/" + name);
@@ -105,7 +106,7 @@ final class Advancements {
         return true;
     }
 
-    boolean revoke(@NonNull Player player, Talent talent) {
+    public boolean revoke(@NonNull Player player, Talent talent) {
         // talent == null => root advancement ("talents/talents")
         String name = talent != null ? talent.key : "talents";
         NamespacedKey key = new NamespacedKey(plugin, "talents/" + name);

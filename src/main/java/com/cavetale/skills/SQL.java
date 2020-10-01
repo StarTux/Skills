@@ -7,24 +7,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-final class SQL {
+public final class SQL {
     private final SkillsPlugin plugin;
     private SQLDatabase database;
     // Caches
-    final List<SQLSkill> skillRows = new ArrayList<>();
-    final Map<UUID, SQLPlayer> playerRows = new HashMap<>();
+    @Getter final List<SQLSkill> skillRows = new ArrayList<>();
+    @Getter final Map<UUID, SQLPlayer> playerRows = new HashMap<>();
 
-    void enable() {
+    public void enable() {
         database = new SQLDatabase(plugin);
         database.registerTables(SQLSkill.class, SQLPlayer.class);
         database.createAllTables();
     }
 
-    void loadDatabase() {
+    public void loadDatabase() {
         skillRows.clear();
         skillRows.addAll(database.find(SQLSkill.class).findList());
         List<SQLPlayer> players = database.find(SQLPlayer.class).findList();
@@ -34,7 +35,7 @@ final class SQL {
         }
     }
 
-    SQLPlayer playerRowOf(@NonNull UUID uuid) {
+    public SQLPlayer playerRowOf(@NonNull UUID uuid) {
         SQLPlayer result = playerRows.get(uuid);
         if (result == null) {
             result = new SQLPlayer(uuid);
@@ -44,7 +45,7 @@ final class SQL {
         return result;
     }
 
-    Map<SkillType, SQLSkill> skillRowsOf(@NonNull UUID uuid) {
+    public Map<SkillType, SQLSkill> skillRowsOf(@NonNull UUID uuid) {
         Map<SkillType, SQLSkill> map = new EnumMap<>(SkillType.class);
         for (SQLSkill col : skillRows) {
             if (!uuid.equals(col.player)) continue;
@@ -62,7 +63,7 @@ final class SQL {
         return map;
     }
 
-    void save(@NonNull Object row) {
+    public void save(@NonNull Object row) {
         if (plugin.isEnabled()) {
             database.saveAsync(row, null);
         } else {

@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import java.util.function.Consumer;
 import org.bukkit.GameMode;

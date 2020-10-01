@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.farming;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;

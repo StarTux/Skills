@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -7,7 +7,7 @@ import lombok.NonNull;
 /**
  * Utiltiy for messaging and string manipulation.
  */
-final class Msg {
+public final class Msg {
     private Msg() { }
 
     /**
@@ -15,7 +15,7 @@ final class Msg {
      * spaces.
      * E.g. GRASS_BLOCK => GrassBlock.
      */
-    static String enumToCamelCase(@NonNull String name) {
+    public static String enumToCamelCase(@NonNull String name) {
         return Stream.of(name.split("_"))
             .map(s -> s.substring(0, 1) + s.substring(1).toLowerCase())
             .collect(Collectors.joining(" "));
@@ -24,7 +24,7 @@ final class Msg {
     /**
      * Convenience override.
      */
-    static String enumToCamelCase(@NonNull Enum enom) {
+    public static String enumToCamelCase(@NonNull Enum enom) {
         return enumToCamelCase(enom.name());
     }
 }

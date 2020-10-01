@@ -8,11 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-final class Sessions {
+public final class Sessions {
     final SkillsPlugin plugin;
     private final Map<UUID, Session> sessions = new HashMap<>();
 
-    void disable() {
+    public void disable() {
         for (Session session : sessions.values()) {
             session.onDisable();
             session.saveData();
@@ -20,13 +20,13 @@ final class Sessions {
         sessions.clear();
     }
 
-    void tick(int ticks) {
+    public void tick(int ticks) {
         for (Session session : sessions.values()) {
             session.tick(ticks);
         }
     }
 
-    Session of(@NonNull Player player) {
+    public Session of(@NonNull Player player) {
         final UUID uuid = player.getUniqueId();
         Session session = sessions.computeIfAbsent(uuid, u -> new Session(plugin, u));
         return session;
@@ -36,7 +36,7 @@ final class Sessions {
      * Load a session and ensure that its state and server
      * advancements are consistent.
      */
-    void load(@NonNull Player player) {
+    public void load(@NonNull Player player) {
         Session session = of(player);
         if (session.talents.isEmpty() && session.getTalentPoints() == 0) {
             plugin.advancements.revoke(player, Talent.ROOT);
@@ -52,7 +52,7 @@ final class Sessions {
         }
     }
 
-    void remove(@NonNull Player player) {
+    public void remove(@NonNull Player player) {
         Session session = sessions.remove(player.getUniqueId());
         if (session != null) {
             session.onDisable();

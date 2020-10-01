@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.ConfigurationSection;
 
 @RequiredArgsConstructor
-final class Infos {
+public final class Infos {
     private final SkillsPlugin plugin;
     private final HashMap<String, Info> infos = new HashMap<>();
 
-    void load() {
+    public void load() {
         ConfigurationSection config = plugin.yaml.load("infos.yml");
         for (String key : config.getKeys(false)) {
             Info info = new Info(config.getConfigurationSection(key));
@@ -20,11 +20,11 @@ final class Infos {
     }
 
     // May return null
-    Info get(String name) {
+    public Info get(String name) {
         return infos.get(name);
     }
 
-    List<String> allKeys() {
+    public List<String> allKeys() {
         return new ArrayList<>(infos.keySet());
     }
 }

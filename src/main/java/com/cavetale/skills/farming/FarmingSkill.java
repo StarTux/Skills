@@ -1,5 +1,11 @@
-package com.cavetale.skills;
+package com.cavetale.skills.farming;
 
+import com.cavetale.skills.Effects;
+import com.cavetale.skills.Session;
+import com.cavetale.skills.SkillType;
+import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.Talent;
+import com.cavetale.skills.util.Rnd;
 import com.cavetale.skills.worldmarker.MarkerId;
 import com.cavetale.skills.worldmarker.WateredCrop;
 import com.cavetale.worldmarker.BlockMarker;
@@ -9,7 +15,6 @@ import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
 import java.util.Collections;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,24 +29,17 @@ import org.bukkit.inventory.ItemStack;
  * Object to manage the Farming skill.
  * Called by EventListener et al, owned by SkillsPlugin.
  */
-@RequiredArgsConstructor
-public final class Farming {
+public final class FarmingSkill {
     final SkillsPlugin plugin;
+    final FarmingListener listener;
 
-    boolean isHoe(ItemStack item) {
-        if (item == null) return false;
-        switch (item.getType()) {
-        case AIR:
-            return false;
-        case DIAMOND_HOE:
-        case IRON_HOE:
-        case STONE_HOE:
-        case WOODEN_HOE:
-        case GOLDEN_HOE:
-            return true;
-        default:
-            return false;
-        }
+    public FarmingSkill(final SkillsPlugin plugin) {
+        this.plugin = plugin;
+        this.listener = new FarmingListener(plugin, this);
+    }
+
+    public void enable() {
+        listener.enable();
     }
 
     /**
@@ -50,7 +48,7 @@ public final class Farming {
     boolean useStick(@NonNull Player player, @NonNull Block block) {
         if (CropType.of(block) == null && block.getType() != Material.FARMLAND) return false;
         int radius = 0;
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         if (session.hasTalent(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
         boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
@@ -154,36 +152,36 @@ public final class Farming {
         if (crop == null) return;
         if (!isRipe(block)) return;
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         // Extra crops
         if (session.hasTalent(Talent.FARM_CROP_DROPS)) {
             block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
-                                                         plugin.random.nextInt(3) + 1));
+                                                         Rnd.random().nextInt(3) + 1));
         }
         // Reward Diamond
         Block ore = block.getRelative(0, -1, 0);
         if (ore.getType() == Material.IRON_ORE && session.hasTalent(Talent.FARM_IRON_GROWTH)) {
-            if (plugin.random.nextDouble() < 0.01) {
+            if (Rnd.random().nextDouble() < 0.01) {
                 block.getWorld().dropItem(loc, new ItemStack(Material.IRON_INGOT));
             }
         } else if (ore.getType() == Material.GOLD_ORE && session.hasTalent(Talent.FARM_GOLD_GROWTH)) {
-            if (plugin.random.nextDouble() < 0.01) {
+            if (Rnd.random().nextDouble() < 0.01) {
                 block.getWorld().dropItem(loc, new ItemStack(Material.GOLD_INGOT));
             }
         } else if (ore.getType() == Material.DIAMOND_ORE && session.hasTalent(Talent.FARM_DIAMOND_GROWTH)) {
-            if (plugin.random.nextDouble() < 0.01) {
+            if (Rnd.random().nextDouble() < 0.01) {
                 block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             }
         }
         // Exp
-        plugin.points.give(player, SkillType.FARMING, crop.points);
+        plugin.getSkillPoints().give(player, SkillType.FARMING, crop.points);
         block.getWorld().spawn(loc, ExperienceOrb.class, orb -> orb.setExperience(1));
         Effects.harvest(block);
     }
 
     boolean useSeed(@NonNull Player player, @NonNull Block block,
                     @NonNull CropType crop, @NonNull ItemStack item) {
-        Session session = plugin.sessions.of(player);
+        Session session = plugin.getSessions().of(player);
         Material soil = crop == CropType.NETHER_WART
             ? Material.SOUL_SAND
             : Material.FARMLAND;
@@ -208,7 +206,7 @@ public final class Farming {
                 bs.add(orig.getRelative(x, 0, z));
             }
         }
-        Collections.shuffle(bs, plugin.random);
+        Collections.shuffle(bs, Rnd.random());
         for (Block block : bs) {
             if (item.getType() != crop.seedMaterial) break;
             if (item.getAmount() < 1) break;

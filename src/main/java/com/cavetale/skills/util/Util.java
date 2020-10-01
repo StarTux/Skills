@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.util;
 
 import lombok.NonNull;
 import org.bukkit.Location;
@@ -10,14 +10,14 @@ import org.bukkit.inventory.ItemStack;
 /**
  * Misc utility class.
  */
-final class Util {
+public final class Util {
     private Util() { }
 
     /**
      * Figure out if player is in any valid GameMode to play for skill
      * points.
      */
-    static boolean playMode(@NonNull Player player) {
+    public static boolean playMode(@NonNull Player player) {
         switch (player.getGameMode()) {
         case SURVIVAL:
         case ADVENTURE:
@@ -30,7 +30,7 @@ final class Util {
     /**
      * Spawn in some exp.
      */
-    static ExperienceOrb exp(Location location, int amount) {
+    public static ExperienceOrb exp(Location location, int amount) {
         if (amount <= 0) return null;
         return location.getWorld().spawn(location,
                                          ExperienceOrb.class,
@@ -40,14 +40,14 @@ final class Util {
     /**
      * Get current time in seconds.
      */
-    static long now() {
+    public static long now() {
         return System.nanoTime() / 1000000000L;
     }
 
     /**
      * Get correct item in hand for EquipmentSlot.
      */
-    static ItemStack getHand(@NonNull Player player,
+    public static ItemStack getHand(@NonNull Player player,
                              @NonNull EquipmentSlot slot) {
         switch (slot) {
         case HAND:
