@@ -64,9 +64,9 @@ final class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     void onMarkChunkTick(MarkChunkTickEvent event) {
-        event.getBlocksWithId(Farming.WATERED_CROP)
+        event.getChunk().getBlocksWithId(Farming.WATERED_CROP)
             .forEach(plugin.farming::tickWateredCrop);
-        event.getBlocksWithId(Farming.GROWN_CROP)
+        event.getChunk().getBlocksWithId(Farming.GROWN_CROP)
             .forEach(plugin.farming::tickGrownCrop);
     }
 
