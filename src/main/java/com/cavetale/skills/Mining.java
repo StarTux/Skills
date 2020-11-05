@@ -45,8 +45,7 @@ final class Mining {
         }
     }
 
-    private void reward(@NonNull Material material, final int sp, final int exp,
-                        @NonNull Material item, int drops) {
+    private void reward(@NonNull Material material, final int sp, final int exp, Material item, int drops) {
         rewards.put(material, new Reward(material, sp, exp, item, drops));
     }
 
