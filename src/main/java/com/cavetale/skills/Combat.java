@@ -7,6 +7,7 @@ import lombok.Value;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -73,28 +75,37 @@ final class Combat {
         reward(EntityType.DROWNED, 1);
         reward(EntityType.ILLUSIONER, 1);
         reward(EntityType.GIANT, 1);
+        reward(EntityType.PIGLIN, 1);
         reward(EntityType.ZOMBIFIED_PIGLIN, 1);
         reward(EntityType.ENDERMAN, 1);
         reward(EntityType.ENDER_DRAGON, 10);
         reward(EntityType.WITHER, 10);
+        reward(EntityType.HOGLIN, 3);
+        reward(EntityType.ZOGLIN, 3);
     }
 
-    void playerKillMob(@NonNull Player player, @NonNull Mob mob) {
+    void playerKillMob(Player player, Mob mob, EntityDeathEvent event) {
         Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
+        if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
+        Session session = plugin.sessionOf(player);
+        boolean rewarded;
         if (mob.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) mob.getLastDamageCause();
             switch (edbee.getCause()) {
             case PROJECTILE:
-                sniperKill(mob, edbee);
+                rewarded = sniperKill(session, mob, edbee);
                 break;
             case ENTITY_ATTACK:
             case ENTITY_SWEEP_ATTACK:
-                meleeKill(mob, edbee);
+                rewarded = meleeKill(session, mob, edbee);
                 break;
             default:
+                rewarded = false;
                 break;
             }
+        } else {
+            rewarded = false;
         }
         Chunk chunk = mob.getLocation().getChunk();
         Chonk chonk = plugin.meta.getOrSet(chunk.getBlock(0, 0, 0),
@@ -103,16 +114,18 @@ final class Combat {
         chonk.kills = Math.max(0, chonk.kills + 10 - (int) (now - chonk.time));
         chonk.time = Util.now();
         if (chonk.kills > 50) return;
-        plugin.addSkillPoints(player, SkillType.COMBAT, reward.sp);
-        Effects.kill(mob);
+        if (rewarded) {
+            plugin.addSkillPoints(player, SkillType.COMBAT, reward.sp);
+            event.setDroppedExp(event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
+            Effects.kill(mob);
+        }
     }
 
-    private boolean sniperKill(@NonNull Mob mob, @NonNull EntityDamageByEntityEvent event) {
+    private boolean sniperKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Projectile)) return false;
         Projectile proj = (Projectile) event.getDamager();
         if (!(proj.getShooter() instanceof Player)) return false;
         Player player = (Player) proj.getShooter();
-        Session session = plugin.sessionOf(player);
         if (session.hasTalent(Talent.COMBAT_ARCHER_ZONE)) {
             session.archerZone = 5 * 20;
             player.sendMessage(ChatColor.GOLD + "In The Zone! "
@@ -123,10 +136,9 @@ final class Combat {
         return true;
     }
 
-    private boolean meleeKill(@NonNull Mob mob, @NonNull EntityDamageByEntityEvent event) {
+    private boolean meleeKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player)) return false;
         Player player = (Player) event.getDamager();
-        Session session = plugin.sessionOf(player);
         if (session.hasTalent(Talent.COMBAT_GOD_MODE)) {
             if (session.immortal <= 0) {
                 player.sendMessage(ChatColor.GOLD + "God Mode!");

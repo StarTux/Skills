@@ -115,7 +115,7 @@ final class EventListener implements Listener {
             if (!mob.isDead()) return;
             Player killer = entity.getKiller();
             if (killer != null) {
-                plugin.combat.playerKillMob(killer, mob);
+                plugin.combat.playerKillMob(killer, mob, event);
             }
         }
     }

@@ -57,10 +57,13 @@ final class Mining {
         reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1);
         reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
         reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
+        reward(Material.NETHER_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
+        reward(Material.GILDED_BLACKSTONE, 5, 3, null, 0);
         reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
         reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6); // 4-8
         reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1);
         reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5); // 4-5
+        reward(Material.ANCIENT_DEBRIS, 20, 10, null, 0); // 4-5
     }
 
     static boolean stone(@NonNull Block block) {
@@ -352,14 +355,14 @@ final class Mining {
         giveReward(player, block, reward);
         if (reward.dropSelf() && reward.exp > 0 && !Exploits.isPlayerPlaced(block)) {
             // If reward drops self, vanilla gives no exp, so we do it.
-            Util.exp(block.getLocation().add(0.5, 0.5, 0.5), reward.exp);
+            Util.exp(block.getLocation().add(0.5, 0.5, 0.5), reward.exp + session.getExpBonus(SkillType.MINING));
         }
     }
 
     boolean usePickaxe(@NonNull Player player, @NonNull Block block,
                        @NonNull BlockFace face, @NonNull ItemStack item) {
         Reward reward = rewards.get(block.getType());
-        if (reward == null) return false;
+        if (reward == null || reward.item == null || reward.drops <= 0) return false;
         Session session = plugin.sessionOf(player);
         if (!session.hasTalent(Talent.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
@@ -406,12 +409,15 @@ final class Mining {
         if (roll < chance) {
             giveReward(player, block, reward);
             if (reward.exp > 0) {
-                Util.exp(dropLocation, reward.exp);
+                Util.exp(dropLocation, reward.exp + session.getExpBonus(SkillType.MINING));
             }
             Effects.failSilk(player, block);
-            if (reward.material == Material.NETHER_QUARTZ_ORE) {
+            switch (reward.material) {
+            case NETHER_QUARTZ_ORE:
+            case NETHER_GOLD_ORE:
                 block.setType(Material.NETHERRACK);
-            } else {
+                break;
+            default:
                 block.setType(Material.STONE);
             }
         }
@@ -428,9 +434,7 @@ final class Mining {
      * Do NOT drop any items because they only drop when silk
      * stripping.
      */
-    private boolean giveReward(@NonNull Player player,
-                       @NonNull Block block,
-                       @NonNull Reward reward) {
+    private boolean giveReward(@NonNull Player player, @NonNull Block block, @NonNull Reward reward) {
         if (Exploits.isPlayerPlaced(block)) return false;
         plugin.addSkillPoints(player, SkillType.MINING, reward.sp);
         Material mat = block.getType();

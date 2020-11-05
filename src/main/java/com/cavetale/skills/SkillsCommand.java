@@ -186,6 +186,8 @@ final class SkillsCommand implements TabExecutor {
         player.sendMessage("");
         player.sendMessage("" + ChatColor.LIGHT_PURPLE + "Level "
                            + ChatColor.WHITE + level);
+        player.sendMessage("" + ChatColor.LIGHT_PURPLE + "Exp Bonus "
+                           + ChatColor.WHITE + session.getExpBonus(skill));
         player.sendMessage("" + ChatColor.LIGHT_PURPLE + "Skill Points "
                            + ChatColor.WHITE + points
                            + ChatColor.LIGHT_PURPLE + "/"

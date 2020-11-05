@@ -1,11 +1,16 @@
 package com.cavetale.skills;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 public final class SkillsTest {
     @Test
     public void test() {
-        Assert.assertEquals(1, 1);
+        int old = -1;
+        for (int i = 0; i < 200; i += 1) {
+            int exp = SkillsPlugin.expBonusForLevel(i);
+            if (exp == old) continue;
+            old = exp;
+            System.out.println("" + i + ": " + exp);
+        }
     }
 }

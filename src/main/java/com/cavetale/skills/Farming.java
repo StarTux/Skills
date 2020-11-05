@@ -14,7 +14,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Farmland;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -238,7 +237,7 @@ final class Farming {
         }
         // Exp
         plugin.addSkillPoints(player, SkillType.FARMING, 1);
-        block.getWorld().spawn(loc, ExperienceOrb.class, orb -> orb.setExperience(1));
+        Util.exp(loc, 1 + session.getExpBonus(SkillType.FARMING));
         Effects.harvest(block);
     }
 

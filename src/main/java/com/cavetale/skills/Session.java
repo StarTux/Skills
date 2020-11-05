@@ -153,4 +153,9 @@ final class Session {
     int getSkillPoints(SkillType skill) {
         return skillColumns.get(skill).points;
     }
+
+    public int getExpBonus(SkillType skill) {
+        int level = getLevel(skill);
+        return SkillsPlugin.expBonusForLevel(level);
+    }
 }
