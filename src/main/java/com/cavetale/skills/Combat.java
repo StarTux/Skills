@@ -76,12 +76,15 @@ final class Combat {
         reward(EntityType.ILLUSIONER, 1);
         reward(EntityType.GIANT, 1);
         reward(EntityType.PIGLIN, 1);
+        reward(EntityType.PIGLIN_BRUTE, 5);
         reward(EntityType.ZOMBIFIED_PIGLIN, 1);
         reward(EntityType.ENDERMAN, 1);
         reward(EntityType.ENDER_DRAGON, 10);
         reward(EntityType.WITHER, 10);
         reward(EntityType.HOGLIN, 3);
         reward(EntityType.ZOGLIN, 3);
+        reward(EntityType.PILLAGER, 3);
+        reward(EntityType.RAVAGER, 5);
     }
 
     void playerKillMob(Player player, Mob mob, EntityDeathEvent event) {
