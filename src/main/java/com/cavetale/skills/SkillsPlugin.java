@@ -202,12 +202,7 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     public static int expBonusForLevel(final int lvl) {
-        int result = 0;
-        final double level = (double) lvl;
-        for (double i = 1; i <= level; i *= 1.5) {
-            result += 1;
-        }
-        return result;
+        return lvl;
     }
 
     /**
