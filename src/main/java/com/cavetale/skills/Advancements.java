@@ -54,19 +54,19 @@ public final class Advancements {
         if (talent == Talent.ROOT) {
             parent = null;
         } else {
-            parent = talent.depends == null
+            parent = talent.getDepends() == null
                 ? "skills:talents/root"
-                : "skills:talents/" + talent.depends.key;
+                : "skills:talents/" + talent.getDepends().key;
         }
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> display = new HashMap<>();
         map.put("display", display);
         Map<String, Object> iconMap = new HashMap<>();
         display.put("icon", iconMap);
-        iconMap.put("item", "minecraft:" + talent.material.name().toLowerCase());
-        if (talent.iconNBT != null) iconMap.put("nbt", talent.iconNBT);
-        display.put("title", talent.displayName);
-        display.put("description", talent.description);
+        iconMap.put("item", "minecraft:" + talent.getMaterial().name().toLowerCase());
+        if (talent.getIconNBT() != null) iconMap.put("nbt", talent.getIconNBT());
+        display.put("title", talent.getDisplayName());
+        display.put("description", talent.getDescription());
         if (talent == Talent.ROOT) {
             display.put("background", "minecraft:textures/block/diamond_ore.png");
         }
@@ -74,7 +74,7 @@ public final class Advancements {
         display.put("announce_to_chat", true);
         display.put("show_toast", true);
         if (talent != null) {
-            if (talent.terminal) {
+            if (talent.isTerminal()) {
                 display.put("frame", "goal");
             }
         } else {

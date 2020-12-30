@@ -62,7 +62,7 @@ public final class Menus {
     }
 
     public void openSkillsMenu(Player player) {
-        Gui gui = new Gui(plugin)
+        Gui gui = new Gui()
             .rows(3)
             .title(ChatColor.DARK_BLUE + "Skills Mk2");
         for (SkillType skillType : SkillType.values()) {
@@ -76,7 +76,7 @@ public final class Menus {
     }
 
     public void openSkillMenu(Player player, SkillType skillType) {
-        Gui gui = new Gui(plugin)
+        Gui gui = new Gui()
             .rows(3)
             .title(ChatColor.DARK_PURPLE + skillType.displayName);
         gui.setItem(-999, null, click -> {

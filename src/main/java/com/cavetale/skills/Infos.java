@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.util.Yaml;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +13,7 @@ public final class Infos {
     private final HashMap<String, Info> infos = new HashMap<>();
 
     public void load() {
-        ConfigurationSection config = plugin.yaml.load("infos.yml");
+        ConfigurationSection config = Yaml.loadResource("infos.yml");
         for (String key : config.getKeys(false)) {
             Info info = new Info(config.getConfigurationSection(key));
             infos.put(key, info);

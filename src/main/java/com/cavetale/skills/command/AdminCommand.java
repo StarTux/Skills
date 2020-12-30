@@ -226,7 +226,7 @@ public final class AdminCommand extends CommandBase implements TabExecutor {
             player.sendMessage("fail!");
             return true;
         }
-        Gui gui = new Gui(plugin).rows(6).title("Talents");
+        Gui gui = new Gui().rows(6).title("Talents");
         try (java.io.PrintStream out = new java.io.PrintStream(new java.io.File("tmp.txt"))) {
             for (int i = 0; i < state.slots.length; i += 1) {
                 Talent talent = state.slots[i];

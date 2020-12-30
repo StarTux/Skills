@@ -1,48 +1,50 @@
 package com.cavetale.skills.util;
 
-// import java.io.InputStream;
-// import java.io.InputStreamReader;
+import com.cavetale.skills.SkillsPlugin;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.function.Supplier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 
-@RequiredArgsConstructor
 public final class Yaml {
-    private final JavaPlugin plugin;
-    private final Gson gson = new Gson();
-    private final org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
+    private static final Gson GSON = new Gson();
+    private static final org.yaml.snakeyaml.Yaml YAML = new org.yaml.snakeyaml.Yaml();
+
+    private Yaml() { }
 
     /**
      * Load a config file from the config folder, using the resource
      * that comes with the package jar as default.  Save the resource
      * to disk if it does not already exist.
      */
-    public ConfigurationSection load(@NonNull final String name) {
-        File file = new File(plugin.getDataFolder(), name);
-        if (!file.exists()) plugin.saveResource(name, true);
+    public static ConfigurationSection load(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        // InputStream input = plugin.getResource(name);
-        // InputStreamReader reader = new InputStreamReader(input);
-        // YamlConfiguration defaults = YamlConfiguration.loadConfiguration(reader);
-        // config.setDefaults(defaults);
         return config;
     }
 
-    <E> E load(File file, Class<E> clazz) {
+    public static ConfigurationSection loadResource(String path) {
+        SkillsPlugin plugin = SkillsPlugin.getInstance();
+        InputStream inputStream = plugin.getResource(path);
+        if (inputStream == null) throw new IllegalStateException("null: " + path);
+        Reader reader = new InputStreamReader(inputStream);
+        return YamlConfiguration.loadConfiguration(reader);
+    }
+
+    public static <E> E load(File file, Class<E> clazz, Supplier<E> dfl) {
         Object o;
         try (FileReader in = new FileReader(file)) {
-            o = yaml.load(in);
+            o = YAML.load(in);
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            return null;
+            return dfl.get();
         }
-        String tmp = gson.toJson(o);
-        return gson.fromJson(tmp, clazz);
+        String tmp = GSON.toJson(o);
+        return GSON.fromJson(tmp, clazz);
     }
 }

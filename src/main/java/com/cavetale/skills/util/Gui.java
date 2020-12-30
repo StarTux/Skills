@@ -1,9 +1,9 @@
 package com.cavetale.skills.util;
 
+import com.cavetale.skills.SkillsPlugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -26,11 +26,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Gui implements InventoryHolder {
     public static final int OUTSIDE = -999;
-    @Getter final JavaPlugin plugin;
     private Inventory inventory;
     private Map<Integer, Slot> slots = new TreeMap<>();
     private Consumer<InventoryCloseEvent> onClose = null;
@@ -50,8 +48,7 @@ public final class Gui implements InventoryHolder {
         Function<InventoryClickEvent, Boolean> onClick;
     }
 
-    public Gui(final JavaPlugin plugin) {
-        this.plugin = Objects.requireNonNull(plugin, "plugin=null");
+    public Gui() {
     }
 
     public Gui title(String newTitle) {
@@ -147,15 +144,11 @@ public final class Gui implements InventoryHolder {
     }
 
     void onInventoryOpen(InventoryOpenEvent event) {
-        if (onOpen != null) {
-            Bukkit.getScheduler().runTask(plugin, () -> onOpen.accept(event));
-        }
+        if (onOpen != null) onOpen.accept(event);
     }
 
     void onInventoryClose(InventoryCloseEvent event) {
-        if (onClose != null) {
-            Bukkit.getScheduler().runTask(plugin, () -> onClose.accept(event));
-        }
+        if (onClose != null) onClose.accept(event);
     }
 
     void onInventoryClick(InventoryClickEvent event) {
@@ -172,7 +165,7 @@ public final class Gui implements InventoryHolder {
         Slot slot = slots.get(event.getSlot());
         if (slot != null && slot.onClick != null) {
             locked = true;
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getScheduler().runTask(SkillsPlugin.getInstance(), () -> {
                     locked = false;
                     slot.onClick.apply(event);
                 });
@@ -244,28 +237,27 @@ public final class Gui implements InventoryHolder {
         }
     }
 
-    public static Gui of(JavaPlugin plugin, Player player) {
+    public static Gui of(Player player) {
         InventoryView view = player.getOpenInventory();
-        if (view == null) return null;
+        if (view == null) return null; // cannot happen
         Inventory topInventory = view.getTopInventory();
         if (topInventory == null) return null;
         InventoryHolder holder = topInventory.getHolder();
         if (!(holder instanceof Gui)) return null;
         Gui gui = (Gui) holder;
-        if (!plugin.equals(gui.plugin)) return null;
         return gui;
     }
 
-    public static void onDisable(JavaPlugin plugin) {
-        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            Gui gui = Gui.of(plugin, player);
+    public static void onDisable() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Gui gui = Gui.of(player);
             if (gui != null) player.closeInventory();
         }
     }
 
-    public static void onTick(JavaPlugin plugin) {
-        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            Gui gui = Gui.of(plugin, player);
+    public static void tick() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Gui gui = Gui.of(player);
             if (gui == null) continue;
             gui.onTick(player);
         }

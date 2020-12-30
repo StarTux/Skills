@@ -1,0 +1,177 @@
+root:
+  description: Earn talent points to unlock new talents and improve your skillful abilities!
+  displayName: Skill Talents
+  icon:
+    material: minecraft:golden_apple
+    nbt: null
+
+mine_strip:
+  description: |-
+    Mining with an Efficiency pickaxe breaks many blocks
+
+    Unleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within your line of sight while mining straight. Breaking ores will attempt to break the entire vein. This only works deep underground.
+
+    Mine without this feature by sneaking.
+  displayName: Strip Mining
+  icon:
+    material: minecraft:diamond_pickaxe
+    nbt: null
+
+mine_ore_alert:
+  description: |-
+    Get alerts when diamond ore is nearby.
+
+    Never miss diamonds near your mine again! Whenever you mine stone at diamond level, and there is diamond ore nearby, an alert sound will notify you of its existence. Follow that lead to earn more diamonds. This only works deep underground.
+  displayName: Ore Alert
+  icon:
+    material: minecraft:diamond_ore
+    nbt: null
+
+mine_xray:
+  description: |-
+    Mining stone with a Fortune pickaxe allows you to see through solid stone.
+
+    Nearby stone will be rendered see-through for a few seconds so you can identify ores more easily.
+
+    This only works while mining stone near diamond level.
+  displayName: X-Ray
+  icon:
+    material: minecraft:glowstone
+    nbt: null
+
+mine_silk_strip:
+  description: |-
+    Use a Silk Touch pickaxe to strip an ore of its gems.
+
+    Right-click with a Silk Touch pickaxe to do use your fine motory skills and remove those gems right from the ore block. With any luck, you may repeat the procedure as long as the ore stays intact, getting more and more drops. Eventually, the ore will turn into stone and you get the usual skill points for mining.
+
+    This method may yield as much reward as Fortune 3 but is more random. It allows multiplying drops from ores usually unaffected by Fortune: Iron and gold.
+  displayName: Silk Stripping
+  icon:
+    material: minecraft:gold_nugget
+    nbt: null
+
+mine_silk_multi:
+  description: |-
+    Silk stripping may yield even more drops from the same ore.
+
+    While using your Silk Touch pickaxe on ores, this talent gives you an even greater chance at getting multiple drops, surpassing the yield capabilities of Fortune 3.
+
+    The yields of this method may exceed those of Fortune 3 but are more random. It allows multiple drops from ores usually unaffected by Fortune: Iron and gold.
+  displayName: Silk Fortune
+  icon:
+    material: minecraft:gold_ingot
+    nbt: null
+
+farm_growstick_radius:
+  description: |-
+    Effective growstick radius +1.
+
+    Up your gardening powers. Save lots of time by watering adjacent crops and soil, all at once!
+  displayName: Spoutcraft
+  icon:
+    material: minecraft:stick
+    nbt: null
+
+farm_plant_radius:
+  description: |-
+    Plant seeds in a 3x3 area.
+
+    Save time with this talent. Plant any seed (wheat, carrot, potato, beetroot, nether wart) and the surrounding 8 blocks will also be seeded where possible.
+
+    Plant without this feature by sneaking.
+  displayName: Springtime
+  icon:
+    material: minecraft:wheat_seeds
+    nbt: null
+
+farm_crop_drops:
+  description: |-
+    Increased crop yields.
+
+    Each fully grown watered plant yields additional drops when you harvest them.
+  displayName: Cultivator
+  icon:
+    material: minecraft:wheat
+    nbt: null
+
+farm_diamond_drops:
+  description: |-
+    Diamond drops 100% more common.
+
+    Fully grown watered plants sometimes yield diamonds. This talent increases your chances drastically.
+  displayName: Gem Growth
+  icon:
+    material: minecraft:diamond
+    nbt: null
+
+farm_talent_points:
+  description: |-
+    Talent points drop more often.
+
+    Whenever a fully grown and watered plant drops a diamond, there is also a small progress made toward your next talent point. Unlocking this skill increases your chances. This means even more talent points!
+  displayName: Grand Granger
+  icon:
+    material: minecraft:cornflower
+    nbt: null
+
+farm_iron_growth:
+  description: ''
+  displayName: Farm Iron Growth
+  icon:
+    material: minecraft:stick
+    nbt: null
+
+farm_gold_growth:
+  description: ''
+  displayName: Farm Gold Growth
+  icon:
+    material: minecraft:stick
+    nbt: null
+
+farm_diamond_growth:
+  description: ''
+  displayName: Farm Diamond Growth
+  icon:
+    material: minecraft:stick
+    nbt: null
+
+combat_fire:
+  description: |-
+    Monsters set on fire deal -50% melee damage.
+    Monsters set on fire take +50% damage.
+  displayName: Pyromaniac
+  icon:
+    material: minecraft:campfire
+    nbt: null
+
+combat_silence:
+  description: |-
+    Monsters knocked back cannot shoot arrows or throw projectiles for 20 seconds.
+
+    Use a Knockback weapon on an enemy to give it this status effect.
+  displayName: Denial
+  icon:
+    material: minecraft:barrier
+    nbt: null
+
+combat_spiders:
+  description: Bane of Arthropods slows spiders and denies their poison effect for 30 seconds.
+  displayName: Vamonos
+  icon:
+    material: minecraft:spider_eye
+    nbt: null
+
+combat_god_mode:
+  description: Melee kills give 3 seconds of immortality.
+  displayName: God Mode
+  icon:
+    material: minecraft:totem_of_undying
+    nbt: null
+
+combat_archer_zone:
+  description: Ranged kills give 5 seconds of double damage to ranged attacks.
+  displayName: In The Zone
+  icon:
+    material: minecraft:spectral_arrow
+    nbt: null

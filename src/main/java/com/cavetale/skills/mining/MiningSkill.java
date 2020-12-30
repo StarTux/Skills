@@ -5,16 +5,20 @@ import com.cavetale.skills.Session;
 import com.cavetale.skills.SkillType;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.Talent;
+import com.cavetale.skills.util.Msg;
 import com.cavetale.skills.util.Rnd;
 import com.cavetale.skills.util.Spectators;
 import com.cavetale.skills.util.Util;
+import com.destroystokyo.paper.MaterialTags;
 import com.winthier.exploits.Exploits;
 import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
+import lombok.Data;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -41,24 +45,27 @@ public final class MiningSkill {
 
     public void enable() {
         // exp values are maxima according to the wiki
-        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
-        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1);
-        reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
-        reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
+        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1).money(100.0);
+        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1).money(10.0);
+        reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9).money(10.0);
+        reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9).money(10.0);
+        reward(Material.NETHER_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9).money(10.0);
         reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
-        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6); // 4-8
-        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1);
+        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6).money(10.0); // 4-8
+        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1).money(10.0);
         reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5); // 4-5
+        reward(Material.ANCIENT_DEBRIS, 20, 10, null, 0).money(200.0); // 4-5
         listener.enable();
     }
 
-    @Value
+    @Data @RequiredArgsConstructor
     static class Reward {
-        final Material material;
-        final int sp;
-        final int exp;
-        final Material item;
-        final int drops;
+        protected final Material material;
+        protected final int sp;
+        protected final int exp;
+        protected final Material item;
+        protected final int drops;
+        protected double money = 0;
 
         boolean dropSelf() {
             switch (material) {
@@ -68,11 +75,17 @@ public final class MiningSkill {
             default: return false;
             }
         }
+
+        Reward money(double m) {
+            money = m;
+            return this;
+        }
     }
 
-    private void reward(@NonNull Material material, final int sp, final int exp,
-                        @NonNull Material item, int drops) {
-        rewards.put(material, new Reward(material, sp, exp, item, drops));
+    private Reward reward(@NonNull Material material, final int sp, final int exp, Material item, int drops) {
+        Reward reward = new Reward(material, sp, exp, item, drops);
+        rewards.put(material, reward);
+        return reward;
     }
 
     static boolean stone(@NonNull Block block) {
@@ -97,19 +110,6 @@ public final class MiningSkill {
         }
     }
 
-    static boolean isPickaxe(@NonNull ItemStack item) {
-        switch (item.getType()) {
-        case DIAMOND_PICKAXE:
-        case IRON_PICKAXE:
-        case STONE_PICKAXE:
-        case WOODEN_PICKAXE:
-        case GOLDEN_PICKAXE:
-            return true;
-        default:
-            return false;
-        }
-    }
-
     /**
      * Called via scheduler.
      */
@@ -117,7 +117,7 @@ public final class MiningSkill {
         // Check item
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return 0;
-        if (!isPickaxe(item)) return 0;
+        if (!MaterialTags.PICKAXES.isTagged(item.getType())) return 0;
         int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         if (efficiency <= 0) return 0;
         // Figure out direction
@@ -316,7 +316,7 @@ public final class MiningSkill {
     void mine(@NonNull Player player, @NonNull Block block) {
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return;
-        if (!isPickaxe(item)) return;
+        if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         Session session = plugin.getSessions().of(player);
@@ -364,7 +364,7 @@ public final class MiningSkill {
     boolean usePickaxe(@NonNull Player player, @NonNull Block block,
                        @NonNull BlockFace face, @NonNull ItemStack item) {
         Reward reward = rewards.get(block.getType());
-        if (reward == null) return false;
+        if (reward == null || reward.item == null || reward.drops <= 0) return false;
         Session session = plugin.getSessions().of(player);
         if (!session.hasTalent(Talent.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
@@ -439,6 +439,11 @@ public final class MiningSkill {
         Material mat = block.getType();
         if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
             plugin.getTalents().rollPoint(player, 1);
+        }
+        if (reward.money > 0) {
+            GenericEvents.givePlayerMoney(player.getUniqueId(), reward.money, plugin,
+                                          "Mining Skill: " + Msg.enumToCamelCase(reward.material));
+            player.sendActionBar(ChatColor.GREEN + "+" + GenericEvents.formatMoney(reward.money));
         }
         return true;
     }

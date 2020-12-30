@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 public final class Sessions {
     final SkillsPlugin plugin;
     private final Map<UUID, Session> sessions = new HashMap<>();
+    private int ticks = 0;
 
     public void disable() {
         for (Session session : sessions.values()) {
@@ -20,9 +21,10 @@ public final class Sessions {
         sessions.clear();
     }
 
-    public void tick(int ticks) {
+    public void tick() {
+        int tick = ticks++;
         for (Session session : sessions.values()) {
-            session.tick(ticks);
+            session.tick(tick);
         }
     }
 

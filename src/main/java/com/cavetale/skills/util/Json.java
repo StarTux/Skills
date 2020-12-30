@@ -53,7 +53,7 @@ public final class Json {
     }
 
     public static String pretty(Object obj) {
-        return GSON.toJson(obj);
+        return PRETTY.toJson(obj);
     }
 
     public static <T> T deserialize(String json, Class<T> type, Supplier<T> dfl) {

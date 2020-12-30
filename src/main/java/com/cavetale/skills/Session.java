@@ -98,8 +98,8 @@ public final class Session {
     }
 
     public boolean canAccessTalent(@NonNull Talent talent) {
-        return talent.depends == null
-            || talents.contains(talent.depends);
+        Talent depends = talent.getDepends();
+        return depends == null || talents.contains(depends);
     }
 
     public int getTalentCost() {

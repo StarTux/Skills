@@ -113,21 +113,21 @@ public final class SkillsCommand extends CommandBase implements TabExecutor {
         return root.complete(new CommandContext(sender, command, alias, args), args);
     }
 
-    boolean skillCommand(Player player, SkillType skill, String[] args) {
+    boolean skillCommand(Player player, SkillType skillType, String[] args) {
         if (args.length != 0) return false;
         Session session = plugin.getSessions().of(player);
-        int level = session.getLevel(skill);
-        int points = session.getSkillPoints(skill);
+        int level = session.getLevel(skillType);
+        int points = session.getSkillPoints(skillType);
         int req = SkillPoints.forLevel(level + 1);
         long talents = Stream.of(Talent.values())
-            .filter(t -> t.skill == skill).count();
+            .filter(t -> t.skillType == skillType).count();
         long talentsHas = Stream.of(Talent.values())
-            .filter(t -> t.skill == skill)
+            .filter(t -> t.skillType == skillType)
             .filter(session::hasTalent).count();
         player.sendMessage("");
-        player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + skill.displayName);
+        player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + skillType.displayName);
         player.sendMessage("");
-        Info info = plugin.getInfos().get(skill.key);
+        Info info = plugin.getInfos().get(skillType.key);
         if (info != null) {
             player.sendMessage(info.description.split("\n\n")[0]);
         }
@@ -165,7 +165,7 @@ public final class SkillsCommand extends CommandBase implements TabExecutor {
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Talents: "
                            + Stream.of(Talent.values())
                            .filter(session::hasTalent)
-                           .map(t -> ChatColor.GOLD + t.displayName)
+                           .map(t -> ChatColor.GOLD + t.getDisplayName())
                            .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
         player.sendMessage("");
         return true;
@@ -365,7 +365,7 @@ public final class SkillsCommand extends CommandBase implements TabExecutor {
         Session session = plugin.getSessions().of(player);
         ComponentBuilder cb = null;
         for (Talent talent : Talent.values()) {
-            if (cb != null && talent.depends == null) {
+            if (cb != null && talent.getDepends() == null) {
                 player.spigot().sendMessage(cb.create());
                 cb = null;
             }
@@ -375,40 +375,38 @@ public final class SkillsCommand extends CommandBase implements TabExecutor {
             cb.append("  ").reset();
             ChatColor talentColor;
             if (session.hasTalent(talent)) {
-                cb.append(talent.displayName).color(ChatColor.GREEN);
+                cb.append(talent.getDisplayName()).color(ChatColor.GREEN);
                 talentColor = ChatColor.GREEN;
             } else if (session.canAccessTalent(talent)
                        && session.getTalentPoints() >= session.getTalentCost()) {
-                cb.append("[" + talent.displayName + "]").color(ChatColor.GOLD);
+                cb.append("[" + talent.getDisplayName() + "]").color(ChatColor.GOLD);
                 cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                         "/sk talent unlock " + talent.key));
                 talentColor = ChatColor.GOLD;
             } else {
-                cb.append(talent.displayName).color(ChatColor.GRAY);
+                cb.append(talent.getDisplayName()).color(ChatColor.GRAY);
                 talentColor = ChatColor.GRAY;
             }
             String dependency;
-            if (talent.depends == null) {
+            if (talent.getDepends() == null) {
                 dependency = "";
             } else {
-                ChatColor depColor = session.hasTalent(talent.depends)
+                ChatColor depColor = session.hasTalent(talent.getDepends())
                     ? ChatColor.GREEN
                     : ChatColor.DARK_RED;
                 dependency = ChatColor.LIGHT_PURPLE + "\nRequires: "
-                    + depColor + talent.depends.displayName;
+                    + depColor + talent.getDepends().getDisplayName();
             }
             cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                     TextComponent
-                                    .fromLegacyText("" + ChatColor.WHITE + talent.displayName
+                                    .fromLegacyText("" + ChatColor.WHITE + talent.getDisplayName()
                                                     + dependency
                                                     + "\n" + talentColor
-                                                    + talent.description)));
+                                                    + talent.getDescription())));
         }
         player.spigot().sendMessage(cb.create());
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Talent Points: "
-                           + ChatColor.WHITE + session.getTalentPoints());
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Unlock Cost: "
-                           + ChatColor.WHITE + session.getTalentCost());
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Talent Points: " + ChatColor.WHITE + session.getTalentPoints());
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Unlock Cost: " + ChatColor.WHITE + session.getTalentCost());
         player.sendMessage("");
     }
 

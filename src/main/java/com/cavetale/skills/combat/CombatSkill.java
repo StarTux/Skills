@@ -6,14 +6,17 @@ import com.cavetale.skills.SkillType;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.StatusEffect;
 import com.cavetale.skills.Talent;
+import com.cavetale.skills.util.Msg;
 import com.cavetale.skills.util.Util;
 import com.cavetale.worldmarker.BlockMarker;
 import com.cavetale.worldmarker.EntityMarker;
 import com.cavetale.worldmarker.MarkTagContainer;
 import com.cavetale.worldmarker.Persistent;
+import com.winthier.generic_events.GenericEvents;
 import java.util.EnumMap;
+import lombok.Data;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.enchantments.Enchantment;
@@ -42,44 +45,50 @@ public final class CombatSkill {
     }
 
     public void enable() {
-        reward(EntityType.ZOMBIE, 1);
-        reward(EntityType.SKELETON, 1);
-        reward(EntityType.CREEPER, 2);
+        reward(EntityType.ZOMBIE, 5).money(10);
+        reward(EntityType.SKELETON, 5).money(10);
+        reward(EntityType.CREEPER, 10).money(10);
         reward(EntityType.SLIME, 1);
         reward(EntityType.SILVERFISH, 1);
         reward(EntityType.POLAR_BEAR, 2);
-        reward(EntityType.SHULKER, 2);
-        reward(EntityType.SPIDER, 2);
-        reward(EntityType.CAVE_SPIDER, 2);
-        reward(EntityType.WITCH, 5);
-        reward(EntityType.ZOMBIE_VILLAGER, 2);
-        reward(EntityType.ENDERMITE, 2);
-        reward(EntityType.BLAZE, 3);
-        reward(EntityType.ELDER_GUARDIAN, 3);
-        reward(EntityType.EVOKER, 3);
-        reward(EntityType.GUARDIAN, 3);
-        reward(EntityType.HUSK, 3);
-        reward(EntityType.MAGMA_CUBE, 3);
-        reward(EntityType.PHANTOM, 3);
+        reward(EntityType.SHULKER, 10);
+        reward(EntityType.SPIDER, 10);
+        reward(EntityType.CAVE_SPIDER, 10).money(10);
+        reward(EntityType.WITCH, 20).money(20);
+        reward(EntityType.ZOMBIE_VILLAGER, 10);
+        reward(EntityType.ENDERMITE, 1);
+        reward(EntityType.BLAZE, 20);
+        reward(EntityType.ELDER_GUARDIAN, 50).money(50);
+        reward(EntityType.EVOKER, 10);
+        reward(EntityType.GUARDIAN, 10).money(10);
+        reward(EntityType.HUSK, 10).money(10);
+        reward(EntityType.MAGMA_CUBE, 1);
+        reward(EntityType.PHANTOM, 5);
         reward(EntityType.VEX, 2);
-        reward(EntityType.VINDICATOR, 3);
-        reward(EntityType.WITHER_SKELETON, 4);
-        reward(EntityType.GHAST, 5);
-        reward(EntityType.STRAY, 1);
-        reward(EntityType.DROWNED, 1);
-        reward(EntityType.ILLUSIONER, 1);
-        reward(EntityType.GIANT, 1);
-        reward(EntityType.ZOMBIFIED_PIGLIN, 1);
-        reward(EntityType.ENDERMAN, 1);
-        reward(EntityType.ENDER_DRAGON, 10);
-        reward(EntityType.WITHER, 10);
+        reward(EntityType.VINDICATOR, 10).money(10);
+        reward(EntityType.WITHER_SKELETON, 10).money(10);
+        reward(EntityType.GHAST, 10).money(50);
+        reward(EntityType.STRAY, 10).money(10);
+        reward(EntityType.DROWNED, 10).money(10);
+        reward(EntityType.ILLUSIONER, 10).money(10);
+        reward(EntityType.GIANT, 10).money(10);
+        reward(EntityType.ZOMBIFIED_PIGLIN, 10).money(10);
+        reward(EntityType.ENDERMAN, 10);
+        reward(EntityType.ENDER_DRAGON, 100).money(100);
+        reward(EntityType.WITHER, 100).money(100);
         listener.enable();
     }
 
-    @Value
+    @Data @RequiredArgsConstructor
     static class Reward {
-        final EntityType type;
-        final int sp;
+        protected final EntityType type;
+        protected final int sp;
+        double money = 0.0;
+
+        Reward money(double m) {
+            this.money = m;
+            return this;
+        }
     }
 
     static class Chonk implements Persistent {
@@ -101,8 +110,10 @@ public final class CombatSkill {
         }
     }
 
-    private void reward(@NonNull EntityType type, final int sp) {
-        rewards.put(type, new Reward(type, sp));
+    private Reward reward(@NonNull EntityType type, final int sp) {
+        Reward reward = new Reward(type, sp);
+        rewards.put(type, reward);
+        return reward;
     }
 
     void playerKillMob(@NonNull Player player, @NonNull Mob mob) {
@@ -128,6 +139,11 @@ public final class CombatSkill {
         chonk.kills += 1;
         if (chonk.kills > 5) return;
         plugin.getSkillPoints().give(player, SkillType.COMBAT, reward.sp);
+        if (reward.money > 0) {
+            GenericEvents.givePlayerMoney(player.getUniqueId(), reward.money, plugin,
+                                          "Combat Skill: " + Msg.enumToCamelCase(reward.type));
+            player.sendActionBar(ChatColor.GREEN + "+" + GenericEvents.formatMoney(reward.money));
+        }
         Effects.kill(mob);
     }
 
