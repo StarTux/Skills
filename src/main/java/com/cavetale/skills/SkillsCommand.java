@@ -278,6 +278,14 @@ final class SkillsCommand implements TabExecutor {
             talentMenu(player);
             return true;
         }
+        case "toggle": {
+            boolean dis = !plugin.sessionOf(player).talentsDisabled;
+            plugin.sessionOf(player).talentsDisabled = dis;
+            player.sendMessage(dis
+                               ? ChatColor.RED + "Talents disabled"
+                               : ChatColor.GREEN + "Talents enabled");
+            return true;
+        }
         default: break;
         }
         return false;
@@ -448,6 +456,22 @@ final class SkillsCommand implements TabExecutor {
                            + ChatColor.WHITE + session.getTalentPoints());
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Unlock Cost: "
                            + ChatColor.WHITE + session.getTalentCost());
+        cb = new ComponentBuilder();
+        cb.append(ChatColor.LIGHT_PURPLE + "Talents ")
+            .append(session.talentsDisabled ? "disabled" : "enabled")
+            .append(" ").reset();
+        if (session.talentsDisabled) {
+            cb.append("[Enable]").color(ChatColor.GREEN);
+            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent
+                                    .fromLegacyText(ChatColor.GREEN + "Enable Talents")));
+            cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sk talent toggle"));
+        } else {
+            cb.append("[Disable]").color(ChatColor.RED);
+            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent
+                                    .fromLegacyText(ChatColor.RED + "Disable Talents")));
+            cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sk talent toggle"));
+        }
+        player.sendMessage(cb.create());
         player.sendMessage("");
     }
 

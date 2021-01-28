@@ -321,7 +321,7 @@ final class Mining {
         final boolean stone = stone(block);
         // Strip Mining
         final boolean miningLevel = block.getY() < 32;
-        if (session.hasTalent(Talent.MINE_STRIP) && !sneak && stone && efficiency > 0
+        if (session.isTalentEnabled(Talent.MINE_STRIP) && !sneak && stone && efficiency > 0
             && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
@@ -331,7 +331,7 @@ final class Mining {
         }
         Reward reward = rewards.get(block.getType());
         // Vein Mining
-        if (session.hasTalent(Talent.MINE_STRIP)
+        if (session.isTalentEnabled(Talent.MINE_STRIP)
             && !sneak && reward != null && efficiency > 0 && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
@@ -340,11 +340,11 @@ final class Mining {
                 });
         }
         // Ore Alert
-        if (session.hasTalent(Talent.MINE_ORE_ALERT) && miningLevel && stone) {
+        if (session.isTalentEnabled(Talent.MINE_ORE_ALERT) && miningLevel && stone) {
             oreAlert(player, block);
         }
         // Xray
-        if (session.hasTalent(Talent.MINE_XRAY) && !session.xrayActive && stone
+        if (session.isTalentEnabled(Talent.MINE_XRAY) && !session.xrayActive && stone
             && fortune > 0 && !sneak && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     xray(player, block);
@@ -363,7 +363,7 @@ final class Mining {
         Reward reward = rewards.get(block.getType());
         if (reward == null || reward.item == null || reward.drops <= 0) return false;
         Session session = plugin.sessionOf(player);
-        if (!session.hasTalent(Talent.MINE_SILK_STRIP)) return false;
+        if (!session.isTalentEnabled(Talent.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
         if (!GenericEvents.playerCanBuild(player, block)) return false;
         int silk = item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
@@ -398,7 +398,7 @@ final class Mining {
         player.getWorld().dropItem(dropLocation, drop).setVelocity(vel);
         // (Maybe) change the Block
         double factor = 2.20; // Fortune 3
-        if (session.hasTalent(Talent.MINE_SILK_MULTI)) factor = 2.60;
+        if (session.isTalentEnabled(Talent.MINE_SILK_MULTI)) factor = 2.60;
         final double amount; // Expected value of additionally dropped items.
         amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.

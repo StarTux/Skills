@@ -93,7 +93,7 @@ final class Farming {
         if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return false;
         int radius = 0;
         Session session = plugin.sessionOf(player);
-        if (session.hasTalent(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
+        if (session.isTalentEnabled(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
         boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
             for (int dx = -radius; dx <= radius; dx += 1) {
@@ -216,7 +216,7 @@ final class Farming {
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
         Session session = plugin.sessionOf(player);
         // Extra crops
-        if (session.hasTalent(Talent.FARM_CROP_DROPS)) {
+        if (session.isTalentEnabled(Talent.FARM_CROP_DROPS)) {
             block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
                                                          plugin.random.nextInt(3) + 1));
         }
@@ -227,11 +227,11 @@ final class Farming {
         // Reward Diamond
         double gemChance = 0.01;
         final double roll = plugin.random.nextDouble();
-        if (session.hasTalent(Talent.FARM_DIAMOND_DROPS)) gemChance = 0.02;
+        if (session.isTalentEnabled(Talent.FARM_DIAMOND_DROPS)) gemChance = 0.02;
         if (roll < gemChance) {
             block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             int inc = 1;
-            if (session.hasTalent(Talent.FARM_TALENT_POINTS)) inc = 2;
+            if (session.isTalentEnabled(Talent.FARM_TALENT_POINTS)) inc = 2;
             boolean noEffect = plugin.rollTalentPoint(player, inc);
             if (!noEffect) Effects.rewardJingle(loc);
         }
@@ -247,7 +247,7 @@ final class Farming {
         Material soil = crop == Crop.NETHER_WART
             ? Material.SOUL_SAND
             : Material.FARMLAND;
-        if (session.hasTalent(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
+        if (session.isTalentEnabled(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
             if (block.getType() == soil) {
                 return 0 < plantRadius(player, block.getRelative(0, 1, 0), crop, item);
             }

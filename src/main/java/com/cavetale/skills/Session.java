@@ -35,6 +35,8 @@ final class Session {
     int noSave = 0;
     int tick;
     int actionSP;
+    //
+    boolean talentsDisabled;
 
     static final class Tag {
         Set<String> talents;
@@ -127,6 +129,10 @@ final class Session {
             col.modified = false;
             plugin.saveSQL(col);
         }
+    }
+
+    boolean isTalentEnabled(Talent talent) {
+        return !talentsDisabled && hasTalent(talent);
     }
 
     boolean hasTalent(@NonNull Talent talent) {

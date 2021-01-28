@@ -129,7 +129,7 @@ final class Combat {
         Projectile proj = (Projectile) event.getDamager();
         if (!(proj.getShooter() instanceof Player)) return false;
         Player player = (Player) proj.getShooter();
-        if (session.hasTalent(Talent.COMBAT_ARCHER_ZONE)) {
+        if (session.isTalentEnabled(Talent.COMBAT_ARCHER_ZONE)) {
             session.archerZone = 5 * 20;
             player.sendMessage(ChatColor.GOLD + "In The Zone! "
                                + ChatColor.LIGHT_PURPLE + ChatColor.BOLD
@@ -142,7 +142,7 @@ final class Combat {
     private boolean meleeKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player)) return false;
         Player player = (Player) event.getDamager();
-        if (session.hasTalent(Talent.COMBAT_GOD_MODE)) {
+        if (session.isTalentEnabled(Talent.COMBAT_GOD_MODE)) {
             if (session.immortal <= 0) {
                 player.sendMessage(ChatColor.GOLD + "God Mode!");
             }
@@ -167,13 +167,13 @@ final class Combat {
         final boolean ranged = proj != null;
         Session session = plugin.sessionOf(player);
         // -50% damage on melee
-        if (session.hasTalent(Talent.COMBAT_FIRE)
+        if (session.isTalentEnabled(Talent.COMBAT_FIRE)
             && !ranged
             && mob.getFireTicks() > 0) {
             event.setDamage(event.getFinalDamage() * 0.5);
         }
         // Spider
-        if (session.hasTalent(Talent.COMBAT_SPIDERS)
+        if (session.isTalentEnabled(Talent.COMBAT_SPIDERS)
             && !ranged
             && statusEffectOf(mob).hasNoPoison()) {
             session.poisonFreebie = true;
@@ -214,19 +214,19 @@ final class Combat {
         Session session = plugin.sessionOf(player);
         final ItemStack item = player.getInventory().getItemInMainHand();
         // +50% damage
-        if (session.hasTalent(Talent.COMBAT_FIRE)
+        if (session.isTalentEnabled(Talent.COMBAT_FIRE)
             && mob.getFireTicks() > 0) {
             event.setDamage(event.getFinalDamage() * 1.5);
         }
         // Knockback => Silence
-        if (session.hasTalent(Talent.COMBAT_SILENCE)
+        if (session.isTalentEnabled(Talent.COMBAT_SILENCE)
             && !ranged
             && item != null
             && item.getEnchantmentLevel(Enchantment.KNOCKBACK) > 0) {
             silenceEffect(mob);
         }
         // Spider => Slow + NoPoison
-        if (session.hasTalent(Talent.COMBAT_SPIDERS)
+        if (session.isTalentEnabled(Talent.COMBAT_SPIDERS)
             && !ranged
             && item != null
             && item.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS) > 0
@@ -236,7 +236,7 @@ final class Combat {
             Effects.applyStatusEffect(mob);
         }
         // In The Zone
-        if (session.hasTalent(Talent.COMBAT_ARCHER_ZONE)
+        if (session.isTalentEnabled(Talent.COMBAT_ARCHER_ZONE)
             && ranged
             && session.archerZone > 0) {
             event.setDamage(event.getFinalDamage() * 2.0);
