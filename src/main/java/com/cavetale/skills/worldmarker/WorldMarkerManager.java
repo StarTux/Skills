@@ -43,7 +43,10 @@ public final class WorldMarkerManager implements BlockMarkerHook {
     public void onBlockUnload(Block block, String id) {
         switch (id) {
         case MarkerId.WATERED_CROP:
-            cropsMap.remove(block);
+            WateredCrop wateredCrop = cropsMap.remove(block);
+            if (wateredCrop != null) {
+                wateredCrop.disable();
+            }
             break;
         default: break;
         }
