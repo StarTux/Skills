@@ -6,10 +6,7 @@ import com.cavetale.skills.SkillType;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.Talent;
 import com.cavetale.skills.util.Rnd;
-import com.cavetale.skills.worldmarker.MarkerId;
 import com.cavetale.skills.worldmarker.WateredCrop;
-import com.cavetale.worldmarker.BlockMarker;
-import com.cavetale.worldmarker.MarkBlock;
 import com.winthier.exploits.Exploits;
 import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
@@ -88,17 +85,11 @@ public final class FarmingSkill {
     boolean waterCrop(@NonNull Player player, @NonNull Block block) {
         if (CropType.of(block) == null) return false;
         if (isRipe(block)) return false;
-        MarkBlock markBlock = BlockMarker.getBlock(block);
-        if (BlockMarker.hasId(block)) {
-            if (!markBlock.hasId(MarkerId.WATERED_CROP.key)) return false;
-        } else {
-            markBlock.setId(MarkerId.WATERED_CROP.key);
+        WateredCrop wateredCrop = plugin.getWorldMarkerManager().getWateredCrop(block);
+        if (wateredCrop == null) {
+            wateredCrop = plugin.getWorldMarkerManager().makeWateredCrop(block);
         }
-        WateredCrop wateredCrop = markBlock.getPersistent(plugin, MarkerId.WATERED_CROP.key, WateredCrop.class, WateredCrop::new);
-        wateredCrop.setWater(24000); // One MC day?
-        wateredCrop.updateAoeCloud(markBlock);
-        markBlock.save();
-        return true;
+        return wateredCrop.water(player);
     }
 
     boolean waterSoil(@NonNull Block block) {
@@ -112,33 +103,6 @@ public final class FarmingSkill {
         return true;
     }
 
-    // void tickWateredCrop(@NonNull MarkBlock markBlock) {
-    //     if (markBlock.getPlayerDistance() > 4) return;
-    //     Block block = markBlock.getBlock();
-    //     Crop crop = Crop.of(block);
-    //     if (crop == null) {
-    //         markBlock.resetId();
-    //         return;
-    //     }
-    //     // Soil
-    //     int ticks = markBlock.getTicksLoaded();
-    //     Block soilBlock = block.getRelative(0, -1, 0);
-    //     if (soilBlock.getType() == Material.FARMLAND) {
-    //         waterSoil(soilBlock);
-    //     }
-    //     // Grow
-    //     if (ticks > 0 && (ticks % 2400) == 0) {
-    //         growCrop(markBlock, crop);
-    //     }
-    // }
-
-    void tickGrownCrop(@NonNull MarkBlock markBlock) {
-        if (CropType.of(markBlock.getBlock()) == null) {
-            markBlock.resetId();
-            return;
-        }
-    }
-
     boolean isRipe(@NonNull Block block) {
         BlockData blockData = block.getBlockData();
         if (!(blockData instanceof Ageable)) return false;
@@ -146,8 +110,10 @@ public final class FarmingSkill {
         return ageable.getAge() >= ageable.getMaximumAge();
     }
 
-    void onHarvest(@NonNull Player player, @NonNull Block block) {
-        BlockMarker.resetId(block);
+    /**
+     * Call AFTER the WateredCrop has been removed.
+     */
+    void onHarvestWateredCrop(@NonNull Player player, @NonNull Block block) {
         CropType crop = CropType.of(block);
         if (crop == null) return;
         if (!isRipe(block)) return;

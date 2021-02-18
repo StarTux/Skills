@@ -2,8 +2,6 @@ package com.cavetale.skills.mining;
 
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.util.Util;
-import com.cavetale.skills.worldmarker.MarkerId;
-import com.cavetale.worldmarker.BlockMarker;
 import com.destroystokyo.paper.MaterialTags;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -44,21 +42,11 @@ public final class MiningListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!Util.playMode(player)) return;
         Block block = event.getBlock();
-        String stringId = BlockMarker.getId(block);
-        if (stringId != null) {
-            MarkerId id = MarkerId.of(stringId);
-            switch (id) {
-            case WATERED_CROP:
-                BlockMarker.resetId(block);
-                break;
-            default: break;
-            }
-        }
         mining.mine(player, block);
     }
 }

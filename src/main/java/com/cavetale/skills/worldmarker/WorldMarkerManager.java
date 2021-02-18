@@ -1,31 +1,71 @@
 package com.cavetale.skills.worldmarker;
 
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.worldmarker.BlockMarker;
-import com.cavetale.worldmarker.MarkChunk;
-import com.cavetale.worldmarker.MarkChunkLoadEvent;
+import com.cavetale.worldmarker.block.BlockMarker;
+import com.cavetale.worldmarker.block.BlockMarkerHook;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.block.Block;
 
 @RequiredArgsConstructor
-public final class WorldMarkerManager implements Listener {
+public final class WorldMarkerManager implements BlockMarkerHook {
     final SkillsPlugin plugin;
+    Map<Block, WateredCrop> cropsMap = new HashMap<>();
 
     public void enable() {
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        BlockMarker.streamAllLoadedChunks().forEach(this::handleChunk);
+        WateredCrop.init();
+        BlockMarker.registerHook(plugin, this);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    void onMarkChunkLoad(MarkChunkLoadEvent event) {
-        handleChunk(event.getChunk());
+    public void disable() {
+        for (WateredCrop wateredCrop : cropsMap.values()) {
+            wateredCrop.disable();
+        }
+        cropsMap.clear();
     }
 
-    private void handleChunk(MarkChunk markChunk) {
-        markChunk.streamBlocksWithId(MarkerId.WATERED_CROP.key)
-            .forEach(b -> b.getPersistent(plugin, MarkerId.WATERED_CROP.key, WateredCrop.class, WateredCrop::new));
+    @Override
+    public void onBlockLoad(Block block, String id) {
+        switch (id) {
+        case MarkerId.WATERED_CROP: {
+            WateredCrop wateredCrop = new WateredCrop(block);
+            cropsMap.put(block, wateredCrop);
+            wateredCrop.load();
+            wateredCrop.enable();
+            break;
+        }
+        default: break;
+        }
+    }
+
+    @Override
+    public void onBlockUnload(Block block, String id) {
+        switch (id) {
+        case MarkerId.WATERED_CROP:
+            cropsMap.remove(block);
+            break;
+        default: break;
+        }
+    }
+
+    public WateredCrop getWateredCrop(Block block) {
+        return cropsMap.get(block);
+    }
+
+    public WateredCrop makeWateredCrop(Block block) {
+        BlockMarker.setId(block, MarkerId.WATERED_CROP);
+        WateredCrop wateredCrop = new WateredCrop(block);
+        cropsMap.put(block, wateredCrop);
+        wateredCrop.enable();
+        return wateredCrop;
+    }
+
+    public void removeWateredCrop(Block block) {
+        WateredCrop wateredCrop = cropsMap.remove(block);
+        if (wateredCrop != null) {
+            wateredCrop.disable();
+            wateredCrop.remove();
+        }
     }
 }

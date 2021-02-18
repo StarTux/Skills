@@ -4,7 +4,7 @@ import com.cavetale.skills.Effects;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.util.Util;
 import com.cavetale.skills.worldmarker.MarkerId;
-import com.cavetale.worldmarker.BlockMarker;
+import com.cavetale.worldmarker.block.BlockMarker;
 import com.destroystokyo.paper.MaterialTags;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -66,8 +67,17 @@ public final class FarmingListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     void onBlockGrow(BlockGrowEvent event) {
-        if (BlockMarker.hasId(event.getBlock(), MarkerId.WATERED_CROP.key)) {
+        if (BlockMarker.hasId(event.getBlock(), MarkerId.WATERED_CROP)) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    void onBlockBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        if (BlockMarker.hasId(block, MarkerId.WATERED_CROP)) {
+            plugin.getWorldMarkerManager().removeWateredCrop(block);
+            farming.onHarvestWateredCrop(event.getPlayer(), block);
         }
     }
 }

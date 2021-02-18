@@ -8,10 +8,8 @@ import com.cavetale.skills.StatusEffect;
 import com.cavetale.skills.Talent;
 import com.cavetale.skills.util.Msg;
 import com.cavetale.skills.util.Util;
-import com.cavetale.worldmarker.BlockMarker;
-import com.cavetale.worldmarker.EntityMarker;
-import com.cavetale.worldmarker.MarkTagContainer;
-import com.cavetale.worldmarker.Persistent;
+import com.cavetale.worldmarker.entity.EntityMarker;
+import com.cavetale.worldmarker.util.Tags;
 import com.winthier.generic_events.GenericEvents;
 import java.util.EnumMap;
 import lombok.Data;
@@ -19,6 +17,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.Entity;
@@ -29,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -36,12 +36,15 @@ public final class CombatSkill {
     final SkillsPlugin plugin;
     final EnumMap<EntityType, Reward> rewards = new EnumMap<>(EntityType.class);
     final CombatListener listener;
-    static final String CHONK = "skills:chonk";
     static final String STATUS_EFFECT = "skills:status_effect";
+    NamespacedKey killsKey;
+    NamespacedKey lastUpdatedKey;
 
     public CombatSkill(final SkillsPlugin plugin) {
         this.plugin = plugin;
         listener = new CombatListener(plugin, this);
+        killsKey = new NamespacedKey(plugin, "kills");
+        lastUpdatedKey = new NamespacedKey(plugin, "last_updated");
     }
 
     public void enable() {
@@ -91,25 +94,6 @@ public final class CombatSkill {
         }
     }
 
-    static class Chonk implements Persistent {
-        transient int ticks = 0;
-        int kills;
-
-        @Override
-        public SkillsPlugin getPlugin() {
-            return SkillsPlugin.getInstance();
-        }
-
-        @Override
-        public void onTick(MarkTagContainer container) {
-            ticks += 1;
-            if (ticks % 200 == 0) {
-                kills -= 1;
-                container.save();
-            }
-        }
-    }
-
     private Reward reward(@NonNull EntityType type, final int sp) {
         Reward reward = new Reward(type, sp);
         rewards.put(type, reward);
@@ -117,6 +101,9 @@ public final class CombatSkill {
     }
 
     void playerKillMob(@NonNull Player player, @NonNull Mob mob) {
+        Chunk chunk = mob.getLocation().getChunk();
+        int kills = updateKillsAt(chunk);
+        if (kills > 5) return;
         if (mob.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) mob.getLastDamageCause();
             switch (edbee.getCause()) {
@@ -133,11 +120,6 @@ public final class CombatSkill {
         }
         Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
-        Chunk chunk = mob.getLocation().getChunk();
-        Chonk chonk = BlockMarker.getChunk(chunk)
-            .getPersistent(plugin, CHONK, Chonk.class, Chonk::new);
-        chonk.kills += 1;
-        if (chonk.kills > 5) return;
         plugin.getSkillPoints().give(player, SkillType.COMBAT, reward.sp);
         if (reward.money > 0) {
             GenericEvents.givePlayerMoney(player.getUniqueId(), reward.money, plugin,
@@ -145,6 +127,26 @@ public final class CombatSkill {
             player.sendActionBar(ChatColor.GREEN + "+" + GenericEvents.formatMoney(reward.money));
         }
         Effects.kill(mob);
+    }
+
+    int updateKillsAt(Chunk chunk) {
+        PersistentDataContainer tag = chunk.getPersistentDataContainer();
+        Integer kills = Tags.getInt(tag, killsKey);
+        int newKills = kills != null ? kills + 1 : 1;
+        long now = System.currentTimeMillis() / 10000L;
+        Long lastUpdated = Tags.getLong(tag, lastUpdatedKey);
+        if (lastUpdated != null) {
+            long dist = Math.max(0, now - lastUpdated);
+            newKills = Math.max(0, newKills - (int) dist);
+        }
+        if (newKills == 0) {
+            tag.remove(killsKey);
+            tag.remove(lastUpdatedKey);
+        } else {
+            Tags.set(tag, killsKey, newKills);
+            Tags.set(tag, lastUpdatedKey, now);
+        }
+        return newKills;
     }
 
     private boolean sniperKill(@NonNull Mob mob, @NonNull EntityDamageByEntityEvent event) {

@@ -60,6 +60,7 @@ public final class SkillsPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        worldMarkerManager.disable();
         sessions.disable();
         Gui.onDisable();
     }
