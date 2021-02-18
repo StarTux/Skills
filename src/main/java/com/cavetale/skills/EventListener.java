@@ -1,7 +1,6 @@
 package com.cavetale.skills;
 
-import com.cavetale.worldmarker.BlockMarker;
-import com.cavetale.worldmarker.MarkChunkTickEvent;
+import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -60,14 +59,6 @@ final class EventListener implements Listener {
             plugin.farming.useSeed(player, block, crop, item);
             return;
         }
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    void onMarkChunkTick(MarkChunkTickEvent event) {
-        event.getChunk().getBlocksWithId(Farming.WATERED_CROP)
-            .forEach(plugin.farming::tickWateredCrop);
-        event.getChunk().getBlocksWithId(Farming.GROWN_CROP)
-            .forEach(plugin.farming::tickGrownCrop);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)

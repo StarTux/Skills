@@ -1,7 +1,6 @@
 package com.cavetale.skills;
 
-import com.cavetale.worldmarker.BlockMarker;
-import com.cavetale.worldmarker.MarkBlock;
+import com.cavetale.worldmarker.block.BlockMarker;
 import com.winthier.exploits.Exploits;
 import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
@@ -22,10 +21,10 @@ import org.bukkit.inventory.ItemStack;
  * Called by EventListener et al, owned by SkillsPlugin.
  */
 @RequiredArgsConstructor
-final class Farming {
+public final class Farming {
     final SkillsPlugin plugin;
-    static final String WATERED_CROP = "skills:watered_crop";
-    static final String GROWN_CROP = "skills:grown_crop";
+    public static final String WATERED_CROP = "skills:watered_crop";
+    public static final String GROWN_CROP = "skills:grown_crop";
 
     enum Crop {
         // 8 grow stages (0-7)
@@ -144,61 +143,6 @@ final class Farming {
         farmland.setMoisture(max);
         block.setBlockData(farmland);
         return true;
-    }
-
-    void tickWateredCrop(@NonNull MarkBlock markBlock) {
-        if (markBlock.getPlayerDistance() > 4) return;
-        Block block = markBlock.getBlock();
-        Crop crop = Crop.of(block);
-        if (crop == null) {
-            markBlock.resetId();
-            return;
-        }
-        // Soil
-        int ticks = markBlock.getTicksLoaded();
-        Block soilBlock = block.getRelative(0, -1, 0);
-        if (soilBlock.getType() == Material.FARMLAND) {
-            waterSoil(soilBlock);
-        }
-        // Grow
-        if (ticks > 0 && (ticks % 2400) == 0) {
-            growCrop(markBlock, crop);
-        }
-    }
-
-    void tickGrownCrop(@NonNull MarkBlock markBlock) {
-        if (Crop.of(markBlock.getBlock()) == null) {
-            markBlock.resetId();
-            return;
-        }
-    }
-
-    void growCrop(@NonNull MarkBlock markBlock, @NonNull Crop crop) {
-        Block block = markBlock.getBlock();
-        BlockData blockData = block.getBlockData();
-        if (blockData instanceof Ageable) {
-            Ageable ageable = (Ageable) blockData;
-            int age = ageable.getAge();
-            int max = ageable.getMaximumAge();
-            if (age >= max) {
-                markBlock.setId(GROWN_CROP);
-                return;
-            }
-            if (crop != Crop.NETHER_WART) {
-                if (block.getLightLevel() < 10) {
-                    Effects.cropUnlit(block);
-                    return;
-                }
-            }
-            ageable.setAge(age + 1);
-            block.setBlockData(blockData);
-            Effects.cropGrow(block);
-            if (age + 1 >= max) {
-                markBlock.setId(GROWN_CROP);
-            }
-        } else {
-            markBlock.resetId();
-        }
     }
 
     boolean isRipe(@NonNull Block block) {

@@ -1,6 +1,6 @@
 package com.cavetale.skills;
 
-import com.cavetale.worldmarker.EntityMarker;
+import com.cavetale.worldmarker.entity.EntityMarker;
 import java.util.EnumMap;
 import lombok.NonNull;
 import lombok.Value;
