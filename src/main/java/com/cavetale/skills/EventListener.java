@@ -70,9 +70,8 @@ final class EventListener implements Listener {
         if (bid != null) {
             switch (bid) {
             case Farming.WATERED_CROP:
-                BlockMarker.resetId(block);
-                break;
             case Farming.GROWN_CROP:
+                BlockMarker.resetId(block);
                 plugin.farming.harvest(player, block);
                 break;
             default: break;

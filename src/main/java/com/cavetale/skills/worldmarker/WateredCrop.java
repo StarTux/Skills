@@ -24,7 +24,7 @@ public final class WateredCrop {
     private final Block block;
     transient AreaEffectCloud aoeCloud = null;
     transient String coords = null;
-    static final int TICK_SPEED = 20 * 30;
+    static final int TICK_SPEED = 20 * 60;
     private BukkitTask task;
     private boolean debug = false;
 

@@ -153,7 +153,6 @@ public final class Farming {
     }
 
     void harvest(@NonNull Player player, @NonNull Block block) {
-        BlockMarker.resetId(block);
         Crop crop = Crop.of(block);
         if (crop == null) return;
         if (!isRipe(block)) return;
