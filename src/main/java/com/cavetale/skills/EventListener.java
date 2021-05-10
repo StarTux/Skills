@@ -15,6 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -78,6 +79,20 @@ final class EventListener implements Listener {
             }
         }
         plugin.mining.mine(player, block);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    void onBlockFromTo(BlockFromToEvent event) {
+        Block block = event.getBlock();
+        String bid = BlockMarker.getId(block);
+        if (bid != null) {
+            switch (bid) {
+            case Farming.WATERED_CROP:
+            case Farming.GROWN_CROP:
+                BlockMarker.resetId(block);
+            default: break;
+            }
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

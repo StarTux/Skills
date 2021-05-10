@@ -26,7 +26,7 @@ public final class Farming {
     public static final String WATERED_CROP = "skills:watered_crop";
     public static final String GROWN_CROP = "skills:grown_crop";
 
-    enum Crop {
+    public enum Crop {
         // 8 grow stages (0-7)
         WHEAT(Material.WHEAT, Material.WHEAT, Material.WHEAT_SEEDS),
         CARROT(Material.CARROTS, Material.CARROT),
@@ -52,7 +52,7 @@ public final class Farming {
             this(blockMaterial, itemMaterial, itemMaterial);
         }
 
-        static Crop of(Block block) {
+        public static Crop of(Block block) {
             Material mat = block.getType();
             for (Crop type : Crop.values()) {
                 if (type.blockMaterial == mat) return type;
@@ -60,7 +60,7 @@ public final class Farming {
             return null;
         }
 
-        static Crop ofSeed(ItemStack item) {
+        public static Crop ofSeed(ItemStack item) {
             Material mat = item.getType();
             for (Crop crop : Crop.values()) {
                 if (crop.seedMaterial == mat) return crop;

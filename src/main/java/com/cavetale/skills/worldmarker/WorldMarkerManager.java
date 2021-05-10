@@ -29,11 +29,20 @@ public final class WorldMarkerManager implements BlockMarkerHook {
     public void onBlockLoad(Block block, String id) {
         switch (id) {
         case Farming.WATERED_CROP: {
+            if (Farming.Crop.of(block) == null) {
+                BlockMarker.resetId(block);
+                return;
+            }
             WateredCrop wateredCrop = new WateredCrop(plugin, block);
             cropsMap.put(block, wateredCrop);
             wateredCrop.enable();
-            break;
+            return;
         }
+        case Farming.GROWN_CROP:
+            if (Farming.Crop.of(block) == null) {
+                BlockMarker.resetId(block);
+            }
+            break;
         default: break;
         }
     }
