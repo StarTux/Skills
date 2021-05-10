@@ -93,11 +93,18 @@ public final class WorldMarkerManager implements BlockMarkerHook {
     }
 
     void tick() {
-        List<Block> blocks = new ArrayList<>(cropsMap.keySet());
-        Collections.shuffle(blocks);
-        int max = Math.min(16, blocks.size());
-        for (int i = 0; i < max; i += 1) {
-            Effects.wateredCropAmbient(blocks.get(i));
+        List<WateredCrop> crops = new ArrayList<>(cropsMap.values());
+        Collections.shuffle(crops);
+        long now = System.currentTimeMillis();
+        final int max = 10;
+        int count = 0;
+        for (int i = 0; i < crops.size(); i += 1) {
+            WateredCrop wc = crops.get(i);
+            if (now > wc.particleCooldown) continue;
+            wc.particleCooldown = now + 5000L;
+            Effects.wateredCropAmbient(wc.block);
+            count += 1;
+            if (count > max) break;
         }
     }
 }

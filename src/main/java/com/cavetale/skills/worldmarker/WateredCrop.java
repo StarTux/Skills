@@ -17,10 +17,11 @@ import org.bukkit.scheduler.BukkitTask;
 @RequiredArgsConstructor
 public final class WateredCrop {
     private final SkillsPlugin plugin;
-    private final Block block;
+    protected final Block block;
     static final int TICK_SPEED = 20 * 60;
     private BukkitTask task;
     private boolean debug = false;
+    protected transient long particleCooldown;
 
     public void enable() {
         if (debug) log("ENABLE");
