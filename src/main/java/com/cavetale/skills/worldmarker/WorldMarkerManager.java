@@ -1,12 +1,17 @@
 package com.cavetale.skills.worldmarker;
 
+import com.cavetale.skills.Effects;
 import com.cavetale.skills.Farming;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.worldmarker.block.BlockMarker;
 import com.cavetale.worldmarker.block.BlockMarkerHook;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 
 @RequiredArgsConstructor
@@ -16,6 +21,7 @@ public final class WorldMarkerManager implements BlockMarkerHook {
 
     public void enable() {
         BlockMarker.registerHook(plugin, this);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 1L, 1L);
     }
 
     public void disable() {
@@ -84,5 +90,14 @@ public final class WorldMarkerManager implements BlockMarkerHook {
     public void onBlockReset(Block block) {
         WateredCrop wateredCrop = cropsMap.remove(block);
         if (wateredCrop != null) wateredCrop.disable();
+    }
+
+    void tick() {
+        List<Block> blocks = new ArrayList<>(cropsMap.keySet());
+        Collections.shuffle(blocks);
+        int max = Math.min(16, blocks.size());
+        for (int i = 0; i < max; i += 1) {
+            Effects.wateredCropAmbient(blocks.get(i));
+        }
     }
 }

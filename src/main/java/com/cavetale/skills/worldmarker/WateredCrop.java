@@ -6,13 +6,9 @@ import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.AreaEffectCloud;
-import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
@@ -22,8 +18,6 @@ import org.bukkit.scheduler.BukkitTask;
 public final class WateredCrop {
     private final SkillsPlugin plugin;
     private final Block block;
-    transient AreaEffectCloud aoeCloud = null;
-    transient String coords = null;
     static final int TICK_SPEED = 20 * 60;
     private BukkitTask task;
     private boolean debug = false;
@@ -31,7 +25,6 @@ public final class WateredCrop {
     public void enable() {
         if (debug) log("ENABLE");
         startTask();
-        updateAoeCloud();
     }
 
     void log(String msg) {
@@ -45,7 +38,6 @@ public final class WateredCrop {
     public void disable() {
         if (debug) log("DISABLE");
         stopTask();
-        removeAoeCloud();
     }
 
     private void startTask() {
@@ -65,12 +57,6 @@ public final class WateredCrop {
         return (Ageable) blockData;
     }
 
-    public boolean isFullyGrown() {
-        Ageable ageable = getAgeable();
-        if (ageable == null) return false;
-        return ageable.getAge() >= ageable.getMaximumAge();
-    }
-
     public void timer() {
         Ageable ageable = getAgeable();
         if (ageable == null) {
@@ -82,37 +68,10 @@ public final class WateredCrop {
         ageable.setAge(age);
         block.setBlockData(ageable, true);
         if (age >= max) {
-            removeAoeCloud();
             stopTask();
             BlockMarker.setId(block, Farming.GROWN_CROP);
         } else {
             Effects.cropGrow(block);
-            updateAoeCloud();
         }
-    }
-
-    private void spawnAoeCloud() {
-        if (aoeCloud != null) return;
-        if (debug) log("SPAWN AOE");
-        aoeCloud = block.getWorld().spawn(block.getLocation().add(0.5, 0.25, 0.5), AreaEffectCloud.class, e -> {
-                e.setBasePotionData(new PotionData(PotionType.AWKWARD));
-                e.setParticle(Particle.WATER_SPLASH);
-                e.setPersistent(false);
-                e.setRadius(0.5f);
-                e.setDuration(TICK_SPEED + 20);
-            });
-    }
-
-    private void updateAoeCloud() {
-        if (aoeCloud != null && !aoeCloud.isValid()) aoeCloud = null;
-        if (aoeCloud == null) spawnAoeCloud();
-        aoeCloud.setTicksLived(1);
-    }
-
-    private void removeAoeCloud() {
-        if (aoeCloud == null) return;
-        if (debug) log("REMOVE AOE");
-        aoeCloud.remove();
-        aoeCloud = null;
     }
 }

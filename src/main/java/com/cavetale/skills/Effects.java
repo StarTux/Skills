@@ -21,12 +21,12 @@ import org.bukkit.util.BoundingBox;
 public final class Effects {
     private Effects() { }
 
-    public static void wateredCropAmbient(@NonNull Player player, @NonNull Block block) {
-        player.spawnParticle(Particle.DRIP_WATER,
-                             block.getLocation().add(0.5, 0.125, 0.5),
-                             1, // count
-                             0.20, 0.1, 0.20, // offset
-                             0.0); // extra/speed
+    public static void wateredCropAmbient(@NonNull Block block) {
+        block.getWorld().spawnParticle(Particle.DRIP_WATER,
+                                       block.getLocation().add(0.5, 0.125, 0.5),
+                                       1, // count
+                                       0.20, 0.1, 0.20, // offset
+                                       0.0); // extra/speed
     }
 
     public static void grownCropAmbient(@NonNull Player player, @NonNull Block block) {
