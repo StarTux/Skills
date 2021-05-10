@@ -100,7 +100,7 @@ public final class WorldMarkerManager implements BlockMarkerHook {
         int count = 0;
         for (int i = 0; i < crops.size(); i += 1) {
             WateredCrop wc = crops.get(i);
-            if (now > wc.particleCooldown) continue;
+            if (now < wc.particleCooldown) continue;
             wc.particleCooldown = now + 5000L;
             Effects.wateredCropAmbient(wc.block);
             count += 1;
