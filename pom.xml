@@ -70,7 +70,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.16</version>
+      <version>1.18.20</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -106,6 +106,15 @@
     <dependency>
       <groupId>com.winthier.generic_events</groupId>
       <artifactId>generic_events</artifactId>
+      <version>0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Core -->
+    <dependency>
+      <groupId>com.cavetale.core</groupId>
+      <artifactId>core</artifactId>
       <version>0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <optional>true</optional>

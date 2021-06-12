@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
@@ -79,6 +80,24 @@ final class EventListener implements Listener {
             }
         }
         plugin.mining.mine(player, block);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    void onPlayerBreakBlock(PlayerBreakBlockEvent event) {
+        Player player = event.getPlayer();
+        if (!Util.playMode(player)) return;
+        Block block = event.getBlock();
+        String bid = BlockMarker.getId(block);
+        if (bid != null) {
+            switch (bid) {
+            case Farming.WATERED_CROP:
+            case Farming.GROWN_CROP:
+                BlockMarker.resetId(block);
+                plugin.farming.harvest(player, block);
+                break;
+            default: break;
+            }
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
