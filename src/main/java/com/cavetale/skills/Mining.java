@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.winthier.exploits.Exploits;
 import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import lombok.NonNull;
 import lombok.Value;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -149,6 +151,7 @@ final class Mining {
                     item.setItemMeta(meta);
                 }
             }
+            Bukkit.getPluginManager().callEvent(new PlayerBreakBlockEvent(player, nbor));
             Effects.mineBlockMagic(nbor);
             nbor.breakNaturally(item);
             result += 1;
@@ -199,6 +202,7 @@ final class Mining {
                     Util.exp(v.getLocation().add(0.5, 0.5, 0.5), reward.exp);
                 }
             }
+            Bukkit.getPluginManager().callEvent(new PlayerBreakBlockEvent(player, v));
             Effects.mineBlockMagic(v);
             v.breakNaturally(item);
         }
