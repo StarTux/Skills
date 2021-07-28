@@ -89,7 +89,7 @@ final class Mining {
         reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.STONE); // 4-5
         reward(Material.DEEPSLATE_REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.DEEPSLATE);
 
-        reward(Material.ANCIENT_DEBRIS, 20, 10, Material.ANCIENT_DEBRIS, 1, Material.NETHERRACK); // 4-5
+        reward(Material.ANCIENT_DEBRIS, 20, 10, Material.NETHERITE_SCRAP, 1, Material.NETHERRACK); // 4-5
     }
 
     static boolean stone(@NonNull Block block) {
