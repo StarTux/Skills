@@ -25,6 +25,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import jdk.javadoc.internal.doclets.toolkit.util.DeprecatedAPIListBuilder.DeprElementKind;
+
 final class Mining {
     final SkillsPlugin plugin;
     final EnumMap<Material, Reward> rewards = new EnumMap<>(Material.class);
