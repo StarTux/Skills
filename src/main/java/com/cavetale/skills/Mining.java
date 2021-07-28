@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -36,6 +37,7 @@ final class Mining {
         final int exp;
         final Material item;
         final int drops;
+        final Material replaceable;
 
         boolean dropSelf() {
             switch (material) {
@@ -51,42 +53,43 @@ final class Mining {
         }
     }
 
-    private void reward(@NonNull Material material, final int sp, final int exp, Material item, int drops) {
-        rewards.put(material, new Reward(material, sp, exp, item, drops));
+    private void reward(@NonNull Material material, final int sp, final int exp, Material item, int drops, Material replaceable) {
+        rewards.put(material, new Reward(material, sp, exp, item, drops, replaceable));
     }
 
     Mining(@NonNull final SkillsPlugin plugin) {
         this.plugin = plugin;
         // exp values are maxima according to the wiki
-        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
-        reward(Material.DEEPSLATE_DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
+        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.STONE);
+        reward(Material.DEEPSLATE_DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.DEEPSLATE);
 
-        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1);
-        reward(Material.DEEPSLATE_EMERALD_ORE, 10, 7, Material.EMERALD, 1);
+        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1, Material.STONE);
+        reward(Material.DEEPSLATE_EMERALD_ORE, 10, 7, Material.EMERALD, 1, Material.DEEPSLATE);
 
-        reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
-        reward(Material.DEEPSLATE_IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
+        reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9, Material.STONE);
+        reward(Material.DEEPSLATE_IRON_ORE, 3, 3, Material.IRON_NUGGET, 9, Material.DEEPSLATE);
 
-        reward(Material.COPPER_ORE, 3, 3, null, 0);
-        reward(Material.DEEPSLATE_COPPER_ORE, 3, 3, null, 0);
+        reward(Material.COPPER_ORE, 3, 3, Material.RAW_COPPER, 1, Material.STONE);
+        reward(Material.DEEPSLATE_COPPER_ORE, 3, 3, Material.RAW_COPPER, 1, Material.DEEPSLATE);
 
-        reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
-        reward(Material.DEEPSLATE_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
-        reward(Material.NETHER_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
-        reward(Material.GILDED_BLACKSTONE, 5, 3, null, 0);
+        reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9, Material.STONE);
+        reward(Material.DEEPSLATE_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9, Material.DEEPSLATE);
 
-        reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
-        reward(Material.DEEPSLATE_COAL_ORE, 1, 2, Material.COAL, 1);
+        reward(Material.NETHER_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9, Material.NETHERRACK);
+        reward(Material.GILDED_BLACKSTONE, 5, 3, Material.GOLD_NUGGET, 0, Material.BLACKSTONE);
 
-        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6); // 4-8
-        reward(Material.DEEPSLATE_LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6);
+        reward(Material.COAL_ORE, 1, 2, Material.COAL, 1, Material.STONE);
+        reward(Material.DEEPSLATE_COAL_ORE, 1, 2, Material.COAL, 1, Material.DEEPSLATE);
 
-        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1);
+        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6, Material.STONE); // 4-8
+        reward(Material.DEEPSLATE_LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6, Material.DEEPSLATE);
 
-        reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5); // 4-5
-        reward(Material.DEEPSLATE_REDSTONE_ORE, 1, 5, Material.REDSTONE, 5);
+        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1, Material.NETHERRACK);
 
-        reward(Material.ANCIENT_DEBRIS, 20, 10, null, 0); // 4-5
+        reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.STONE); // 4-5
+        reward(Material.DEEPSLATE_REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.DEEPSLATE);
+
+        reward(Material.ANCIENT_DEBRIS, 20, 10, Material.ANCIENT_DEBRIS, 1, Material.NETHERRACK); // 4-5
     }
 
     static boolean stone(@NonNull Block block) {
@@ -243,7 +246,7 @@ final class Mining {
                     Block nbor = block.getRelative(x, y, z);
                     if (nbor.getY() < 0) continue;
                     Material mat = nbor.getType();
-                    if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
+                    if (Tag.DIAMOND_ORES.isTagged(mat)) {
                         bs.add(nbor);
                     }
                 }
@@ -439,14 +442,7 @@ final class Mining {
                 Util.exp(dropLocation, reward.exp + session.getExpBonus(SkillType.MINING));
             }
             Effects.failSilk(player, block);
-            switch (reward.material) {
-            case NETHER_QUARTZ_ORE:
-            case NETHER_GOLD_ORE:
-                block.setType(Material.NETHERRACK);
-                break;
-            default:
-                block.setType(Material.STONE);
-            }
+            block.setType(reward.replaceable);
         }
         return true;
     }
@@ -465,7 +461,7 @@ final class Mining {
         if (Exploits.isPlayerPlaced(block)) return false;
         plugin.addSkillPoints(player, SkillType.MINING, reward.sp);
         Material mat = block.getType();
-        if (mat == Material.DIAMOND_ORE || mat == Material.EMERALD_ORE) {
+        if (Tag.DIAMOND_ORES.isTagged(mat) || Tag.EMERALD_ORES.isTagged(mat)) {
             plugin.rollTalentPoint(player, 1);
         }
         return true;
