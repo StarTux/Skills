@@ -39,7 +39,11 @@ final class Mining {
 
         boolean dropSelf() {
             switch (material) {
+            case DEEPSLATE_IRON_ORE:
             case IRON_ORE:
+            case DEEPSLATE_COPPER_ORE:
+            case COPPER_ORE:
+            case DEEPSLATE_GOLD_ORE:
             case GOLD_ORE:
                 return true;
             default: return false;
@@ -55,21 +59,41 @@ final class Mining {
         this.plugin = plugin;
         // exp values are maxima according to the wiki
         reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
+        reward(Material.DEEPSLATE_DIAMOND_ORE, 10, 7, Material.DIAMOND, 1);
+
         reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1);
+        reward(Material.DEEPSLATE_EMERALD_ORE, 10, 7, Material.EMERALD, 1);
+
         reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
+        reward(Material.DEEPSLATE_IRON_ORE, 3, 3, Material.IRON_NUGGET, 9);
+
+        reward(Material.COPPER_ORE, 3, 3, null, 0);
+        reward(Material.DEEPSLATE_COPPER_ORE, 3, 3, null, 0);
+
         reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
+        reward(Material.DEEPSLATE_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
         reward(Material.NETHER_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9);
         reward(Material.GILDED_BLACKSTONE, 5, 3, null, 0);
+
         reward(Material.COAL_ORE, 1, 2, Material.COAL, 1);
+        reward(Material.DEEPSLATE_COAL_ORE, 1, 2, Material.COAL, 1);
+
         reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6); // 4-8
+        reward(Material.DEEPSLATE_LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6);
+
         reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1);
+
         reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5); // 4-5
+        reward(Material.DEEPSLATE_REDSTONE_ORE, 1, 5, Material.REDSTONE, 5);
+
         reward(Material.ANCIENT_DEBRIS, 20, 10, null, 0); // 4-5
     }
 
     static boolean stone(@NonNull Block block) {
         switch (block.getType()) {
         case STONE:
+        case DEEPSLATE:
+        case TUFF:
         case DIORITE:
         case ANDESITE:
         case GRANITE:
