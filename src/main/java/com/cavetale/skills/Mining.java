@@ -93,6 +93,7 @@ final class Mining {
         switch (block.getType()) {
         case STONE:
         case DEEPSLATE:
+        case TUFF:
         case DIORITE:
         case ANDESITE:
         case GRANITE:
