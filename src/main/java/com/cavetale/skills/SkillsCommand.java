@@ -1,6 +1,6 @@
 package com.cavetale.skills;
 
-import com.winthier.generic_events.GenericEvents;
+import com.winthier.playercache.PlayerCache;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -392,7 +392,7 @@ final class SkillsCommand implements TabExecutor {
             if (index < scores.size()) {
                 Score score = scores.get(index);
                 level = "" + score.score;
-                name = GenericEvents.cachedPlayerName(score.uuid);
+                name = PlayerCache.nameForUuid(score.uuid);
             } else {
                 level = "?";
                 name = " ---";

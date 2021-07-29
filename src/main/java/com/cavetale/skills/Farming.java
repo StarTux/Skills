@@ -1,8 +1,8 @@
 package com.cavetale.skills;
 
+import com.cavetale.core.event.block.PlayerCanBuildEvent;
 import com.cavetale.worldmarker.block.BlockMarker;
 import com.winthier.exploits.Exploits;
-import com.winthier.generic_events.GenericEvents;
 import java.util.ArrayList;
 import java.util.Collections;
 import lombok.NonNull;
@@ -219,7 +219,7 @@ public final class Farming {
             Block lower = block.getRelative(0, -1, 0);
             if (crop == Crop.NETHER_WART && lower.getType() != Material.SOUL_SAND) continue;
             if (crop != Crop.NETHER_WART && lower.getType() != Material.FARMLAND) continue;
-            if (!GenericEvents.playerCanBuild(player, block)) continue;
+            if (!PlayerCanBuildEvent.call(player, block)) continue;
             block.setType(crop.blockMaterial);
             Exploits.setPlayerPlaced(block, true);
             item.setAmount(item.getAmount() - 1);
