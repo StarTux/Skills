@@ -1,7 +1,7 @@
 package com.cavetale.skills;
 
+import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
-import com.cavetale.core.event.block.PlayerCanBuildEvent;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -169,7 +169,7 @@ final class Mining {
         for (int i = 0; i < total; i += 1) {
             nbor = nbor.getRelative(dx, 0, dz);
             if (!stone(nbor)) break;
-            if (!PlayerCanBuildEvent.call(player, nbor)) break;
+            if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, nbor)) return result;
             // Damage the pickaxe and cancel if it is used up.
             if (dmg != null) {
                 if (dmg.getDamage() >= item.getType().getMaxDurability()) break;
@@ -178,7 +178,7 @@ final class Mining {
                     item.setItemMeta(meta);
                 }
             }
-            Bukkit.getPluginManager().callEvent(new PlayerBreakBlockEvent(player, nbor));
+            if (!PlayerBreakBlockEvent.call(player, nbor)) return result;
             Effects.mineBlockMagic(nbor);
             nbor.breakNaturally(item);
             result += 1;
@@ -214,7 +214,7 @@ final class Mining {
                         if (done.contains(nbor)) continue;
                         done.add(nbor);
                         if (nbor.getType() != mat) continue;
-                        if (!PlayerCanBuildEvent.call(player, nbor)) continue;
+                        if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, nbor)) continue;
                         todo.add(nbor);
                         vein.add(nbor);
                     }
@@ -396,7 +396,7 @@ final class Mining {
         Session session = plugin.sessionOf(player);
         if (!session.isTalentEnabled(Talent.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
-        if (!PlayerCanBuildEvent.call(player, block)) return false;
+        if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, block)) return false;
         int silk = item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
         if (silk == 0) return false;
         // Damage the pickaxe
