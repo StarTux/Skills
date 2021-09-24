@@ -25,6 +25,7 @@ final class Session {
     boolean xrayActive;
     Tag tag;
     Set<Talent> talents = new HashSet<>();
+    protected Set<Talent> disabledTalents = new HashSet<>();
     // Status effects, ticks remaining
     int immortal = 0;
     int archerZone = 0;
@@ -132,7 +133,7 @@ final class Session {
     }
 
     boolean isTalentEnabled(Talent talent) {
-        return !talentsDisabled && hasTalent(talent);
+        return !talentsDisabled && talents.contains(talent) && !disabledTalents.contains(talent);
     }
 
     boolean hasTalent(@NonNull Talent talent) {

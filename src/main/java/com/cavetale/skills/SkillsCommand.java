@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -279,12 +281,34 @@ final class SkillsCommand implements TabExecutor {
             return true;
         }
         case "toggle": {
-            boolean dis = !plugin.sessionOf(player).talentsDisabled;
-            plugin.sessionOf(player).talentsDisabled = dis;
-            player.sendMessage(dis
-                               ? ChatColor.RED + "Talents disabled"
-                               : ChatColor.GREEN + "Talents enabled");
-            return true;
+            if (args.length == 1) {
+                boolean dis = !plugin.sessionOf(player).talentsDisabled;
+                plugin.sessionOf(player).talentsDisabled = dis;
+                player.sendMessage(dis
+                                   ? ChatColor.RED + "Talents disabled"
+                                   : ChatColor.GREEN + "Talents enabled");
+            } else if (args.length == 2) {
+                Talent talent = Talent.of(args[1]);
+                if (talent == null) {
+                    throw new Wrong("Invalid talent!");
+                }
+                Session session = plugin.sessionOf(player);
+                if (!session.hasTalent(talent)) {
+                    throw new Wrong("You don't have this talent!");
+                }
+                if (session.disabledTalents.contains(talent)) {
+                    session.disabledTalents.remove(talent);
+                    player.sendMessage(Component.text("Talent enabled: " + talent.displayName,
+                                                      NamedTextColor.GREEN));
+                } else {
+                    session.disabledTalents.add(talent);
+                    player.sendMessage(Component.text("Talent disabled: " + talent.displayName,
+                                                      NamedTextColor.RED));
+                }
+                return true;
+            } else {
+                return false;
+            }
         }
         default: break;
         }
@@ -423,6 +447,8 @@ final class SkillsCommand implements TabExecutor {
             ChatColor talentColor;
             if (session.hasTalent(talent)) {
                 cb.append(info.title).color(ChatColor.GREEN);
+                cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                        "/sk talent toggle " + talent.key));
                 talentColor = ChatColor.GREEN;
             } else if (session.canAccessTalent(talent)
                        && session.getTalentPoints() >= session.getTalentCost()) {
@@ -434,22 +460,33 @@ final class SkillsCommand implements TabExecutor {
                 cb.append(info.title).color(ChatColor.GRAY);
                 talentColor = ChatColor.GRAY;
             }
-            String dependency;
-            if (talent.depends == null) {
-                dependency = "";
+            if (session.hasTalent(talent)) {
+                cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        TextComponent
+                                        .fromLegacyText("" + ChatColor.WHITE + info.title
+                                                        + "\n" + (session.disabledTalents.contains(talent)
+                                                                  ? ChatColor.RED + "Disabled" + ChatColor.GRAY + " Click to enable"
+                                                                  : ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " Click to disable")
+                                                        + "\n" + talentColor
+                                                        + info.description)));
             } else {
-                ChatColor depColor = session.hasTalent(talent.depends)
-                    ? ChatColor.GREEN
-                    : ChatColor.DARK_RED;
-                dependency = ChatColor.LIGHT_PURPLE + "\nRequires: "
-                    + depColor + plugin.getTalentInfo(talent.depends.key).title;
+                String dependency;
+                if (talent.depends == null) {
+                    dependency = "";
+                } else {
+                    ChatColor depColor = session.hasTalent(talent.depends)
+                        ? ChatColor.GREEN
+                        : ChatColor.DARK_RED;
+                    dependency = ChatColor.LIGHT_PURPLE + "\nRequires: "
+                        + depColor + plugin.getTalentInfo(talent.depends.key).title;
+                }
+                cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        TextComponent
+                                        .fromLegacyText("" + ChatColor.WHITE + info.title
+                                                        + dependency
+                                                        + "\n" + talentColor
+                                                        + info.description)));
             }
-            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    TextComponent
-                                    .fromLegacyText("" + ChatColor.WHITE + info.title
-                                                    + dependency
-                                                    + "\n" + talentColor
-                                                    + info.description)));
         }
         player.spigot().sendMessage(cb.create());
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Talent Points: "
