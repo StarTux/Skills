@@ -3,7 +3,8 @@ package com.cavetale.skills;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -211,7 +212,7 @@ final class EventListener implements Listener {
                 && health <= event.getFinalDamage()) {
                 event.setDamage(Math.max(0.0, health - 1.0));
                 Effects.godMode(player);
-                player.sendActionBar(ChatColor.GOLD + "God Mode Save!");
+                player.sendActionBar(Component.text("God Mode Save!", NamedTextColor.GOLD));
             }
         } else {
             Entity entity = event.getEntity();

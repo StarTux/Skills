@@ -274,8 +274,7 @@ final class Mining {
                                                     0, // amplifier
                                                     true, // ambient
                                                     false, // particles
-                                                    true), // icon
-                                   true);
+                                                    true)); // icon
         }
         // Actual XRay
         if (session.xrayActive) return 0;

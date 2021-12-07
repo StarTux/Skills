@@ -1,7 +1,9 @@
 package com.cavetale.skills;
 
+import lombok.Getter;
 import lombok.NonNull;
 
+@Getter
 public enum SkillType {
     MINING,
     FARMING,

@@ -8,47 +8,49 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.bukkit.ChatColor;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
+import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-final class Session {
-    final SkillsPlugin plugin;
-    final UUID uuid;
-    SQLPlayer playerColumn;
-    EnumMap<SkillType, SQLSkill> skillColumns = new EnumMap<>(SkillType.class);
-    BossBar skillBar;
-    SkillType shownSkill = null;
-    int skillBarCountdown;
-    boolean xrayActive;
-    Tag tag;
-    Set<Talent> talents = new HashSet<>();
+public final class Session {
+    protected final SkillsPlugin plugin;
+    protected final UUID uuid;
+    protected SQLPlayer playerColumn;
+    protected EnumMap<SkillType, SQLSkill> skillColumns = new EnumMap<>(SkillType.class);
+    protected BossBar skillBar;
+    protected SkillType shownSkill = null;
+    protected int skillBarCountdown;
+    protected boolean xrayActive;
+    protected Tag tag;
+    protected Set<Talent> talents = new HashSet<>();
     protected Set<Talent> disabledTalents = new HashSet<>();
     // Status effects, ticks remaining
-    int immortal = 0;
-    int archerZone = 0;
-    int archerZoneKills = 0;
-    boolean poisonFreebie = false;
-    boolean noParticles = false;
+    protected int immortal = 0;
+    protected int archerZone = 0;
+    protected int archerZoneKills = 0;
+    protected boolean poisonFreebie = false;
+    protected boolean noParticles = false;
     //
-    int noSave = 0;
-    int tick;
-    int actionSP;
+    protected int noSave = 0;
+    protected int tick;
+    protected int actionSP;
     //
-    boolean talentsDisabled;
+    protected boolean talentsDisabled;
 
-    static final class Tag {
-        Set<String> talents;
-        transient boolean modified;
+    protected static final class Tag {
+        protected Set<String> talents;
+        protected transient boolean modified;
 
-        void init() {
+        protected void init() {
             if (talents == null) talents = new HashSet<>();
         }
     }
 
-    Session(@NonNull final SkillsPlugin plugin,
+    public Session(@NonNull final SkillsPlugin plugin,
             @NonNull final Player player,
             @NonNull final SQLPlayer playerColumn,
             @NonNull final Map<SkillType, SQLSkill> inSkillColumns) {
@@ -63,41 +65,44 @@ final class Session {
         tag.init();
         tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
         this.skillColumns.putAll(inSkillColumns);
-        skillBar = plugin.getServer().createBossBar("skills",
-                                                    BarColor.BLUE,
-                                                    BarStyle.SEGMENTED_10);
-        skillBar.setVisible(false);
-        skillBar.addPlayer(player);
+        skillBar = BossBar.bossBar(Component.text("Skills"),
+                                   1.0f,
+                                   BossBar.Color.BLUE,
+                                   BossBar.Overlay.NOTCHED_10);
     }
 
-    void onDisable() {
-        skillBar.removeAll();
-        skillBar.setVisible(false);
+    public void onDisable() {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null) {
+            player.hideBossBar(skillBar);
+        }
     }
 
-    void showSkillBar(@NonNull Player player, @NonNull SkillType skill, final int level,
+    public void showSkillBar(@NonNull Player player, @NonNull SkillType skill, final int level,
                       final int points, final int totalPoints, final int newPoints) {
         if (shownSkill == skill) {
             actionSP += newPoints;
         } else {
             actionSP = newPoints;
         }
-        player.sendActionBar(ChatColor.GRAY + "+"
-                             + ChatColor.GOLD + ChatColor.BOLD + actionSP
-                             + ChatColor.GRAY + "SP");
-        skillBar.setTitle(ChatColor.GOLD + skill.displayName
-                          + ChatColor.WHITE + " Level "
-                          + ChatColor.GOLD + ChatColor.BOLD + level + " "
-                          + ChatColor.WHITE + points
-                          + ChatColor.DARK_GRAY + "/"
-                          + ChatColor.WHITE + totalPoints);
-        skillBar.setProgress((double) points / (double) totalPoints);
+        player.sendActionBar(Component.join(JoinConfiguration.noSeparators(),
+                                            Component.text("+", NamedTextColor.GRAY),
+                                            Component.text(actionSP, NamedTextColor.GOLD, TextDecoration.BOLD),
+                                            Component.text("SP", NamedTextColor.GRAY)));
+        skillBar.name(Component.join(JoinConfiguration.noSeparators(),
+                                     Component.text(skill.displayName, NamedTextColor.GOLD),
+                                     Component.text(" Level ", NamedTextColor.WHITE),
+                                     Component.text(level + " ", NamedTextColor.GOLD, TextDecoration.BOLD),
+                                     Component.text(points, NamedTextColor.WHITE),
+                                     Component.text("/", NamedTextColor.DARK_GRAY),
+                                     Component.text(totalPoints, NamedTextColor.WHITE)));
+        skillBar.progress((float) points / (float) totalPoints);
         shownSkill = skill;
         skillBarCountdown = 100;
-        skillBar.setVisible(true);
+        player.showBossBar(skillBar);
     }
 
-    void onTick() {
+    public void onTick() {
         tick += 1;
         if (immortal > 0) immortal -= 1;
         if (archerZone > 0) {
@@ -108,13 +113,16 @@ final class Session {
             skillBarCountdown -= 1;
             if (skillBarCountdown == 0) {
                 shownSkill = null;
-                skillBar.setVisible(false);
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null) {
+                    player.hideBossBar(skillBar);
+                }
             }
         }
         if (noSave++ > 200) saveData();
     }
 
-    void saveData() {
+    public void saveData() {
         noSave = 0;
         if (playerColumn.modified || tag.modified) {
             if (tag.modified) {
@@ -132,32 +140,32 @@ final class Session {
         }
     }
 
-    boolean isTalentEnabled(Talent talent) {
+    public boolean isTalentEnabled(Talent talent) {
         return !talentsDisabled && talents.contains(talent) && !disabledTalents.contains(talent);
     }
 
-    boolean hasTalent(@NonNull Talent talent) {
+    public boolean hasTalent(@NonNull Talent talent) {
         return talents.contains(talent);
     }
 
-    boolean canAccessTalent(@NonNull Talent talent) {
+    public boolean canAccessTalent(@NonNull Talent talent) {
         return talent.depends == null
             || talents.contains(talent.depends);
     }
 
-    int getTalentCost() {
+    public int getTalentCost() {
         return talents.size() + 1;
     }
 
-    int getTalentPoints() {
+    public int getTalentPoints() {
         return playerColumn.talentPoints;
     }
 
-    int getLevel(SkillType skill) {
+    public int getLevel(SkillType skill) {
         return skillColumns.get(skill).level;
     }
 
-    int getSkillPoints(SkillType skill) {
+    public int getSkillPoints(SkillType skill) {
         return skillColumns.get(skill).points;
     }
 

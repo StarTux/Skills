@@ -4,7 +4,10 @@ import com.cavetale.worldmarker.entity.EntityMarker;
 import java.util.EnumMap;
 import lombok.NonNull;
 import lombok.Value;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Chunk;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Ageable;
@@ -21,7 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-final class Combat {
+public final class Combat {
     final SkillsPlugin plugin;
     final EnumMap<EntityType, Reward> rewards = new EnumMap<>(EntityType.class);
     static final String CHONK = "skills:chonk";
@@ -33,20 +36,20 @@ final class Combat {
         final int sp;
     }
 
-    static class Chonk {
-        Chonk() {
+    protected static final class Chonk {
+        protected Chonk() {
             time = Util.now();
         }
 
-        int kills;
-        long time;
+        protected int kills;
+        protected long time;
     }
 
     private void reward(@NonNull EntityType type, final int sp) {
         rewards.put(type, new Reward(type, sp));
     }
 
-    Combat(@NonNull final SkillsPlugin plugin) {
+    public Combat(@NonNull final SkillsPlugin plugin) {
         this.plugin = plugin;
         reward(EntityType.ZOMBIE, 1);
         reward(EntityType.SKELETON, 1);
@@ -87,7 +90,7 @@ final class Combat {
         reward(EntityType.RAVAGER, 5);
     }
 
-    void playerKillMob(Player player, Mob mob, EntityDeathEvent event) {
+    protected void playerKillMob(Player player, Mob mob, EntityDeathEvent event) {
         Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
@@ -124,34 +127,36 @@ final class Combat {
         }
     }
 
-    private boolean sniperKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
+    protected boolean sniperKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Projectile)) return false;
         Projectile proj = (Projectile) event.getDamager();
         if (!(proj.getShooter() instanceof Player)) return false;
         Player player = (Player) proj.getShooter();
         if (session.isTalentEnabled(Talent.COMBAT_ARCHER_ZONE)) {
             session.archerZone = 5 * 20;
-            player.sendMessage(ChatColor.GOLD + "In The Zone! "
-                               + ChatColor.LIGHT_PURPLE + ChatColor.BOLD
-                               + ++session.archerZoneKills);
+            session.archerZoneKills += 1;
+            player.sendActionBar(Component.join(JoinConfiguration.noSeparators(), new Component[] {
+                        Component.text("In The Zone! ", NamedTextColor.RED),
+                        Component.text(session.archerZoneKills, NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD),
+                    }));
             Effects.archerZone(player);
         }
         return true;
     }
 
-    private boolean meleeKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
+    protected boolean meleeKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player)) return false;
         Player player = (Player) event.getDamager();
         if (session.isTalentEnabled(Talent.COMBAT_GOD_MODE)) {
             if (session.immortal <= 0) {
-                player.sendMessage(ChatColor.GOLD + "God Mode!");
+                player.sendActionBar(Component.text("God Mode!", NamedTextColor.GOLD));
             }
             session.immortal = 3 * 20;
         }
         return true;
     }
 
-    StatusEffect statusEffectOf(@NonNull LivingEntity entity) {
+    protected StatusEffect statusEffectOf(@NonNull LivingEntity entity) {
         StatusEffect result = plugin.meta.get(entity, STATUS_EFFECT, StatusEffect.class)
             .orElse(null);
         if (result == null) {
@@ -161,9 +166,9 @@ final class Combat {
         return result;
     }
 
-    void mobDamagePlayer(@NonNull Player player, @NonNull Mob mob,
-                         Projectile proj,
-                         @NonNull EntityDamageByEntityEvent event) {
+    protected void mobDamagePlayer(@NonNull Player player, @NonNull Mob mob,
+                                   Projectile proj,
+                                   @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;
         Session session = plugin.sessionOf(player);
         // -50% damage on melee
@@ -180,7 +185,7 @@ final class Combat {
         }
     }
 
-    static boolean isSpider(Entity entity) {
+    protected static boolean isSpider(Entity entity) {
         switch (entity.getType()) {
         case SPIDER:
         case CAVE_SPIDER:
@@ -192,13 +197,13 @@ final class Combat {
         }
     }
 
-    static void potion(LivingEntity e, PotionEffectType type,
+    protected static void potion(LivingEntity e, PotionEffectType type,
                        final int level, final int seconds) {
         e.addPotionEffect(new PotionEffect(type, seconds * 20,
                                            level - 1, true, false));
     }
 
-    boolean silenceEffect(@NonNull Mob mob) {
+    protected boolean silenceEffect(@NonNull Mob mob) {
         if (mob instanceof Boss) return false;
         String id = EntityMarker.getId(mob);
         if (id != null && id.contains("boss")) return false;
@@ -207,7 +212,7 @@ final class Combat {
         return true;
     }
 
-    void playerDamageMob(@NonNull Player player, @NonNull Mob mob,
+    protected void playerDamageMob(@NonNull Player player, @NonNull Mob mob,
                          Projectile proj,
                          @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;

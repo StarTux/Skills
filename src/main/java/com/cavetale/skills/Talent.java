@@ -1,5 +1,9 @@
 package com.cavetale.skills;
 
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 import lombok.NonNull;
 
 enum Talent {
@@ -27,6 +31,7 @@ enum Talent {
     public final String displayName;
     public final SkillType skill;
     public static final int COUNT = 15;
+    public static final Map<SkillType, Set<Talent>> SKILL_MAP = new EnumMap<>(SkillType.class);
 
     Talent(final Talent depends) {
         key = name().toLowerCase();
@@ -39,7 +44,14 @@ enum Talent {
         } else if (name().startsWith("COMBAT")) {
             skill = SkillType.COMBAT;
         } else {
-            skill = null;
+            throw new IllegalStateException(name());
+        }
+    }
+
+    static {
+        for (Talent talent : Talent.values()) {
+            SKILL_MAP.computeIfAbsent(talent.skill, sk -> EnumSet.of(talent))
+                .add(talent);
         }
     }
 

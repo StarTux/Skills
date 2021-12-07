@@ -1,173 +1,67 @@
 package com.cavetale.skills;
 
+import com.cavetale.core.command.AbstractCommand;
+import com.cavetale.core.command.CommandArgCompleter;
+import com.cavetale.core.command.CommandWarn;
 import com.winthier.playercache.PlayerCache;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 
-@RequiredArgsConstructor
-final class SkillsCommand implements TabExecutor {
-    final SkillsPlugin plugin;
-    final List<String> commands = Arrays
-        .asList("combat", "mining", "farming", "list", "talent", "info", "hi");
-
-    // Error Class
-
-    static class Wrong extends Exception {
-        Wrong(final String msg) {
-            super(msg);
-        }
-    }
-
-    // Overrides
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command,
-                             String alias, String[] args) {
-        if (args.length == 0) {
-            if (!(sender instanceof Player)) return false;
-            commandHelp((Player) sender);
-            return true;
-        }
-        try {
-            String cmd = args[0];
-            String[] argl = Arrays.copyOfRange(args, 1, args.length);
-            boolean res = onCommand(sender, cmd, argl);
-            if (!res) {
-                if (commands.contains(cmd)) {
-                    commandHelp(requirePlayer(sender), cmd);
-                } else {
-                    commandHelp(requirePlayer(sender));
-                }
-            }
-            return true;
-        } catch (Wrong e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
-            return true;
-        }
+final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
+    protected SkillsCommand(final SkillsPlugin plugin) {
+        super(plugin, "skills");
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command,
-                                      String alias, String[] args) {
-        if (args.length == 0) {
-            return null;
+    public void onEnable() {
+        for (SkillType skillType : SkillType.values()) {
+            rootNode.addChild(skillType.key).denyTabCompletion()
+                .description(skillType.displayName + " Skill")
+                .playerCaller((player, args) -> skill(player, skillType, args));
         }
-        String arg = args[args.length - 1];
-        if (args.length == 1) {
-            return complete(arg, commands);
-        }
-        if (args.length == 2 && args[0].equals("info")) {
-            plugin.getInfo("");
-            return complete(args[1], plugin.infos.keySet());
-        }
-        if (args.length == 2 && args[0].equals("hi")) {
-            return complete(arg, Stream.concat(Stream.of("total", "talents"),
-                                               Stream.of(SkillType.values())
-                                               .map(s -> s.key)));
-        }
-        if (args.length == 3 && args[0].equals("hi")) {
-            return Collections.emptyList();
-        }
-        return null;
+        rootNode.addChild("list").denyTabCompletion()
+            .description("List all skills")
+            .playerCaller(this::list);
+        rootNode.addChild("info").arguments("<page>")
+            .description("View info page")
+            .completers(CommandArgCompleter.supplyList(() -> List.copyOf(plugin.infos.keySet())))
+            .playerCaller(this::info);
+        rootNode.addChild("talent").denyTabCompletion()
+            .description("Talent menu")
+            .playerCaller(this::talent);
+        rootNode.addChild("hi").arguments("[skill] [page]")
+            .description("Highscore List")
+            .completers(new CommandArgCompleter[] {
+                    CommandArgCompleter.supplyStream(() -> {
+                            return Stream.concat(Stream.of("total", "talents"),
+                                                 Stream.of(SkillType.values())
+                                                 .map(SkillType::getKey));
+                        }),
+                    CommandArgCompleter.integer(i -> i > 0),
+                })
+            .playerCaller(this::hi);
     }
 
-    // Effective Implementations
-
-    private boolean onCommand(CommandSender sender, String cmd,
-                              String[] args) throws Wrong {
-        switch (cmd) {
-        case "mining":
-            return skillCommand(requirePlayer(sender), SkillType.MINING, args);
-        case "farming":
-            return skillCommand(requirePlayer(sender), SkillType.FARMING, args);
-        case "combat":
-            return skillCommand(requirePlayer(sender), SkillType.COMBAT, args);
-        case "talent":
-            return talentCommand(requirePlayer(sender), args);
-        case "list":
-            return listCommand(requirePlayer(sender), args);
-        case "info":
-            return infoCommand(requirePlayer(sender), args);
-        case "hi":
-            return hiCommand(requirePlayer(sender), args);
-        case "reloadadvancements": {
-            if (!sender.isOp()) return false;
-            sender.sendMessage("Reloading advancements...");
-            plugin.unloadAdvancements();
-            plugin.loadAdvancements();
-            sender.sendMessage("Advancements reloaded.");
-            return true;
-        }
-        case "gimme": {
-            Player player = requirePlayer(sender);
-            if (!player.isOp()) return false;
-            plugin.addTalentPoints(player, 1);
-            return true;
-        }
-        case "particles": {
-            Player player = requirePlayer(sender);
-            if (!player.isOp()) return false;
-            Session session = plugin.sessionOf(player);
-            session.noParticles = !session.noParticles;
-            player.sendMessage("Particles: " + (session.noParticles ? "off" : "on"));
-            return true;
-        }
-        case "median": {
-            if (!sender.isOp()) return false;
-            for (SkillType skill : SkillType.values()) {
-                List<SQLSkill> rows = plugin.skillColumns.stream()
-                    .filter(s -> s.level > 0)
-                    .filter(s -> skill.key.equals(s.skill))
-                    .sorted((b, a) -> Integer.compare(a.getTotalPoints(),
-                                                      b.getTotalPoints()))
-                    .collect(Collectors.toList());
-                if (rows.isEmpty()) continue;
-                int sumSP = 0;
-                int sumLevel = 0;
-                for (SQLSkill row : rows) {
-                    sumSP += row.getTotalPoints();
-                    sumLevel += row.level;
-                }
-                int avgSP = sumSP / rows.size();
-                int avgLevel = sumLevel / rows.size();
-                SQLSkill median = rows.get(rows.size() / 2);
-                SQLSkill max = rows.get(0);
-                sender.sendMessage(skill.displayName
-                                   + "\t"
-                                   + " Sample=" + rows.size()
-                                   + " Sum=" + sumSP + "," + sumLevel
-                                   + " Avg=" + avgSP + "," + avgLevel
-                                   + " Max=" + max.getTotalPoints() + "," + max.level
-                                   + " Med=" + median.getTotalPoints() + "," + median.level);
-            }
-            return true;
-        }
-        default:
-            return false;
-        }
+    protected Component prop(String left, String right) {
+        return Component.join(JoinConfiguration.noSeparators(),
+                              Component.text(left, NamedTextColor.LIGHT_PURPLE),
+                              Component.text(right, NamedTextColor.WHITE));
     }
 
-    boolean skillCommand(@NonNull Player player, @NonNull SkillType skill,
-                         String[] args) {
+    protected boolean skill(Player player, @NonNull SkillType skill, String[] args) {
         if (args.length != 0) return false;
         Session session = plugin.sessionOf(player);
         int level = session.getLevel(skill);
@@ -178,80 +72,84 @@ final class SkillsCommand implements TabExecutor {
         long talentsHas = Stream.of(Talent.values())
             .filter(t -> t.skill == skill)
             .filter(session::hasTalent).count();
-        player.sendMessage("");
-        player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + skill.displayName);
-        player.sendMessage("");
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.empty());
+        lines.add(Component.text(skill.displayName, NamedTextColor.GOLD, TextDecoration.BOLD));
+        lines.add(Component.empty());
         Info info = plugin.getInfo(skill.key);
         if (info != null) {
-            player.sendMessage(info.description.split("\n\n")[0]);
+            lines.add(Component.text(info.description.split("\n\n")[0], NamedTextColor.GRAY));
         }
-        player.sendMessage("");
-        player.sendMessage("" + ChatColor.LIGHT_PURPLE + "Level "
-                           + ChatColor.WHITE + level);
-        player.sendMessage("" + ChatColor.LIGHT_PURPLE + "Exp Bonus "
-                           + ChatColor.WHITE + session.getExpBonus(skill));
-        player.sendMessage("" + ChatColor.LIGHT_PURPLE + "Skill Points "
-                           + ChatColor.WHITE + points
-                           + ChatColor.LIGHT_PURPLE + "/"
-                           + ChatColor.WHITE + req);
-        player.sendMessage("" + ChatColor.LIGHT_PURPLE + "Talents "
-                           + ChatColor.WHITE + talentsHas
-                           + ChatColor.LIGHT_PURPLE + "/"
-                           + ChatColor.WHITE + talents);
-        player.sendMessage("");
+        lines.add(Component.empty());
+        lines.add(prop("Level ", "" + level));
+        lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skill)));
+        lines.add(prop("Skill Points ", points + "/" + req));
+        lines.add(prop("Talents ", talentsHas + "/" + talents));
+        lines.add(Component.empty());
+        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
         return true;
     }
 
-    boolean listCommand(@NonNull Player player, String[] args) {
+    protected boolean list(@NonNull Player player, String[] args) {
         if (args.length != 0) return false;
-        player.sendMessage("");
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.empty());
         Session session = plugin.sessionOf(player);
         for (SkillType skill : SkillType.values()) {
             int level = session.getLevel(skill);
             int points = session.getSkillPoints(skill);
             int req = plugin.pointsForLevelUp(level + 1);
-            player.sendMessage(""
-                               + ChatColor.DARK_PURPLE + "lvl"
-                               + ChatColor.YELLOW + ChatColor.BOLD + level
-                               + ChatColor.LIGHT_PURPLE + " " + skill.displayName
-                               + ChatColor.WHITE + " " + points
-                               + ChatColor.LIGHT_PURPLE + "/"
-                               + ChatColor.WHITE + req);
+            lines.add(Component.join(JoinConfiguration.noSeparators(),
+                                     Component.text("lvl", NamedTextColor.DARK_PURPLE),
+                                     Component.text(level, NamedTextColor.YELLOW, TextDecoration.BOLD),
+                                     Component.text(" " + skill.displayName, NamedTextColor.LIGHT_PURPLE),
+                                     Component.text(" " + points, NamedTextColor.WHITE),
+                                     Component.text("/", NamedTextColor.LIGHT_PURPLE),
+                                     Component.text(req, NamedTextColor.WHITE)));
         }
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Talents: "
-                           + Stream.of(Talent.values())
-                           .filter(session::hasTalent)
-                           .map(e -> ChatColor.GOLD + plugin.getTalentInfo(e.key).title)
-                           .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
-        player.sendMessage("");
+        lines.add(Component.join(JoinConfiguration.builder()
+                                 .prefix(Component.text("Talents: ", NamedTextColor.LIGHT_PURPLE))
+                                 .separator(Component.text(", ", NamedTextColor.DARK_PURPLE))
+                                 .build(),
+                                 Stream.of(Talent.values())
+                                 .filter(session::hasTalent)
+                                 .map(e -> Component.text(plugin.getTalentInfo(e.key).title, NamedTextColor.GOLD))
+                                 .collect(Collectors.toList())));
+        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
         return true;
     }
 
-    boolean infoCommand(@NonNull Player player, String[] args) throws Wrong {
+    protected boolean info(@NonNull Player player, String[] args) {
         if (args.length > 1) return false;
-        if (args.length == 1) {
-            Info info = plugin.getInfo(args[0]);
-            if (info == null) {
-                throw new Wrong("Not found: " + args[0]);
-            }
-            player.sendMessage("");
-            player.sendMessage("" + ChatColor.YELLOW + ChatColor.BOLD + info.title);
-            for (String p : info.description.split("\n\n")) {
-                player.sendMessage("");
-                player.sendMessage(p);
-            }
-            player.sendMessage("");
+        if (args.length == 0) {
+            plugin.getInfo("");
+            Component msg = Component.join(JoinConfiguration.builder()
+                                           .prefix(Component.text("Pages: ", NamedTextColor.LIGHT_PURPLE))
+                                           .separator(Component.text(", ", NamedTextColor.DARK_PURPLE))
+                                           .build(),
+                                           plugin.infos.keySet().stream()
+                                           .map(s -> Component.text(s, NamedTextColor.YELLOW))
+                                           .collect(Collectors.toList()));
+            player.sendMessage(msg);
             return true;
         }
-        plugin.getInfo("");
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Pages: "
-                           + plugin.infos.keySet().stream()
-                           .map(s -> ChatColor.YELLOW + s)
-                           .collect(Collectors.joining(ChatColor.DARK_PURPLE + ", ")));
+        Info info = plugin.getInfo(args[0]);
+        if (info == null) {
+            throw new CommandWarn("Not found: " + args[0]);
+        }
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.empty());
+        lines.add(Component.text(info.title, NamedTextColor.YELLOW, TextDecoration.BOLD));
+        for (String p : info.description.split("\n\n")) {
+            lines.add(Component.empty());
+            lines.add(Component.text(p));
+        }
+        lines.add(Component.empty());
+        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
         return true;
     }
 
-    boolean talentCommand(@NonNull Player player, String[] args) throws Wrong {
+    protected boolean talent(@NonNull Player player, String[] args) {
         if (args.length == 0) {
             talentMenu(player);
             return true;
@@ -261,20 +159,20 @@ final class SkillsCommand implements TabExecutor {
             if (args.length != 2) return false;
             Session session = plugin.sessionOf(player);
             if (session.getTalentPoints() < session.getTalentCost()) {
-                throw new Wrong("You don't have enough Talent Points!");
+                throw new CommandWarn("You don't have enough Talent Points!");
             }
             Talent talent = Talent.of(args[1]);
             if (talent == null) {
-                throw new Wrong("Invalid talent!");
+                throw new CommandWarn("Invalid talent!");
             }
             if (session.hasTalent(talent)) {
-                throw new Wrong("Already unlocked!");
+                throw new CommandWarn("Already unlocked!");
             }
             if (!session.canAccessTalent(talent)) {
-                throw new Wrong("Parent not yet available!");
+                throw new CommandWarn("Parent not yet available!");
             }
             if (!plugin.unlockTalent(player, talent)) {
-                throw new Wrong("An unknown error occured.");
+                throw new CommandWarn("An unknown error occured.");
             }
             Effects.talentUnlock(player);
             talentMenu(player);
@@ -285,16 +183,18 @@ final class SkillsCommand implements TabExecutor {
                 boolean dis = !plugin.sessionOf(player).talentsDisabled;
                 plugin.sessionOf(player).talentsDisabled = dis;
                 player.sendMessage(dis
-                                   ? ChatColor.RED + "Talents disabled"
-                                   : ChatColor.GREEN + "Talents enabled");
+                                   ? Component.text("Talents disabled", NamedTextColor.RED)
+                                   : Component.text("Talents enabled", NamedTextColor.GREEN));
+                talentMenu(player);
+                return true;
             } else if (args.length == 2) {
                 Talent talent = Talent.of(args[1]);
                 if (talent == null) {
-                    throw new Wrong("Invalid talent!");
+                    throw new CommandWarn("Invalid talent!");
                 }
                 Session session = plugin.sessionOf(player);
                 if (!session.hasTalent(talent)) {
-                    throw new Wrong("You don't have this talent!");
+                    throw new CommandWarn("You don't have this talent!");
                 }
                 if (session.disabledTalents.contains(talent)) {
                     session.disabledTalents.remove(talent);
@@ -305,6 +205,7 @@ final class SkillsCommand implements TabExecutor {
                     player.sendMessage(Component.text("Talent disabled: " + talent.displayName,
                                                       NamedTextColor.RED));
                 }
+                talentMenu(player);
                 return true;
             } else {
                 return false;
@@ -316,9 +217,9 @@ final class SkillsCommand implements TabExecutor {
     }
 
     @Value
-    static final class Score implements Comparable<Score> {
-        final int score;
-        final UUID uuid;
+    protected static final class Score implements Comparable<Score> {
+        protected final int score;
+        protected final UUID uuid;
 
         @Override
         public int compareTo(Score o) {
@@ -326,40 +227,34 @@ final class SkillsCommand implements TabExecutor {
         }
     }
 
-    boolean hiCommand(@NonNull Player player, String[] args) throws Wrong {
+    protected boolean hi(@NonNull Player player, String[] args) {
         if (args.length == 0) {
-            ComponentBuilder cb = new ComponentBuilder("Options: ")
-                .color(ChatColor.LIGHT_PURPLE);
+            List<Component> cb = new ArrayList<>();
+            cb.add(Component.text("Options: ", NamedTextColor.LIGHT_PURPLE));
             String cmd = "/sk hi total";
-            cb.append("Total").color(ChatColor.YELLOW);
-            cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
-            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    TextComponent
-                                    .fromLegacyText(ChatColor.YELLOW + cmd)));
-            cb.append(", ").color(ChatColor.DARK_PURPLE);
+            cb.add(Component.text("Total", NamedTextColor.YELLOW)
+                   .clickEvent(ClickEvent.runCommand(cmd))
+                   .hoverEvent(HoverEvent.showText(Component.text(cmd, NamedTextColor.YELLOW))));
+            cb.add(Component.text(", ", NamedTextColor.DARK_PURPLE));
             cmd = "/sk hi talents";
-            cb.append("Talents").color(ChatColor.YELLOW);
-            cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
-            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    TextComponent
-                                    .fromLegacyText(ChatColor.YELLOW + cmd)));
+            cb.add(Component.text("Talents", NamedTextColor.YELLOW)
+                   .clickEvent(ClickEvent.runCommand(cmd))
+                   .hoverEvent(HoverEvent.showText(Component.text(cmd, NamedTextColor.YELLOW))));
             for (SkillType skill : SkillType.values()) {
-                cb.append(", ").color(ChatColor.DARK_PURPLE);
+                cb.add(Component.text(", ", NamedTextColor.DARK_PURPLE));
                 cmd = "/sk hi " + skill.key;
-                cb.append(skill.displayName).color(ChatColor.GOLD);
-                cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
-                cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        TextComponent
-                                        .fromLegacyText(ChatColor.GOLD + cmd)));
+                cb.add(Component.text(skill.displayName, NamedTextColor.GOLD)
+                       .clickEvent(ClickEvent.runCommand(cmd))
+                       .hoverEvent(HoverEvent.showText(Component.text(cmd, NamedTextColor.GOLD))));
             }
-            player.spigot().sendMessage(cb.create());
+            player.sendMessage(Component.join(JoinConfiguration.noSeparators(), cb));
             return true;
         }
         if (args.length > 2) return false;
         // Skill
         SkillType skill = SkillType.ofKey(args[0]);
         if (!"total".equals(args[0]) && !"talents".equals(args[0]) && skill == null) {
-            throw new Wrong("Invalid skill: " + args[0]);
+            throw new CommandWarn("Invalid skill: " + args[0]);
         }
         // Page Number
         int page = 0;
@@ -370,7 +265,7 @@ final class SkillsCommand implements TabExecutor {
                 page = -1;
             }
             if (page < 0) {
-                throw new Wrong("Invalid page number: " + args[1]);
+                throw new CommandWarn("Invalid page number: " + args[1]);
             }
         }
         // Collect
@@ -402,12 +297,12 @@ final class SkillsCommand implements TabExecutor {
         }
         int offset = page * 10;
         if (offset >= scores.size()) {
-            throw new Wrong("Page " + (page + 1) + " unavailable!");
+            throw new CommandWarn("Page " + (page + 1) + " unavailable!");
         }
         Collections.sort(scores);
-        player.sendMessage("");
-        player.sendMessage("" + ChatColor.LIGHT_PURPLE + ChatColor.BOLD
-                           + title + " Highscore");
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.empty());
+        lines.add(Component.text(title + " Highscore", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
         for (int i = 0; i < 10; i += 1) {
             final int index = offset + i;
             final int rank = index + 1;
@@ -421,178 +316,83 @@ final class SkillsCommand implements TabExecutor {
                 level = "?";
                 name = " ---";
             }
-            player.sendMessage(""
-                               + ChatColor.DARK_PURPLE + "#" + rank
-                               + ChatColor.WHITE + " " + level
-                               + ChatColor.LIGHT_PURPLE + " " + name);
+            lines.add(Component.join(JoinConfiguration.noSeparators(),
+                                     Component.text("#" + rank, NamedTextColor.DARK_PURPLE),
+                                     Component.text(" " + level, NamedTextColor.WHITE),
+                                     Component.text(" " + name, NamedTextColor.LIGHT_PURPLE)));
         }
+        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()),
+                                          lines));
         return true;
     }
 
-    void talentMenu(@NonNull Player player) {
-        player.sendMessage("");
-        player.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + "Skill Talents");
+    public void talentMenu(@NonNull Player player) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.empty());
+        lines.add(Component.text("Skill Talents", NamedTextColor.GOLD, TextDecoration.BOLD));
         Session session = plugin.sessionOf(player);
-        ComponentBuilder cb = null;
-        for (Talent talent : Talent.values()) {
-            if (cb != null && talent.depends == null) {
-                player.spigot().sendMessage(cb.create());
-                cb = null;
-            }
-            if (cb == null) {
-                cb = new ComponentBuilder("");
-            }
-            cb.append("  ").reset();
-            TalentInfo info = plugin.getTalentInfo(talent.key);
-            ChatColor talentColor;
-            if (session.hasTalent(talent)) {
-                cb.append(info.title).color(ChatColor.GREEN);
-                cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                        "/sk talent toggle " + talent.key));
-                talentColor = ChatColor.GREEN;
-            } else if (session.canAccessTalent(talent)
-                       && session.getTalentPoints() >= session.getTalentCost()) {
-                cb.append("[" + info.title + "]").color(ChatColor.GOLD);
-                cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                        "/sk talent unlock " + talent.key));
-                talentColor = ChatColor.GOLD;
-            } else {
-                cb.append(info.title).color(ChatColor.GRAY);
-                talentColor = ChatColor.GRAY;
-            }
-            if (session.hasTalent(talent)) {
-                cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        TextComponent
-                                        .fromLegacyText("" + ChatColor.WHITE + info.title
-                                                        + "\n" + (session.disabledTalents.contains(talent)
-                                                                  ? ChatColor.RED + "Disabled" + ChatColor.GRAY + " Click to enable"
-                                                                  : ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " Click to disable")
-                                                        + "\n" + talentColor
-                                                        + info.description)));
-            } else {
-                String dependency;
-                if (talent.depends == null) {
-                    dependency = "";
+        for (SkillType skillType : SkillType.values()) {
+            List<Component> cb = new ArrayList<>();
+            cb.add(Component.text(skillType.displayName, NamedTextColor.GRAY));
+            for (Talent talent : Talent.SKILL_MAP.get(skillType)) {
+                TalentInfo info = plugin.getTalentInfo(talent.key);
+                Component component;
+                NamedTextColor talentColor;
+                if (session.hasTalent(talent)) {
+                    component = Component.text("(" + info.title + ")",
+                                               session.disabledTalents.contains(talent) ? NamedTextColor.RED : NamedTextColor.GREEN)
+                        .clickEvent(ClickEvent.runCommand("/sk talent toggle " + talent.key));
+                    talentColor = NamedTextColor.GREEN;
+                } else if (session.canAccessTalent(talent) && session.getTalentPoints() >= session.getTalentCost()) {
+                    component = Component.text("[" + info.title + "]", NamedTextColor.GOLD)
+                        .clickEvent(ClickEvent.runCommand("/sk talent unlock " + talent.key));
+                    talentColor = NamedTextColor.GOLD;
                 } else {
-                    ChatColor depColor = session.hasTalent(talent.depends)
-                        ? ChatColor.GREEN
-                        : ChatColor.DARK_RED;
-                    dependency = ChatColor.LIGHT_PURPLE + "\nRequires: "
-                        + depColor + plugin.getTalentInfo(talent.depends.key).title;
+                    component = Component.text("<" + info.title + ">", NamedTextColor.DARK_GRAY);
+                    talentColor = NamedTextColor.GRAY;
                 }
-                cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        TextComponent
-                                        .fromLegacyText("" + ChatColor.WHITE + info.title
-                                                        + dependency
-                                                        + "\n" + talentColor
-                                                        + info.description)));
+                if (session.hasTalent(talent)) {
+                    Component tooltip = Component.join(JoinConfiguration.separator(Component.newline()), new Component[] {
+                            Component.text(info.title, NamedTextColor.WHITE),
+                            (session.disabledTalents.contains(talent)
+                             ? (Component.text("Disabled", NamedTextColor.RED)
+                                .append(Component.text(" Click to enable", NamedTextColor.GRAY)))
+                             : (Component.text("Enabled", NamedTextColor.GREEN)
+                                .append(Component.text(" Click to disable", NamedTextColor.GRAY)))),
+                            Component.text(info.description, talentColor),
+                        });
+                    component = component.hoverEvent(HoverEvent.showText(tooltip));
+                } else {
+                    Component tooltip = Component.join(JoinConfiguration.separator(Component.newline()), new Component[] {
+                            Component.text(info.title, NamedTextColor.WHITE),
+                            (talent.depends != null
+                             ? Component.text("Requires: " + plugin.getTalentInfo(talent.depends.key).title,
+                                              (session.hasTalent(talent.depends) ? NamedTextColor.GREEN : NamedTextColor.DARK_RED))
+                             : Component.empty()),
+                            Component.text(info.description, talentColor),
+                        });
+                    component = component.hoverEvent(HoverEvent.showText(tooltip));
+                }
+                cb.add(component);
             }
+            lines.add(Component.join(JoinConfiguration.separator(Component.space()), cb));
         }
-        player.spigot().sendMessage(cb.create());
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Talent Points: "
-                           + ChatColor.WHITE + session.getTalentPoints());
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Unlock Cost: "
-                           + ChatColor.WHITE + session.getTalentCost());
-        cb = new ComponentBuilder();
-        cb.append(ChatColor.LIGHT_PURPLE + "Talents ")
-            .append(session.talentsDisabled ? "disabled" : "enabled")
-            .append(" ").reset();
+        lines.add(prop("Talent Points ", "" + session.getTalentPoints()));
+        lines.add(prop("Unlock Cost ", "" + session.getTalentCost()));
+        Component talentComponent = prop("Talents ", session.talentsDisabled ? "Disabled " : "Enabled ");
         if (session.talentsDisabled) {
-            cb.append("[Enable]").color(ChatColor.GREEN);
-            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent
-                                    .fromLegacyText(ChatColor.GREEN + "Enable Talents")));
-            cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sk talent toggle"));
+            talentComponent = talentComponent
+                .append(Component.text("[Enable]", NamedTextColor.GREEN)
+                        .hoverEvent(HoverEvent.showText(Component.text("Enable Talents", NamedTextColor.GREEN)))
+                        .clickEvent(ClickEvent.runCommand("/sk talent toggle")));
         } else {
-            cb.append("[Disable]").color(ChatColor.RED);
-            cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent
-                                    .fromLegacyText(ChatColor.RED + "Disable Talents")));
-            cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sk talent toggle"));
+            talentComponent = talentComponent
+                .append(Component.text("[Disable]", NamedTextColor.RED)
+                        .hoverEvent(HoverEvent.showText(Component.text("Disable Talents", NamedTextColor.RED)))
+                        .clickEvent(ClickEvent.runCommand("/sk talent toggle")));
         }
-        player.sendMessage(cb.create());
-        player.sendMessage("");
-    }
-
-    void sendTimeLeft(@NonNull Player player) {
-        long dst = 1573063200000L - System.currentTimeMillis();
-        long seconds = dst / 1000L;
-        long minutes = seconds / 60L;
-        long hours = minutes / 60L;
-        long days = hours / 24L;
-        String fmt = String.format("%d days %02d:%02d",
-                                   days, hours % 24, minutes % 60);
-        player.sendMessage(ChatColor.LIGHT_PURPLE + "Time Left: "
-                           + ChatColor.WHITE + fmt);
-    }
-
-    void commandHelp(@NonNull final Player player) {
-        player.sendMessage(ChatColor.GOLD + "Skills Usage:");
-        for (String cmd : commands) {
-            commandHelp(player, cmd);
-        }
-        // sendTimeLeft(player);
-    }
-
-    void commandHelp(@NonNull Player player, @NonNull String cmd) {
-        final String desc;
-        String args = null;
-        switch (cmd) {
-        case "combat": case "mining": case "farming":
-            desc = "Skill overview";
-            break;
-        case "list":
-            desc = "List your skills and talents";
-            break;
-        case "talent":
-            desc = "Talent overview and management";
-            break;
-        case "info":
-            desc = "View info pages";
-            args = " [name]";
-            break;
-        case "hi":
-            desc = "Highscores";
-            args = " [skill] [page]";
-            break;
-        default:
-            desc = null;
-            break;
-        }
-        String ccmd = ""
-            + ChatColor.YELLOW + "/sk "
-            + ChatColor.GOLD + cmd
-            + (args == null ? ""
-               : "" + ChatColor.YELLOW + ChatColor.ITALIC + args);
-        String cdesc = desc == null
-            ? ""
-            : ChatColor.DARK_GRAY + " - " + ChatColor.WHITE + desc;
-        String tooltip = ccmd + ChatColor.RESET + "\n" + desc;
-        ComponentBuilder cb = new ComponentBuilder(ccmd + cdesc);
-        cb.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sk " +  cmd));
-        cb.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                TextComponent.fromLegacyText(tooltip)));
-        player.spigot().sendMessage(cb.create());
-    }
-
-    // Helpers
-
-    private List<String> complete(final String arg,
-                                  final Collection<String> opt) {
-        return opt.stream().filter(o -> o.startsWith(arg))
-            .collect(Collectors.toList());
-    }
-
-    private List<String> complete(final String arg,
-                                  final Stream<String> opt) {
-        return opt.filter(o -> o.startsWith(arg))
-            .collect(Collectors.toList());
-    }
-
-    // Wrong Throwers
-
-    Player requirePlayer(final CommandSender sender) throws Wrong {
-        if (!(sender instanceof Player)) {
-            throw new Wrong("Player required");
-        }
-        return (Player) sender;
+        lines.add(talentComponent);
+        lines.add(Component.empty());
+        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
     }
 }

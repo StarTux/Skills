@@ -1,22 +1,36 @@
 main: com.cavetale.skills.SkillsPlugin
 name: Skills
+
 version: 0.1
-api-version: 1.13
+api-version: 1.17
+
 description: Skills Plugin
 author: StarTux
 website: https://cavetale.com
+
 depend: [Core, WorldMarker, SQL, Exploits, PlayerCache]
 softdepend: []
+
 commands:
+
   skills:
     aliases: [skill, sk]
     description: Skills Command
     permission: skills.skills
-    permission-message: You do not have permission!
-    usage: /<command>
+    usage: /sk
+
+  skilladmin:
+    aliases: [skadm]
+    description: Skills Admin Command
+    permission: skills.admin
+    usage: /skadm
+
 permissions:
+
   skills.skills:
     description: Use /skills
     default: op
-    children:
-      skills.child: true
+
+  skills.admin:
+    description: Use /skilladmin
+    default: op

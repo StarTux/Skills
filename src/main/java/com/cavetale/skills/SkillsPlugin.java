@@ -16,7 +16,9 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
 import lombok.NonNull;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
@@ -26,27 +28,29 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SkillsPlugin extends JavaPlugin {
-    SkillsCommand skillsCommand = new SkillsCommand(this);
-    EventListener eventListener = new EventListener(this);
-    Farming farming = new Farming(this);
-    Random random = ThreadLocalRandom.current();
-    SQLDatabase database = new SQLDatabase(this);
-    final List<SQLSkill> skillColumns = new ArrayList<>();
-    final Map<UUID, SQLPlayer> playerColumns = new HashMap<>();
-    final Map<UUID, Session> sessions = new HashMap<>();
-    final Mining mining = new Mining(this);
-    final Combat combat = new Combat(this);
-    final Metadata meta = new Metadata(this);
-    Gson gson = new Gson();
-    Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
-    Map<String, TalentInfo> talentInfos;
-    Map<String, Info> infos;
-    long ticks = 0;
-    @Getter private final WorldMarkerManager worldMarkerManager = new WorldMarkerManager(this);;
+    protected SkillsCommand skillsCommand = new SkillsCommand(this);
+    protected AdminCommand adminCommand = new AdminCommand(this);
+    protected EventListener eventListener = new EventListener(this);
+    protected Farming farming = new Farming(this);
+    protected Random random = ThreadLocalRandom.current();
+    protected SQLDatabase database = new SQLDatabase(this);
+    protected final List<SQLSkill> skillColumns = new ArrayList<>();
+    protected final Map<UUID, SQLPlayer> playerColumns = new HashMap<>();
+    protected final Map<UUID, Session> sessions = new HashMap<>();
+    protected final Mining mining = new Mining(this);
+    protected final Combat combat = new Combat(this);
+    protected final Metadata meta = new Metadata(this);
+    protected Gson gson = new Gson();
+    protected Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
+    protected Map<String, TalentInfo> talentInfos;
+    protected Map<String, Info> infos;
+    protected long ticks = 0;
+    @Getter private final WorldMarkerManager worldMarkerManager = new WorldMarkerManager(this);
 
     @Override
     public void onEnable() {
-        getCommand("skills").setExecutor(skillsCommand);
+        skillsCommand.enable();
+        adminCommand.enable();
         getServer().getPluginManager().registerEvents(eventListener, this);
         database.registerTables(SQLSkill.class, SQLPlayer.class);
         database.createAllTables();
@@ -69,14 +73,14 @@ public final class SkillsPlugin extends JavaPlugin {
         worldMarkerManager.disable();
     }
 
-    void onTick() {
+    protected void onTick() {
         ticks += 1;
         for (Session session : sessions.values()) {
             session.onTick();
         }
     }
 
-    void loadDatabase() {
+    protected void loadDatabase() {
         skillColumns.clear();
         skillColumns.addAll(database.find(SQLSkill.class).findList());
         List<SQLPlayer> players = database.find(SQLPlayer.class).findList();
@@ -86,7 +90,7 @@ public final class SkillsPlugin extends JavaPlugin {
         }
     }
 
-    SQLPlayer playerColumnOf(@NonNull UUID uuid) {
+    protected SQLPlayer playerColumnOf(@NonNull UUID uuid) {
         SQLPlayer result = playerColumns.get(uuid);
         if (result == null) {
             result = new SQLPlayer(uuid);
@@ -96,7 +100,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return result;
     }
 
-    Map<SkillType, SQLSkill> skillColumnsOf(@NonNull UUID uuid) {
+    protected Map<SkillType, SQLSkill> skillColumnsOf(@NonNull UUID uuid) {
         Map<SkillType, SQLSkill> map = new EnumMap<>(SkillType.class);
         for (SQLSkill col : skillColumns) {
             if (!uuid.equals(col.player)) continue;
@@ -114,7 +118,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return map;
     }
 
-    Session sessionOf(@NonNull Player player) {
+    protected Session sessionOf(@NonNull Player player) {
         final UUID uuid = player.getUniqueId();
         Session session = sessions.get(uuid);
         if (session == null) {
@@ -126,7 +130,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return session;
     }
 
-    void loadSession(@NonNull Player player) {
+    protected void loadSession(@NonNull Player player) {
         Session session = sessionOf(player);
         if (session.talents.isEmpty() && session.getTalentPoints() == 0) {
             revokeAdvancement(player, null);
@@ -142,7 +146,7 @@ public final class SkillsPlugin extends JavaPlugin {
         }
     }
 
-    void removeSession(@NonNull Player player) {
+    protected void removeSession(@NonNull Player player) {
         Session session = sessions.remove(player.getUniqueId());
         if (session != null) {
             session.onDisable();
@@ -154,7 +158,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return lvl * 50 + lvl * lvl * 10;
     }
 
-    void addSkillPoints(@NonNull Player player, @NonNull SkillType skill, final int add) {
+    protected void addSkillPoints(@NonNull Player player, @NonNull SkillType skill, final int add) {
         Session session = sessionOf(player);
         SQLSkill col = session.skillColumns.get(skill);
         int points = col.points + add;
@@ -165,8 +169,8 @@ public final class SkillsPlugin extends JavaPlugin {
             session.playerColumn.levels += 1;
             session.playerColumn.modified = true;
             Effects.levelup(player);
-            player.sendTitle(ChatColor.GOLD + skill.displayName,
-                             ChatColor.WHITE + "Level " + col.level);
+            player.showTitle(Title.title(Component.text(skill.displayName, NamedTextColor.GOLD),
+                                         Component.text("Level " + col.level, NamedTextColor.WHITE)));
         }
         col.points = points;
         col.modified = true;
@@ -183,7 +187,7 @@ public final class SkillsPlugin extends JavaPlugin {
      * @param talent The talent, or null for the root advancement.
      * @return true if advancements were changed, false otherwise.
      */
-    boolean giveAdvancement(@NonNull Player player, Talent talent) {
+    protected boolean giveAdvancement(@NonNull Player player, Talent talent) {
         // talent == null => root advancement ("talents/talents")
         String name = talent != null ? talent.key : "talents";
         NamespacedKey key = new NamespacedKey(this, "talents/" + name);
@@ -194,7 +198,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return true;
     }
 
-    boolean revokeAdvancement(@NonNull Player player, Talent talent) {
+    protected boolean revokeAdvancement(@NonNull Player player, Talent talent) {
         // talent == null => root advancement ("talents/talents")
         String name = talent != null ? talent.key : "talents";
         NamespacedKey key = new NamespacedKey(this, "talents/" + name);
@@ -205,7 +209,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return true;
     }
 
-    boolean rollTalentPoint(@NonNull Player player, int increase) {
+    protected boolean rollTalentPoint(@NonNull Player player, int increase) {
         final int total = 800;
         Session session = sessionOf(player);
         if (session.talents.size() >= Talent.COUNT) return false;
@@ -225,7 +229,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return true;
     }
 
-    void addTalentPoints(@NonNull Player player, final int amount) {
+    protected void addTalentPoints(@NonNull Player player, final int amount) {
         if (amount == 0) return;
         Session session = sessionOf(player);
         int points = session.playerColumn.talentPoints + amount;
@@ -238,16 +242,16 @@ public final class SkillsPlugin extends JavaPlugin {
         int cost = session.getTalentCost();
         if (points >= cost) {
             if (!noEffect) Effects.talentUnlock(player);
-            player.sendTitle(ChatColor.LIGHT_PURPLE + "Talent",
-                             ChatColor.WHITE + "New Unlock Available");
+            player.showTitle(Title.title(Component.text("Talent", NamedTextColor.LIGHT_PURPLE),
+                                         Component.text("New Unlock Available", NamedTextColor.WHITE)));
         } else {
             if (!noEffect) Effects.talentPoint(player);
-            player.sendTitle(ChatColor.LIGHT_PURPLE + "Talent Points",
-                             ChatColor.WHITE + "Progress " + points + "/" + cost);
+            player.showTitle(Title.title(Component.text("Talent Points", NamedTextColor.LIGHT_PURPLE),
+                                         Component.text("Progress " + points + "/" + cost, NamedTextColor.WHITE)));
         }
     }
 
-    void saveSQL(@NonNull Object row) {
+    protected void saveSQL(@NonNull Object row) {
         if (isEnabled()) {
             database.saveAsync(row, null);
         } else {
@@ -255,12 +259,12 @@ public final class SkillsPlugin extends JavaPlugin {
         }
     }
 
-    ConfigurationSection loadYamlResource(@NonNull final String name) {
+    protected ConfigurationSection loadYamlResource(@NonNull final String name) {
         return YamlConfiguration.loadConfiguration(new InputStreamReader(getResource(name)));
     }
 
     // May return null
-    Info getInfo(String name) {
+    protected Info getInfo(String name) {
         if (infos == null) {
             infos = new HashMap<>();
             ConfigurationSection conf = loadYamlResource("infos.yml");
@@ -272,7 +276,7 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     // Never returns null
-    TalentInfo getTalentInfo(String name) {
+    protected TalentInfo getTalentInfo(String name) {
         if (talentInfos == null) {
             talentInfos = new HashMap<>();
             ConfigurationSection conf = loadYamlResource("talents.yml");
@@ -289,7 +293,8 @@ public final class SkillsPlugin extends JavaPlugin {
         return result;
     }
 
-    void unloadAdvancements() {
+    @SuppressWarnings("deprecation") // getUnsafe
+    protected void unloadAdvancements() {
         List<NamespacedKey> keys = new ArrayList<>();
         for (Iterator<Advancement> iter = getServer().advancementIterator(); iter.hasNext();) {
             Advancement it = iter.next();
@@ -302,7 +307,7 @@ public final class SkillsPlugin extends JavaPlugin {
         getServer().reloadData();
     }
 
-    void loadAdvancements() {
+    protected void loadAdvancements() {
         loadAdvancement(null);
         for (Talent talent : Talent.values()) {
             loadAdvancement(talent);
@@ -310,7 +315,8 @@ public final class SkillsPlugin extends JavaPlugin {
         getServer().reloadData();
     }
 
-    void loadAdvancement(Talent talent) {
+    @SuppressWarnings("deprecation") // getUnsafe
+    protected void loadAdvancement(Talent talent) {
         String name = talent != null ? talent.key : "talents";
         NamespacedKey key = new NamespacedKey(this, "talents/" + name);
         if (getServer().getAdvancement(key) != null) return;
@@ -322,7 +328,7 @@ public final class SkillsPlugin extends JavaPlugin {
         getLogger().info("Talent advancement loaded: " + name);
     }
 
-    String makeAdvancement(Talent talent) {
+    protected String makeAdvancement(Talent talent) {
         String name;
         String parent;
         if (talent != null) {
@@ -366,7 +372,7 @@ public final class SkillsPlugin extends JavaPlugin {
         return prettyGson.toJson(map);
     }
 
-    boolean unlockTalent(@NonNull Player player, @NonNull Talent talent) {
+    protected boolean unlockTalent(@NonNull Player player, @NonNull Talent talent) {
         Session session = sessionOf(player);
         int cost = session.getTalentCost();
         if (session.getTalentPoints() < cost) return false;
