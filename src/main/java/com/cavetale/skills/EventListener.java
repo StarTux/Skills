@@ -1,6 +1,8 @@
 package com.cavetale.skills;
 
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
+import com.cavetale.skills.session.Session;
+import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
@@ -26,8 +28,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -122,16 +122,6 @@ final class EventListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW)
-    void onPlayerJoin(PlayerJoinEvent event) {
-        plugin.loadSession(event.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.removeSession(event.getPlayer());
-    }
-
     @EventHandler(priority = EventPriority.MONITOR)
     void onEntityDeath(EntityDeathEvent event) {
         LivingEntity entity = event.getEntity();
@@ -205,10 +195,10 @@ final class EventListener implements Listener {
     void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            Session session = plugin.sessionOf(player);
+            Session session = plugin.sessions.of(player);
             double health = player.getHealth();
             if (session.hasTalent(Talent.COMBAT_GOD_MODE)
-                && session.immortal > 0
+                && session.getImmortal() > 0
                 && health <= event.getFinalDamage()) {
                 event.setDamage(Math.max(0.0, health - 1.0));
                 Effects.godMode(player);
@@ -224,7 +214,7 @@ final class EventListener implements Listener {
         Projectile proj = event.getEntity();
         if (proj.getShooter() instanceof Mob) {
             Mob mob = (Mob) proj.getShooter();
-            if (plugin.combat.statusEffectOf(mob).hasSilence()) {
+            if (MobStatusEffect.SILENCE.has(mob)) {
                 Effects.denyLaunch(mob);
                 event.setCancelled(true);
             }
@@ -235,11 +225,11 @@ final class EventListener implements Listener {
     void onEntityPotionEffect(EntityPotionEffectEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            Session session = plugin.sessionOf(player);
+            Session session = plugin.sessions.of(player);
             if (session.hasTalent(Talent.COMBAT_SPIDERS)
-                && session.poisonFreebie
+                && session.isPoisonFreebie()
                 && event.getCause() == EntityPotionEffectEvent.Cause.ATTACK) {
-                session.poisonFreebie = false;
+                session.setPoisonFreebie(false);
                 event.setCancelled(true);
             }
         }

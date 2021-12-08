@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.NonNull;
 
-enum Talent {
+public enum Talent {
     // Mining
     MINE_STRIP(null),
     MINE_ORE_ALERT(Talent.MINE_STRIP),
@@ -55,14 +55,14 @@ enum Talent {
         }
     }
 
-    static Talent of(@NonNull String key) {
+    public static Talent of(@NonNull String key) {
         for (Talent t : Talent.values()) {
             if (key.equals(t.key)) return t;
         }
         return null;
     }
 
-    boolean isTerminal() {
+    public boolean isTerminal() {
         for (Talent talent : Talent.values()) {
             if (talent.depends == this) return false;
         }

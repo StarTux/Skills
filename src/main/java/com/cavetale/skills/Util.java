@@ -45,10 +45,6 @@ final class Util {
                                          orb -> orb.setExperience(amount));
     }
 
-    static long now() {
-        return System.nanoTime() / 1000000000L;
-    }
-
     static ItemStack getHand(@NonNull Player player,
                              @NonNull EquipmentSlot slot) {
         switch (slot) {

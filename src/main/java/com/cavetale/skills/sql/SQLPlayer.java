@@ -1,4 +1,4 @@
-package com.cavetale.skills;
+package com.cavetale.skills.sql;
 
 import java.util.UUID;
 import javax.persistence.Column;
@@ -13,24 +13,24 @@ import lombok.Setter;
 @Table(name = "players")
 public final class SQLPlayer {
     @Id
-    Integer id;
+    private Integer id;
     @Column(nullable = false, unique = true)
-    UUID uuid;
+    private UUID uuid;
     @Column(nullable = false)
-    int talentPoints = 0;
+    private int talentPoints = 0;
     @Column(nullable = false)
-    int talentChance = 0;
+    private int talentChance = 0;
     @Column(nullable = false)
-    int levels = 0;
+    private int levels = 0;
     @Column(nullable = false)
-    int talents = 0;
+    private int talents = 0;
     @Column(nullable = true, length = 4096)
-    String json;
-    transient boolean modified;
+    private String json;
+    private transient boolean modified;
 
     public SQLPlayer() { }
 
-    SQLPlayer(@NonNull final UUID uuid) {
+    public SQLPlayer(@NonNull final UUID uuid) {
         this.uuid = uuid;
     }
 }

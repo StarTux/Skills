@@ -17,7 +17,7 @@ public enum SkillType {
         displayName = Util.niceEnumName(this);
     }
 
-    static SkillType ofKey(@NonNull String key) {
+    public static SkillType ofKey(@NonNull String key) {
         for (SkillType s : SkillType.values()) {
             if (key.equals(s.key)) return s;
         }

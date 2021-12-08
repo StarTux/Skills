@@ -2,6 +2,8 @@ package com.cavetale.skills;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
+import com.cavetale.skills.session.Session;
+import com.cavetale.skills.util.Effects;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -26,9 +28,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-final class Mining {
-    final SkillsPlugin plugin;
-    final EnumMap<Material, Reward> rewards = new EnumMap<>(Material.class);
+public final class Mining {
+    protected final SkillsPlugin plugin;
+    protected final EnumMap<Material, Reward> rewards = new EnumMap<>(Material.class);
 
     @Value
     static class Reward {
@@ -57,7 +59,7 @@ final class Mining {
         rewards.put(material, new Reward(material, sp, exp, item, drops, replaceable));
     }
 
-    Mining(@NonNull final SkillsPlugin plugin) {
+    public Mining(@NonNull final SkillsPlugin plugin) {
         this.plugin = plugin;
         // exp values are maxima according to the wiki
         reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.STONE);
@@ -92,7 +94,7 @@ final class Mining {
         reward(Material.ANCIENT_DEBRIS, 20, 10, Material.NETHERITE_SCRAP, 1, Material.NETHERRACK); // 4-5
     }
 
-    static boolean stone(@NonNull Block block) {
+    protected static boolean stone(@NonNull Block block) {
         switch (block.getType()) {
         case STONE:
         case DEEPSLATE:
@@ -106,7 +108,7 @@ final class Mining {
         }
     }
 
-    static boolean dirt(@NonNull Block block) {
+    protected static boolean dirt(@NonNull Block block) {
         switch (block.getType()) {
         case GRAVEL:
         case DIRT:
@@ -116,7 +118,7 @@ final class Mining {
         }
     }
 
-    static boolean isPickaxe(@NonNull ItemStack item) {
+    protected static boolean isPickaxe(@NonNull ItemStack item) {
         switch (item.getType()) {
         case DIAMOND_PICKAXE:
         case IRON_PICKAXE:
@@ -133,7 +135,7 @@ final class Mining {
     /**
      * Called via scheduler.
      */
-    private int stripMine(@NonNull Player player, @NonNull Block block) {
+    protected int stripMine(@NonNull Player player, @NonNull Block block) {
         // Check item
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return 0;
@@ -191,11 +193,11 @@ final class Mining {
      *
      * @bugs Does NOT deal damage to the pickaxe.
      */
-    private int mineVein(@NonNull Player player,
-                         @NonNull Block block,
-                         @NonNull ItemStack item,
-                         @NonNull Reward reward,
-                         final int efficiency) {
+    protected int mineVein(@NonNull Player player,
+                           @NonNull Block block,
+                           @NonNull ItemStack item,
+                           @NonNull Reward reward,
+                           final int efficiency) {
         Material mat = reward.material;
         HashSet<Block> done = new HashSet<>();
         HashSet<Block> todo = new HashSet<>();
@@ -236,7 +238,7 @@ final class Mining {
         return vein.size();
     }
 
-    private boolean oreAlert(@NonNull Player player, @NonNull Block block) {
+    protected boolean oreAlert(@NonNull Player player, @NonNull Block block) {
         final int radius = 3;
         ArrayList<Block> bs = new ArrayList<>();
         for (int y = -radius; y <= radius; y += 1) {
@@ -261,10 +263,11 @@ final class Mining {
     /**
      * Called by scheduler.
      */
-    private int xray(@NonNull Player player, @NonNull Block block) {
+    protected int xray(@NonNull Player player, @NonNull Block block) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return 0;
         // Night Vision
         final int potionDuration = 45 * 20; // ticks
         PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
@@ -277,8 +280,8 @@ final class Mining {
                                                     true)); // icon
         }
         // Actual XRay
-        if (session.xrayActive) return 0;
-        session.xrayActive = true;
+        if (session.isXrayActive()) return 0;
+        session.setXrayActive(true);
         final int radius = 3;
         final int realRadius = 2;
         final ArrayList<Block> bs = new ArrayList<>();
@@ -317,7 +320,7 @@ final class Mining {
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
-                plugin.sessionOf(player).xrayActive = false;
+                plugin.sessions.apply(player, s -> s.setXrayActive(false));
                 if (!player.getWorld().equals(block.getWorld())) return;
                 for (Block b : bs) {
                     if (!player.isValid()) return;
@@ -328,7 +331,7 @@ final class Mining {
         return bs.size();
     }
 
-    void fakeBlock(Player player, Block block, BlockData fake) {
+    protected void fakeBlock(Player player, Block block, BlockData fake) {
         player.sendBlockChange(block.getLocation(), fake);
         // Find spectators
         for (Player p : player.getWorld().getPlayers()) {
@@ -340,13 +343,14 @@ final class Mining {
         }
     }
 
-    void mine(@NonNull Player player, @NonNull Block block) {
+    protected void mine(@NonNull Player player, @NonNull Block block) {
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return;
         if (!isPickaxe(item)) return;
         final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return;
         final boolean sneak = player.isSneaking();
         final boolean stone = stone(block);
         // Strip Mining
@@ -374,7 +378,8 @@ final class Mining {
             oreAlert(player, block);
         }
         // Xray
-        if (session.isTalentEnabled(Talent.MINE_XRAY) && !session.xrayActive && stone
+        if (session.isTalentEnabled(Talent.MINE_XRAY)
+            && !session.isXrayActive() && stone
             && fortune > 0 && !sneak && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     xray(player, block);
@@ -388,11 +393,12 @@ final class Mining {
         }
     }
 
-    boolean usePickaxe(@NonNull Player player, @NonNull Block block,
-                       @NonNull BlockFace face, @NonNull ItemStack item) {
+    protected boolean usePickaxe(@NonNull Player player, @NonNull Block block,
+                                 @NonNull BlockFace face, @NonNull ItemStack item) {
         Reward reward = rewards.get(block.getType());
         if (reward == null || reward.item == null || reward.drops <= 0) return false;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return false;
         if (!session.isTalentEnabled(Talent.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
         if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, block)) return false;
@@ -456,12 +462,14 @@ final class Mining {
      * Do NOT drop any items because they only drop when silk
      * stripping.
      */
-    private boolean giveReward(@NonNull Player player, @NonNull Block block, @NonNull Reward reward) {
+    protected boolean giveReward(@NonNull Player player, @NonNull Block block, @NonNull Reward reward) {
         if (Exploits.isPlayerPlaced(block)) return false;
-        plugin.addSkillPoints(player, SkillType.MINING, reward.sp);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return false;
+        session.addSkillPoints(SkillType.MINING, reward.sp);
         Material mat = block.getType();
         if (Tag.DIAMOND_ORES.isTagged(mat) || Tag.EMERALD_ORES.isTagged(mat)) {
-            plugin.rollTalentPoint(player, 1);
+            session.rollTalentPoint(1);
         }
         return true;
     }

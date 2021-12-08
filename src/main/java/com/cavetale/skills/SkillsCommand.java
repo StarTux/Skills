@@ -3,6 +3,11 @@ package com.cavetale.skills;
 import com.cavetale.core.command.AbstractCommand;
 import com.cavetale.core.command.CommandArgCompleter;
 import com.cavetale.core.command.CommandWarn;
+import com.cavetale.skills.session.Session;
+import com.cavetale.skills.sql.SQLPlayer;
+import com.cavetale.skills.sql.SQLSkill;
+import com.cavetale.skills.util.Books;
+import com.cavetale.skills.util.Effects;
 import com.winthier.playercache.PlayerCache;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,13 +62,16 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
 
     protected Component prop(String left, String right) {
         return Component.join(JoinConfiguration.noSeparators(),
-                              Component.text(left, NamedTextColor.LIGHT_PURPLE),
-                              Component.text(right, NamedTextColor.WHITE));
+                              Component.text(left, NamedTextColor.GRAY),
+                              Component.text(right));
     }
 
     protected boolean skill(Player player, @NonNull SkillType skill, String[] args) {
         if (args.length != 0) return false;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) {
+            throw new CommandWarn("Session not ready. Please try again later!");
+        }
         int level = session.getLevel(skill);
         int points = session.getSkillPoints(skill);
         int req = plugin.pointsForLevelUp(level + 1);
@@ -73,20 +81,18 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .filter(t -> t.skill == skill)
             .filter(session::hasTalent).count();
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.empty());
         lines.add(Component.text(skill.displayName, NamedTextColor.GOLD, TextDecoration.BOLD));
         lines.add(Component.empty());
-        Info info = plugin.getInfo(skill.key);
+        Info info = plugin.infos.get(skill.key);
         if (info != null) {
             lines.add(Component.text(info.description.split("\n\n")[0], NamedTextColor.GRAY));
         }
         lines.add(Component.empty());
         lines.add(prop("Level ", "" + level));
         lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skill)));
-        lines.add(prop("Skill Points ", points + "/" + req));
+        lines.add(prop("Points ", points + "/" + req));
         lines.add(prop("Talents ", talentsHas + "/" + talents));
-        lines.add(Component.empty());
-        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
+        Books.open(player, List.of(Component.join(JoinConfiguration.separator(Component.newline()), lines)));
         return true;
     }
 
@@ -94,7 +100,10 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         if (args.length != 0) return false;
         List<Component> lines = new ArrayList<>();
         lines.add(Component.empty());
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) {
+            throw new CommandWarn("Session not ready. Please try again later!");
+        }
         for (SkillType skill : SkillType.values()) {
             int level = session.getLevel(skill);
             int points = session.getSkillPoints(skill);
@@ -122,7 +131,6 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     protected boolean info(@NonNull Player player, String[] args) {
         if (args.length > 1) return false;
         if (args.length == 0) {
-            plugin.getInfo("");
             Component msg = Component.join(JoinConfiguration.builder()
                                            .prefix(Component.text("Pages: ", NamedTextColor.LIGHT_PURPLE))
                                            .separator(Component.text(", ", NamedTextColor.DARK_PURPLE))
@@ -133,18 +141,16 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             player.sendMessage(msg);
             return true;
         }
-        Info info = plugin.getInfo(args[0]);
+        Info info = plugin.infos.get(args[0]);
         if (info == null) {
             throw new CommandWarn("Not found: " + args[0]);
         }
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.empty());
         lines.add(Component.text(info.title, NamedTextColor.YELLOW, TextDecoration.BOLD));
         for (String p : info.description.split("\n\n")) {
             lines.add(Component.empty());
             lines.add(Component.text(p));
         }
-        lines.add(Component.empty());
         player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
         return true;
     }
@@ -157,7 +163,10 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         switch (args[0]) {
         case "unlock": {
             if (args.length != 2) return false;
-            Session session = plugin.sessionOf(player);
+            Session session = plugin.sessions.of(player);
+            if (!session.isEnabled()) {
+                throw new CommandWarn("Session not ready. Please try again later!");
+            }
             if (session.getTalentPoints() < session.getTalentCost()) {
                 throw new CommandWarn("You don't have enough Talent Points!");
             }
@@ -171,7 +180,7 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             if (!session.canAccessTalent(talent)) {
                 throw new CommandWarn("Parent not yet available!");
             }
-            if (!plugin.unlockTalent(player, talent)) {
+            if (!session.unlockTalent(talent)) {
                 throw new CommandWarn("An unknown error occured.");
             }
             Effects.talentUnlock(player);
@@ -180,8 +189,12 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         }
         case "toggle": {
             if (args.length == 1) {
-                boolean dis = !plugin.sessionOf(player).talentsDisabled;
-                plugin.sessionOf(player).talentsDisabled = dis;
+                Session session = plugin.sessions.of(player);
+                if (!session.isEnabled()) {
+                    throw new CommandWarn("Session not ready. Please try again later!");
+                }
+                boolean dis = !session.isTalentsDisabled();
+                session.setTalentsDisabled(dis);
                 player.sendMessage(dis
                                    ? Component.text("Talents disabled", NamedTextColor.RED)
                                    : Component.text("Talents enabled", NamedTextColor.GREEN));
@@ -192,16 +205,19 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                 if (talent == null) {
                     throw new CommandWarn("Invalid talent!");
                 }
-                Session session = plugin.sessionOf(player);
+                Session session = plugin.sessions.of(player);
+                if (!session.isEnabled()) {
+                    throw new CommandWarn("Session not ready. Please try again later!");
+                }
                 if (!session.hasTalent(talent)) {
                     throw new CommandWarn("You don't have this talent!");
                 }
-                if (session.disabledTalents.contains(talent)) {
-                    session.disabledTalents.remove(talent);
+                if (session.getDisabledTalents().contains(talent)) {
+                    session.getDisabledTalents().remove(talent);
                     player.sendMessage(Component.text("Talent enabled: " + talent.displayName,
                                                       NamedTextColor.GREEN));
                 } else {
-                    session.disabledTalents.add(talent);
+                    session.getDisabledTalents().add(talent);
                     player.sendMessage(Component.text("Talent disabled: " + talent.displayName,
                                                       NamedTextColor.RED));
                 }
@@ -274,25 +290,25 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         if (skill == null) {
             if (args[0].equals("total")) {
                 title = "Total";
-                scores = plugin.playerColumns.values().stream()
-                    .filter(p -> p.levels > 0)
-                    .map(p -> new Score(p.levels, p.uuid))
+                scores = plugin.database.find(SQLPlayer.class).findList().stream()
+                    .filter(p -> p.getLevels() > 0)
+                    .map(p -> new Score(p.getLevels(), p.getUuid()))
                     .collect(Collectors.toList());
             } else if (args[0].equals("talents")) {
                 title = "Talents";
-                scores = plugin.playerColumns.values().stream()
-                    .filter(p -> p.talents > 0)
-                    .map(p -> new Score(p.talents, p.uuid))
+                scores = plugin.database.find(SQLPlayer.class).findList().stream()
+                    .filter(p -> p.getTalents() > 0)
+                    .map(p -> new Score(p.getTalents(), p.getUuid()))
                     .collect(Collectors.toList());
             } else {
                 throw new IllegalStateException("arg=" + args[0]);
             }
         } else {
             title = skill.displayName;
-            scores = plugin.skillColumns.stream()
-                .filter(s -> s.level > 0)
-                .filter(s -> skill.key.equals(s.skill))
-                .map(s -> new Score(s.level, s.player))
+            scores = plugin.database.find(SQLSkill.class).findList().stream()
+                .filter(s -> s.getLevel() > 0)
+                .filter(s -> skill.key.equals(s.getSkill()))
+                .map(s -> new Score(s.getLevel(), s.getPlayer()))
                 .collect(Collectors.toList());
         }
         int offset = page * 10;
@@ -328,9 +344,11 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
 
     public void talentMenu(@NonNull Player player) {
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.empty());
         lines.add(Component.text("Skill Talents", NamedTextColor.GOLD, TextDecoration.BOLD));
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) {
+            throw new CommandWarn("Session not ready. Please try again later!");
+        }
         for (SkillType skillType : SkillType.values()) {
             List<Component> cb = new ArrayList<>();
             cb.add(Component.text(skillType.displayName, NamedTextColor.GRAY));
@@ -340,7 +358,7 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                 NamedTextColor talentColor;
                 if (session.hasTalent(talent)) {
                     component = Component.text("(" + info.title + ")",
-                                               session.disabledTalents.contains(talent) ? NamedTextColor.RED : NamedTextColor.GREEN)
+                                               session.getDisabledTalents().contains(talent) ? NamedTextColor.RED : NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.runCommand("/sk talent toggle " + talent.key));
                     talentColor = NamedTextColor.GREEN;
                 } else if (session.canAccessTalent(talent) && session.getTalentPoints() >= session.getTalentCost()) {
@@ -354,7 +372,7 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                 if (session.hasTalent(talent)) {
                     Component tooltip = Component.join(JoinConfiguration.separator(Component.newline()), new Component[] {
                             Component.text(info.title, NamedTextColor.WHITE),
-                            (session.disabledTalents.contains(talent)
+                            (session.getDisabledTalents().contains(talent)
                              ? (Component.text("Disabled", NamedTextColor.RED)
                                 .append(Component.text(" Click to enable", NamedTextColor.GRAY)))
                              : (Component.text("Enabled", NamedTextColor.GREEN)
@@ -379,8 +397,8 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         }
         lines.add(prop("Talent Points ", "" + session.getTalentPoints()));
         lines.add(prop("Unlock Cost ", "" + session.getTalentCost()));
-        Component talentComponent = prop("Talents ", session.talentsDisabled ? "Disabled " : "Enabled ");
-        if (session.talentsDisabled) {
+        Component talentComponent = prop("Talents ", session.isTalentsDisabled() ? "Disabled " : "Enabled ");
+        if (session.isTalentsDisabled()) {
             talentComponent = talentComponent
                 .append(Component.text("[Enable]", NamedTextColor.GREEN)
                         .hoverEvent(HoverEvent.showText(Component.text("Enable Talents", NamedTextColor.GREEN)))
@@ -392,7 +410,6 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                         .clickEvent(ClickEvent.runCommand("/sk talent toggle")));
         }
         lines.add(talentComponent);
-        lines.add(Component.empty());
         player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
     }
 }

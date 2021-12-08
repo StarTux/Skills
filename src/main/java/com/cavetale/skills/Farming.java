@@ -1,6 +1,8 @@
 package com.cavetale.skills;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
+import com.cavetale.skills.session.Session;
+import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
@@ -69,7 +71,7 @@ public final class Farming {
         }
     }
 
-    boolean isHoe(ItemStack item) {
+    protected boolean isHoe(ItemStack item) {
         if (item == null) return false;
         switch (item.getType()) {
         case AIR:
@@ -88,10 +90,11 @@ public final class Farming {
     /**
      * Player uses a growstick on a certain block.
      */
-    boolean useStick(@NonNull Player player, @NonNull Block block) {
+    protected boolean useStick(@NonNull Player player, @NonNull Block block) {
         if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return false;
         int radius = 0;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return false;
         if (session.isTalentEnabled(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
         boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
@@ -103,7 +106,7 @@ public final class Farming {
         return success;
     }
 
-    boolean waterBlock(@NonNull Player player, @NonNull Block block) {
+    protected boolean waterBlock(@NonNull Player player, @NonNull Block block) {
         if (block.getType() == Material.FARMLAND) {
             Block upper = block.getRelative(0, 1, 0);
             if (waterSoil(block) || waterCrop(player, upper)) {
@@ -126,7 +129,7 @@ public final class Farming {
      *
      * Play the effect and set the id otherwise.
      */
-    boolean waterCrop(@NonNull Player player, @NonNull Block block) {
+    protected boolean waterCrop(@NonNull Player player, @NonNull Block block) {
         if (Crop.of(block) == null) return false;
         if (isRipe(block)) return false;
         if (BlockMarker.hasId(block)) return false;
@@ -134,7 +137,7 @@ public final class Farming {
         return true;
     }
 
-    boolean waterSoil(@NonNull Block block) {
+    protected boolean waterSoil(@NonNull Block block) {
         BlockData blockData = block.getBlockData();
         if (!(blockData instanceof Farmland)) return false;
         Farmland farmland = (Farmland) blockData;
@@ -145,19 +148,20 @@ public final class Farming {
         return true;
     }
 
-    boolean isRipe(@NonNull Block block) {
+    protected boolean isRipe(@NonNull Block block) {
         BlockData blockData = block.getBlockData();
         if (!(blockData instanceof Ageable)) return false;
         Ageable ageable = (Ageable) blockData;
         return ageable.getAge() >= ageable.getMaximumAge();
     }
 
-    void harvest(@NonNull Player player, @NonNull Block block) {
+    protected void harvest(@NonNull Player player, @NonNull Block block) {
         Crop crop = Crop.of(block);
         if (crop == null) return;
         if (!isRipe(block)) return;
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return;
         // Extra crops
         if (session.isTalentEnabled(Talent.FARM_CROP_DROPS)) {
             block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
@@ -175,18 +179,19 @@ public final class Farming {
             block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             int inc = 1;
             if (session.isTalentEnabled(Talent.FARM_TALENT_POINTS)) inc = 2;
-            boolean noEffect = plugin.rollTalentPoint(player, inc);
+            boolean noEffect = session.rollTalentPoint(inc);
             if (!noEffect) Effects.rewardJingle(loc);
         }
         // Exp
-        plugin.addSkillPoints(player, SkillType.FARMING, 1);
+        session.addSkillPoints(SkillType.FARMING, 1);
         Util.exp(loc, 1 + session.getExpBonus(SkillType.FARMING));
         Effects.harvest(block);
     }
 
-    boolean useSeed(@NonNull Player player, @NonNull Block block,
-                    @NonNull Crop crop, @NonNull ItemStack item) {
-        Session session = plugin.sessionOf(player);
+    protected boolean useSeed(@NonNull Player player, @NonNull Block block,
+                              @NonNull Crop crop, @NonNull ItemStack item) {
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return false;
         Material soil = crop == Crop.NETHER_WART
             ? Material.SOUL_SAND
             : Material.FARMLAND;
@@ -202,7 +207,7 @@ public final class Farming {
         return false;
     }
 
-    int plantRadius(@NonNull Player player, @NonNull Block orig,
+    protected int plantRadius(@NonNull Player player, @NonNull Block orig,
                     @NonNull Crop crop, @NonNull ItemStack item) {
         int result = 0;
         ArrayList<Block> bs = new ArrayList<>(8);

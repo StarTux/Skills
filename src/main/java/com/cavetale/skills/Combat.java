@@ -1,6 +1,10 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.session.Session;
+import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.entity.EntityMarker;
+import com.cavetale.worldmarker.util.Tags;
+import java.time.Duration;
 import java.util.EnumMap;
 import lombok.NonNull;
 import lombok.Value;
@@ -8,7 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Chunk;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Boss;
@@ -21,28 +25,22 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public final class Combat {
-    final SkillsPlugin plugin;
-    final EnumMap<EntityType, Reward> rewards = new EnumMap<>(EntityType.class);
-    static final String CHONK = "skills:chonk";
-    static final String STATUS_EFFECT = "skills:status_effect";
+    protected final SkillsPlugin plugin;
+    protected final EnumMap<EntityType, Reward> rewards = new EnumMap<>(EntityType.class);
+    protected final NamespacedKey killsKey;
+    protected final NamespacedKey lastKillKey;
+
+    protected static final long CHUNK_KILL_COOLDOWN = Duration.ofMinutes(5).toMillis();
 
     @Value
     static class Reward {
         final EntityType type;
         final int sp;
-    }
-
-    protected static final class Chonk {
-        protected Chonk() {
-            time = Util.now();
-        }
-
-        protected int kills;
-        protected long time;
     }
 
     private void reward(@NonNull EntityType type, final int sp) {
@@ -51,6 +49,9 @@ public final class Combat {
 
     public Combat(@NonNull final SkillsPlugin plugin) {
         this.plugin = plugin;
+        this.killsKey = new NamespacedKey(plugin, "kills");
+        this.lastKillKey = new NamespacedKey(plugin, "last_kill");
+        MobStatusEffect.enable(plugin);
         reward(EntityType.ZOMBIE, 1);
         reward(EntityType.SKELETON, 1);
         reward(EntityType.CREEPER, 2);
@@ -94,7 +95,8 @@ public final class Combat {
         Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return;
         boolean rewarded;
         if (mob.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) mob.getLastDamageCause();
@@ -113,15 +115,18 @@ public final class Combat {
         } else {
             rewarded = false;
         }
-        Chunk chunk = mob.getLocation().getChunk();
-        Chonk chonk = plugin.meta.getOrSet(chunk.getBlock(0, 0, 0),
-                                           CHONK, Chonk.class, Chonk::new);
-        long now = Util.now();
-        chonk.kills = Math.max(0, chonk.kills + 10 - (int) (now - chonk.time));
-        chonk.time = Util.now();
-        if (chonk.kills > 50) return;
+        final PersistentDataContainer pdc = mob.getLocation().getChunk().getPersistentDataContainer();
+        final long now = System.currentTimeMillis();
+        final Integer oldKills = Tags.getInt(pdc, killsKey);
+        final Long oldLastKill = Tags.getLong(pdc, lastKillKey);
+        int kills = oldKills != null ? oldKills : 0;
+        long lastKill = oldLastKill != null ? oldLastKill : 0L;
+        kills = now - lastKill < CHUNK_KILL_COOLDOWN ? kills + 1 : 0;
+        Tags.set(pdc, killsKey, kills);
+        Tags.set(pdc, lastKillKey, now);
+        if (kills > 50) return;
         if (rewarded) {
-            plugin.addSkillPoints(player, SkillType.COMBAT, reward.sp);
+            session.addSkillPoints(SkillType.COMBAT, reward.sp);
             event.setDroppedExp(event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
             Effects.kill(mob);
         }
@@ -133,11 +138,11 @@ public final class Combat {
         if (!(proj.getShooter() instanceof Player)) return false;
         Player player = (Player) proj.getShooter();
         if (session.isTalentEnabled(Talent.COMBAT_ARCHER_ZONE)) {
-            session.archerZone = 5 * 20;
-            session.archerZoneKills += 1;
+            session.setArcherZone(5 * 20);
+            session.setArcherZoneKills(session.getArcherZoneKills() + 1);
             player.sendActionBar(Component.join(JoinConfiguration.noSeparators(), new Component[] {
                         Component.text("In The Zone! ", NamedTextColor.RED),
-                        Component.text(session.archerZoneKills, NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD),
+                        Component.text(session.getArcherZoneKills(), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD),
                     }));
             Effects.archerZone(player);
         }
@@ -148,29 +153,20 @@ public final class Combat {
         if (!(event.getDamager() instanceof Player)) return false;
         Player player = (Player) event.getDamager();
         if (session.isTalentEnabled(Talent.COMBAT_GOD_MODE)) {
-            if (session.immortal <= 0) {
+            if (session.getImmortal() <= 0) {
                 player.sendActionBar(Component.text("God Mode!", NamedTextColor.GOLD));
             }
-            session.immortal = 3 * 20;
+            session.setImmortal(3 * 20);
         }
         return true;
-    }
-
-    protected StatusEffect statusEffectOf(@NonNull LivingEntity entity) {
-        StatusEffect result = plugin.meta.get(entity, STATUS_EFFECT, StatusEffect.class)
-            .orElse(null);
-        if (result == null) {
-            result = new StatusEffect();
-            plugin.meta.set(entity, STATUS_EFFECT, result);
-        }
-        return result;
     }
 
     protected void mobDamagePlayer(@NonNull Player player, @NonNull Mob mob,
                                    Projectile proj,
                                    @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return;
         // -50% damage on melee
         if (session.isTalentEnabled(Talent.COMBAT_FIRE)
             && !ranged
@@ -178,10 +174,9 @@ public final class Combat {
             event.setDamage(event.getFinalDamage() * 0.5);
         }
         // Spider
-        if (session.isTalentEnabled(Talent.COMBAT_SPIDERS)
-            && !ranged
-            && statusEffectOf(mob).hasNoPoison()) {
-            session.poisonFreebie = true;
+        if (session.isTalentEnabled(Talent.COMBAT_SPIDERS) && !ranged
+            && MobStatusEffect.NO_POISON.has(mob)) {
+            session.setPoisonFreebie(true);
         }
     }
 
@@ -207,7 +202,7 @@ public final class Combat {
         if (mob instanceof Boss) return false;
         String id = EntityMarker.getId(mob);
         if (id != null && id.contains("boss")) return false;
-        statusEffectOf(mob).silence = Util.now() + 20;
+        MobStatusEffect.SILENCE.set(mob, Duration.ofSeconds(20));
         Effects.applyStatusEffect(mob);
         return true;
     }
@@ -216,7 +211,8 @@ public final class Combat {
                          Projectile proj,
                          @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;
-        Session session = plugin.sessionOf(player);
+        Session session = plugin.sessions.of(player);
+        if (!session.isEnabled()) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         // +50% damage
         if (session.isTalentEnabled(Talent.COMBAT_FIRE)
@@ -236,14 +232,14 @@ public final class Combat {
             && item != null
             && item.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS) > 0
             && isSpider(mob)) {
-            statusEffectOf(mob).noPoison = Util.now() + 30;
+            MobStatusEffect.NO_POISON.set(mob, Duration.ofSeconds(30));
             potion(mob, PotionEffectType.SLOW, 3, 30);
             Effects.applyStatusEffect(mob);
         }
         // In The Zone
         if (session.isTalentEnabled(Talent.COMBAT_ARCHER_ZONE)
             && ranged
-            && session.archerZone > 0) {
+            && session.getArcherZone() > 0) {
             event.setDamage(event.getFinalDamage() * 2.0);
         }
     }

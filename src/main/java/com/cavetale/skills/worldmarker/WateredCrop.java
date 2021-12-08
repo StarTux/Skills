@@ -1,8 +1,8 @@
 package com.cavetale.skills.worldmarker;
 
-import com.cavetale.skills.Effects;
 import com.cavetale.skills.Farming;
 import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
