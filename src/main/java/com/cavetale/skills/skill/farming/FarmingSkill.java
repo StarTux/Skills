@@ -2,17 +2,18 @@ package com.cavetale.skills.skill.farming;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Talent;
 import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
 import java.util.Collections;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,11 +28,17 @@ import org.bukkit.inventory.ItemStack;
  * Called by EventListener et al, owned by SkillsPlugin.
  */
 public final class FarmingSkill extends Skill {
+    private final FarmingListener farmingListener = new FarmingListener(this);
     public static final String WATERED_CROP = "skills:watered_crop";
     public static final String GROWN_CROP = "skills:grown_crop";
 
     public FarmingSkill(final SkillsPlugin plugin) {
         super(plugin, SkillType.FARMING);
+    }
+
+    @Override
+    protected void enable() {
+        Bukkit.getPluginManager().registerEvents(farmingListener, plugin);
     }
 
     public boolean isHoe(ItemStack item) {
@@ -58,7 +65,7 @@ public final class FarmingSkill extends Skill {
         int radius = 0;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;
-        if (session.isTalentEnabled(Talent.FARM_GROWSTICK_RADIUS)) radius = 1;
+        if (session.isTalentEnabled(TalentType.FARM_GROWSTICK_RADIUS)) radius = 1;
         boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
             for (int dx = -radius; dx <= radius; dx += 1) {
@@ -126,7 +133,7 @@ public final class FarmingSkill extends Skill {
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return;
         // Extra crops
-        if (session.isTalentEnabled(Talent.FARM_CROP_DROPS)) {
+        if (session.isTalentEnabled(TalentType.FARM_CROP_DROPS)) {
             block.getWorld().dropItem(loc, new ItemStack(crop.itemMaterial,
                                                          plugin.random.nextInt(3) + 1));
         }
@@ -137,11 +144,11 @@ public final class FarmingSkill extends Skill {
         // Reward Diamond
         double gemChance = 0.01;
         final double roll = plugin.random.nextDouble();
-        if (session.isTalentEnabled(Talent.FARM_DIAMOND_DROPS)) gemChance = 0.02;
+        if (session.isTalentEnabled(TalentType.FARM_DIAMOND_DROPS)) gemChance = 0.02;
         if (roll < gemChance) {
             block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             int inc = 1;
-            if (session.isTalentEnabled(Talent.FARM_TALENT_POINTS)) inc = 2;
+            if (session.isTalentEnabled(TalentType.FARM_TALENT_POINTS)) inc = 2;
             boolean noEffect = session.rollTalentPoint(inc);
             if (!noEffect) Effects.rewardJingle(loc);
         }
@@ -158,7 +165,7 @@ public final class FarmingSkill extends Skill {
         Material soil = crop == Crop.NETHER_WART
             ? Material.SOUL_SAND
             : Material.FARMLAND;
-        if (session.isTalentEnabled(Talent.FARM_PLANT_RADIUS) && !player.isSneaking()) {
+        if (session.isTalentEnabled(TalentType.FARM_PLANT_RADIUS) && !player.isSneaking()) {
             if (block.getType() == soil) {
                 return 0 < plantRadius(player, block.getRelative(0, 1, 0), crop, item);
             }

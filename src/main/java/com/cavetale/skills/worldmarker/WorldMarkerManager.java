@@ -93,7 +93,7 @@ public final class WorldMarkerManager implements BlockMarkerHook {
         if (wateredCrop != null) wateredCrop.disable();
     }
 
-    void tick() {
+    protected void tick() {
         List<WateredCrop> crops = new ArrayList<>(cropsMap.values());
         Collections.shuffle(crops);
         long now = System.currentTimeMillis();

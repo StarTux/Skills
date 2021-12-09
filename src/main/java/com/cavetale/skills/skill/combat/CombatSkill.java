@@ -1,21 +1,21 @@
 package com.cavetale.skills.skill.combat;
 
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Talent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.entity.EntityMarker;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;
 import java.util.EnumMap;
 import lombok.NonNull;
-import lombok.Value;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Ageable;
@@ -34,26 +34,21 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public final class CombatSkill extends Skill {
-    protected final EnumMap<EntityType, Reward> rewards = new EnumMap<>(EntityType.class);
+    private final CombatListener combatListener = new CombatListener(this);;
+    protected final EnumMap<EntityType, CombatReward> rewards = new EnumMap<>(EntityType.class);
     protected final NamespacedKey killsKey;
     protected final NamespacedKey lastKillKey;
 
     protected static final long CHUNK_KILL_COOLDOWN = Duration.ofMinutes(5).toMillis();
 
-    @Value
-    static class Reward {
-        final EntityType type;
-        final int sp;
-    }
-
-    private void reward(@NonNull EntityType type, final int sp) {
-        rewards.put(type, new Reward(type, sp));
-    }
-
     public CombatSkill(@NonNull final SkillsPlugin plugin) {
         super(plugin, SkillType.COMBAT);
         this.killsKey = new NamespacedKey(plugin, "kills");
         this.lastKillKey = new NamespacedKey(plugin, "last_kill");
+    }
+
+    @Override
+    protected void enable() {
         MobStatusEffect.enable(plugin);
         reward(EntityType.ZOMBIE, 1);
         reward(EntityType.SKELETON, 1);
@@ -92,10 +87,15 @@ public final class CombatSkill extends Skill {
         reward(EntityType.ZOGLIN, 3);
         reward(EntityType.PILLAGER, 3);
         reward(EntityType.RAVAGER, 5);
+        Bukkit.getPluginManager().registerEvents(combatListener, plugin);
+    }
+
+    private void reward(@NonNull EntityType type, final int sp) {
+        rewards.put(type, new CombatReward(type, sp));
     }
 
     public void playerKillMob(Player player, Mob mob, EntityDeathEvent event) {
-        Reward reward = rewards.get(mob.getType());
+        CombatReward reward = rewards.get(mob.getType());
         if (reward == null) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
         Session session = plugin.sessions.of(player);
@@ -140,7 +140,7 @@ public final class CombatSkill extends Skill {
         Projectile proj = (Projectile) event.getDamager();
         if (!(proj.getShooter() instanceof Player)) return false;
         Player player = (Player) proj.getShooter();
-        if (session.isTalentEnabled(Talent.COMBAT_ARCHER_ZONE)) {
+        if (session.isTalentEnabled(TalentType.COMBAT_ARCHER_ZONE)) {
             session.setArcherZone(5 * 20);
             session.setArcherZoneKills(session.getArcherZoneKills() + 1);
             player.sendActionBar(Component.join(JoinConfiguration.noSeparators(), new Component[] {
@@ -155,7 +155,7 @@ public final class CombatSkill extends Skill {
     protected boolean meleeKill(Session session, Mob mob, EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player)) return false;
         Player player = (Player) event.getDamager();
-        if (session.isTalentEnabled(Talent.COMBAT_GOD_MODE)) {
+        if (session.isTalentEnabled(TalentType.COMBAT_GOD_MODE)) {
             if (session.getImmortal() <= 0) {
                 player.sendActionBar(Component.text("God Mode!", NamedTextColor.GOLD));
             }
@@ -171,13 +171,13 @@ public final class CombatSkill extends Skill {
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return;
         // -50% damage on melee
-        if (session.isTalentEnabled(Talent.COMBAT_FIRE)
+        if (session.isTalentEnabled(TalentType.COMBAT_FIRE)
             && !ranged
             && mob.getFireTicks() > 0) {
             event.setDamage(event.getFinalDamage() * 0.5);
         }
         // Spider
-        if (session.isTalentEnabled(Talent.COMBAT_SPIDERS) && !ranged
+        if (session.isTalentEnabled(TalentType.COMBAT_SPIDERS) && !ranged
             && MobStatusEffect.NO_POISON.has(mob)) {
             session.setPoisonFreebie(true);
         }
@@ -218,19 +218,19 @@ public final class CombatSkill extends Skill {
         if (!session.isEnabled()) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         // +50% damage
-        if (session.isTalentEnabled(Talent.COMBAT_FIRE)
+        if (session.isTalentEnabled(TalentType.COMBAT_FIRE)
             && mob.getFireTicks() > 0) {
             event.setDamage(event.getFinalDamage() * 1.5);
         }
         // Knockback => Silence
-        if (session.isTalentEnabled(Talent.COMBAT_SILENCE)
+        if (session.isTalentEnabled(TalentType.COMBAT_SILENCE)
             && !ranged
             && item != null
             && item.getEnchantmentLevel(Enchantment.KNOCKBACK) > 0) {
             silenceEffect(mob);
         }
         // Spider => Slow + NoPoison
-        if (session.isTalentEnabled(Talent.COMBAT_SPIDERS)
+        if (session.isTalentEnabled(TalentType.COMBAT_SPIDERS)
             && !ranged
             && item != null
             && item.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS) > 0
@@ -240,7 +240,7 @@ public final class CombatSkill extends Skill {
             Effects.applyStatusEffect(mob);
         }
         // In The Zone
-        if (session.isTalentEnabled(Talent.COMBAT_ARCHER_ZONE)
+        if (session.isTalentEnabled(TalentType.COMBAT_ARCHER_ZONE)
             && ranged
             && session.getArcherZone() > 0) {
             event.setDamage(event.getFinalDamage() * 2.0);

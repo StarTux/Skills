@@ -2,8 +2,8 @@ package com.cavetale.skills.session;
 
 import com.cavetale.core.util.Json;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Talent;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.util.Effects;
@@ -39,8 +39,8 @@ public final class Session {
     protected SkillType shownSkill = null;
     protected int skillBarCountdown;
     protected Tag tag;
-    protected Set<Talent> talents = new HashSet<>();
-    protected Set<Talent> disabledTalents = new HashSet<>();
+    protected Set<TalentType> talents = new HashSet<>();
+    protected Set<TalentType> disabledTalents = new HashSet<>();
     // Status effects, ticks remaining
     @Setter protected boolean xrayActive;
     @Setter protected int immortal = 0;
@@ -69,8 +69,12 @@ public final class Session {
     protected void loadSync() {
         // Load SQLPlayer
         this.sqlPlayer = plugin.database.find(SQLPlayer.class).eq("uuid", uuid).findUnique();
+        if (sqlPlayer == null) {
+            sqlPlayer = new SQLPlayer(uuid);
+            plugin.database.insert(sqlPlayer);
+        }
         this.tag = Json.deserialize(sqlPlayer.getJson(), Tag.class, Tag::new);
-        tag.talents.stream().map(Talent::of).filter(Objects::nonNull).forEach(talents::add);
+        tag.talents.stream().map(TalentType::of).filter(Objects::nonNull).forEach(talents::add);
         // Load SQLSkills
         List<SQLSkill> sqlSkillRows = plugin.database.find(SQLSkill.class).eq("player", uuid).findList();
         for (SQLSkill sqlSkill : sqlSkillRows) {
@@ -116,9 +120,11 @@ public final class Session {
             task.cancel();
             task = null;
         }
-        Player player = getPlayer();
-        if (player != null) {
-            player.hideBossBar(skillBar);
+        if (skillBar != null) {
+            Player player = getPlayer();
+            if (player != null) {
+                player.hideBossBar(skillBar);
+            }
         }
     }
 
@@ -130,15 +136,15 @@ public final class Session {
         Player player = getPlayer();
         if (player == null) return;
         if (talents.isEmpty() && getTalentPoints() == 0) {
-            plugin.revokeAdvancement(player, null);
+            plugin.advancements.revoke(player, null);
         } else {
-            plugin.giveAdvancement(player, null);
+            plugin.advancements.give(player, null);
         }
-        for (Talent talent : Talent.values()) {
+        for (TalentType talent : TalentType.values()) {
             if (talents.contains(talent)) {
-                plugin.giveAdvancement(player, talent);
+                plugin.advancements.give(player, talent);
             } else {
-                plugin.revokeAdvancement(player, talent);
+                plugin.advancements.revoke(player, talent);
             }
         }
     }
@@ -193,7 +199,7 @@ public final class Session {
 
     public boolean rollTalentPoint(final int increase) {
         final int total = 800;
-        if (talents.size() >= Talent.COUNT) return false;
+        if (talents.size() >= TalentType.COUNT) return false;
         sqlPlayer.setTalentChance(sqlPlayer.getTalentChance() + increase);
         sqlPlayer.setModified(true);
         int chance;
@@ -220,21 +226,21 @@ public final class Session {
         if (amount < 1) return;
         Player player = getPlayer();
         if (player != null) {
-            boolean noEffect = plugin.giveAdvancement(player, null);
+            boolean noEffect = plugin.advancements.give(player, null);
             int cost = getTalentCost();
             if (points >= cost) {
                 if (!noEffect) Effects.talentUnlock(player);
-                player.showTitle(Title.title(Component.text("Talent", NamedTextColor.LIGHT_PURPLE),
+                player.showTitle(Title.title(Component.text("TalentType", NamedTextColor.LIGHT_PURPLE),
                                              Component.text("New Unlock Available", NamedTextColor.WHITE)));
             } else {
                 if (!noEffect) Effects.talentPoint(player);
-                player.showTitle(Title.title(Component.text("Talent Points", NamedTextColor.LIGHT_PURPLE),
+                player.showTitle(Title.title(Component.text("TalentType Points", NamedTextColor.LIGHT_PURPLE),
                                              Component.text("Progress " + points + "/" + cost, NamedTextColor.WHITE)));
             }
         }
     }
 
-    public boolean unlockTalent(@NonNull Talent talent) {
+    public boolean unlockTalent(@NonNull TalentType talent) {
         int cost = getTalentCost();
         if (sqlPlayer.getTalentPoints() < cost) return false;
         if (hasTalent(talent)) return false;
@@ -247,7 +253,7 @@ public final class Session {
         saveData();
         Player player = getPlayer();
         if (player != null) {
-            plugin.giveAdvancement(player, talent);
+            plugin.advancements.give(player, talent);
         }
         return true;
     }
@@ -274,31 +280,39 @@ public final class Session {
 
     public void saveData() {
         noSave = 0;
-        if (sqlPlayer.isModified() || tag.modified) {
+        if (sqlPlayer.getId() != null && (sqlPlayer.isModified() || tag.modified)) {
             if (tag.modified) {
                 tag.modified = false;
                 tag.talents = talents.stream().map(t -> t.key).collect(Collectors.toSet());
                 sqlPlayer.setJson(Json.serialize(tag));
             }
             sqlPlayer.setModified(false);
-            plugin.saveSQL(sqlPlayer);
+            if (plugin.isEnabled()) {
+                plugin.database.updateAsync(sqlPlayer, null);
+            } else {
+                plugin.database.update(sqlPlayer);
+            }
         }
-        for (SQLSkill col : sqlSkills.values()) {
-            if (!col.isModified()) continue;
-            col.setModified(false);
-            plugin.saveSQL(col);
+        for (SQLSkill row : sqlSkills.values()) {
+            if (row.getId() == null || !row.isModified()) continue;
+            row.setModified(false);
+            if (plugin.isEnabled()) {
+                plugin.database.updateAsync(row, null);
+            } else {
+                plugin.database.update(row);
+            }
         }
     }
 
-    public boolean isTalentEnabled(Talent talent) {
+    public boolean isTalentEnabled(TalentType talent) {
         return !talentsDisabled && talents.contains(talent) && !disabledTalents.contains(talent);
     }
 
-    public boolean hasTalent(@NonNull Talent talent) {
+    public boolean hasTalent(@NonNull TalentType talent) {
         return talents.contains(talent);
     }
 
-    public boolean canAccessTalent(@NonNull Talent talent) {
+    public boolean canAccessTalent(@NonNull TalentType talent) {
         return talent.depends == null
             || talents.contains(talent.depends);
     }

@@ -3,18 +3,17 @@ package com.cavetale.skills.skill.mining;
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Talent;
 import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
 import lombok.NonNull;
-import lombok.Value;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -34,68 +33,41 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public final class MiningSkill extends Skill {
-    protected final EnumMap<Material, Reward> rewards = new EnumMap<>(Material.class);
-
-    @Value
-    static class Reward {
-        final Material material;
-        final int sp;
-        final int exp;
-        final Material item;
-        final int drops;
-        final Material replaceable;
-
-        boolean dropSelf() {
-            switch (material) {
-            case DEEPSLATE_IRON_ORE:
-            case IRON_ORE:
-            case DEEPSLATE_COPPER_ORE:
-            case COPPER_ORE:
-            case DEEPSLATE_GOLD_ORE:
-            case GOLD_ORE:
-                return true;
-            default: return false;
-            }
-        }
-    }
-
-    private void reward(@NonNull Material material, final int sp, final int exp, Material item, int drops, Material replaceable) {
-        rewards.put(material, new Reward(material, sp, exp, item, drops, replaceable));
-    }
+    private final MiningListener miningListener = new MiningListener(this);
+    protected final EnumMap<Material, MiningReward> rewards = new EnumMap<>(Material.class);
 
     public MiningSkill(@NonNull final SkillsPlugin plugin) {
         super(plugin, SkillType.MINING);
+    }
+
+    @Override
+    protected void enable() {
         // exp values are maxima according to the wiki
         reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.STONE);
         reward(Material.DEEPSLATE_DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.DEEPSLATE);
-
         reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1, Material.STONE);
         reward(Material.DEEPSLATE_EMERALD_ORE, 10, 7, Material.EMERALD, 1, Material.DEEPSLATE);
-
         reward(Material.IRON_ORE, 3, 3, Material.IRON_NUGGET, 9, Material.STONE);
         reward(Material.DEEPSLATE_IRON_ORE, 3, 3, Material.IRON_NUGGET, 9, Material.DEEPSLATE);
-
         reward(Material.COPPER_ORE, 3, 3, Material.RAW_COPPER, 1, Material.STONE);
         reward(Material.DEEPSLATE_COPPER_ORE, 3, 3, Material.RAW_COPPER, 1, Material.DEEPSLATE);
-
         reward(Material.GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9, Material.STONE);
         reward(Material.DEEPSLATE_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9, Material.DEEPSLATE);
-
         reward(Material.NETHER_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 9, Material.NETHERRACK);
         reward(Material.GILDED_BLACKSTONE, 5, 3, Material.GOLD_NUGGET, 0, Material.BLACKSTONE);
-
         reward(Material.COAL_ORE, 1, 2, Material.COAL, 1, Material.STONE);
         reward(Material.DEEPSLATE_COAL_ORE, 1, 2, Material.COAL, 1, Material.DEEPSLATE);
-
         reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6, Material.STONE); // 4-8
         reward(Material.DEEPSLATE_LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 6, Material.DEEPSLATE);
-
         reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1, Material.NETHERRACK);
-
         reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.STONE); // 4-5
         reward(Material.DEEPSLATE_REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.DEEPSLATE);
-
         reward(Material.ANCIENT_DEBRIS, 20, 10, Material.NETHERITE_SCRAP, 1, Material.NETHERRACK); // 4-5
+        Bukkit.getPluginManager().registerEvents(miningListener, plugin);
+    }
+
+    private void reward(@NonNull Material material, final int sp, final int exp, Material item, int drops, Material replaceable) {
+        rewards.put(material, new MiningReward(material, sp, exp, item, drops, replaceable));
     }
 
     protected static boolean stone(@NonNull Block block) {
@@ -200,7 +172,7 @@ public final class MiningSkill extends Skill {
     protected int mineVein(@NonNull Player player,
                            @NonNull Block block,
                            @NonNull ItemStack item,
-                           @NonNull Reward reward,
+                           @NonNull MiningReward reward,
                            final int efficiency) {
         Material mat = reward.material;
         HashSet<Block> done = new HashSet<>();
@@ -359,7 +331,7 @@ public final class MiningSkill extends Skill {
         final boolean stone = stone(block);
         // Strip Mining
         final boolean miningLevel = block.getY() < 32;
-        if (session.isTalentEnabled(Talent.MINE_STRIP) && !sneak && stone && efficiency > 0
+        if (session.isTalentEnabled(TalentType.MINE_STRIP) && !sneak && stone && efficiency > 0
             && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
@@ -367,9 +339,9 @@ public final class MiningSkill extends Skill {
                     stripMine(player, block);
                 });
         }
-        Reward reward = rewards.get(block.getType());
+        MiningReward reward = rewards.get(block.getType());
         // Vein Mining
-        if (session.isTalentEnabled(Talent.MINE_STRIP)
+        if (session.isTalentEnabled(TalentType.MINE_STRIP)
             && !sneak && reward != null && efficiency > 0 && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
@@ -378,11 +350,11 @@ public final class MiningSkill extends Skill {
                 });
         }
         // Ore Alert
-        if (session.isTalentEnabled(Talent.MINE_ORE_ALERT) && miningLevel && stone) {
+        if (session.isTalentEnabled(TalentType.MINE_ORE_ALERT) && miningLevel && stone) {
             oreAlert(player, block);
         }
         // Xray
-        if (session.isTalentEnabled(Talent.MINE_XRAY)
+        if (session.isTalentEnabled(TalentType.MINE_XRAY)
             && !session.isXrayActive() && stone
             && fortune > 0 && !sneak && miningLevel) {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
@@ -399,11 +371,11 @@ public final class MiningSkill extends Skill {
 
     public boolean usePickaxe(@NonNull Player player, @NonNull Block block,
                                  @NonNull BlockFace face, @NonNull ItemStack item) {
-        Reward reward = rewards.get(block.getType());
+        MiningReward reward = rewards.get(block.getType());
         if (reward == null || reward.item == null || reward.drops <= 0) return false;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;
-        if (!session.isTalentEnabled(Talent.MINE_SILK_STRIP)) return false;
+        if (!session.isTalentEnabled(TalentType.MINE_SILK_STRIP)) return false;
         if (item == null || item.getType() == Material.AIR) return false;
         if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, block)) return false;
         int silk = item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
@@ -438,7 +410,7 @@ public final class MiningSkill extends Skill {
         player.getWorld().dropItem(dropLocation, drop).setVelocity(vel);
         // (Maybe) change the Block
         double factor = 2.20; // Fortune 3
-        if (session.isTalentEnabled(Talent.MINE_SILK_MULTI)) factor = 2.60;
+        if (session.isTalentEnabled(TalentType.MINE_SILK_MULTI)) factor = 2.60;
         final double amount; // Expected value of additionally dropped items.
         amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.
@@ -466,7 +438,7 @@ public final class MiningSkill extends Skill {
      * Do NOT drop any items because they only drop when silk
      * stripping.
      */
-    protected boolean giveReward(@NonNull Player player, @NonNull Block block, @NonNull Reward reward) {
+    protected boolean giveReward(@NonNull Player player, @NonNull Block block, @NonNull MiningReward reward) {
         if (Exploits.isPlayerPlaced(block)) return false;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;

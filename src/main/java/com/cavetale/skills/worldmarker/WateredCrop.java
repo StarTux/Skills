@@ -28,7 +28,7 @@ public final class WateredCrop {
         startTask();
     }
 
-    void log(String msg) {
+    protected void log(String msg) {
         plugin.getLogger().info("[WateredCrop] " + block.getWorld().getName() + ":"
                                 + block.getX() + "," + block.getY() + "," + block.getZ() + " " + msg);
     }

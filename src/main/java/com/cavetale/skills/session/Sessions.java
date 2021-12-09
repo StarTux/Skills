@@ -55,6 +55,18 @@ public final class Sessions implements Listener {
         return session;
     }
 
+    private void remove(@NonNull Player player) {
+        Session session = sessionsMap.remove(player.getUniqueId());
+        if (session == null) return;
+        session.disable();
+        session.saveData();
+    }
+
+    private void reload(Player player) {
+        remove(player);
+        createAsync(player);
+    }
+
     /**
      * Get the session if it exists.  If not, create it synchronously.
      * Never yields null, but may return a session which is not
@@ -80,13 +92,6 @@ public final class Sessions implements Listener {
         if (session == null || !session.isEnabled()) return false;
         callback.accept(session);
         return true;
-    }
-
-    private void remove(@NonNull Player player) {
-        Session session = sessionsMap.remove(player.getUniqueId());
-        if (session == null) return;
-        session.disable();
-        session.saveData();
     }
 
     @EventHandler(priority = EventPriority.LOW)

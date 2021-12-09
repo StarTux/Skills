@@ -19,7 +19,7 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
             .description("Reload Advancements")
             .senderCaller(this::reloadAdvancements);
         rootNode.addChild("gimme").denyTabCompletion()
-            .description("Receive a Talent Point")
+            .description("Receive a TalentType Point")
             .playerCaller(this::gimme);
         rootNode.addChild("particles").denyTabCompletion()
             .description("Toggle Particles")
@@ -32,8 +32,8 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
     protected boolean reloadAdvancements(CommandSender sender, String[] args) {
         if (args.length != 0) return false;
         sender.sendMessage("Reloading advancements...");
-        plugin.unloadAdvancements();
-        plugin.loadAdvancements();
+        plugin.advancements.removeAll();
+        plugin.advancements.createAll();
         sender.sendMessage("Advancements reloaded.");
         return true;
     }

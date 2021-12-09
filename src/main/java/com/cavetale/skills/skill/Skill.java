@@ -4,7 +4,7 @@ import com.cavetale.skills.SkillsPlugin;
 import lombok.Getter;
 
 public abstract class Skill {
-    protected final SkillsPlugin plugin;
+    public final SkillsPlugin plugin;
     @Getter protected final SkillType skillType;
 
     protected Skill(final SkillsPlugin plugin, final SkillType skillType) {
@@ -13,5 +13,5 @@ public abstract class Skill {
         skillType.register(this);
     }
 
-    protected void enable() { }
+    protected abstract void enable();
 }
