@@ -1,14 +1,18 @@
-package com.cavetale.skills;
+package com.cavetale.skills.skill.farming;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
+import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.Talent;
+import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
+import com.cavetale.skills.skill.Skill;
+import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
 import java.util.Collections;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -22,56 +26,15 @@ import org.bukkit.inventory.ItemStack;
  * Object to manage the Farming skill.
  * Called by EventListener et al, owned by SkillsPlugin.
  */
-@RequiredArgsConstructor
-public final class Farming {
-    final SkillsPlugin plugin;
+public final class FarmingSkill extends Skill {
     public static final String WATERED_CROP = "skills:watered_crop";
     public static final String GROWN_CROP = "skills:grown_crop";
 
-    public enum Crop {
-        // 8 grow stages (0-7)
-        WHEAT(Material.WHEAT, Material.WHEAT, Material.WHEAT_SEEDS),
-        CARROT(Material.CARROTS, Material.CARROT),
-        POTATO(Material.POTATOES, Material.POTATO),
-        // 4 grow stages (0-3)
-        BEETROOT(Material.BEETROOTS, Material.BEETROOT, Material.BEETROOT_SEEDS),
-        NETHER_WART(Material.NETHER_WART, Material.NETHER_WART);
-
-        public final Material blockMaterial;
-        public final Material itemMaterial;
-        public final Material seedMaterial;
-
-        Crop(@NonNull final Material blockMaterial,
-             @NonNull final Material itemMaterial,
-             @NonNull final Material seedMaterial) {
-            this.blockMaterial = blockMaterial;
-            this.itemMaterial = itemMaterial;
-            this.seedMaterial = seedMaterial;
-        }
-
-        Crop(@NonNull final Material blockMaterial,
-             @NonNull final Material itemMaterial) {
-            this(blockMaterial, itemMaterial, itemMaterial);
-        }
-
-        public static Crop of(Block block) {
-            Material mat = block.getType();
-            for (Crop type : Crop.values()) {
-                if (type.blockMaterial == mat) return type;
-            }
-            return null;
-        }
-
-        public static Crop ofSeed(ItemStack item) {
-            Material mat = item.getType();
-            for (Crop crop : Crop.values()) {
-                if (crop.seedMaterial == mat) return crop;
-            }
-            return null;
-        }
+    public FarmingSkill(final SkillsPlugin plugin) {
+        super(plugin, SkillType.FARMING);
     }
 
-    protected boolean isHoe(ItemStack item) {
+    public boolean isHoe(ItemStack item) {
         if (item == null) return false;
         switch (item.getType()) {
         case AIR:
@@ -90,7 +53,7 @@ public final class Farming {
     /**
      * Player uses a growstick on a certain block.
      */
-    protected boolean useStick(@NonNull Player player, @NonNull Block block) {
+    public boolean useStick(@NonNull Player player, @NonNull Block block) {
         if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return false;
         int radius = 0;
         Session session = plugin.sessions.of(player);
@@ -155,7 +118,7 @@ public final class Farming {
         return ageable.getAge() >= ageable.getMaximumAge();
     }
 
-    protected void harvest(@NonNull Player player, @NonNull Block block) {
+    public void harvest(@NonNull Player player, @NonNull Block block) {
         Crop crop = Crop.of(block);
         if (crop == null) return;
         if (!isRipe(block)) return;
@@ -188,8 +151,8 @@ public final class Farming {
         Effects.harvest(block);
     }
 
-    protected boolean useSeed(@NonNull Player player, @NonNull Block block,
-                              @NonNull Crop crop, @NonNull ItemStack item) {
+    public boolean useSeed(@NonNull Player player, @NonNull Block block,
+                           @NonNull Crop crop, @NonNull ItemStack item) {
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;
         Material soil = crop == Crop.NETHER_WART
@@ -208,7 +171,7 @@ public final class Farming {
     }
 
     protected int plantRadius(@NonNull Player player, @NonNull Block orig,
-                    @NonNull Crop crop, @NonNull ItemStack item) {
+                              @NonNull Crop crop, @NonNull ItemStack item) {
         int result = 0;
         ArrayList<Block> bs = new ArrayList<>(8);
         for (int z = -1; z <= 1; z += 1) {

@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.skill.SkillType;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -8,44 +9,36 @@ import lombok.NonNull;
 
 public enum Talent {
     // Mining
-    MINE_STRIP(null),
-    MINE_ORE_ALERT(Talent.MINE_STRIP),
-    MINE_XRAY(Talent.MINE_ORE_ALERT),
-    MINE_SILK_STRIP(Talent.MINE_STRIP),
-    MINE_SILK_MULTI(Talent.MINE_SILK_STRIP),
+    MINE_STRIP(SkillType.MINING, null),
+    MINE_ORE_ALERT(SkillType.MINING, Talent.MINE_STRIP),
+    MINE_XRAY(SkillType.MINING, Talent.MINE_ORE_ALERT),
+    MINE_SILK_STRIP(SkillType.MINING, Talent.MINE_STRIP),
+    MINE_SILK_MULTI(SkillType.MINING, Talent.MINE_SILK_STRIP),
     // Farming
-    FARM_GROWSTICK_RADIUS(null),
-    FARM_PLANT_RADIUS(Talent.FARM_GROWSTICK_RADIUS),
-    FARM_CROP_DROPS(Talent.FARM_GROWSTICK_RADIUS),
-    FARM_DIAMOND_DROPS(Talent.FARM_CROP_DROPS),
-    FARM_TALENT_POINTS(Talent.FARM_DIAMOND_DROPS),
+    FARM_GROWSTICK_RADIUS(SkillType.FARMING, null),
+    FARM_PLANT_RADIUS(SkillType.FARMING, Talent.FARM_GROWSTICK_RADIUS),
+    FARM_CROP_DROPS(SkillType.FARMING, Talent.FARM_GROWSTICK_RADIUS),
+    FARM_DIAMOND_DROPS(SkillType.FARMING, Talent.FARM_CROP_DROPS),
+    FARM_TALENT_POINTS(SkillType.FARMING, Talent.FARM_DIAMOND_DROPS),
     // Combat
-    COMBAT_FIRE(null),
-    COMBAT_SILENCE(Talent.COMBAT_FIRE),
-    COMBAT_SPIDERS(Talent.COMBAT_SILENCE),
-    COMBAT_GOD_MODE(Talent.COMBAT_SPIDERS),
-    COMBAT_ARCHER_ZONE(Talent.COMBAT_FIRE);
+    COMBAT_FIRE(SkillType.COMBAT, null),
+    COMBAT_SILENCE(SkillType.COMBAT, Talent.COMBAT_FIRE),
+    COMBAT_SPIDERS(SkillType.COMBAT, Talent.COMBAT_SILENCE),
+    COMBAT_GOD_MODE(SkillType.COMBAT, Talent.COMBAT_SPIDERS),
+    COMBAT_ARCHER_ZONE(SkillType.COMBAT, Talent.COMBAT_FIRE);
 
     public final String key;
+    public final SkillType skill;
     public final Talent depends;
     public final String displayName;
-    public final SkillType skill;
     public static final int COUNT = 15;
     public static final Map<SkillType, Set<Talent>> SKILL_MAP = new EnumMap<>(SkillType.class);
 
-    Talent(final Talent depends) {
-        key = name().toLowerCase();
+    Talent(@NonNull final SkillType skillType, final Talent depends) {
+        this.key = name().toLowerCase();
+        this.skill = skillType;
         this.depends = depends;
         this.displayName = Util.niceEnumName(this);
-        if (name().startsWith("MINE")) {
-            skill = SkillType.MINING;
-        } else if (name().startsWith("FARM")) {
-            skill = SkillType.FARMING;
-        } else if (name().startsWith("COMBAT")) {
-            skill = SkillType.COMBAT;
-        } else {
-            throw new IllegalStateException(name());
-        }
     }
 
     static {

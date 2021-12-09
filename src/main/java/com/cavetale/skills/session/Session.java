@@ -1,9 +1,9 @@
 package com.cavetale.skills.session;
 
 import com.cavetale.core.util.Json;
-import com.cavetale.skills.SkillType;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.Talent;
+import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.util.Effects;

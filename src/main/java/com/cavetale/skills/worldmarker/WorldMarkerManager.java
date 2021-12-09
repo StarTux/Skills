@@ -1,7 +1,8 @@
 package com.cavetale.skills.worldmarker;
 
-import com.cavetale.skills.Farming;
 import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.skill.farming.Crop;
+import com.cavetale.skills.skill.farming.FarmingSkill;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import com.cavetale.worldmarker.block.BlockMarkerHook;
@@ -34,8 +35,8 @@ public final class WorldMarkerManager implements BlockMarkerHook {
     @Override
     public void onBlockLoad(Block block, String id) {
         switch (id) {
-        case Farming.WATERED_CROP: {
-            if (Farming.Crop.of(block) == null) {
+        case FarmingSkill.WATERED_CROP: {
+            if (Crop.of(block) == null) {
                 BlockMarker.resetId(block);
                 return;
             }
@@ -44,8 +45,8 @@ public final class WorldMarkerManager implements BlockMarkerHook {
             wateredCrop.enable();
             return;
         }
-        case Farming.GROWN_CROP:
-            if (Farming.Crop.of(block) == null) {
+        case FarmingSkill.GROWN_CROP:
+            if (Crop.of(block) == null) {
                 BlockMarker.resetId(block);
             }
             break;
@@ -56,7 +57,7 @@ public final class WorldMarkerManager implements BlockMarkerHook {
     @Override
     public void onBlockUnload(Block block, String id) {
         switch (id) {
-        case Farming.WATERED_CROP:
+        case FarmingSkill.WATERED_CROP:
             WateredCrop wateredCrop = cropsMap.remove(block);
             if (wateredCrop != null) {
                 wateredCrop.disable();
@@ -75,7 +76,7 @@ public final class WorldMarkerManager implements BlockMarkerHook {
         WateredCrop old = cropsMap.remove(block);
         if (old != null) old.disable();
         switch (id) {
-        case Farming.WATERED_CROP: {
+        case FarmingSkill.WATERED_CROP: {
             WateredCrop wateredCrop = new WateredCrop(plugin, block);
             cropsMap.put(block, wateredCrop);
             wateredCrop.enable();

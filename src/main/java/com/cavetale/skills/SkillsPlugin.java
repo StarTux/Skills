@@ -2,6 +2,7 @@ package com.cavetale.skills;
 
 import com.cavetale.core.util.Json;
 import com.cavetale.skills.session.Sessions;
+import com.cavetale.skills.skill.Skills;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.worldmarker.WorldMarkerManager;
@@ -29,12 +30,10 @@ public final class SkillsPlugin extends JavaPlugin {
     protected SkillsCommand skillsCommand = new SkillsCommand(this);
     protected AdminCommand adminCommand = new AdminCommand(this);
     protected EventListener eventListener = new EventListener(this);
-    protected Farming farming = new Farming(this);
     public final Random random = ThreadLocalRandom.current();
     public final SQLDatabase database = new SQLDatabase(this);
+    public final Skills skills = new Skills(this);
     public final Sessions sessions = new Sessions(this);
-    protected final Mining mining = new Mining(this);
-    protected final Combat combat = new Combat(this);
     protected final Map<String, TalentInfo> talentInfos = new HashMap<>();
     protected final Map<String, Info> infos = new HashMap<>();
     @Getter private final WorldMarkerManager worldMarkerManager = new WorldMarkerManager(this);
@@ -48,6 +47,7 @@ public final class SkillsPlugin extends JavaPlugin {
         database.registerTables(SQLSkill.class, SQLPlayer.class);
         database.createAllTables();
         loadAdvancements();
+        skills.enable();
         sessions.enable();
         worldMarkerManager.enable();
         loadInfos();

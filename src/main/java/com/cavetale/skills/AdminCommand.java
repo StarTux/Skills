@@ -1,6 +1,7 @@
 package com.cavetale.skills;
 
 import com.cavetale.core.command.AbstractCommand;
+import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.sql.SQLSkill;
 import java.util.List;
 import java.util.stream.Collectors;

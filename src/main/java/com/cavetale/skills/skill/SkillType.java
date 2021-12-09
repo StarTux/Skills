@@ -1,5 +1,6 @@
-package com.cavetale.skills;
+package com.cavetale.skills.skill;
 
+import com.cavetale.skills.Util;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -11,10 +12,11 @@ public enum SkillType {
 
     public final String key;
     public final String displayName;
+    private Skill skill;
 
     SkillType() {
-        key = name().toLowerCase();
-        displayName = Util.niceEnumName(this);
+        this.key = name().toLowerCase();
+        this.displayName = Util.niceEnumName(this);
     }
 
     public static SkillType ofKey(@NonNull String key) {
@@ -22,5 +24,9 @@ public enum SkillType {
             if (key.equals(s.key)) return s;
         }
         return null;
+    }
+
+    protected void register(final Skill theSkill) {
+        this.skill = theSkill;
     }
 }

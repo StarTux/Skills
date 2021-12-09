@@ -1,5 +1,6 @@
-package com.cavetale.skills;
+package com.cavetale.skills.skill.combat;
 
+import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;
 import org.bukkit.NamespacedKey;

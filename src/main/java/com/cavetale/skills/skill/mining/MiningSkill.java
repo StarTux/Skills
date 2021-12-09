@@ -1,8 +1,13 @@
-package com.cavetale.skills;
+package com.cavetale.skills.skill.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
+import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.Talent;
+import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
+import com.cavetale.skills.skill.Skill;
+import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.util.Effects;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
@@ -28,8 +33,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-public final class Mining {
-    protected final SkillsPlugin plugin;
+public final class MiningSkill extends Skill {
     protected final EnumMap<Material, Reward> rewards = new EnumMap<>(Material.class);
 
     @Value
@@ -59,8 +63,8 @@ public final class Mining {
         rewards.put(material, new Reward(material, sp, exp, item, drops, replaceable));
     }
 
-    public Mining(@NonNull final SkillsPlugin plugin) {
-        this.plugin = plugin;
+    public MiningSkill(@NonNull final SkillsPlugin plugin) {
+        super(plugin, SkillType.MINING);
         // exp values are maxima according to the wiki
         reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.STONE);
         reward(Material.DEEPSLATE_DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.DEEPSLATE);
@@ -118,7 +122,7 @@ public final class Mining {
         }
     }
 
-    protected static boolean isPickaxe(@NonNull ItemStack item) {
+    public static boolean isPickaxe(@NonNull ItemStack item) {
         switch (item.getType()) {
         case DIAMOND_PICKAXE:
         case IRON_PICKAXE:
@@ -343,7 +347,7 @@ public final class Mining {
         }
     }
 
-    protected void mine(@NonNull Player player, @NonNull Block block) {
+    public void mine(@NonNull Player player, @NonNull Block block) {
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return;
         if (!isPickaxe(item)) return;
@@ -393,7 +397,7 @@ public final class Mining {
         }
     }
 
-    protected boolean usePickaxe(@NonNull Player player, @NonNull Block block,
+    public boolean usePickaxe(@NonNull Player player, @NonNull Block block,
                                  @NonNull BlockFace face, @NonNull ItemStack item) {
         Reward reward = rewards.get(block.getType());
         if (reward == null || reward.item == null || reward.drops <= 0) return false;

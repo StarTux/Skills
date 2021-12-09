@@ -1,6 +1,10 @@
-package com.cavetale.skills;
+package com.cavetale.skills.skill.combat;
 
+import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.Talent;
 import com.cavetale.skills.session.Session;
+import com.cavetale.skills.skill.Skill;
+import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.entity.EntityMarker;
 import com.cavetale.worldmarker.util.Tags;
@@ -29,8 +33,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public final class Combat {
-    protected final SkillsPlugin plugin;
+public final class CombatSkill extends Skill {
     protected final EnumMap<EntityType, Reward> rewards = new EnumMap<>(EntityType.class);
     protected final NamespacedKey killsKey;
     protected final NamespacedKey lastKillKey;
@@ -47,8 +50,8 @@ public final class Combat {
         rewards.put(type, new Reward(type, sp));
     }
 
-    public Combat(@NonNull final SkillsPlugin plugin) {
-        this.plugin = plugin;
+    public CombatSkill(@NonNull final SkillsPlugin plugin) {
+        super(plugin, SkillType.COMBAT);
         this.killsKey = new NamespacedKey(plugin, "kills");
         this.lastKillKey = new NamespacedKey(plugin, "last_kill");
         MobStatusEffect.enable(plugin);
@@ -91,7 +94,7 @@ public final class Combat {
         reward(EntityType.RAVAGER, 5);
     }
 
-    protected void playerKillMob(Player player, Mob mob, EntityDeathEvent event) {
+    public void playerKillMob(Player player, Mob mob, EntityDeathEvent event) {
         Reward reward = rewards.get(mob.getType());
         if (reward == null) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
@@ -161,7 +164,7 @@ public final class Combat {
         return true;
     }
 
-    protected void mobDamagePlayer(@NonNull Player player, @NonNull Mob mob,
+    public void mobDamagePlayer(@NonNull Player player, @NonNull Mob mob,
                                    Projectile proj,
                                    @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;
@@ -207,9 +210,9 @@ public final class Combat {
         return true;
     }
 
-    protected void playerDamageMob(@NonNull Player player, @NonNull Mob mob,
-                         Projectile proj,
-                         @NonNull EntityDamageByEntityEvent event) {
+    public void playerDamageMob(@NonNull Player player, @NonNull Mob mob,
+                                Projectile proj,
+                                @NonNull EntityDamageByEntityEvent event) {
         final boolean ranged = proj != null;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return;

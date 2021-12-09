@@ -1,7 +1,7 @@
 package com.cavetale.skills.worldmarker;
 
-import com.cavetale.skills.Farming;
 import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.skill.farming.FarmingSkill;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +70,7 @@ public final class WateredCrop {
         block.setBlockData(ageable, true);
         if (age >= max) {
             stopTask();
-            BlockMarker.setId(block, Farming.GROWN_CROP);
+            BlockMarker.setId(block, FarmingSkill.GROWN_CROP);
         } else {
             Effects.cropGrow(block);
         }

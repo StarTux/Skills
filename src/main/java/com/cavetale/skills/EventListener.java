@@ -2,6 +2,10 @@ package com.cavetale.skills;
 
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.skills.session.Session;
+import com.cavetale.skills.skill.combat.MobStatusEffect;
+import com.cavetale.skills.skill.farming.Crop;
+import com.cavetale.skills.skill.farming.FarmingSkill;
+import com.cavetale.skills.skill.mining.MiningSkill;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
 import lombok.RequiredArgsConstructor;
@@ -46,20 +50,20 @@ final class EventListener implements Listener {
         final ItemStack item = Util.getHand(player, event.getHand());
         final Block block = event.getClickedBlock();
         if (item.getType() == Material.STICK) {
-            if (plugin.farming.useStick(player, block)) {
+            if (plugin.skills.farming.useStick(player, block)) {
                 event.setCancelled(true);
             }
             return;
-        } else if (event.getHand() == EquipmentSlot.HAND && Mining.isPickaxe(item)) {
-            if (plugin.mining.usePickaxe(player, block, event.getBlockFace(), item)) {
+        } else if (event.getHand() == EquipmentSlot.HAND && MiningSkill.isPickaxe(item)) {
+            if (plugin.skills.mining.usePickaxe(player, block, event.getBlockFace(), item)) {
                 event.setCancelled(true);
             }
             return;
         }
-        Farming.Crop crop = Farming.Crop.ofSeed(item);
+        Crop crop = Crop.ofSeed(item);
         if (crop != null) {
             // Cancelling with edibles may trigger infinite eating animation.
-            plugin.farming.useSeed(player, block, crop, item);
+            plugin.skills.farming.useSeed(player, block, crop, item);
             return;
         }
     }
@@ -72,15 +76,15 @@ final class EventListener implements Listener {
         String bid = BlockMarker.getId(block);
         if (bid != null) {
             switch (bid) {
-            case Farming.WATERED_CROP:
-            case Farming.GROWN_CROP:
+            case FarmingSkill.WATERED_CROP:
+            case FarmingSkill.GROWN_CROP:
                 BlockMarker.resetId(block);
-                plugin.farming.harvest(player, block);
+                plugin.skills.farming.harvest(player, block);
                 break;
             default: break;
             }
         }
-        plugin.mining.mine(player, block);
+        plugin.skills.mining.mine(player, block);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
@@ -91,10 +95,10 @@ final class EventListener implements Listener {
         String bid = BlockMarker.getId(block);
         if (bid != null) {
             switch (bid) {
-            case Farming.WATERED_CROP:
-            case Farming.GROWN_CROP:
+            case FarmingSkill.WATERED_CROP:
+            case FarmingSkill.GROWN_CROP:
                 BlockMarker.resetId(block);
-                plugin.farming.harvest(player, block);
+                plugin.skills.farming.harvest(player, block);
                 break;
             default: break;
             }
@@ -107,8 +111,8 @@ final class EventListener implements Listener {
         String bid = BlockMarker.getId(block);
         if (bid != null) {
             switch (bid) {
-            case Farming.WATERED_CROP:
-            case Farming.GROWN_CROP:
+            case FarmingSkill.WATERED_CROP:
+            case FarmingSkill.GROWN_CROP:
                 BlockMarker.resetId(block);
             default: break;
             }
@@ -117,7 +121,7 @@ final class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     void onBlockGrow(BlockGrowEvent event) {
-        if (BlockMarker.hasId(event.getBlock(), Farming.WATERED_CROP)) {
+        if (BlockMarker.hasId(event.getBlock(), FarmingSkill.WATERED_CROP)) {
             event.setCancelled(true);
         }
     }
@@ -130,7 +134,7 @@ final class EventListener implements Listener {
             if (!mob.isDead()) return;
             Player killer = entity.getKiller();
             if (killer != null) {
-                plugin.combat.playerKillMob(killer, mob, event);
+                plugin.skills.combat.playerKillMob(killer, mob, event);
             }
         }
     }
@@ -161,7 +165,7 @@ final class EventListener implements Listener {
                 break;
             }
             if (mob != null) {
-                plugin.combat.mobDamagePlayer(player, mob, proj, event);
+                plugin.skills.combat.mobDamagePlayer(player, mob, proj, event);
             }
         } else if (event.getEntity() instanceof Mob) {
             // Player attacks mob
@@ -186,7 +190,7 @@ final class EventListener implements Listener {
                 break;
             }
             if (player != null && Util.playMode(player)) {
-                plugin.combat.playerDamageMob(player, mob, proj, event);
+                plugin.skills.combat.playerDamageMob(player, mob, proj, event);
             }
         }
     }
@@ -239,7 +243,7 @@ final class EventListener implements Listener {
     void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
         ItemStack item = event.getItemInHand();
-        if (plugin.farming.isHoe(item)) {
+        if (plugin.skills.farming.isHoe(item)) {
             if (block.getType() == Material.FARMLAND) {
                 Effects.hoe(block, event.getBlockReplacedState().getBlockData());
             }

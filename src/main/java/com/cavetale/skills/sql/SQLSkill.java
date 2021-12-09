@@ -1,7 +1,7 @@
 package com.cavetale.skills.sql;
 
-import com.cavetale.skills.SkillType;
 import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.skill.SkillType;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Id;
