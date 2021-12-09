@@ -87,7 +87,7 @@ public final class Session {
         }
         for (SkillType skillType : SkillType.values()) {
             if (!this.sqlSkills.containsKey(skillType)) {
-                SQLSkill row = new SQLSkill();
+                SQLSkill row = new SQLSkill(uuid, skillType.key);
                 this.sqlSkills.put(skillType, row);
                 plugin.database.insert(row);
             }
