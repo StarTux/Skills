@@ -135,11 +135,6 @@ public final class Session {
     protected void updateAdvancements() {
         Player player = getPlayer();
         if (player == null) return;
-        if (talents.isEmpty() && getTalentPoints() == 0) {
-            plugin.advancements.revoke(player, null);
-        } else {
-            plugin.advancements.give(player, null);
-        }
         for (TalentType talent : TalentType.values()) {
             if (talents.contains(talent)) {
                 plugin.advancements.give(player, talent);
@@ -226,14 +221,19 @@ public final class Session {
         if (amount < 1) return;
         Player player = getPlayer();
         if (player != null) {
-            boolean noEffect = plugin.advancements.give(player, null);
+            boolean doEffect = true;
+            for (SkillType skillType : SkillType.values()) {
+                if (plugin.advancements.give(player, skillType)) {
+                    doEffect = false;
+                }
+            }
             int cost = getTalentCost();
             if (points >= cost) {
-                if (!noEffect) Effects.talentUnlock(player);
+                if (doEffect) Effects.talentUnlock(player);
                 player.showTitle(Title.title(Component.text("TalentType", NamedTextColor.LIGHT_PURPLE),
                                              Component.text("New Unlock Available", NamedTextColor.WHITE)));
             } else {
-                if (!noEffect) Effects.talentPoint(player);
+                if (doEffect) Effects.talentPoint(player);
                 player.showTitle(Title.title(Component.text("TalentType Points", NamedTextColor.LIGHT_PURPLE),
                                              Component.text("Progress " + points + "/" + cost, NamedTextColor.WHITE)));
             }

@@ -30,7 +30,7 @@ public enum TalentType {
     COMBAT_ARCHER_ZONE(SkillType.COMBAT, TalentType.COMBAT_FIRE);
 
     public final String key;
-    public final SkillType skill;
+    public final SkillType skillType;
     public final TalentType depends;
     public final String displayName;
     public static final int COUNT = 15;
@@ -39,14 +39,14 @@ public enum TalentType {
 
     TalentType(@NonNull final SkillType skillType, final TalentType depends) {
         this.key = name().toLowerCase();
-        this.skill = skillType;
+        this.skillType = skillType;
         this.depends = depends;
         this.displayName = Util.niceEnumName(this);
     }
 
     static {
         for (TalentType talent : TalentType.values()) {
-            SKILL_MAP.computeIfAbsent(talent.skill, sk -> EnumSet.of(talent))
+            SKILL_MAP.computeIfAbsent(talent.skillType, sk -> EnumSet.of(talent))
                 .add(talent);
         }
     }

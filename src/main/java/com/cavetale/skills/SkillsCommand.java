@@ -78,9 +78,9 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         int points = session.getSkillPoints(skill);
         int req = plugin.pointsForLevelUp(level + 1);
         long talents = Stream.of(TalentType.values())
-            .filter(t -> t.skill == skill).count();
+            .filter(t -> t.skillType == skill).count();
         long talentsHas = Stream.of(TalentType.values())
-            .filter(t -> t.skill == skill)
+            .filter(t -> t.skillType == skill)
             .filter(session::hasTalent).count();
         List<Component> lines = new ArrayList<>();
         lines.add(Component.text(skill.displayName, NamedTextColor.GOLD, TextDecoration.BOLD));

@@ -1,8 +1,20 @@
-talents:
-  title: Skill Talents
+mining:
+  title: Mining Talents
   description: Earn talent points to unlock new talents and improve your skillful abilities!
-  icon: golden_apple
-  background: 'minecraft:textures/block/diamond_ore.png'
+  icon: golden_pickaxe
+  background: 'minecraft:textures/block/deepslate_diamond_ore.png'
+
+farming:
+  title: Farming Talents
+  description: Earn talent points to unlock new talents and improve your skillful abilities!
+  icon: golden_hoe
+  background: 'minecraft:textures/block/farmland_moist.png'
+
+combat:
+  title: Combat Talents
+  description: Earn talent points to unlock new talents and improve your skillful abilities!
+  icon: golden_sword
+  background: 'minecraft:textures/block/iron_block.png'
 
 farm_growstick_radius:
   title: Spoutcraft

@@ -1,14 +1,16 @@
 package com.cavetale.skills;
 
+import lombok.Data;
 import lombok.NonNull;
 import org.bukkit.configuration.ConfigurationSection;
 
-final class TalentInfo {
-    String icon;
-    String iconNBT;
-    String title;
-    String description;
-    String background;
+@Data
+public final class TalentInfo {
+    protected String icon;
+    protected String iconNBT;
+    protected String title;
+    protected String description;
+    protected String background;
 
     TalentInfo(@NonNull final ConfigurationSection config) {
         icon = config.getString("icon");

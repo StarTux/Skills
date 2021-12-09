@@ -1,6 +1,7 @@
 package com.cavetale.skills;
 
 import com.cavetale.core.command.AbstractCommand;
+import com.cavetale.core.command.CommandNode;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.sql.SQLSkill;
 import java.util.List;
@@ -15,9 +16,6 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
 
     @Override
     protected void onEnable() {
-        rootNode.addChild("reloadadvancements").denyTabCompletion()
-            .description("Reload Advancements")
-            .senderCaller(this::reloadAdvancements);
         rootNode.addChild("gimme").denyTabCompletion()
             .description("Receive a TalentType Point")
             .playerCaller(this::gimme);
@@ -27,15 +25,20 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
         rootNode.addChild("median").denyTabCompletion()
             .description("Compute Median")
             .senderCaller(this::median);
-    }
-
-    protected boolean reloadAdvancements(CommandSender sender, String[] args) {
-        if (args.length != 0) return false;
-        sender.sendMessage("Reloading advancements...");
-        plugin.advancements.removeAll();
-        plugin.advancements.createAll();
-        sender.sendMessage("Advancements reloaded.");
-        return true;
+        CommandNode advancementNode = rootNode.addChild("advancement")
+            .description("Advancement commands");
+        advancementNode.addChild("reload").denyTabCompletion()
+            .description("Reload Advancements")
+            .senderCaller(this::advancementReload);
+        advancementNode.addChild("create").denyTabCompletion()
+            .description("Create Advancements")
+            .senderCaller(this::advancementCreate);
+        advancementNode.addChild("remove").denyTabCompletion()
+            .description("Remove Advancements")
+            .senderCaller(this::advancementRemove);
+        advancementNode.addChild("reload").denyTabCompletion()
+            .description("Reload Advancements")
+            .senderCaller(this::advancementReload);
     }
 
     protected boolean gimme(Player player, String[] args) {
@@ -80,6 +83,28 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
                                + " Max=" + max.getTotalPoints() + "," + max.getLevel()
                                + " Med=" + median.getTotalPoints() + "," + median.getLevel());
         }
+        return true;
+    }
+
+    protected boolean advancementCreate(CommandSender sender, String[] args) {
+        if (args.length != 0) return false;
+        sender.sendMessage("Creating advancements...");
+        plugin.advancements.createAll();
+        return true;
+    }
+
+    protected boolean advancementRemove(CommandSender sender, String[] args) {
+        if (args.length != 0) return false;
+        sender.sendMessage("Removing advancements...");
+        plugin.advancements.removeAll();
+        return true;
+    }
+
+    protected boolean advancementReload(CommandSender sender, String[] args) {
+        if (args.length != 0) return false;
+        sender.sendMessage("Reloading advancements...");
+        plugin.advancements.removeAll();
+        plugin.advancements.createAll();
         return true;
     }
 }

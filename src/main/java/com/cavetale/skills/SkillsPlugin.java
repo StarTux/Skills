@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.advancement.Advancements;
 import com.cavetale.skills.session.Sessions;
 import com.cavetale.skills.skill.Skills;
 import com.cavetale.skills.sql.SQLPlayer;
@@ -72,7 +73,7 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     // Never returns null
-    protected TalentInfo getTalentInfo(String name) {
+    public TalentInfo getTalentInfo(String name) {
         TalentInfo result = talentInfos.get(name);
         if (result == null) {
             getLogger().warning("Missing talent info: " + name);
