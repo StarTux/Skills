@@ -126,7 +126,7 @@ public final class Advancements {
         advancement.display.title = info.getTitle();
         advancement.display.description = info.getDescription();
         advancement.display.hidden = false;
-        advancement.display.announce_to_chat = true;
+        advancement.display.announce_to_chat = false;
         advancement.display.show_toast = true;
         advancement.display.frame = talentType.isTerminal() ? "goal" : null;
         advancement.parent = parent;
