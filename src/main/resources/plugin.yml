@@ -19,6 +19,18 @@ commands:
     permission: skills.skills
     usage: /sk
 
+  talent:
+    aliases: [tal]
+    description: Talent Menu
+    permission: skills.skills
+    usage: /tal
+
+  highscore:
+    aliases: [hi]
+    description: Highscore Command
+    permission: skills.skills
+    usage: /hi
+
   skilladmin:
     aliases: [skadm]
     description: Skills Admin Command

@@ -27,13 +27,22 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 
-final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
+public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
+    protected final CommandArgCompleter[] highscoreCompleters = new CommandArgCompleter[] {
+        CommandArgCompleter.supplyStream(() -> {
+                return Stream.concat(Stream.of("total", "talents"),
+                                     Stream.of(SkillType.values())
+                                     .map(SkillType::getKey));
+            }),
+        CommandArgCompleter.integer(i -> i > 0),
+    };
+
     protected SkillsCommand(final SkillsPlugin plugin) {
         super(plugin, "skills");
     }
 
     @Override
-    public void onEnable() {
+    protected void onEnable() {
         for (SkillType skillType : SkillType.values()) {
             rootNode.addChild(skillType.key).denyTabCompletion()
                 .description(skillType.displayName + " Skill")
@@ -47,18 +56,11 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .completers(CommandArgCompleter.supplyList(() -> List.copyOf(plugin.infos.keySet())))
             .playerCaller(this::info);
         rootNode.addChild("talent").denyTabCompletion()
-            .description("TalentType menu")
+            .description("Talent Menu")
             .playerCaller(this::talent);
         rootNode.addChild("hi").arguments("[skill] [page]")
             .description("Highscore List")
-            .completers(new CommandArgCompleter[] {
-                    CommandArgCompleter.supplyStream(() -> {
-                            return Stream.concat(Stream.of("total", "talents"),
-                                                 Stream.of(SkillType.values())
-                                                 .map(SkillType::getKey));
-                        }),
-                    CommandArgCompleter.integer(i -> i > 0),
-                })
+            .completers(highscoreCompleters)
             .playerCaller(this::hi);
     }
 
@@ -355,7 +357,7 @@ final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                                           lines));
     }
 
-    public void talentMenu(@NonNull Player player) {
+    protected void talentMenu(@NonNull Player player) {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.text("Skill Talents", NamedTextColor.GOLD, TextDecoration.BOLD));
         Session session = plugin.sessions.of(player);

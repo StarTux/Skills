@@ -20,6 +20,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class SkillsPlugin extends JavaPlugin {
     @Getter protected static SkillsPlugin instance;
     protected SkillsCommand skillsCommand = new SkillsCommand(this);
+    protected TalentCommand talentCommand = new TalentCommand(this);
+    protected HighscoreCommand highscoreCommand = new HighscoreCommand(this);
     protected AdminCommand adminCommand = new AdminCommand(this);
     public final Random random = ThreadLocalRandom.current();
     public final SQLDatabase database = new SQLDatabase(this);
@@ -34,6 +36,8 @@ public final class SkillsPlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
         skillsCommand.enable();
+        talentCommand.enable();
+        highscoreCommand.enable();
         adminCommand.enable();
         database.registerTables(SQLSkill.class, SQLPlayer.class);
         database.createAllTables();
