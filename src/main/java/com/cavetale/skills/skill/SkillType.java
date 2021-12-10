@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill;
 
+import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.Util;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,6 +28,9 @@ public enum SkillType {
     }
 
     protected void register(final Skill theSkill) {
+        if (this.skill != null) {
+            SkillsPlugin.getInstance().getLogger().warning("Duplicate skill registration: " + this);
+        }
         this.skill = theSkill;
     }
 }

@@ -1,6 +1,6 @@
 package com.cavetale.skills.skill.farming;
 
-import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
+import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
@@ -9,11 +9,8 @@ import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.block.BlockMarker;
-import com.winthier.exploits.Exploits;
-import java.util.ArrayList;
-import java.util.Collections;
+import com.destroystokyo.paper.MaterialTags;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -21,50 +18,70 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Farmland;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
  * Object to manage the Farming skill.
  * Called by EventListener et al, owned by SkillsPlugin.
  */
-public final class FarmingSkill extends Skill {
-    private final FarmingListener farmingListener = new FarmingListener(this);
+public final class FarmingSkill extends Skill implements Listener {
     public static final String WATERED_CROP = "skills:watered_crop";
     public static final String GROWN_CROP = "skills:grown_crop";
+    public final GrowstickRadiusTalent growstickRadiusTalent;
+    public final PlantRadiusTalent plantRadiusTalent;
+    public final CropDropsTalent cropDropsTalent;
+    public final DiamondDropsTalent diamondDropsTalent;
+    public final TalentPointsTalent talentPointsTalent;
 
     public FarmingSkill(final SkillsPlugin plugin) {
         super(plugin, SkillType.FARMING);
+        this.growstickRadiusTalent = new GrowstickRadiusTalent(plugin, this);
+        this.plantRadiusTalent = new PlantRadiusTalent(plugin, this);
+        this.cropDropsTalent = new CropDropsTalent(plugin, this);
+        this.diamondDropsTalent = new DiamondDropsTalent(plugin, this);
+        this.talentPointsTalent = new TalentPointsTalent(plugin, this);
     }
 
     @Override
-    protected void enable() {
-        Bukkit.getPluginManager().registerEvents(farmingListener, plugin);
-    }
+    protected void enable() { }
 
-    public boolean isHoe(ItemStack item) {
-        if (item == null) return false;
-        switch (item.getType()) {
-        case AIR:
-            return false;
-        case DIAMOND_HOE:
-        case IRON_HOE:
-        case STONE_HOE:
-        case WOODEN_HOE:
-        case GOLDEN_HOE:
-            return true;
-        default:
-            return false;
-        }
+    /**
+     * Play the hoe effect.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    protected void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() != Material.FARMLAND) return;
+        ItemStack item = event.getItemInHand();
+        if (item == null || !MaterialTags.HOES.isTagged(item.getType())) return;
+        Effects.hoe(block, event.getBlockReplacedState().getBlockData());
     }
 
     /**
      * Player uses a growstick on a certain block.
      */
-    public boolean useStick(@NonNull Player player, @NonNull Block block) {
-        if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return false;
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    protected void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (!Util.playMode(player)) return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (!event.hasItem()) return;
+        final ItemStack item = Util.getHand(player, event.getHand());
+        if (item.getType() != Material.STICK) return;
+        final Block block = event.getClickedBlock();
+        if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return;
         int radius = 0;
         Session session = plugin.sessions.of(player);
-        if (!session.isEnabled()) return false;
+        if (!session.isEnabled()) return;
         if (session.isTalentEnabled(TalentType.FARM_GROWSTICK_RADIUS)) radius = 1;
         boolean success = false;
         for (int dz = -radius; dz <= radius; dz += 1) {
@@ -73,7 +90,69 @@ public final class FarmingSkill extends Skill {
             }
         }
         if (success) Effects.wateringCan(player);
-        return success;
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    protected void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        if (!Util.playMode(player)) return;
+        Block block = event.getBlock();
+        String bid = BlockMarker.getId(block);
+        if (bid != null) {
+            switch (bid) {
+            case FarmingSkill.WATERED_CROP:
+            case FarmingSkill.GROWN_CROP:
+                BlockMarker.resetId(block);
+                harvest(player, block);
+                break;
+            default: break;
+            }
+        }
+    }
+
+    /**
+     * Crop harvesting.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    protected void onPlayerBreakBlock(PlayerBreakBlockEvent event) {
+        Player player = event.getPlayer();
+        if (!Util.playMode(player)) return;
+        Block block = event.getBlock();
+        String bid = BlockMarker.getId(block);
+        if (bid != null) {
+            switch (bid) {
+            case FarmingSkill.WATERED_CROP:
+            case FarmingSkill.GROWN_CROP:
+                BlockMarker.resetId(block);
+                harvest(player, block);
+                break;
+            default: break;
+            }
+        }
+    }
+
+    /**
+     * Crop harvesting.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    protected void onBlockFromTo(BlockFromToEvent event) {
+        Block block = event.getBlock();
+        String bid = BlockMarker.getId(block);
+        if (bid != null) {
+            switch (bid) {
+            case FarmingSkill.WATERED_CROP:
+            case FarmingSkill.GROWN_CROP:
+                BlockMarker.resetId(block);
+            default: break;
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    protected void onBlockGrow(BlockGrowEvent event) {
+        if (BlockMarker.hasId(event.getBlock(), FarmingSkill.WATERED_CROP)) {
+            event.setCancelled(true);
+        }
     }
 
     protected boolean waterBlock(@NonNull Player player, @NonNull Block block) {
@@ -118,14 +197,14 @@ public final class FarmingSkill extends Skill {
         return true;
     }
 
-    protected boolean isRipe(@NonNull Block block) {
+    public static boolean isRipe(@NonNull Block block) {
         BlockData blockData = block.getBlockData();
         if (!(blockData instanceof Ageable)) return false;
         Ageable ageable = (Ageable) blockData;
         return ageable.getAge() >= ageable.getMaximumAge();
     }
 
-    public void harvest(@NonNull Player player, @NonNull Block block) {
+    protected void harvest(Player player, Block block) {
         Crop crop = Crop.of(block);
         if (crop == null) return;
         if (!isRipe(block)) return;
@@ -156,51 +235,5 @@ public final class FarmingSkill extends Skill {
         session.addSkillPoints(SkillType.FARMING, 1);
         Util.exp(loc, 1 + session.getExpBonus(SkillType.FARMING));
         Effects.harvest(block);
-    }
-
-    public boolean useSeed(@NonNull Player player, @NonNull Block block,
-                           @NonNull Crop crop, @NonNull ItemStack item) {
-        Session session = plugin.sessions.of(player);
-        if (!session.isEnabled()) return false;
-        Material soil = crop == Crop.NETHER_WART
-            ? Material.SOUL_SAND
-            : Material.FARMLAND;
-        if (session.isTalentEnabled(TalentType.FARM_PLANT_RADIUS) && !player.isSneaking()) {
-            if (block.getType() == soil) {
-                return 0 < plantRadius(player, block.getRelative(0, 1, 0), crop, item);
-            }
-            Block lower = block.getRelative(0, -1, 0);
-            if (lower.getType() == soil) {
-                return 0 < plantRadius(player, block, crop, item);
-            }
-        }
-        return false;
-    }
-
-    protected int plantRadius(@NonNull Player player, @NonNull Block orig,
-                              @NonNull Crop crop, @NonNull ItemStack item) {
-        int result = 0;
-        ArrayList<Block> bs = new ArrayList<>(8);
-        for (int z = -1; z <= 1; z += 1) {
-            for (int x = -1; x <= 1; x += 1) {
-                bs.add(orig.getRelative(x, 0, z));
-            }
-        }
-        Collections.shuffle(bs, plugin.random);
-        for (Block block : bs) {
-            if (item.getType() != crop.seedMaterial) break;
-            if (item.getAmount() < 1) break;
-            if (!block.isEmpty()) continue;
-            Block lower = block.getRelative(0, -1, 0);
-            if (crop == Crop.NETHER_WART && lower.getType() != Material.SOUL_SAND) continue;
-            if (crop != Crop.NETHER_WART && lower.getType() != Material.FARMLAND) continue;
-            if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, block)) continue;
-            block.setType(crop.blockMaterial);
-            Exploits.setPlayerPlaced(block, true);
-            item.setAmount(item.getAmount() - 1);
-            Effects.plantCropMagic(block);
-            result += 1;
-        }
-        return result;
     }
 }

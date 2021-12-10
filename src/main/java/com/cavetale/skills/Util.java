@@ -22,9 +22,8 @@ public final class Util {
         switch (player.getGameMode()) {
         case SURVIVAL:
         case ADVENTURE:
-            return true;
-        default:
-            return false;
+            return player.hasPermission("skills.skills");
+        default: return false;
         }
     }
 

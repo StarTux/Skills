@@ -1,6 +1,7 @@
 package com.cavetale.skills.session;
 
 import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.skills.skill.TalentType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -102,5 +103,10 @@ public final class Sessions implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     protected void onPlayerQuit(PlayerQuitEvent event) {
         remove(event.getPlayer());
+    }
+
+    public boolean isTalentEnabled(Player player, TalentType talentType) {
+        Session session = of(player);
+        return session.isEnabled() ? session.isTalentEnabled(talentType) : false;
     }
 }

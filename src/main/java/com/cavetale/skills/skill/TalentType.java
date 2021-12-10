@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill;
 
+import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.Util;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -66,6 +67,9 @@ public enum TalentType {
     }
 
     protected void register(final Talent newTalent) {
+        if (this.talent != null) {
+            SkillsPlugin.getInstance().getLogger().warning("Duplicate talent registration: " + this);
+        }
         this.talent = newTalent;
     }
 }
