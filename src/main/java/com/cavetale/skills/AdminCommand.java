@@ -1,7 +1,9 @@
 package com.cavetale.skills;
 
 import com.cavetale.core.command.AbstractCommand;
+import com.cavetale.core.command.CommandArgCompleter;
 import com.cavetale.core.command.CommandNode;
+import com.cavetale.core.command.CommandWarn;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.sql.SQLSkill;
@@ -18,8 +20,9 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
 
     @Override
     protected void onEnable() {
-        rootNode.addChild("gimme").denyTabCompletion()
+        rootNode.addChild("gimme").arguments("[amount]")
             .description("Receive a TalentType Point")
+            .completers(CommandArgCompleter.integer(i -> i > 0))
             .playerCaller(this::gimme);
         rootNode.addChild("particles").denyTabCompletion()
             .description("Toggle Particles")
@@ -47,8 +50,19 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
     }
 
     protected boolean gimme(Player player, String[] args) {
-        if (args.length != 0) return false;
-        plugin.sessions.apply(player, s -> s.addTalentPoints(1));
+        if (args.length > 1) return false;
+        final int amount;
+        if (args.length >= 1) {
+            try {
+                amount = Integer.parseInt(args[0]);
+            } catch (IllegalArgumentException iae) {
+                throw new CommandWarn("Invalid amount: " + args[0]);
+            }
+            if (amount < 1) throw new CommandWarn("Invalid amount: " + args[0]);
+        } else {
+            amount = 1;
+        }
+        plugin.sessions.apply(player, s -> s.addTalentPoints(amount));
         return true;
     }
 

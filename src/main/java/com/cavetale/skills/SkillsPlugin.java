@@ -27,6 +27,7 @@ public final class SkillsPlugin extends JavaPlugin {
     public final Random random = ThreadLocalRandom.current();
     public final SQLDatabase database = new SQLDatabase(this);
     public final Skills skills = new Skills(this);
+    public final Guis guis = new Guis(this);
     public final Sessions sessions = new Sessions(this);
     public final Advancements advancements = new Advancements(this);
     protected final Map<String, Info> infos = new HashMap<>();
@@ -42,6 +43,7 @@ public final class SkillsPlugin extends JavaPlugin {
         database.registerTables(SQLSkill.class, SQLPlayer.class);
         database.createAllTables();
         skills.enable();
+        guis.enable();
         sessions.enable();
         worldMarkerManager.enable();
         advancements.createAll();
@@ -69,7 +71,7 @@ public final class SkillsPlugin extends JavaPlugin {
             for (String line : skillType.tag.moreText()) {
                 lines.add(line);
             }
-            Info info = new Info(skillType.displayName + " Skill",
+            Info info = new Info(skillType.displayName,
                                  "Skill",
                                  String.join("\n\n", lines));
             infos.put(skillType.name().toLowerCase(), info);

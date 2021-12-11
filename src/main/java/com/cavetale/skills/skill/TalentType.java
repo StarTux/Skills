@@ -76,10 +76,11 @@ public enum TalentType {
         this.talent = newTalent;
     }
 
-    public static record TalentTag(String title, Material icon, String description, String... moreText) {
+    public static record TalentTag(String title, Material icon, int x, int y,
+                                   String description, String... moreText) {
         public static final TalentTag FARM_GROWSTICK_RADIUS = new
             TalentTag("Spoutcraft",
-                      Material.STICK,
+                      Material.STICK, 5, 3,
                       "Effective growstick radius +1",
                       "Up your gardening powers."
                       + " Save lots of time by watering"
@@ -88,7 +89,7 @@ public enum TalentType {
 
         public static final TalentTag FARM_CROP_DROPS = new
             TalentTag("Cultivator",
-                      Material.WHEAT,
+                      Material.WHEAT, 5, 4,
                       "Increased crop yields",
                       "Each fully grown watered plant"
                       + " yields additional drops when"
@@ -96,14 +97,14 @@ public enum TalentType {
 
         public static final TalentTag FARM_DIAMOND_DROPS = new
             TalentTag("Gem Growth",
-                      Material.DIAMOND,
+                      Material.DIAMOND, 6, 4,
                       "Diamond drops 100% more common",
                       "Fully grown watered plants sometimes yield diamonds."
                       + " This talent increases your chances drastically.");
 
         public static final TalentTag FARM_TALENT_POINTS = new
             TalentTag("Grand Granger",
-                      Material.CORNFLOWER,
+                      Material.CORNFLOWER, 7, 4,
                       "Talent points drop more often",
                       "Whenever a fully grown and watered plant drops a diamond,"
                       + " there is also a small progress made toward your next talent point."
@@ -112,7 +113,7 @@ public enum TalentType {
 
         public static final TalentTag FARM_PLANT_RADIUS = new
             TalentTag("Springtime",
-                      Material.WHEAT_SEEDS,
+                      Material.WHEAT_SEEDS, 5, 2,
                       "Plant seeds in a 3x3 area",
                       "Save time with this talent."
                       + " Plant any seed"
@@ -122,7 +123,7 @@ public enum TalentType {
 
         public static final TalentTag MINE_STRIP = new
             TalentTag("Strip Mining",
-                      Material.DIAMOND_PICKAXE,
+                      Material.DIAMOND_PICKAXE, 5, 3,
                       "Mining with an Efficiency pickaxe breaks many block",
                       "Unleash the full power of the Efficency enchantment."
                       + " Mining stone type blocks will break several blocks"
@@ -133,7 +134,7 @@ public enum TalentType {
 
         public static final TalentTag MINE_ORE_ALERT = new
             TalentTag("Ore Alert",
-                      Material.DIAMOND_ORE,
+                      Material.DIAMOND_ORE, 5, 4,
                       "Get alerts when diamond ore is nearby",
                       "Never miss diamonds near your mine again!"
                       + " Whenever you mine stone at diamond level,"
@@ -143,7 +144,7 @@ public enum TalentType {
 
         public static final TalentTag MINE_XRAY = new
             TalentTag("Super Vision",
-                      Material.GLOWSTONE,
+                      Material.GLOWSTONE, 6, 4,
                       "Mining stone with a Fortune pickaxe"
                       + " allows you to see through solid stone",
                       "Nearby stone will be rendered see-through"
@@ -151,7 +152,7 @@ public enum TalentType {
 
         public static final TalentTag MINE_SILK_STRIP = new
             TalentTag("Silk Stripping",
-                      Material.GOLD_NUGGET,
+                      Material.GOLD_NUGGET, 5, 2,
                       "Use a Silk Touch pickaxe to strip an ore of its gems",
                       "Right-click with a Silk Touch pickaxe to do use your"
                       + " fine motory skills and remove those"
@@ -168,7 +169,7 @@ public enum TalentType {
 
         public static final TalentTag MINE_SILK_MULTI = new
             TalentTag("Silk Fortune",
-                      Material.GOLD_INGOT,
+                      Material.GOLD_INGOT, 6, 2,
                       "Silk stripping may yield even more drops from the same ore",
                       "While using your Silk Touch pickaxe on ores,"
                       + " this talent gives you an even greater chance"
@@ -181,29 +182,29 @@ public enum TalentType {
 
         public static final TalentTag COMBAT_FIRE = new
             TalentTag("Pyromaniac",
-                      Material.CAMPFIRE,
+                      Material.CAMPFIRE, 5, 3,
                       "Monsters set on fire deal -50% melee damage."
                       + " Monsters set on fire take +50% damage");
 
         public static final TalentTag COMBAT_SILENCE = new
             TalentTag("Denial",
-                      Material.BARRIER,
+                      Material.BARRIER, 5, 2,
                       "Monsters knocked back cannot shoot arrows or throw projectiles for 20 seconds",
                       "Use a Knockback weapon on an enemy to give it this status effect.");
 
         public static final TalentTag COMBAT_SPIDERS = new
             TalentTag("Vamonos",
-                      Material.SPIDER_EYE,
+                      Material.SPIDER_EYE, 6, 2,
                       "Bane of Arthropods slows spiders and denies their poison effect for 30 seconds");
 
         public static final TalentTag COMBAT_GOD_MODE = new
             TalentTag("God Mode",
-                      Material.TOTEM_OF_UNDYING,
+                      Material.TOTEM_OF_UNDYING, 7, 2,
                       "Melee kills give 3 seconds of immortality");
 
         public static final TalentTag COMBAT_ARCHER_ZONE = new
             TalentTag("In The Zone",
-                      Material.SPECTRAL_ARROW,
+                      Material.SPECTRAL_ARROW, 5, 4,
                       "Ranged kills give 5 seconds of double damage to ranged attacks");
     }
 }

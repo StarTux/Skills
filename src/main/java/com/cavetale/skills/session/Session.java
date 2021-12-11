@@ -39,8 +39,8 @@ public final class Session {
     protected SkillType shownSkill = null;
     protected int skillBarCountdown;
     protected Tag tag;
-    protected Set<TalentType> talents = new HashSet<>();
-    protected Set<TalentType> disabledTalents = new HashSet<>();
+    protected final Set<TalentType> talents = new HashSet<>();
+    protected final Set<TalentType> disabledTalents = new HashSet<>();
     // Status effects, ticks remaining
     @Setter protected boolean xrayActive;
     @Setter protected int immortal = 0;
@@ -48,12 +48,12 @@ public final class Session {
     @Setter protected int archerZoneKills = 0;
     @Setter protected boolean poisonFreebie = false;
     @Setter protected boolean noParticles = false;
+    @Setter protected SkillType talentGui = SkillType.MINING;
     //
     private int noSave = 0;
     private int tick;
     private int actionSP;
     //
-    @Setter protected boolean talentsDisabled;
     protected BukkitTask task;
 
     public Session(@NonNull final SkillsPlugin plugin, @NonNull final Player player) {
@@ -75,6 +75,7 @@ public final class Session {
         }
         this.tag = Json.deserialize(sqlPlayer.getJson(), Tag.class, Tag::new);
         tag.talents.stream().map(TalentType::of).filter(Objects::nonNull).forEach(talents::add);
+        tag.disabledTalents.stream().map(TalentType::of).filter(Objects::nonNull).forEach(disabledTalents::add);
         // Load SQLSkills
         List<SQLSkill> sqlSkillRows = plugin.database.find(SQLSkill.class).eq("player", uuid).findList();
         for (SQLSkill sqlSkill : sqlSkillRows) {
@@ -258,6 +259,18 @@ public final class Session {
         return true;
     }
 
+    public boolean setTalentDisabled(@NonNull TalentType talent, boolean disabled) {
+        if (disabledTalents.contains(talent) == disabled) return false;
+        if (disabled) {
+            disabledTalents.add(talent);
+        } else {
+            disabledTalents.remove(talent);
+        }
+        sqlPlayer.setModified(true);
+        tag.setModified(true);
+        return true;
+    }
+
     private void tick() {
         tick += 1;
         if (immortal > 0) immortal -= 1;
@@ -284,6 +297,7 @@ public final class Session {
             if (tag.modified) {
                 tag.modified = false;
                 tag.talents = talents.stream().map(t -> t.key).collect(Collectors.toSet());
+                tag.disabledTalents = disabledTalents.stream().map(t -> t.key).collect(Collectors.toSet());
                 sqlPlayer.setJson(Json.serialize(tag));
             }
             sqlPlayer.setModified(false);
@@ -305,7 +319,7 @@ public final class Session {
     }
 
     public boolean isTalentEnabled(TalentType talent) {
-        return !talentsDisabled && talents.contains(talent) && !disabledTalents.contains(talent);
+        return talents.contains(talent) && !disabledTalents.contains(talent);
     }
 
     public boolean hasTalent(@NonNull TalentType talent) {

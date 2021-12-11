@@ -45,7 +45,7 @@ public final class Util {
     }
 
     public static ItemStack getHand(@NonNull Player player,
-                             @NonNull EquipmentSlot slot) {
+                                    @NonNull EquipmentSlot slot) {
         switch (slot) {
         case HAND:
             return player.getInventory().getItemInMainHand();

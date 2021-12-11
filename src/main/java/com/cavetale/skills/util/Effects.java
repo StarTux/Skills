@@ -114,19 +114,6 @@ public final class Effects {
                         0.25); // extra/speed
     }
 
-    public static void kill(@NonNull Entity e) {
-        World w = e.getWorld();
-        BoundingBox bb = e.getBoundingBox();
-        w.spawnParticle(Particle.REDSTONE,
-                        bb.getCenter().toLocation(w),
-                        48, // amount
-                        bb.getWidthX() * 0.35, // offset
-                        bb.getHeight() * 0.35,
-                        bb.getWidthZ() * 0.35,
-                        0.0, // extra/speed (REDSTONE does not care)
-                        new Particle.DustOptions(Color.RED, 2.0f));
-    }
-
     public static void warp(@NonNull Entity e) {
         World w = e.getWorld();
         BoundingBox bb = e.getBoundingBox();

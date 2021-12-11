@@ -10,5 +10,6 @@ import lombok.Data;
 @Data
 public final class Tag {
     protected Set<String> talents = new HashSet<>();
+    protected Set<String> disabledTalents = new HashSet<>();
     protected transient boolean modified;
 }

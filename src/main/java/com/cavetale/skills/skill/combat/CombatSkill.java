@@ -5,7 +5,6 @@ import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
-import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;
 import lombok.NonNull;
@@ -83,7 +82,6 @@ public final class CombatSkill extends Skill {
         if (kills > 50) return;
         session.addSkillPoints(SkillType.COMBAT, reward.sp);
         event.setDroppedExp(event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
-        Effects.kill(mob);
     }
 
     protected void onMeleeKill(Player player, Mob mob) {

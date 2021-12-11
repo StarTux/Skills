@@ -9,7 +9,6 @@ import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.util.Books;
-import com.cavetale.skills.util.Effects;
 import com.winthier.playercache.PlayerCache;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -161,80 +160,9 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     }
 
     protected boolean talent(@NonNull Player player, String[] args) {
-        if (args.length == 0) {
-            talentMenu(player);
-            return true;
-        }
-        switch (args[0]) {
-        case "unlock": {
-            if (args.length != 2) return false;
-            Session session = plugin.sessions.of(player);
-            if (!session.isEnabled()) {
-                throw new CommandWarn("Session not ready. Please try again later!");
-            }
-            if (session.getTalentPoints() < session.getTalentCost()) {
-                throw new CommandWarn("You don't have enough TalentType Points!");
-            }
-            TalentType talent = TalentType.of(args[1]);
-            if (talent == null) {
-                throw new CommandWarn("Invalid talent!");
-            }
-            if (session.hasTalent(talent)) {
-                throw new CommandWarn("Already unlocked!");
-            }
-            if (!session.canAccessTalent(talent)) {
-                throw new CommandWarn("Parent not yet available!");
-            }
-            if (!session.unlockTalent(talent)) {
-                throw new CommandWarn("An unknown error occured.");
-            }
-            Effects.talentUnlock(player);
-            talentMenu(player);
-            return true;
-        }
-        case "toggle": {
-            if (args.length == 1) {
-                Session session = plugin.sessions.of(player);
-                if (!session.isEnabled()) {
-                    throw new CommandWarn("Session not ready. Please try again later!");
-                }
-                boolean dis = !session.isTalentsDisabled();
-                session.setTalentsDisabled(dis);
-                player.sendMessage(dis
-                                   ? Component.text("Talents disabled", NamedTextColor.RED)
-                                   : Component.text("Talents enabled", NamedTextColor.GREEN));
-                talentMenu(player);
-                return true;
-            } else if (args.length == 2) {
-                TalentType talent = TalentType.of(args[1]);
-                if (talent == null) {
-                    throw new CommandWarn("Invalid talent!");
-                }
-                Session session = plugin.sessions.of(player);
-                if (!session.isEnabled()) {
-                    throw new CommandWarn("Session not ready. Please try again later!");
-                }
-                if (!session.hasTalent(talent)) {
-                    throw new CommandWarn("You don't have this talent!");
-                }
-                if (session.getDisabledTalents().contains(talent)) {
-                    session.getDisabledTalents().remove(talent);
-                    player.sendMessage(Component.text("TalentType enabled: " + talent.displayName,
-                                                      NamedTextColor.GREEN));
-                } else {
-                    session.getDisabledTalents().add(talent);
-                    player.sendMessage(Component.text("TalentType disabled: " + talent.displayName,
-                                                      NamedTextColor.RED));
-                }
-                talentMenu(player);
-                return true;
-            } else {
-                return false;
-            }
-        }
-        default: break;
-        }
-        return false;
+        if (args.length != 0) return false;
+        plugin.guis.talents(player);
+        return true;
     }
 
     @Value
@@ -356,75 +284,5 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         }
         player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()),
                                           lines));
-    }
-
-    protected void talentMenu(@NonNull Player player) {
-        List<Component> lines = new ArrayList<>();
-        lines.add(Component.text("Skill Talents", NamedTextColor.GOLD, TextDecoration.BOLD));
-        Session session = plugin.sessions.of(player);
-        if (!session.isEnabled()) {
-            throw new CommandWarn("Session not ready. Please try again later!");
-        }
-        for (SkillType skillType : SkillType.values()) {
-            List<Component> cb = new ArrayList<>();
-            cb.add(Component.text(skillType.displayName, NamedTextColor.GRAY));
-            for (TalentType talent : TalentType.SKILL_MAP.get(skillType)) {
-                Component component;
-                NamedTextColor talentColor;
-                if (session.hasTalent(talent)) {
-                    component = Component.text("(" + talent.tag.title() + ")",
-                                               session.getDisabledTalents().contains(talent) ? NamedTextColor.RED : NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand("/sk talent toggle " + talent.key));
-                    talentColor = NamedTextColor.GREEN;
-                } else if (session.canAccessTalent(talent) && session.getTalentPoints() >= session.getTalentCost()) {
-                    component = Component.text("[" + talent.tag.title() + "]", NamedTextColor.GOLD)
-                        .clickEvent(ClickEvent.runCommand("/sk talent unlock " + talent.key));
-                    talentColor = NamedTextColor.GOLD;
-                } else {
-                    component = Component.text("<" + talent.tag.title() + ">", NamedTextColor.DARK_GRAY);
-                    talentColor = NamedTextColor.GRAY;
-                }
-                if (session.hasTalent(talent)) {
-                    Component tooltip = Component.join(JoinConfiguration.separator(Component.newline()), new Component[] {
-                            Component.text(talent.tag.title(), NamedTextColor.WHITE),
-                            (session.getDisabledTalents().contains(talent)
-                             ? (Component.text("Disabled", NamedTextColor.RED)
-                                .append(Component.text(" Click to enable", NamedTextColor.GRAY)))
-                             : (Component.text("Enabled", NamedTextColor.GREEN)
-                                .append(Component.text(" Click to disable", NamedTextColor.GRAY)))),
-                            Component.text(talent.tag.description(), talentColor),
-                        });
-                    component = component.hoverEvent(HoverEvent.showText(tooltip));
-                } else {
-                    Component tooltip = Component.join(JoinConfiguration.separator(Component.newline()), new Component[] {
-                            Component.text(talent.tag.title(), NamedTextColor.WHITE),
-                            (talent.depends != null
-                             ? Component.text("Requires: " + talent.depends.tag.title(),
-                                              (session.hasTalent(talent.depends) ? NamedTextColor.GREEN : NamedTextColor.DARK_RED))
-                             : Component.empty()),
-                            Component.text(talent.tag.description(), talentColor),
-                        });
-                    component = component.hoverEvent(HoverEvent.showText(tooltip));
-                }
-                cb.add(component);
-            }
-            lines.add(Component.join(JoinConfiguration.separator(Component.space()), cb));
-        }
-        lines.add(prop("TalentType Points ", "" + session.getTalentPoints()));
-        lines.add(prop("Unlock Cost ", "" + session.getTalentCost()));
-        Component talentComponent = prop("Talents ", session.isTalentsDisabled() ? "Disabled " : "Enabled ");
-        if (session.isTalentsDisabled()) {
-            talentComponent = talentComponent
-                .append(Component.text("[Enable]", NamedTextColor.GREEN)
-                        .hoverEvent(HoverEvent.showText(Component.text("Enable Talents", NamedTextColor.GREEN)))
-                        .clickEvent(ClickEvent.runCommand("/sk talent toggle")));
-        } else {
-            talentComponent = talentComponent
-                .append(Component.text("[Disable]", NamedTextColor.RED)
-                        .hoverEvent(HoverEvent.showText(Component.text("Disable Talents", NamedTextColor.RED)))
-                        .clickEvent(ClickEvent.runCommand("/sk talent toggle")));
-        }
-        lines.add(talentComponent);
-        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
     }
 }
