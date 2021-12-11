@@ -2,7 +2,6 @@ package com.cavetale.skills.advancement;
 
 import com.cavetale.core.util.Json;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.TalentInfo;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import java.util.ArrayList;
@@ -114,17 +113,14 @@ public final class Advancements {
     }
 
     protected AdvancementJson make(TalentType talentType) {
-        TalentInfo info = plugin.getTalentInfo(talentType.key);
         String parent = talentType.depends == null
             ? "skills:" + talentType.skillType.key + "/" + talentType.skillType.key
             : "skills:" + talentType.skillType.key + "/" + talentType.depends.key;
         AdvancementJson advancement = new AdvancementJson();
-        advancement.display.icon.item = "minecraft:" + info.getIcon();
-        if (info.getIconNBT() != null) {
-            advancement.display.icon.nbt = info.getIconNBT();
-        }
-        advancement.display.title = info.getTitle();
-        advancement.display.description = info.getDescription();
+        advancement.display.icon.item = talentType.tag.icon().getKey().toString();
+        advancement.display.icon.nbt = null;
+        advancement.display.title = talentType.tag.title();
+        advancement.display.description = talentType.tag.description();
         advancement.display.hidden = false;
         advancement.display.announce_to_chat = false;
         advancement.display.show_toast = true;
@@ -134,17 +130,12 @@ public final class Advancements {
     }
 
     protected AdvancementJson make(SkillType skillType) {
-        TalentInfo info = plugin.getTalentInfo(skillType.key);
         AdvancementJson advancement = new AdvancementJson();
-        advancement.display.icon.item = "minecraft:" + info.getIcon();
-        if (info.getIconNBT() != null) {
-            advancement.display.icon.nbt = info.getIconNBT();
-        }
-        advancement.display.title = info.getTitle();
-        advancement.display.description = info.getDescription();
-        if (info.getBackground() != null) {
-            advancement.display.background = info.getBackground();
-        }
+        advancement.display.icon.item = skillType.tag.icon().getKey().toString();
+        advancement.display.icon.nbt = null;
+        advancement.display.title = skillType.displayName + " Talents";
+        advancement.display.description = skillType.tag.description();
+        advancement.display.background = skillType.tag.background();
         advancement.display.hidden = false;
         advancement.display.announce_to_chat = false;
         advancement.display.show_toast = true;

@@ -2,10 +2,12 @@ package com.cavetale.skills;
 
 import com.cavetale.core.command.AbstractCommand;
 import com.cavetale.core.command.CommandNode;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.sql.SQLSkill;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -39,6 +41,9 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
         advancementNode.addChild("reload").denyTabCompletion()
             .description("Reload Advancements")
             .senderCaller(this::advancementReload);
+        advancementNode.addChild("update").denyTabCompletion()
+            .description("Update all player advancements")
+            .senderCaller(this::advancementUpdate);
     }
 
     protected boolean gimme(Player player, String[] args) {
@@ -105,6 +110,19 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
         sender.sendMessage("Reloading advancements...");
         plugin.advancements.removeAll();
         plugin.advancements.createAll();
+        return true;
+    }
+
+    protected boolean advancementUpdate(CommandSender sender, String[] args) {
+        if (args.length != 0) return false;
+        int count = 0;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Session session = plugin.sessions.of(player);
+            if (!session.isEnabled()) continue;
+            session.updateAdvancements();
+            count += 1;
+        }
+        sender.sendMessage("Updated advancements of " + count + " player(s)");
         return true;
     }
 }

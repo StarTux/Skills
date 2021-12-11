@@ -126,7 +126,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                                  .build(),
                                  Stream.of(TalentType.values())
                                  .filter(session::hasTalent)
-                                 .map(e -> Component.text(plugin.getTalentInfo(e.key).title, NamedTextColor.GOLD))
+                                 .map(t -> Component.text(t.tag.title(), NamedTextColor.GOLD))
                                  .collect(Collectors.toList())));
         player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
         return true;
@@ -140,7 +140,11 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                                            .separator(Component.text(", ", NamedTextColor.DARK_PURPLE))
                                            .build(),
                                            plugin.infos.keySet().stream()
-                                           .map(s -> Component.text(s, NamedTextColor.YELLOW))
+                                           .map(s -> Component.text(s, NamedTextColor.YELLOW)
+                                                .clickEvent(ClickEvent.runCommand("/sk info " + s))
+                                                .hoverEvent(HoverEvent.showText(Component.text(plugin.infos.get(s).title,
+                                                                                               NamedTextColor.YELLOW,
+                                                                                               TextDecoration.BOLD))))
                                            .collect(Collectors.toList()));
             player.sendMessage(msg);
             return true;
@@ -149,12 +153,9 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         if (info == null) {
             throw new CommandWarn("Not found: " + args[0]);
         }
-        List<Component> lines = new ArrayList<>();
-        lines.add(Component.text(info.title, NamedTextColor.YELLOW, TextDecoration.BOLD));
-        for (String p : info.description.split("\n\n")) {
-            lines.add(Component.empty());
-            lines.add(Component.text(p));
-        }
+        List<Component> lines = List.of(Component.text(info.title, NamedTextColor.YELLOW, TextDecoration.BOLD),
+                                        Component.text(info.category, NamedTextColor.DARK_GRAY, TextDecoration.ITALIC),
+                                        Component.text(info.description, NamedTextColor.WHITE));
         player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
         return true;
     }
@@ -368,41 +369,40 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             List<Component> cb = new ArrayList<>();
             cb.add(Component.text(skillType.displayName, NamedTextColor.GRAY));
             for (TalentType talent : TalentType.SKILL_MAP.get(skillType)) {
-                TalentInfo info = plugin.getTalentInfo(talent.key);
                 Component component;
                 NamedTextColor talentColor;
                 if (session.hasTalent(talent)) {
-                    component = Component.text("(" + info.title + ")",
+                    component = Component.text("(" + talent.tag.title() + ")",
                                                session.getDisabledTalents().contains(talent) ? NamedTextColor.RED : NamedTextColor.GREEN)
                         .clickEvent(ClickEvent.runCommand("/sk talent toggle " + talent.key));
                     talentColor = NamedTextColor.GREEN;
                 } else if (session.canAccessTalent(talent) && session.getTalentPoints() >= session.getTalentCost()) {
-                    component = Component.text("[" + info.title + "]", NamedTextColor.GOLD)
+                    component = Component.text("[" + talent.tag.title() + "]", NamedTextColor.GOLD)
                         .clickEvent(ClickEvent.runCommand("/sk talent unlock " + talent.key));
                     talentColor = NamedTextColor.GOLD;
                 } else {
-                    component = Component.text("<" + info.title + ">", NamedTextColor.DARK_GRAY);
+                    component = Component.text("<" + talent.tag.title() + ">", NamedTextColor.DARK_GRAY);
                     talentColor = NamedTextColor.GRAY;
                 }
                 if (session.hasTalent(talent)) {
                     Component tooltip = Component.join(JoinConfiguration.separator(Component.newline()), new Component[] {
-                            Component.text(info.title, NamedTextColor.WHITE),
+                            Component.text(talent.tag.title(), NamedTextColor.WHITE),
                             (session.getDisabledTalents().contains(talent)
                              ? (Component.text("Disabled", NamedTextColor.RED)
                                 .append(Component.text(" Click to enable", NamedTextColor.GRAY)))
                              : (Component.text("Enabled", NamedTextColor.GREEN)
                                 .append(Component.text(" Click to disable", NamedTextColor.GRAY)))),
-                            Component.text(info.description, talentColor),
+                            Component.text(talent.tag.description(), talentColor),
                         });
                     component = component.hoverEvent(HoverEvent.showText(tooltip));
                 } else {
                     Component tooltip = Component.join(JoinConfiguration.separator(Component.newline()), new Component[] {
-                            Component.text(info.title, NamedTextColor.WHITE),
+                            Component.text(talent.tag.title(), NamedTextColor.WHITE),
                             (talent.depends != null
-                             ? Component.text("Requires: " + plugin.getTalentInfo(talent.depends.key).title,
+                             ? Component.text("Requires: " + talent.depends.tag.title(),
                                               (session.hasTalent(talent.depends) ? NamedTextColor.GREEN : NamedTextColor.DARK_RED))
                              : Component.empty()),
-                            Component.text(info.description, talentColor),
+                            Component.text(talent.tag.description(), talentColor),
                         });
                     component = component.hoverEvent(HoverEvent.showText(tooltip));
                 }

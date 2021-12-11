@@ -2,19 +2,20 @@ package com.cavetale.skills;
 
 import com.cavetale.skills.advancement.Advancements;
 import com.cavetale.skills.session.Sessions;
+import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.Skills;
+import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.worldmarker.WorldMarkerManager;
 import com.winthier.sql.SQLDatabase;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SkillsPlugin extends JavaPlugin {
@@ -28,7 +29,6 @@ public final class SkillsPlugin extends JavaPlugin {
     public final Skills skills = new Skills(this);
     public final Sessions sessions = new Sessions(this);
     public final Advancements advancements = new Advancements(this);
-    protected final Map<String, TalentInfo> talentInfos = new HashMap<>();
     protected final Map<String, Info> infos = new HashMap<>();
     @Getter private final WorldMarkerManager worldMarkerManager = new WorldMarkerManager(this);
 
@@ -44,8 +44,8 @@ public final class SkillsPlugin extends JavaPlugin {
         skills.enable();
         sessions.enable();
         worldMarkerManager.enable();
-        loadInfos();
         advancements.createAll();
+        loadInfos();
     }
 
     @Override
@@ -63,27 +63,27 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     protected void loadInfos() {
-        ConfigurationSection conf;
-        infos.clear();
-        conf = YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("infos.yml")));
-        for (String key : conf.getKeys(false)) {
-            infos.put(key, new Info(conf.getConfigurationSection(key)));
+        for (SkillType skillType : SkillType.values()) {
+            List<String> lines = new ArrayList<>();
+            lines.add(skillType.tag.description());
+            for (String line : skillType.tag.moreText()) {
+                lines.add(line);
+            }
+            Info info = new Info(skillType.displayName + " Skill",
+                                 "Skill",
+                                 String.join("\n\n", lines));
+            infos.put(skillType.name().toLowerCase(), info);
         }
-        talentInfos.clear();
-        conf = YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("talents.yml")));
-        for (String key : conf.getKeys(false)) {
-            talentInfos.put(key, new TalentInfo(conf.getConfigurationSection(key)));
+        for (TalentType talentType : TalentType.values()) {
+            List<String> lines = new ArrayList<>();
+            lines.add(talentType.tag.description());
+            for (String line : talentType.tag.moreText()) {
+                lines.add(line);
+            }
+            Info info = new Info(talentType.tag.title(),
+                                 "Talent",
+                                 String.join("\n\n", lines));
+            infos.put(info.title.toLowerCase().replace(" ", "_"), info);
         }
-    }
-
-    // Never returns null
-    public TalentInfo getTalentInfo(String name) {
-        TalentInfo result = talentInfos.get(name);
-        if (result == null) {
-            getLogger().warning("Missing talent info: " + name);
-            result = new TalentInfo(name);
-            talentInfos.put(name, result);
-        }
-        return result;
     }
 }

@@ -132,7 +132,7 @@ public final class Session {
         return Bukkit.getPlayer(uuid);
     }
 
-    protected void updateAdvancements() {
+    public void updateAdvancements() {
         Player player = getPlayer();
         if (player == null) return;
         for (TalentType talent : TalentType.values()) {
