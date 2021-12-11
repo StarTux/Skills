@@ -40,7 +40,7 @@ public final class PlantRadiusTalent extends Talent implements Listener {
         if (!event.hasItem()) return;
         final ItemStack item = Util.getHand(player, event.getHand());
         Crop crop = Crop.ofSeed(item);
-        if (crop != null) return;
+        if (crop == null) return;
         final Block block = event.getClickedBlock();
         // Cancelling with edibles may trigger infinite eating animation.
         Material soil = crop == Crop.NETHER_WART
