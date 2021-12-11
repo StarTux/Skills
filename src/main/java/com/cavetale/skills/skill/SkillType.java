@@ -45,7 +45,7 @@ public enum SkillType {
                                  Material icon, String background,
                                  String... moreText) {
         private static final SkillTag MINING = new
-            SkillTag("Mining", NamedTextColor.DARK_GRAY,
+            SkillTag("Mining", NamedTextColor.DARK_AQUA,
                      "Mine ores to get SP."
                      + " Talents help you find and exploit ores.",
                      Material.GOLDEN_PICKAXE,
