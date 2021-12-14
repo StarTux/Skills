@@ -55,7 +55,7 @@ public enum SkillType {
                      + " additional chance to earn talent points.");
 
         private static final SkillTag FARMING = new
-            SkillTag("Farming", TextColor.color(0xA06020),
+            SkillTag("Farming", NamedTextColor.DARK_GREEN,
                      "Water your crops with the growstick"
                      + " and harvest them once they are fully grown.",
                      Material.GOLDEN_HOE,
