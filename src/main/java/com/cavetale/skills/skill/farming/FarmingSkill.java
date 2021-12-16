@@ -228,8 +228,7 @@ public final class FarmingSkill extends Skill implements Listener {
             block.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             int inc = 1;
             if (session.isTalentEnabled(TalentType.FARM_TALENT_POINTS)) inc = 2;
-            boolean noEffect = session.rollTalentPoint(inc);
-            if (!noEffect) Effects.rewardJingle(loc);
+            Effects.rewardJingle(loc);
         }
         // Exp
         session.addSkillPoints(SkillType.FARMING, 1);

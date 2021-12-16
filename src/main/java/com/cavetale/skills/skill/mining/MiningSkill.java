@@ -10,7 +10,6 @@ import com.winthier.exploits.Exploits;
 import java.util.EnumMap;
 import lombok.NonNull;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -117,9 +116,6 @@ public final class MiningSkill extends Skill implements Listener {
         if (!session.isEnabled()) return false;
         session.addSkillPoints(SkillType.MINING, reward.sp);
         Material mat = block.getType();
-        if (Tag.DIAMOND_ORES.isTagged(mat) || Tag.EMERALD_ORES.isTagged(mat)) {
-            session.rollTalentPoint(1);
-        }
         return true;
     }
 }

@@ -4,6 +4,7 @@ import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.Util;
 import lombok.Getter;
 import lombok.NonNull;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -40,12 +41,12 @@ public enum SkillType {
     }
 
     // This tag is used for advancements and GUIs.
-    public final record SkillTag(String title, TextColor color,
+    public final record SkillTag(String title, TextColor color, BossBar.Color bossBarColor,
                                  String description,
                                  Material icon, String background,
                                  String... moreText) {
         private static final SkillTag MINING = new
-            SkillTag("Mining", NamedTextColor.DARK_AQUA,
+            SkillTag("Mining", NamedTextColor.DARK_AQUA, BossBar.Color.BLUE,
                      "Mine ores to get SP."
                      + " Talents help you find and exploit ores.",
                      Material.GOLDEN_PICKAXE,
@@ -55,7 +56,7 @@ public enum SkillType {
                      + " additional chance to earn talent points.");
 
         private static final SkillTag FARMING = new
-            SkillTag("Farming", NamedTextColor.DARK_GREEN,
+            SkillTag("Farming", NamedTextColor.DARK_GREEN, BossBar.Color.GREEN,
                      "Water your crops with the growstick"
                      + " and harvest them once they are fully grown.",
                      Material.GOLDEN_HOE,
@@ -66,7 +67,7 @@ public enum SkillType {
                      + " chance at dropping diamonds and talent points.");
 
         private static final SkillTag COMBAT = new
-            SkillTag("Combat", NamedTextColor.RED,
+            SkillTag("Combat", NamedTextColor.RED, BossBar.Color.RED,
                      "Kill monsters to get SP."
                      + " Unlock talents to enhance your combat strength.",
                      Material.GOLDEN_SWORD,

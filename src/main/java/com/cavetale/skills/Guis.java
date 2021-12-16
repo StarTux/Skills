@@ -67,8 +67,8 @@ public final class Guis {
                     talents(player);
                 });
         }
-        final int talentPoints = session.getTalentPoints();
-        final int talentCost = session.getTalentCost();
+        final int talentPoints = session.getTalentPoints(skillType);
+        final int talentCost = session.getTalentCost(skillType);
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
                                         Component.text("You have " + talentPoints + " Talent Point"
@@ -123,17 +123,18 @@ public final class Guis {
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return;
         if (session.isTalentEnabled(talentType)) {
-            session.setTalentDisabled(talentType, true);
+            session.setTalentEnabled(talentType, false);
             talents(player);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
         } else if (session.hasTalent(talentType)) {
-            session.setTalentDisabled(talentType, false);
+            session.setTalentEnabled(talentType, true);
             talents(player);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
-        } else if (session.getTalentPoints() >= session.getTalentCost()) {
-            session.unlockTalent(talentType);
-            Effects.talentUnlock(player);
-            talents(player);
+        } else if (session.getTalentPoints(talentType.skillType) >= session.getTalentCost(talentType.skillType)) {
+            session.unlockTalent(talentType, () -> {
+                    Effects.talentUnlock(player);
+                    talents(player);
+                });
         } else {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
         }

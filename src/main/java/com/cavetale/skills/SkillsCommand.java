@@ -3,6 +3,7 @@ package com.cavetale.skills;
 import com.cavetale.core.command.AbstractCommand;
 import com.cavetale.core.command.CommandArgCompleter;
 import com.cavetale.core.command.CommandWarn;
+import com.cavetale.core.font.DefaultFont;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
@@ -61,6 +62,8 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .description("Highscore List")
             .completers(highscoreCompleters)
             .playerCaller(this::hi);
+        rootNode.addChild("upgrade").hidden(true)
+            .playerCaller(this::upgrade);
     }
 
     protected Component prop(String left, String right) {
@@ -69,32 +72,44 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                               Component.text(right));
     }
 
-    protected boolean skill(Player player, @NonNull SkillType skill, String[] args) {
+    protected boolean skill(Player player, SkillType skillType, String[] args) {
         if (args.length != 0) return false;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) {
             throw new CommandWarn("Session not ready. Please try again later!");
         }
-        int level = session.getLevel(skill);
-        int points = session.getSkillPoints(skill);
+        int level = session.getLevel(skillType);
+        int points = session.getSkillPoints(skillType);
         int req = plugin.pointsForLevelUp(level + 1);
-        long talents = Stream.of(TalentType.values())
-            .filter(t -> t.skillType == skill).count();
+        long talentCount = Stream.of(TalentType.values())
+            .filter(t -> t.skillType == skillType).count();
         long talentsHas = Stream.of(TalentType.values())
-            .filter(t -> t.skillType == skill)
+            .filter(t -> t.skillType == skillType)
             .filter(session::hasTalent).count();
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.text(skill.displayName, NamedTextColor.GOLD, TextDecoration.BOLD));
+        lines.add(Component.text(skillType.displayName, skillType.tag.color(), TextDecoration.BOLD));
         lines.add(Component.empty());
-        Info info = plugin.infos.get(skill.key);
+        Info info = plugin.infos.get(skillType.key);
         if (info != null) {
             lines.add(Component.text(info.description.split("\n\n")[0], NamedTextColor.GRAY));
         }
         lines.add(Component.empty());
         lines.add(prop("Level ", "" + level));
-        lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skill)));
+        lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skillType)));
         lines.add(prop("Points ", points + "/" + req));
-        lines.add(prop("Talents ", talentsHas + "/" + talents));
+        lines.add(prop("Talents ", talentsHas + "/" + talentCount));
+        if (talentsHas < talentCount) {
+            int talentPoints = session.getTalentPoints(skillType);
+            int talentCost = session.getTalentCost(skillType);
+            lines.add(prop("Talent Points ", talentPoints + "/" + talentCost));
+        }
+        if (points >= req) {
+            lines.add(Component.join(JoinConfiguration.noSeparators(),
+                                     Component.text("Upgrade to Level " + (level + 1) + "? "),
+                                     DefaultFont.YES_BUTTON.component
+                                     .hoverEvent(HoverEvent.showText(Component.text("Yes", NamedTextColor.BLUE)))
+                                     .clickEvent(ClickEvent.runCommand("/sk upgrade " + skillType.key))));
+        }
         Books.open(player, List.of(Component.join(JoinConfiguration.separator(Component.newline()), lines)));
         return true;
     }
@@ -284,5 +299,18 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         }
         player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()),
                                           lines));
+    }
+
+    /**
+     * Click command!
+     */
+    protected boolean upgrade(Player player, String[] args) {
+        if (args.length != 1) return true;
+        SkillType skillType = SkillType.ofKey(args[0]);
+        if (skillType == null) return true;
+        plugin.sessions.apply(player, session -> {
+                session.levelUp(skillType);
+            });
+        return true;
     }
 }

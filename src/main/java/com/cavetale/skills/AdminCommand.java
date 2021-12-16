@@ -6,9 +6,6 @@ import com.cavetale.core.command.CommandNode;
 import com.cavetale.core.command.CommandWarn;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
-import com.cavetale.skills.sql.SQLSkill;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,16 +17,21 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
 
     @Override
     protected void onEnable() {
-        rootNode.addChild("gimme").arguments("[amount]")
-            .description("Receive a TalentType Point")
-            .completers(CommandArgCompleter.integer(i -> i > 0))
-            .playerCaller(this::gimme);
+        rootNode.addChild("addtalentpoints").arguments("<player> <skillType> <amount>")
+            .description("Add Talent Points")
+            .completers(CommandArgCompleter.NULL,
+                        CommandArgCompleter.enumLowerList(SkillType.class),
+                        CommandArgCompleter.integer(i -> i > 0))
+            .playerCaller(this::addTalentPoints);
+        rootNode.addChild("addskillpoints").arguments("<player> <skillType> <amount>")
+            .description("Add Skill Points")
+            .completers(CommandArgCompleter.NULL,
+                        CommandArgCompleter.enumLowerList(SkillType.class),
+                        CommandArgCompleter.integer(i -> i > 0))
+            .playerCaller(this::addSkillPoints);
         rootNode.addChild("particles").denyTabCompletion()
             .description("Toggle Particles")
             .playerCaller(this::particles);
-        rootNode.addChild("median").denyTabCompletion()
-            .description("Compute Median")
-            .senderCaller(this::median);
         CommandNode advancementNode = rootNode.addChild("advancement")
             .description("Advancement commands");
         advancementNode.addChild("reload").denyTabCompletion()
@@ -49,20 +51,54 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
             .senderCaller(this::advancementUpdate);
     }
 
-    protected boolean gimme(Player player, String[] args) {
-        if (args.length > 1) return false;
-        final int amount;
-        if (args.length >= 1) {
-            try {
-                amount = Integer.parseInt(args[0]);
-            } catch (IllegalArgumentException iae) {
-                throw new CommandWarn("Invalid amount: " + args[0]);
-            }
-            if (amount < 1) throw new CommandWarn("Invalid amount: " + args[0]);
-        } else {
-            amount = 1;
+    protected boolean addTalentPoints(Player sender, String[] args) {
+        if (args.length != 3) return false;
+        String argTarget = args[0];
+        String argSkillType = args[1];
+        String argAmount = args[2];
+        Player target = Bukkit.getPlayerExact(argTarget);
+        if (target == null) {
+            throw new CommandWarn("Player not found: " + argTarget);
         }
-        plugin.sessions.apply(player, s -> s.addTalentPoints(amount));
+        final SkillType skillType = SkillType.ofKey(argSkillType);
+        if (skillType == null) {
+            throw new CommandWarn("Unknown skill: " + argSkillType);
+        }
+        final int amount;
+        try {
+            amount = Integer.parseInt(argAmount);
+        } catch (IllegalArgumentException iae) {
+            throw new CommandWarn("Invalid amount: " + argAmount);
+        }
+        if (amount < 1) throw new CommandWarn("Invalid amount: " + argAmount);
+        plugin.sessions.apply(target, s -> s.getSkill(skillType).modifyTalents(amount, 0, () -> {
+                    sender.sendMessage(amount + " Talent Points added");
+                }));
+        return true;
+    }
+
+    protected boolean addSkillPoints(Player sender, String[] args) {
+        if (args.length != 3) return false;
+        String argTarget = args[0];
+        String argSkillType = args[1];
+        String argAmount = args[2];
+        Player target = Bukkit.getPlayerExact(argTarget);
+        if (target == null) {
+            throw new CommandWarn("Player not found: " + argTarget);
+        }
+        final SkillType skillType = SkillType.ofKey(argSkillType);
+        if (skillType == null) {
+            throw new CommandWarn("Unknown skill: " + argSkillType);
+        }
+        final int amount;
+        try {
+            amount = Integer.parseInt(argAmount);
+        } catch (IllegalArgumentException iae) {
+            throw new CommandWarn("Invalid amount: " + argAmount);
+        }
+        if (amount < 1) throw new CommandWarn("Invalid amount: " + argAmount);
+        plugin.sessions.apply(target, s -> s.getSkill(skillType).addSkillPoints(amount));
+        sender.sendMessage(amount + " Skill Points added");
         return true;
     }
 
@@ -72,36 +108,6 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
                 session.setNoParticles(!session.isNoParticles());
                 player.sendMessage("Particles: " + (session.isNoParticles() ? "off" : "on"));
             });
-        return true;
-    }
-
-    protected boolean median(CommandSender sender, String[] args) {
-        if (args.length != 0) return false;
-        for (SkillType skill : SkillType.values()) {
-            List<SQLSkill> rows = plugin.database.find(SQLSkill.class).findList().stream()
-                .filter(s -> s.getLevel() > 0)
-                .filter(s -> skill.key.equals(s.getSkill()))
-                .sorted((b, a) -> Integer.compare(a.getTotalPoints(),
-                                                  b.getTotalPoints()))
-                .collect(Collectors.toList());
-            if (rows.isEmpty()) continue;
-            int sumSP = 0;
-            int sumLevel = 0;
-            for (SQLSkill row : rows) {
-                sumSP += row.getTotalPoints();
-                sumLevel += row.getLevel();
-            }
-            int avgSP = sumSP / rows.size();
-            int avgLevel = sumLevel / rows.size();
-            SQLSkill median = rows.get(rows.size() / 2);
-            SQLSkill max = rows.get(0);
-            sender.sendMessage(skill.displayName
-                               + " Sample=" + rows.size()
-                               + " Sum=" + sumSP + "," + sumLevel
-                               + " Avg=" + avgSP + "," + avgLevel
-                               + " Max=" + max.getTotalPoints() + "," + max.getLevel()
-                               + " Med=" + median.getTotalPoints() + "," + median.getLevel());
-        }
         return true;
     }
 

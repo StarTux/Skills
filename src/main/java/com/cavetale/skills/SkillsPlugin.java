@@ -7,6 +7,7 @@ import com.cavetale.skills.skill.Skills;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
+import com.cavetale.skills.sql.SQLTalent;
 import com.cavetale.skills.worldmarker.WorldMarkerManager;
 import com.winthier.sql.SQLDatabase;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public final class SkillsPlugin extends JavaPlugin {
         talentCommand.enable();
         highscoreCommand.enable();
         adminCommand.enable();
-        database.registerTables(SQLSkill.class, SQLPlayer.class);
+        database.registerTables(SQLSkill.class, SQLPlayer.class, SQLTalent.class);
         database.createAllTables();
         skills.enable();
         guis.enable();

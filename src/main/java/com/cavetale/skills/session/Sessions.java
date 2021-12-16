@@ -31,7 +31,6 @@ public final class Sessions implements Listener {
     public void disable() {
         for (Session session : sessionsMap.values()) {
             session.disable();
-            session.saveData();
         }
         sessionsMap.clear();
     }
@@ -47,20 +46,10 @@ public final class Sessions implements Listener {
         return session;
     }
 
-    private Session createSync(Player player) {
-        remove(player);
-        Session session = new Session(plugin, player);
-        sessionsMap.put(session.uuid, session);
-        session.loadSync();
-        session.enable();
-        return session;
-    }
-
     private void remove(@NonNull Player player) {
         Session session = sessionsMap.remove(player.getUniqueId());
         if (session == null) return;
         session.disable();
-        session.saveData();
     }
 
     private void reload(Player player) {
@@ -76,7 +65,7 @@ public final class Sessions implements Listener {
      */
     public Session of(Player player) {
         Session session = sessionsMap.get(player.getUniqueId());
-        return session != null ? session : createSync(player);
+        return session != null ? session : createAsync(player);
     }
 
     /**
