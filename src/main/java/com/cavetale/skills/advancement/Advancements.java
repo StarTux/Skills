@@ -117,8 +117,7 @@ public final class Advancements {
             ? "skills:" + talentType.skillType.key + "/" + talentType.skillType.key
             : "skills:" + talentType.skillType.key + "/" + talentType.depends.key;
         AdvancementJson advancement = new AdvancementJson();
-        advancement.display.icon.item = talentType.tag.icon().getKey().toString();
-        advancement.display.icon.nbt = null;
+        advancement.display.icon.set(talentType.tag.icon());
         advancement.display.title = talentType.tag.title();
         advancement.display.description = talentType.tag.description();
         advancement.display.hidden = false;
@@ -131,8 +130,7 @@ public final class Advancements {
 
     protected AdvancementJson make(SkillType skillType) {
         AdvancementJson advancement = new AdvancementJson();
-        advancement.display.icon.item = skillType.tag.icon().getKey().toString();
-        advancement.display.icon.nbt = null;
+        advancement.display.icon.set(skillType.tag.icon());
         advancement.display.title = skillType.displayName + " Talents";
         advancement.display.description = skillType.tag.description();
         advancement.display.background = skillType.tag.background();

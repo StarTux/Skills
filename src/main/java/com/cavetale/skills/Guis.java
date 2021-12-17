@@ -2,6 +2,7 @@ package com.cavetale.skills;
 
 import com.cavetale.core.font.GuiOverlay;
 import com.cavetale.core.font.VanillaItems;
+import com.cavetale.mytems.Mytems;
 import com.cavetale.mytems.util.Items;
 import com.cavetale.mytems.util.Text;
 import com.cavetale.skills.session.Session;
@@ -34,6 +35,12 @@ public final class Guis {
 
     private static ItemStack icon(Material material, Component... lines) {
         ItemStack icon = new ItemStack(material);
+        icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+        return Items.text(icon, List.of(lines));
+    }
+
+    private static ItemStack icon(Mytems mytems, Component... lines) {
+        ItemStack icon = mytems.createIcon();
         icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
         return Items.text(icon, List.of(lines));
     }
@@ -71,7 +78,8 @@ public final class Guis {
         final int talentCost = session.getTalentCost(skillType);
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
-                                        Component.text("You have " + talentPoints + " Talent Point"
+                                        Component.text(talentPoints + " "
+                                                       + skillType.displayName + " Talent Point"
                                                        + (talentPoints > 1 ? "s" : "")));
             talentItem.setAmount(Math.min(64, talentPoints));
             gui.setItem(8, talentItem);

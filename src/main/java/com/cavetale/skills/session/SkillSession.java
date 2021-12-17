@@ -101,6 +101,12 @@ public class SkillSession {
                             return;
                         }
                         session.showSkillBar(skillType, newLevel, 0, newRequiredSkillPoints, 0);
+                        if (newLevel == 1) {
+                            var player = session.getPlayer();
+                            if (player != null) {
+                                session.plugin.advancements.give(player, skillType);
+                            }
+                        }
                     });
             });
         return true;

@@ -177,6 +177,13 @@ public final class Session {
     public void updateAdvancements() {
         Player player = getPlayer();
         if (player == null) return;
+        for (SkillType skillType : SkillType.values()) {
+            if (getLevel(skillType) > 0) {
+                plugin.advancements.give(player, skillType);
+            } else {
+                plugin.advancements.revoke(player, skillType);
+            }
+        }
         for (TalentType talentType : TalentType.values()) {
             if (talents.containsKey(talentType)) {
                 plugin.advancements.give(player, talentType);
