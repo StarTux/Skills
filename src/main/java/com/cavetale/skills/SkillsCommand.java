@@ -4,6 +4,7 @@ import com.cavetale.core.command.AbstractCommand;
 import com.cavetale.core.command.CommandArgCompleter;
 import com.cavetale.core.command.CommandWarn;
 import com.cavetale.core.font.DefaultFont;
+import com.cavetale.skills.info.Info;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
@@ -53,7 +54,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .playerCaller(this::list);
         rootNode.addChild("info").arguments("<page>")
             .description("View info page")
-            .completers(CommandArgCompleter.supplyList(() -> List.copyOf(plugin.infos.keySet())))
+            .completers(CommandArgCompleter.supplyList(() -> List.copyOf(plugin.infos.keys())))
             .playerCaller(this::info);
         rootNode.addChild("talent").denyTabCompletion()
             .description("Talent Menu")
@@ -153,7 +154,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                                            .prefix(Component.text("Pages: ", NamedTextColor.LIGHT_PURPLE))
                                            .separator(Component.text(", ", NamedTextColor.DARK_PURPLE))
                                            .build(),
-                                           plugin.infos.keySet().stream()
+                                           plugin.infos.keys().stream()
                                            .map(s -> Component.text(s, NamedTextColor.YELLOW)
                                                 .clickEvent(ClickEvent.runCommand("/sk info " + s))
                                                 .hoverEvent(HoverEvent.showText(Component.text(plugin.infos.get(s).title,
