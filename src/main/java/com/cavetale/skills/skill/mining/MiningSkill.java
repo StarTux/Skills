@@ -1,10 +1,10 @@
 package com.cavetale.skills.skill.mining;
 
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.util.Players;
 import com.destroystokyo.paper.MaterialTags;
 import com.winthier.exploits.Exploits;
 import java.util.EnumMap;
@@ -91,7 +91,7 @@ public final class MiningSkill extends Skill implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        if (!Util.playMode(player)) return;
+        if (!Players.playMode(player)) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         Block block = event.getBlock();

@@ -1,7 +1,7 @@
 package com.cavetale.skills.skill;
 
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
+import com.cavetale.skills.util.Enums;
 import lombok.Getter;
 import lombok.NonNull;
 import net.kyori.adventure.bossbar.BossBar;
@@ -22,7 +22,7 @@ public enum SkillType {
 
     SkillType(final SkillTag tag) {
         this.key = name().toLowerCase();
-        this.displayName = Util.niceEnumName(this);
+        this.displayName = Enums.human(this);
         this.tag = tag;
     }
 

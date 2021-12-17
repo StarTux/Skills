@@ -2,12 +2,12 @@ package com.cavetale.skills.skill.farming;
 
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
+import com.cavetale.skills.util.Players;
 import com.cavetale.worldmarker.block.BlockMarker;
 import com.destroystokyo.paper.MaterialTags;
 import lombok.NonNull;
@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Farmland;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -72,10 +73,10 @@ public final class FarmingSkill extends Skill implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     protected void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (!Util.playMode(player)) return;
+        if (!Players.playMode(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (!event.hasItem()) return;
-        final ItemStack item = Util.getHand(player, event.getHand());
+        final ItemStack item = event.getItem();
         if (item.getType() != Material.STICK) return;
         final Block block = event.getClickedBlock();
         if (Crop.of(block) == null && block.getType() != Material.FARMLAND) return;
@@ -95,7 +96,7 @@ public final class FarmingSkill extends Skill implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        if (!Util.playMode(player)) return;
+        if (!Players.playMode(player)) return;
         Block block = event.getBlock();
         String bid = BlockMarker.getId(block);
         if (bid != null) {
@@ -116,7 +117,7 @@ public final class FarmingSkill extends Skill implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onPlayerBreakBlock(PlayerBreakBlockEvent event) {
         Player player = event.getPlayer();
-        if (!Util.playMode(player)) return;
+        if (!Players.playMode(player)) return;
         Block block = event.getBlock();
         String bid = BlockMarker.getId(block);
         if (bid != null) {
@@ -232,7 +233,7 @@ public final class FarmingSkill extends Skill implements Listener {
         }
         // Exp
         session.addSkillPoints(SkillType.FARMING, 1);
-        Util.exp(loc, 1 + session.getExpBonus(SkillType.FARMING));
+        loc.getWorld().spawn(loc, ExperienceOrb.class, o -> o.setExperience(1 + session.getExpBonus(SkillType.FARMING)));
         Effects.harvest(block);
     }
 }

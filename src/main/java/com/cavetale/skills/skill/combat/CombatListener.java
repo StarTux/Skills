@@ -1,6 +1,6 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.Util;
+import com.cavetale.skills.util.Players;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -44,7 +44,7 @@ final class CombatListener implements Listener {
         if (event.getEntity() instanceof Player) {
             // Mob attacks player
             final Player player = (Player) event.getEntity();
-            if (!Util.playMode(player)) return;
+            if (!Players.playMode(player)) return;
             Mob mob = null;
             Projectile proj = null;
             switch (event.getCause()) {
@@ -89,7 +89,7 @@ final class CombatListener implements Listener {
             default:
                 break;
             }
-            if (player != null && Util.playMode(player)) {
+            if (player != null && Players.playMode(player)) {
                 combatSkill.onPlayerDamageMob(player, mob, proj, event);
             }
         }

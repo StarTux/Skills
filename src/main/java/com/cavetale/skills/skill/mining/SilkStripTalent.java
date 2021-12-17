@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.mining;
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerChangeBlockEvent;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.Talent;
@@ -15,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -96,7 +96,9 @@ public final class SilkStripTalent extends Talent implements Listener {
         if (roll < chance) {
             miningSkill.giveReward(player, block, reward);
             if (reward.exp > 0) {
-                Util.exp(dropLocation, reward.exp + session.getExpBonus(SkillType.MINING));
+                dropLocation.getWorld().spawn(dropLocation, ExperienceOrb.class, orb -> {
+                        orb.setExperience(reward.exp + session.getExpBonus(SkillType.MINING));
+                    });
             }
             Effects.failSilk(player, block);
             new PlayerChangeBlockEvent(player, block, reward.replaceable.createBlockData()).callEvent();

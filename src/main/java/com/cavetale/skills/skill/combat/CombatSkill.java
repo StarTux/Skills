@@ -1,10 +1,10 @@
 package com.cavetale.skills.skill.combat;
 
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.util.Players;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;
 import lombok.NonNull;
@@ -66,7 +66,7 @@ public final class CombatSkill extends Skill {
     protected void onPlayerKillMob(Player player, Mob mob, EntityDeathEvent event) {
         CombatReward reward = combatRewards.rewards.get(mob.getType());
         if (reward == null) return;
-        if (!Util.playMode(player)) return;
+        if (!Players.playMode(player)) return;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;

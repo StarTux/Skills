@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.farming;
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerChangeBlockEvent;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
@@ -38,11 +37,10 @@ public final class PlantRadiusTalent extends Talent implements Listener {
         if (!isPlayerEnabled(player)) return;
         if (player.isSneaking()) return;
         if (!event.hasItem()) return;
-        final ItemStack item = Util.getHand(player, event.getHand());
+        final ItemStack item = event.getItem();
         Crop crop = Crop.ofSeed(item);
         if (crop == null) return;
         final Block block = event.getClickedBlock();
-        // Cancelling with edibles may trigger infinite eating animation.
         Material soil = crop == Crop.NETHER_WART
             ? Material.SOUL_SAND
             : Material.FARMLAND;

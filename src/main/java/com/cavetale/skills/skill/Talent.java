@@ -1,7 +1,7 @@
 package com.cavetale.skills.skill;
 
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
+import com.cavetale.skills.util.Players;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
@@ -32,7 +32,7 @@ public abstract class Talent {
      * - Talent is not disabled
      */
     protected final boolean isPlayerEnabled(Player player) {
-        return Util.playMode(player)
+        return Players.playMode(player)
             && plugin.sessions.isTalentEnabled(player, talentType);
     }
 }

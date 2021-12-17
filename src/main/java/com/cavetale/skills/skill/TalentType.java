@@ -1,7 +1,7 @@
 package com.cavetale.skills.skill;
 
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.Util;
+import com.cavetale.skills.util.Enums;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -45,7 +45,7 @@ public enum TalentType {
         this.key = name().toLowerCase();
         this.skillType = skillType;
         this.depends = depends;
-        this.displayName = Util.niceEnumName(this);
+        this.displayName = Enums.human(this);
     }
 
     static {
