@@ -231,11 +231,11 @@ public final class Session {
             int cost = getTalentCost();
             if (points >= cost) {
                 if (doEffect) Effects.talentUnlock(player);
-                player.showTitle(Title.title(Component.text("TalentType", NamedTextColor.LIGHT_PURPLE),
+                player.showTitle(Title.title(Component.text("Talent", NamedTextColor.LIGHT_PURPLE),
                                              Component.text("New Unlock Available", NamedTextColor.WHITE)));
             } else {
                 if (doEffect) Effects.talentPoint(player);
-                player.showTitle(Title.title(Component.text("TalentType Points", NamedTextColor.LIGHT_PURPLE),
+                player.showTitle(Title.title(Component.text("Talent Points", NamedTextColor.LIGHT_PURPLE),
                                              Component.text("Progress " + points + "/" + cost, NamedTextColor.WHITE)));
             }
         }
