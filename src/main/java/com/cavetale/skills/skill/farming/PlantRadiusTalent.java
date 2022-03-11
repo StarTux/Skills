@@ -13,6 +13,7 @@ import java.util.Collections;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -33,6 +34,7 @@ public final class PlantRadiusTalent extends Talent implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     protected void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
