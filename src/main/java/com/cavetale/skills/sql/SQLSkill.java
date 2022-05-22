@@ -2,6 +2,7 @@ package com.cavetale.skills.sql;
 
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
+import com.winthier.sql.SQLRow;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -11,11 +12,10 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 @Table(name = "skills",
        uniqueConstraints = @UniqueConstraint(columnNames = {"player", "skill"}))
-public final class SQLSkill {
+public final class SQLSkill implements SQLRow {
     @Id
     private Integer id;
     @Column(nullable = false)

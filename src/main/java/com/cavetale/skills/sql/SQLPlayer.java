@@ -1,5 +1,6 @@
 package com.cavetale.skills.sql;
 
+import com.winthier.sql.SQLRow;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -8,10 +9,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-@Getter
-@Setter
-@Table(name = "players")
-public final class SQLPlayer {
+@Getter @Setter @Table(name = "players")
+public final class SQLPlayer implements SQLRow {
     @Id
     private Integer id;
     @Column(nullable = false, unique = true)
