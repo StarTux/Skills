@@ -9,10 +9,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 
 /**
  * A status effect applicable to a mob.
+ * The helper methods an expiry time code in the entity tag.
  */
 public enum MobStatusEffect {
-    NO_POISON,
-    SILENCE;
+    DENIAL;
 
     private NamespacedKey key;
 

@@ -105,7 +105,7 @@ public final class Guis {
                                             Component.text("Unlock Cost ", NamedTextColor.GRAY),
                                             Component.text(talentCost + "TP", NamedTextColor.WHITE)));
                 }
-                for (String line : Text.wrapLine(talentType.tag.description(), LINELENGTH)) {
+                for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
                     text.add(Component.text(line, NamedTextColor.GRAY));
                 }
                 icon = Items.text(icon, text);

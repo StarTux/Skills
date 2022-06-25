@@ -1,36 +1,32 @@
 package com.cavetale.skills.sql;
 
 import com.cavetale.skills.skill.TalentType;
+import com.winthier.sql.SQLRow.Name;
+import com.winthier.sql.SQLRow.NotNull;
+import com.winthier.sql.SQLRow.UniqueKey;
+import com.winthier.sql.SQLRow;
 import java.util.Date;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.Data;
 
 /**
  * Each row represents one unlocked talent for one player.
  */
-@Data
-@Table(name = "talents",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"player", "talent"}))
-public final class SQLTalent {
-    @Id
-    private Integer id;
-    @Column(nullable = false)
+@Data @NotNull @Name("talents")
+@UniqueKey({"player", "talent"})
+public final class SQLTalent implements SQLRow {
+    @Id private Integer id;
     private UUID player;
-    @Column(nullable = false, length = 32)
-    private String talent;
-    @Column(nullable = false)
-    private boolean enabled;
-    @Column(nullable = false)
-    private Date created;
+    @VarChar(16) private String skill;
+    @VarChar(16) private String talent;
+    @Default("0") private boolean enabled;
+    @Default("NOW()") private Date created;
 
     public SQLTalent() { }
 
     public SQLTalent(final UUID player, final TalentType talentType) {
         this.player = player;
+        this.skill = talentType.skillType.key;
         this.talent = talentType.key;
         this.enabled = true;
         this.created = new Date();

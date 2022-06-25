@@ -24,9 +24,9 @@ public final class CombatSkill extends Skill {
     protected final CombatRewards combatRewards = new CombatRewards();
     protected final NamespacedKey killsKey;
     protected final NamespacedKey lastKillKey;
+    public final SearingTalent searingTalent;
     public final PyromaniacTalent pyromaniacTalent;
-    public final SilenceTalent silenceTalent;
-    public final VamonosTalent vamonosTalent;
+    public final DenialTalent denialTalent;
     public final GodModeTalent godModeTalent;
     public final ArcherZoneTalent archerZoneTalent;
 
@@ -36,9 +36,9 @@ public final class CombatSkill extends Skill {
         super(plugin, SkillType.COMBAT);
         this.killsKey = new NamespacedKey(plugin, "kills");
         this.lastKillKey = new NamespacedKey(plugin, "last_kill");
+        this.searingTalent = new SearingTalent(plugin, this);
         this.pyromaniacTalent = new PyromaniacTalent(plugin, this);
-        this.silenceTalent = new SilenceTalent(plugin, this);
-        this.vamonosTalent = new VamonosTalent(plugin, this);
+        this.denialTalent = new DenialTalent(plugin, this);
         this.godModeTalent = new GodModeTalent(plugin, this);
         this.archerZoneTalent = new ArcherZoneTalent(plugin, this);
     }
@@ -51,18 +51,21 @@ public final class CombatSkill extends Skill {
     }
 
     protected void onMobDamagePlayer(Player player, Mob mob, Projectile projectile, EntityDamageByEntityEvent event) {
-        pyromaniacTalent.onMobDamagePlayer(player, mob, projectile, event);
-        vamonosTalent.onMobDamagePlayer(player, mob, projectile, event);
+        searingTalent.onMobDamagePlayer(player, mob, projectile, event);
+        denialTalent.onMobDamagePlayer(player, mob, projectile, event);
     }
 
     protected void onPlayerDamageMob(Player player, Mob mob, Projectile proj, EntityDamageByEntityEvent event) {
         final ItemStack item = player.getInventory().getItemInMainHand();
         pyromaniacTalent.onPlayerDamageMob(player, mob, item, proj, event);
-        silenceTalent.onPlayerDamageMob(player, mob, item, proj, event);
-        vamonosTalent.onPlayerDamageMob(player, mob, item, proj, event);
+        denialTalent.onPlayerDamageMob(player, mob, item, proj, event);
+        denialTalent.onPlayerDamageMob(player, mob, item, proj, event);
         archerZoneTalent.onPlayerDamageMob(player, mob, item, proj, event);
     }
 
+    /**
+     * Give skill points when a player kills a mob.
+     */
     protected void onPlayerKillMob(Player player, Mob mob, EntityDeathEvent event) {
         CombatReward reward = combatRewards.rewards.get(mob.getType());
         if (reward == null) return;

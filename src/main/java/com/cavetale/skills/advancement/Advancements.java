@@ -119,7 +119,7 @@ public final class Advancements {
         AdvancementJson advancement = new AdvancementJson();
         advancement.display.icon.set(talentType.tag.icon());
         advancement.display.title = talentType.tag.title();
-        advancement.display.description = talentType.tag.description();
+        advancement.display.description = talentType.getTalent().getDescription();
         advancement.display.hidden = false;
         advancement.display.announce_to_chat = false;
         advancement.display.show_toast = true;

@@ -9,6 +9,7 @@ import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
 import com.cavetale.skills.worldmarker.WorldMarkerManager;
 import com.winthier.sql.SQLDatabase;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
@@ -32,16 +33,20 @@ public final class SkillsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        database.registerTables(List.of(SQLSkill.class, SQLPlayer.class, SQLTalent.class));
+        if (!database.createAllTables()) {
+            throw new IllegalStateException("Database initialization failed!");
+        }
+        skills.enable();
+        sessions.enable();
+        worldMarkerManager.enable();
+        // Commands
         skillsCommand.enable();
         talentCommand.enable();
         highscoreCommand.enable();
         adminCommand.enable();
-        database.registerTables(SQLSkill.class, SQLPlayer.class, SQLTalent.class);
-        database.createAllTables();
-        skills.enable();
+        // UI
         guis.enable();
-        sessions.enable();
-        worldMarkerManager.enable();
         advancements.createAll();
         infos.enable();
     }

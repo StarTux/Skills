@@ -89,10 +89,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .filter(session::hasTalent).count();
         List<Component> lines = new ArrayList<>();
         lines.add(Component.text(skillType.displayName, skillType.tag.color(), TextDecoration.BOLD));
-        Info info = plugin.infos.get(skillType.key);
-        if (info != null) {
-            lines.add(Component.text(info.description.split("\n\n")[0]));
-        }
+        lines.add(Component.text(skillType.tag.description()));
         lines.add(prop("Level ", "" + level));
         lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skillType)));
         lines.add(prop("Points ", points + "/" + req));
@@ -166,9 +163,10 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         if (info == null) {
             throw new CommandWarn("Not found: " + args[0]);
         }
-        List<Component> lines = List.of(Component.text(info.title, NamedTextColor.YELLOW, TextDecoration.BOLD),
-                                        Component.text(info.category, NamedTextColor.DARK_GRAY, TextDecoration.ITALIC),
-                                        Component.text(info.description, NamedTextColor.WHITE));
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.text(info.title, NamedTextColor.YELLOW, TextDecoration.BOLD));
+        lines.add(Component.text(info.category, NamedTextColor.DARK_GRAY, TextDecoration.ITALIC));
+        lines.addAll(info.pages);
         player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
         return true;
     }

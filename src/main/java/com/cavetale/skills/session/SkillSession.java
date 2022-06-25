@@ -151,6 +151,7 @@ public class SkillSession {
     }
 
     public final int getTalentCost() {
+        if (row == null) return Integer.MAX_VALUE;
         return row.getTalents() + 1;
     }
 
@@ -160,7 +161,7 @@ public class SkillSession {
      * The skill will be invalidated while the loading happens.
      */
     protected void onDatabaseMismatch() {
-        if (this.row == null) return;
+        if (this.row == null) return; // Already reloading
         this.row = null;
         session.plugin.database.find(SQLSkill.class)
             .eq("player", session.uuid)

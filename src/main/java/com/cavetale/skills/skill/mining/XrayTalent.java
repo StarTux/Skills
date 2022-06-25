@@ -84,12 +84,13 @@ public final class XrayTalent extends Talent implements Listener {
         Location loc = player.getLocation();
         int px = loc.getBlockX();
         int pz = loc.getBlockZ();
+        final int min = block.getWorld().getMinHeight();
         for (int y = -radius; y <= radius; y += 1) {
             for (int z = -radius; z <= radius; z += 1) {
                 for (int x = -radius; x <= radius; x += 1) {
                     if (x == 0 && y == 0 && z == 0) continue;
                     Block nbor = block.getRelative(x, y, z);
-                    if (nbor.getY() < 0) continue;
+                    if (nbor.getY() < min) continue;
                     if (nbor.isEmpty() || nbor.isLiquid()) continue;
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
                     if ((!MiningSkill.stone(nbor) && !MiningSkill.dirt(nbor)) || d > realRadius) {

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.Component;
 
 @RequiredArgsConstructor
 public final class Infos {
@@ -16,25 +17,19 @@ public final class Infos {
 
     public void enable() {
         for (SkillType skillType : SkillType.values()) {
-            List<String> lines = new ArrayList<>();
-            lines.add(skillType.tag.description());
-            for (String line : skillType.tag.moreText()) {
-                lines.add(line);
+            List<Component> pages = new ArrayList<>();
+            pages.add(Component.text(skillType.tag.description()));
+            for (String text : skillType.tag.moreText()) {
+                pages.add(Component.text(text));
             }
-            Info info = new Info(skillType.displayName,
-                                 "Skill",
-                                 String.join("\n\n", lines));
+            Info info = new Info(skillType.displayName, "Skill", pages);
             infoMap.put(skillType.name().toLowerCase(), info);
         }
         for (TalentType talentType : TalentType.values()) {
-            List<String> lines = new ArrayList<>();
-            lines.add(talentType.tag.description());
-            for (String line : talentType.tag.moreText()) {
-                lines.add(line);
-            }
-            Info info = new Info(talentType.tag.title(),
-                                 "Talent",
-                                 String.join("\n\n", lines));
+            List<Component> pages = new ArrayList<>();
+            pages.add(Component.text(talentType.getTalent().getDescription()));
+            pages.addAll(talentType.getTalent().getInfoPages());
+            Info info = new Info(talentType.tag.title(), "Talent", pages);
             infoMap.put(info.title.toLowerCase().replace(" ", "_"), info);
         }
     }

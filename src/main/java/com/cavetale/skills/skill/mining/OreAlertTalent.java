@@ -42,12 +42,13 @@ public final class OreAlertTalent extends Talent implements Listener {
     protected boolean oreAlert(@NonNull Player player, @NonNull Block block) {
         final int radius = 3;
         ArrayList<Block> bs = new ArrayList<>();
+        final int min = block.getWorld().getMinHeight();
         for (int y = -radius; y <= radius; y += 1) {
             for (int z = -radius; z <= radius; z += 1) {
                 for (int x = -radius; x <= radius; x += 1) {
                     if (x == 0 && y == 0 && z == 0) continue;
                     Block nbor = block.getRelative(x, y, z);
-                    if (nbor.getY() < 0) continue;
+                    if (nbor.getY() < min) continue;
                     Material mat = nbor.getType();
                     if (Tag.DIAMOND_ORES.isTagged(mat)) {
                         bs.add(nbor);

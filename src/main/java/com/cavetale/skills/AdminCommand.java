@@ -43,9 +43,6 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
         advancementNode.addChild("remove").denyTabCompletion()
             .description("Remove Advancements")
             .senderCaller(this::advancementRemove);
-        advancementNode.addChild("reload").denyTabCompletion()
-            .description("Reload Advancements")
-            .senderCaller(this::advancementReload);
         advancementNode.addChild("update").denyTabCompletion()
             .description("Update all player advancements")
             .senderCaller(this::advancementUpdate);

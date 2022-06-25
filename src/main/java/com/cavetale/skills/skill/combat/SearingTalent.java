@@ -8,25 +8,24 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.inventory.ItemStack;
 
-public final class PyromaniacTalent extends Talent {
+public final class SearingTalent extends Talent {
     protected final CombatSkill combatSkill;
 
-    protected PyromaniacTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
-        super(plugin, TalentType.PYROMANIAC);
+    protected SearingTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
+        super(plugin, TalentType.SEARING);
         this.combatSkill = combatSkill;
-        this.description = "Monsters set on fire take +50% damage";
+        this.description = "Monsters set on fire deal -50% melee damage";
         this.infoPages = List.of();
     }
 
     @Override protected void enable() { }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile,
+    protected void onMobDamagePlayer(Player player, Mob mob, Projectile projectile,
                                      EntityDamageByEntityEvent event) {
-        if (projectile != null) return;
         if (!isPlayerEnabled(player)) return;
+        if (projectile != null) return;
         if (mob.getFireTicks() <= 0) return;
-        event.setDamage(event.getFinalDamage() * 1.5);
+        event.setDamage(event.getFinalDamage() * 0.5);
     }
 }

@@ -37,15 +37,13 @@ public final class Session {
     protected int skillBarCountdown;
     private int actionSP;
     // Skills
-    protected final SkillSession mining = new SkillSession(this, SkillType.MINING);
-    protected final SkillSession farming = new SkillSession(this, SkillType.FARMING);
-    protected final SkillSession combat = new SkillSession(this, SkillType.COMBAT);
+    public final SkillSession mining = new SkillSession(this, SkillType.MINING);
+    public final SkillSession farming = new SkillSession(this, SkillType.FARMING);
+    public final CombatSession combat = new CombatSession(this, SkillType.COMBAT);
     // Status effects, ticks remaining
     @Setter protected boolean xrayActive;
-    @Setter protected int immortal = 0;
     @Setter protected int archerZone = 0;
     @Setter protected int archerZoneKills = 0;
-    @Setter protected boolean poisonFreebie = false;
     @Setter protected boolean noParticles = false;
     @Setter protected SkillType talentGui = SkillType.MINING;
     protected boolean unlockingTalent = false; // big talent lock
@@ -269,7 +267,6 @@ public final class Session {
     }
 
     private void tick() {
-        if (immortal > 0) immortal -= 1;
         if (archerZone > 0) {
             archerZone -= 1;
             if (archerZone == 0) archerZoneKills = 0;

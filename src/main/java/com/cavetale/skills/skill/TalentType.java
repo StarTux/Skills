@@ -25,11 +25,11 @@ public enum TalentType {
     FARM_DIAMOND_DROPS(TalentTag.FARM_DIAMOND_DROPS, SkillType.FARMING, TalentType.FARM_CROP_DROPS),
     FARM_TALENT_POINTS(TalentTag.FARM_TALENT_POINTS, SkillType.FARMING, TalentType.FARM_DIAMOND_DROPS),
     // Combat
-    COMBAT_FIRE(TalentTag.COMBAT_FIRE, SkillType.COMBAT, null),
-    COMBAT_SILENCE(TalentTag.COMBAT_SILENCE, SkillType.COMBAT, TalentType.COMBAT_FIRE),
-    COMBAT_SPIDERS(TalentTag.COMBAT_SPIDERS, SkillType.COMBAT, TalentType.COMBAT_SILENCE),
-    COMBAT_GOD_MODE(TalentTag.COMBAT_GOD_MODE, SkillType.COMBAT, TalentType.COMBAT_SPIDERS),
-    COMBAT_ARCHER_ZONE(TalentTag.COMBAT_ARCHER_ZONE, SkillType.COMBAT, TalentType.COMBAT_FIRE);
+    SEARING(TalentTag.SEARING, SkillType.COMBAT, null),
+    PYROMANIAC(TalentTag.PYROMANIAC, SkillType.COMBAT, SEARING),
+    DENIAL(TalentTag.DENIAL, SkillType.COMBAT, TalentType.PYROMANIAC), // +slow?
+    GOD_MODE(TalentTag.GOD_MODE, SkillType.COMBAT, TalentType.DENIAL),
+    COMBAT_ARCHER_ZONE(TalentTag.COMBAT_ARCHER_ZONE, SkillType.COMBAT, TalentType.PYROMANIAC);
 
     public final TalentTag tag;
     public final String key;
@@ -77,7 +77,7 @@ public enum TalentType {
     }
 
     public static record TalentTag(String title, Material icon, int x, int y,
-                                   String description, String... moreText) {
+                                   String legacyDescription, String... legacyMoreText) {
         public static final TalentTag FARM_GROWSTICK_RADIUS = new
             TalentTag("Spoutcraft",
                       Material.STICK, 5, 3,
@@ -154,7 +154,7 @@ public enum TalentType {
             TalentTag("Silk Stripping",
                       Material.GOLD_NUGGET, 5, 2,
                       "Use a Silk Touch pickaxe to strip an ore of its gems",
-                      "Right-click with a Silk Touch pickaxe to do use your"
+                      "Right-click with a Silk Touch pickaxe to use your"
                       + " fine motory skills and remove those"
                       + " gems right from the ore block."
                       + "With any luck, you may repeat the procedure"
@@ -180,27 +180,17 @@ public enum TalentType {
                       + " It allows multiple drops from ores usually"
                       + " unaffected by Fortune: Iron and gold.");
 
-        public static final TalentTag COMBAT_FIRE = new
-            TalentTag("Pyromaniac",
-                      Material.CAMPFIRE, 5, 3,
-                      "Monsters set on fire deal -50% melee damage."
-                      + " Monsters set on fire take +50% damage");
+        public static final TalentTag SEARING = new
+            TalentTag("Searing", Material.SOUL_CAMPFIRE, 5, 3, "");
 
-        public static final TalentTag COMBAT_SILENCE = new
-            TalentTag("Denial",
-                      Material.BARRIER, 5, 2,
-                      "Monsters knocked back cannot shoot arrows or throw projectiles for 20 seconds",
-                      "Use a Knockback weapon on an enemy to give it this status effect.");
+        public static final TalentTag PYROMANIAC = new
+            TalentTag("Pyromaniac", Material.CAMPFIRE, 6, 3, "");
 
-        public static final TalentTag COMBAT_SPIDERS = new
-            TalentTag("Vamonos",
-                      Material.SPIDER_EYE, 6, 2,
-                      "Bane of Arthropods slows spiders and denies their poison effect for 30 seconds");
+        public static final TalentTag DENIAL = new
+            TalentTag("Denial", Material.BARRIER, 5, 2, "");
 
-        public static final TalentTag COMBAT_GOD_MODE = new
-            TalentTag("God Mode",
-                      Material.TOTEM_OF_UNDYING, 7, 2,
-                      "Melee kills give 3 seconds of immortality");
+        public static final TalentTag GOD_MODE = new
+            TalentTag("God Mode", Material.TOTEM_OF_UNDYING, 7, 2, "");
 
         public static final TalentTag COMBAT_ARCHER_ZONE = new
             TalentTag("In The Zone",
