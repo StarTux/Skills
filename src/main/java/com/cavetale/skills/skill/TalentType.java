@@ -27,9 +27,14 @@ public enum TalentType {
     // Combat
     SEARING(TalentTag.SEARING, SkillType.COMBAT, null),
     PYROMANIAC(TalentTag.PYROMANIAC, SkillType.COMBAT, SEARING),
-    DENIAL(TalentTag.DENIAL, SkillType.COMBAT, TalentType.PYROMANIAC), // +slow?
+    DENIAL(TalentTag.DENIAL, SkillType.COMBAT, null), // +slow?
     GOD_MODE(TalentTag.GOD_MODE, SkillType.COMBAT, TalentType.DENIAL),
-    COMBAT_ARCHER_ZONE(TalentTag.COMBAT_ARCHER_ZONE, SkillType.COMBAT, TalentType.PYROMANIAC);
+    ARCHER_ZONE(TalentTag.ARCHER_ZONE, SkillType.COMBAT, null),
+    IRON_AGE(TalentTag.IRON_AGE, SkillType.COMBAT, null),
+    EXECUTIONER(TalentTag.EXECUTIONER, SkillType.COMBAT, TalentType.IRON_AGE),
+    IMPALER(TalentTag.IMPALER, SkillType.COMBAT, TalentType.IRON_AGE),
+    TOXICIST(TalentTag.TOXICIST, SkillType.COMBAT, TalentType.DENIAL),
+    TOXIC_FUROR(TalentTag.TOXIC_FUROR, SkillType.COMBAT, TalentType.TOXICIST);
 
     public final TalentTag tag;
     public final String key;
@@ -76,7 +81,7 @@ public enum TalentType {
         this.talent = newTalent;
     }
 
-    public static record TalentTag(String title, Material icon, int x, int y,
+    public record TalentTag(String title, Material icon, int x, int y,
                                    String legacyDescription, String... legacyMoreText) {
         public static final TalentTag FARM_GROWSTICK_RADIUS = new
             TalentTag("Spoutcraft",
@@ -181,20 +186,41 @@ public enum TalentType {
                       + " unaffected by Fortune: Iron and gold.");
 
         public static final TalentTag SEARING = new
-            TalentTag("Searing", Material.SOUL_CAMPFIRE, 5, 3, "");
+            TalentTag("Searing", Material.SOUL_CAMPFIRE, 4, 4, "Monsters set on fire deal -30% melee damage");
 
         public static final TalentTag PYROMANIAC = new
-            TalentTag("Pyromaniac", Material.CAMPFIRE, 6, 3, "");
+            TalentTag("Pyromaniac", Material.CAMPFIRE, 4, 5, "Monsters set on fire take +30% damage");
 
         public static final TalentTag DENIAL = new
-            TalentTag("Denial", Material.BARRIER, 5, 2, "");
+            TalentTag("Denial", Material.BARRIER, 5, 3, "Knockback denies mob spells, projectiles, poison");
+
+        public static final TalentTag TOXICIST = new
+            TalentTag("Toxicist", Material.POISONOUS_POTATO, 6, 2, "Bane of Arthropods deals extra damage against poisoned mobs");
+
+        public static final TalentTag TOXIC_FUROR = new
+            TalentTag("Toxic Furor", Material.EXPERIENCE_BOTTLE, 7, 2, "Deal extra damage while affected by Poison, Wither or Nausea");
 
         public static final TalentTag GOD_MODE = new
-            TalentTag("God Mode", Material.TOTEM_OF_UNDYING, 7, 2, "");
+            TalentTag("God Mode", Material.TOTEM_OF_UNDYING, 6, 3, "");
 
-        public static final TalentTag COMBAT_ARCHER_ZONE = new
+        public static final TalentTag ARCHER_ZONE = new
             TalentTag("In The Zone",
-                      Material.SPECTRAL_ARROW, 5, 4,
+                      Material.SPECTRAL_ARROW, 4, 2,
                       "Ranged kills give 5 seconds of double damage to ranged attacks");
+
+        public static final TalentTag IRON_AGE = new
+            TalentTag("Iron Age",
+                      Material.IRON_SWORD, 3, 3,
+                      "Iron weapons deal +1 base damage");
+
+        public static final TalentTag EXECUTIONER = new
+            TalentTag("Executioner",
+                      Material.IRON_AXE, 2, 3,
+                      "Fully charged axe attacks kill mobs under 10% health");
+
+        public static final TalentTag IMPALER = new
+            TalentTag("Impaler",
+                      Material.TRIDENT, 2, 2,
+                      "Consecutive hits with a fully charged Impaling weapon against the same foe deal increasing damage");
     }
 }

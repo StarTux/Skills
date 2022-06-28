@@ -19,7 +19,7 @@ public final class ArcherZoneTalent extends Talent {
     protected final CombatSkill combatSkill;
 
     protected ArcherZoneTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
-        super(plugin, TalentType.COMBAT_ARCHER_ZONE);
+        super(plugin, TalentType.ARCHER_ZONE);
         this.combatSkill = combatSkill;
     }
 

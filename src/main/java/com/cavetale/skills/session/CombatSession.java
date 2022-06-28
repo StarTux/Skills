@@ -10,6 +10,9 @@ public final class CombatSession extends SkillSession {
     @Setter protected boolean poisonFreebie = false;
     /** Cooldown in Epoch Millis. */
     @Setter protected long godModeDuration = 0;
+    /**  Impaler's target and current impale stacks. */
+    @Setter protected int impalerTargetId = 0;
+    @Setter protected int impalerStack = 0;
 
     protected CombatSession(final Session session, final SkillType skillType) {
         super(session, skillType);

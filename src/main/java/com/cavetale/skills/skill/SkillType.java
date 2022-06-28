@@ -41,7 +41,7 @@ public enum SkillType {
     }
 
     // This tag is used for advancements and GUIs.
-    public final record SkillTag(String title, TextColor color, BossBar.Color bossBarColor,
+    public record SkillTag(String title, TextColor color, BossBar.Color bossBarColor,
                                  String description,
                                  Material icon, String background,
                                  String... moreText) {
