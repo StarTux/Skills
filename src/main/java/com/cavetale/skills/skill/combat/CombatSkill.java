@@ -29,6 +29,11 @@ public final class CombatSkill extends Skill {
     public final DenialTalent denialTalent;
     public final GodModeTalent godModeTalent;
     public final ArcherZoneTalent archerZoneTalent;
+    public final IronAgeTalent ironAgeTalent;
+    public final ExecutionerTalent executionerTalent;
+    public final ImpalerTalent impalerTalent;
+    public final ToxicistTalent toxicistTalent;
+    public final ToxicFurorTalent toxicFurorTalent;
 
     protected static final long CHUNK_KILL_COOLDOWN = Duration.ofMinutes(5).toMillis();
 
@@ -41,6 +46,11 @@ public final class CombatSkill extends Skill {
         this.denialTalent = new DenialTalent(plugin, this);
         this.godModeTalent = new GodModeTalent(plugin, this);
         this.archerZoneTalent = new ArcherZoneTalent(plugin, this);
+        this.ironAgeTalent = new IronAgeTalent(plugin, this);
+        this.executionerTalent = new ExecutionerTalent(plugin, this);
+        this.impalerTalent = new ImpalerTalent(plugin, this);
+        this.toxicistTalent = new ToxicistTalent(plugin, this);
+        this.toxicFurorTalent = new ToxicFurorTalent(plugin, this);
     }
 
     @Override
@@ -61,6 +71,11 @@ public final class CombatSkill extends Skill {
         denialTalent.onPlayerDamageMob(player, mob, item, proj, event);
         denialTalent.onPlayerDamageMob(player, mob, item, proj, event);
         archerZoneTalent.onPlayerDamageMob(player, mob, item, proj, event);
+        ironAgeTalent.onPlayerDamageMob(player, mob, item, proj, event);
+        executionerTalent.onPlayerDamageMob(player, mob, item, proj, event);
+        impalerTalent.onPlayerDamageMob(player, mob, item, proj, event);
+        toxicistTalent.onPlayerDamageMob(player, mob, item, proj, event);
+        toxicFurorTalent.onPlayerDamageMob(player, mob, item, proj, event);
     }
 
     /**
