@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import static net.kyori.adventure.text.Component.text;
 
 public final class Books {
     private Books() { }
@@ -14,8 +15,8 @@ public final class Books {
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         book.editMeta(m -> {
                 if (m instanceof BookMeta meta) {
-                    meta.setAuthor("Cavetale");
-                    meta.title(Component.empty());
+                    meta.author(text("Cavetale"));
+                    meta.title(text("Skills"));
                     meta.pages(pages);
                 }
             });

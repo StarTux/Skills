@@ -14,13 +14,14 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import static com.cavetale.core.font.Unicode.tiny;
+import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.TextDecoration.*;
 
 @Getter
 public final class Session {
@@ -115,7 +116,7 @@ public final class Session {
         for (SkillSession skillSession : skills.values()) {
             skillSession.enable();
         }
-        skillBar = BossBar.bossBar(Component.text("Skills"),
+        skillBar = BossBar.bossBar(text("Skills"),
                                    1.0f,
                                    BossBar.Color.BLUE,
                                    BossBar.Overlay.PROGRESS);
@@ -173,14 +174,12 @@ public final class Session {
         } else {
             actionSP = newPoints;
         }
-        skillBar.name(Component.join(JoinConfiguration.noSeparators(),
-                                     Component.text(skillType.displayName, skillType.tag.color()),
-                                     Component.text(" Level "),
-                                     Component.text(level + " ", skillType.tag.color(), TextDecoration.BOLD),
-                                     Component.text(points),
-                                     Component.text("/", NamedTextColor.DARK_GRAY),
-                                     Component.text(required))
-                      .color(NamedTextColor.GRAY));
+        skillBar.name(join(noSeparators(),
+                           skillType,
+                           text(tiny(" lvl "), GRAY),
+                           text(level, skillType.tag.color(), BOLD),
+                           text(tiny(" sp "), GRAY),
+                           text(points, skillType.tag.color())));
         skillBar.progress((float) points / (float) required);
         skillBar.color(skillType.tag.bossBarColor());
         shownSkill = skillType;
@@ -188,11 +187,11 @@ public final class Session {
         Player player = getPlayer();
         if (player != null) {
             player.showBossBar(skillBar);
-            player.sendActionBar(Component.join(JoinConfiguration.noSeparators(),
-                                                Component.text("+"),
-                                                Component.text(actionSP, skillType.tag.color(), TextDecoration.BOLD),
-                                                Component.text("SP"))
-                                 .color(NamedTextColor.GRAY));
+            player.sendActionBar(join(noSeparators(),
+                                      text("+"),
+                                      text(actionSP, skillType.tag.color(), BOLD),
+                                      text("SP"))
+                                 .color(GRAY));
         }
     }
 

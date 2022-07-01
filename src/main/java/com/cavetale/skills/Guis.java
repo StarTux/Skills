@@ -55,9 +55,7 @@ public final class Guis {
         final int size = 6 * 9;
         final Gui gui = new Gui(plugin).size(size);
         GuiOverlay.Builder builder = GuiOverlay.builder(size)
-            .title(join(noSeparators(),
-                        VanillaItems.componentOf(skillType.tag.icon()),
-                        text(skillType.tag.title() + " Skill", skillType.tag.color(), BOLD)))
+            .title(skillType.asComponent())
             .layer(GuiOverlay.BLANK, skillType.tag.color())
             .layer(GuiOverlay.TOP_BAR, GRAY);
         // Make top menu
@@ -66,8 +64,8 @@ public final class Guis {
             if (otherSkillType == skillType) {
                 builder.highlightSlot(slot, skillType.tag.color());
             }
-            ItemStack icon = icon(otherSkillType.tag.icon(),
-                                  text(otherSkillType.tag.title(), otherSkillType.tag.color()));
+            ItemStack icon = Items.text(otherSkillType.createIcon(),
+                                        List.of(text(otherSkillType.tag.title(), otherSkillType.tag.color())));
             gui.setItem(slot, icon, click -> {
                     if (!click.isLeftClick()) return;
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
@@ -85,8 +83,8 @@ public final class Guis {
             gui.setItem(8, talentItem);
         }
         // Root
-        gui.setItem(4 + 3 * 9, icon(skillType.tag.icon(), text(skillType.tag.title(),
-                                                               skillType.tag.color())));
+        gui.setItem(4 + 3 * 9, Items.text(skillType.createIcon(),
+                                          List.of(text(skillType.tag.title(), skillType.tag.color()))));
         builder.highlightSlot(4 + 3 * 9, WHITE);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
@@ -147,8 +145,9 @@ public final class Guis {
         int next = SkillsPlugin.moneyBonusPercentage(bonus + 1);
         ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
-        Items.text(icon, List.of(join(noSeparators(), text(tiny("current bonus "), GRAY), text(perc, WHITE), text("%", GRAY)),
-                                 join(noSeparators(), text(tiny("next bonus "), GRAY), text(next, WHITE), text("%", GRAY)),
+        Items.text(icon, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
+                                 join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
+                                 join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY)),
                                  join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY))));
         return icon;
     }
@@ -158,7 +157,8 @@ public final class Guis {
         ItemStack icon = new ItemStack(Material.EXPERIENCE_BOTTLE);
         icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
-        Items.text(icon, List.of(join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
+        Items.text(icon, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
+                                 join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
                                  join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY)),
                                  join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY))));
         return icon;

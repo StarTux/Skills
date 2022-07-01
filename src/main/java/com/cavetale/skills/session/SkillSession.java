@@ -4,6 +4,14 @@ import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.sql.SQLSkill;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.entity.Player;
+import static java.time.Duration.ofSeconds;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.title.Title.Times.times;
+import static net.kyori.adventure.title.Title.title;
 
 /**
  * Remember the state of one skill for one player session.
@@ -69,12 +77,15 @@ public class SkillSession {
                     .set("total_skill_points", newTotalSkillPoints)
                     .sync();
                 Bukkit.getScheduler().runTask(session.plugin, () -> {
-                        if (result == 1) {
+                        if (result == 0) {
                             session.plugin.getLogger().warning("AddSkillPoints mismatch: " + row);
                             onDatabaseMismatch();
                             return;
                         }
                         session.showSkillBar(skillType, getLevel(), getSkillPoints(), getRequiredSkillPoints(), amount);
+                        if (newSkillPoints >= row.getRequiredSkillPoints()) {
+                            levelUp();
+                        }
                     });
             });
     }
@@ -83,6 +94,7 @@ public class SkillSession {
         if (row == null) return false;
         if (getSkillPoints() < getRequiredSkillPoints()) return false;
         int newLevel = row.getLevel() + 1;
+        int newSkillPoints = row.getSkillPoints() - row.getRequiredSkillPoints();
         int newTalentPoints = row.getTalentPoints() + 1;
         int newRequiredSkillPoints = SkillsPlugin.pointsForLevelUp(newLevel + 1);
         final SQLSkill rowHandle = row;
@@ -91,8 +103,8 @@ public class SkillSession {
                     .row(rowHandle)
                     .atomic("level", newLevel)
                     .atomic("talent_points", newTalentPoints)
-                    .set("skill_points", 0)
-                    .set("required_skill_points", newRequiredSkillPoints)
+                    .atomic("skillPoints", newSkillPoints)
+                    .set("requiredSkillPoints", newRequiredSkillPoints)
                     .sync();
                 Bukkit.getScheduler().runTask(session.plugin, () -> {
                         if (result != 1) {
@@ -100,7 +112,14 @@ public class SkillSession {
                             onDatabaseMismatch();
                             return;
                         }
-                        session.showSkillBar(skillType, newLevel, 0, newRequiredSkillPoints, 0);
+                        Player player = session.getPlayer();
+                        if (player != null) {
+                            player.showTitle(title(skillType.asComponent(),
+                                                   text("Level " + newLevel, GOLD),
+                                                   times(ofSeconds(1), ofSeconds(1), ofSeconds(1))));
+                            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,
+                                             SoundCategory.MASTER, 0.5f, 2.0f);
+                        }
                     });
             });
         return true;

@@ -3,7 +3,6 @@ package com.cavetale.skills;
 import com.cavetale.core.command.AbstractCommand;
 import com.cavetale.core.command.CommandArgCompleter;
 import com.cavetale.core.command.CommandWarn;
-import com.cavetale.core.font.DefaultFont;
 import com.cavetale.skills.info.Info;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
@@ -22,11 +21,16 @@ import lombok.NonNull;
 import lombok.Value;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
+import static com.cavetale.core.font.Unicode.tiny;
+import static net.kyori.adventure.text.Component.empty;
+import static net.kyori.adventure.text.Component.join;
+import static net.kyori.adventure.text.Component.newline;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.event.ClickEvent.runCommand;
+import static net.kyori.adventure.text.event.HoverEvent.showText;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.TextDecoration.*;
 
 public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     protected final CommandArgCompleter[] highscoreCompleters = new CommandArgCompleter[] {
@@ -63,14 +67,12 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .description("Highscore List")
             .completers(highscoreCompleters)
             .playerCaller(this::hi);
-        rootNode.addChild("upgrade").hidden(true)
-            .playerCaller(this::upgrade);
     }
 
     protected Component prop(String left, String right) {
-        return Component.join(JoinConfiguration.noSeparators(),
-                              Component.text(left, NamedTextColor.GRAY),
-                              Component.text(right));
+        return join(JoinConfiguration.noSeparators(),
+                    text(tiny(left.toLowerCase()), GRAY),
+                    text(right));
     }
 
     protected boolean skill(Player player, SkillType skillType, String[] args) {
@@ -88,31 +90,25 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .filter(t -> t.skillType == skillType)
             .filter(session::hasTalent).count();
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.text(skillType.displayName, skillType.tag.color(), TextDecoration.BOLD));
-        lines.add(Component.text(skillType.tag.description()));
+        lines.add(text(skillType.displayName, skillType.tag.color(), BOLD));
+        lines.add(text(skillType.tag.description()));
         lines.add(prop("Level ", "" + level));
         lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skillType)));
+        lines.add(prop("Money Bonus ", "" + SkillsPlugin.moneyBonusPercentage(session.getMoneyBonus(skillType)) + "%"));
         lines.add(prop("Points ", points + "/" + req));
         lines.add(prop("Talents ", talentsHas + "/" + talentCount));
         if (talentsHas < talentCount) {
             int talentPoints = session.getTalentPoints(skillType);
             lines.add(prop("Talent Points ", "" + talentPoints));
         }
-        if (points >= req) {
-            lines.add(Component.join(JoinConfiguration.noSeparators(),
-                                     Component.text("Upgrade to Level " + (level + 1) + "? "),
-                                     DefaultFont.YES_BUTTON.component
-                                     .hoverEvent(HoverEvent.showText(Component.text("Yes", NamedTextColor.BLUE)))
-                                     .clickEvent(ClickEvent.runCommand("/sk upgrade " + skillType.key))));
-        }
-        Books.open(player, List.of(Component.join(JoinConfiguration.separator(Component.newline()), lines)));
+        Books.open(player, List.of(join(JoinConfiguration.separator(newline()), lines)));
         return true;
     }
 
     protected boolean list(@NonNull Player player, String[] args) {
         if (args.length != 0) return false;
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.empty());
+        lines.add(empty());
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) {
             throw new CommandWarn("Session not ready. Please try again later!");
@@ -121,40 +117,40 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             int level = session.getLevel(skill);
             int points = session.getSkillPoints(skill);
             int req = plugin.pointsForLevelUp(level + 1);
-            lines.add(Component.join(JoinConfiguration.noSeparators(),
-                                     Component.text("lvl", NamedTextColor.DARK_PURPLE),
-                                     Component.text(level, NamedTextColor.YELLOW, TextDecoration.BOLD),
-                                     Component.text(" " + skill.displayName, NamedTextColor.LIGHT_PURPLE),
-                                     Component.text(" " + points, NamedTextColor.WHITE),
-                                     Component.text("/", NamedTextColor.LIGHT_PURPLE),
-                                     Component.text(req, NamedTextColor.WHITE)));
+            lines.add(join(JoinConfiguration.noSeparators(),
+                           text("lvl", DARK_PURPLE),
+                           text(level, YELLOW, BOLD),
+                           text(" " + skill.displayName, LIGHT_PURPLE),
+                           text(" " + points, WHITE),
+                           text("/", LIGHT_PURPLE),
+                           text(req, WHITE)));
         }
-        lines.add(Component.join(JoinConfiguration.builder()
-                                 .prefix(Component.text("Talents: ", NamedTextColor.LIGHT_PURPLE))
-                                 .separator(Component.text(", ", NamedTextColor.DARK_PURPLE))
-                                 .build(),
-                                 Stream.of(TalentType.values())
-                                 .filter(session::hasTalent)
-                                 .map(t -> Component.text(t.tag.title(), NamedTextColor.GOLD))
-                                 .collect(Collectors.toList())));
-        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
+        lines.add(join(JoinConfiguration.builder()
+                       .prefix(text("Talents: ", LIGHT_PURPLE))
+                       .separator(text(", ", DARK_PURPLE))
+                       .build(),
+                       Stream.of(TalentType.values())
+                       .filter(session::hasTalent)
+                       .map(t -> text(t.tag.title(), GOLD))
+                       .collect(Collectors.toList())));
+        player.sendMessage(join(JoinConfiguration.separator(newline()), lines));
         return true;
     }
 
     protected boolean info(@NonNull Player player, String[] args) {
         if (args.length > 1) return false;
         if (args.length == 0) {
-            Component msg = Component.join(JoinConfiguration.builder()
-                                           .prefix(Component.text("Pages: ", NamedTextColor.LIGHT_PURPLE))
-                                           .separator(Component.text(", ", NamedTextColor.DARK_PURPLE))
-                                           .build(),
-                                           plugin.infos.keys().stream()
-                                           .map(s -> Component.text(s, NamedTextColor.YELLOW)
-                                                .clickEvent(ClickEvent.runCommand("/sk info " + s))
-                                                .hoverEvent(HoverEvent.showText(Component.text(plugin.infos.get(s).title,
-                                                                                               NamedTextColor.YELLOW,
-                                                                                               TextDecoration.BOLD))))
-                                           .collect(Collectors.toList()));
+            Component msg = join(JoinConfiguration.builder()
+                                 .prefix(text("Pages: ", LIGHT_PURPLE))
+                                 .separator(text(", ", DARK_PURPLE))
+                                 .build(),
+                                 plugin.infos.keys().stream()
+                                 .map(s -> text(s, YELLOW)
+                                      .clickEvent(runCommand("/sk info " + s))
+                                      .hoverEvent(showText(text(plugin.infos.get(s).title,
+                                                                YELLOW,
+                                                                BOLD))))
+                                 .collect(Collectors.toList()));
             player.sendMessage(msg);
             return true;
         }
@@ -163,10 +159,10 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             throw new CommandWarn("Not found: " + args[0]);
         }
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.text(info.title, NamedTextColor.YELLOW, TextDecoration.BOLD));
-        lines.add(Component.text(info.category, NamedTextColor.DARK_GRAY, TextDecoration.ITALIC));
+        lines.add(text(info.title, YELLOW, BOLD));
+        lines.add(text(info.category, DARK_GRAY, ITALIC));
         lines.addAll(info.pages);
-        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()), lines));
+        player.sendMessage(join(JoinConfiguration.separator(newline()), lines));
         return true;
     }
 
@@ -190,24 +186,24 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     protected boolean hi(@NonNull Player player, String[] args) {
         if (args.length == 0) {
             List<Component> cb = new ArrayList<>();
-            cb.add(Component.text("Options: ", NamedTextColor.LIGHT_PURPLE));
+            cb.add(text("Options: ", LIGHT_PURPLE));
             String cmd = "/sk hi total";
-            cb.add(Component.text("Total", NamedTextColor.YELLOW)
-                   .clickEvent(ClickEvent.runCommand(cmd))
-                   .hoverEvent(HoverEvent.showText(Component.text(cmd, NamedTextColor.YELLOW))));
-            cb.add(Component.text(", ", NamedTextColor.DARK_PURPLE));
+            cb.add(text("Total", YELLOW)
+                   .clickEvent(runCommand(cmd))
+                   .hoverEvent(showText(text(cmd, YELLOW))));
+            cb.add(text(", ", DARK_PURPLE));
             cmd = "/sk hi talents";
-            cb.add(Component.text("Talents", NamedTextColor.YELLOW)
-                   .clickEvent(ClickEvent.runCommand(cmd))
-                   .hoverEvent(HoverEvent.showText(Component.text(cmd, NamedTextColor.YELLOW))));
+            cb.add(text("Talents", YELLOW)
+                   .clickEvent(runCommand(cmd))
+                   .hoverEvent(showText(text(cmd, YELLOW))));
             for (SkillType skill : SkillType.values()) {
-                cb.add(Component.text(", ", NamedTextColor.DARK_PURPLE));
+                cb.add(text(", ", DARK_PURPLE));
                 cmd = "/sk hi " + skill.key;
-                cb.add(Component.text(skill.displayName, NamedTextColor.GOLD)
-                       .clickEvent(ClickEvent.runCommand(cmd))
-                       .hoverEvent(HoverEvent.showText(Component.text(cmd, NamedTextColor.GOLD))));
+                cb.add(text(skill.displayName, GOLD)
+                       .clickEvent(runCommand(cmd))
+                       .hoverEvent(showText(text(cmd, GOLD))));
             }
-            player.sendMessage(Component.join(JoinConfiguration.noSeparators(), cb));
+            player.sendMessage(join(JoinConfiguration.noSeparators(), cb));
             return true;
         }
         if (args.length > 2) return false;
@@ -269,12 +265,13 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     protected void highscoreCallback(Player player, List<Score> scores, int page, String title) {
         int offset = page * 10;
         if (offset >= scores.size()) {
-            throw new CommandWarn("Page " + (page + 1) + " unavailable!");
+            player.sendMessage(text("Page " + (page + 1) + " unavailable!", RED));
+            return;
         }
         Collections.sort(scores);
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.empty());
-        lines.add(Component.text(title + " Highscore", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
+        lines.add(empty());
+        lines.add(text(title + " Highscore", LIGHT_PURPLE, BOLD));
         for (int i = 0; i < 10; i += 1) {
             final int index = offset + i;
             final int rank = index + 1;
@@ -288,25 +285,12 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                 level = "?";
                 name = " ---";
             }
-            lines.add(Component.join(JoinConfiguration.noSeparators(),
-                                     Component.text("#" + rank, NamedTextColor.DARK_PURPLE),
-                                     Component.text(" " + level, NamedTextColor.WHITE),
-                                     Component.text(" " + name, NamedTextColor.LIGHT_PURPLE)));
+            lines.add(join(JoinConfiguration.noSeparators(),
+                           text("#" + rank, DARK_PURPLE),
+                           text(" " + level, WHITE),
+                           text(" " + name, LIGHT_PURPLE)));
         }
-        player.sendMessage(Component.join(JoinConfiguration.separator(Component.newline()),
-                                          lines));
-    }
-
-    /**
-     * Click command!
-     */
-    protected boolean upgrade(Player player, String[] args) {
-        if (args.length != 1) return true;
-        SkillType skillType = SkillType.ofKey(args[0]);
-        if (skillType == null) return true;
-        plugin.sessions.apply(player, session -> {
-                session.levelUp(skillType);
-            });
-        return true;
+        player.sendMessage(join(JoinConfiguration.separator(newline()),
+                                lines));
     }
 }
