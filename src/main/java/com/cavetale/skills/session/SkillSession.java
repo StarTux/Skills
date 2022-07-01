@@ -150,11 +150,6 @@ public class SkillSession {
         return SkillsPlugin.expBonusForLevel(level);
     }
 
-    public final int getTalentCost() {
-        if (row == null) return Integer.MAX_VALUE;
-        return row.getTalents() + 1;
-    }
-
     /**
      * Whenever the row fails to save, this is called order to trigger
      * a reload.

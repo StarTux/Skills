@@ -23,13 +23,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public final class XrayTalent extends Talent implements Listener {
+public final class SuperVisionTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
     protected final BlockData fakeStoneData = Material.BLACK_STAINED_GLASS.createBlockData();
     protected final BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
 
-    protected XrayTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.MINE_XRAY);
+    protected SuperVisionTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
+        super(plugin, TalentType.SUPER_VISION);
         this.miningSkill = miningSkill;
     }
 
@@ -41,7 +41,7 @@ public final class XrayTalent extends Talent implements Listener {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         Session session = plugin.sessions.of(player);
-        if (session.isXrayActive()) return;
+        if (session.isSuperVisionActive()) return;
         Block block = event.getBlock();
         if (!MiningSkill.stone(block)) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
@@ -63,20 +63,9 @@ public final class XrayTalent extends Talent implements Listener {
         if (!player.getWorld().equals(block.getWorld())) return 0;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return 0;
-        // Night Vision
-        final int potionDuration = 45 * 20; // ticks
-        PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
-        if (nightVision == null || nightVision.getDuration() < potionDuration) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
-                                                    potionDuration,
-                                                    0, // amplifier
-                                                    true, // ambient
-                                                    false, // particles
-                                                    true)); // icon
-        }
         // Actual XRay
-        if (session.isXrayActive()) return 0;
-        session.setXrayActive(true);
+        if (session.isSuperVisionActive()) return 0;
+        session.setSuperVisionActive(true);
         final int radius = 3;
         final int realRadius = 2;
         final ArrayList<Block> bs = new ArrayList<>();
@@ -114,7 +103,7 @@ public final class XrayTalent extends Talent implements Listener {
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
-                plugin.sessions.apply(player, s -> s.setXrayActive(false));
+                plugin.sessions.apply(player, s -> s.setSuperVisionActive(false));
                 if (!player.getWorld().equals(block.getWorld())) return;
                 for (Block b : bs) {
                     if (!player.isValid()) return;

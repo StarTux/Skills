@@ -28,7 +28,7 @@ public final class StripMiningTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
 
     protected StripMiningTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.MINE_STRIP);
+        super(plugin, TalentType.STRIP_MINING);
         this.miningSkill = miningSkill;
     }
 
@@ -47,17 +47,6 @@ public final class StripMiningTalent extends Talent implements Listener {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
                     stripMine(player, block);
-                });
-        }
-        // Vein Mining
-        final ItemStack item = player.getInventory().getItemInMainHand();
-        final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
-        MiningReward reward = miningSkill.rewards.get(block.getType());
-        if (!sneak && efficiency > 0 && reward != null) {
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    if (!player.isValid()) return;
-                    if (!player.getWorld().equals(block.getWorld())) return;
-                    mineVein(player, block, item, reward, efficiency);
                 });
         }
     }
@@ -116,51 +105,5 @@ public final class StripMiningTalent extends Talent implements Listener {
             result += 1;
         }
         return result;
-    }
-
-    /**
-     * Called by scheduler.
-     *
-     * @bugs Does NOT deal damage to the pickaxe.
-     */
-    protected int mineVein(@NonNull Player player,
-                           @NonNull Block block,
-                           @NonNull ItemStack item,
-                           @NonNull MiningReward reward,
-                           final int efficiency) {
-        Material mat = reward.material;
-        HashSet<Block> done = new HashSet<>();
-        HashSet<Block> todo = new HashSet<>();
-        ArrayList<Block> vein = new ArrayList<>();
-        todo.add(block);
-        done.add(block);
-        int total = efficiency * 4;
-        while (!todo.isEmpty() && vein.size() < total) {
-            Block pivot = todo.iterator().next();
-            todo.remove(pivot);
-            for (int y = -1; y <= 1; y += 1) {
-                for (int z = -1; z <= 1; z += 1) {
-                    for (int x = -1; x <= 1; x += 1) {
-                        if (x == 0 && y == 0 && z == 0) continue;
-                        Block nbor = pivot.getRelative(x, y, z);
-                        if (done.contains(nbor)) continue;
-                        done.add(nbor);
-                        if (nbor.getType() != mat) continue;
-                        if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, nbor)) continue;
-                        todo.add(nbor);
-                        vein.add(nbor);
-                    }
-                }
-            }
-        }
-        for (Block v : vein) {
-            if (!Exploits.isPlayerPlaced(v)) {
-                miningSkill.giveReward(player, v, reward);
-            }
-            Bukkit.getPluginManager().callEvent(new PlayerBreakBlockEvent(player, v));
-            Effects.mineBlockMagic(v);
-            v.breakNaturally(item);
-        }
-        return vein.size();
     }
 }

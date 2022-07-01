@@ -4,11 +4,11 @@ import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 
-public final class SilkFortuneTalent extends Talent {
+public final class VeinMetalsTalent extends Talent {
     protected final MiningSkill miningSkill;
 
-    protected SilkFortuneTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.MINE_SILK_MULTI);
+    protected VeinMetalsTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
+        super(plugin, TalentType.VEIN_METALS);
         this.miningSkill = miningSkill;
     }
 

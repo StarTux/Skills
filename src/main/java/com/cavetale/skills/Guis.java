@@ -75,7 +75,6 @@ public final class Guis {
                 });
         }
         final int talentPoints = session.getTalentPoints(skillType);
-        final int talentCost = session.getTalentCost(skillType);
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
                                         Component.text(talentPoints + " "
@@ -103,7 +102,7 @@ public final class Guis {
                 } else {
                     text.add(Component.join(JoinConfiguration.noSeparators(),
                                             Component.text("Unlock Cost ", NamedTextColor.GRAY),
-                                            Component.text(talentCost + "TP", NamedTextColor.WHITE)));
+                                            Component.text(talentType.talentPointCost + "TP", NamedTextColor.WHITE)));
                 }
                 for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
                     text.add(Component.text(line, NamedTextColor.GRAY));
@@ -138,7 +137,7 @@ public final class Guis {
             session.setTalentEnabled(talentType, true);
             talents(player);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
-        } else if (session.getTalentPoints(talentType.skillType) >= session.getTalentCost(talentType.skillType)) {
+        } else if (session.getTalentPoints(talentType.skillType) >= talentType.talentPointCost) {
             session.unlockTalent(talentType, () -> {
                     Effects.talentUnlock(player);
                     talents(player);

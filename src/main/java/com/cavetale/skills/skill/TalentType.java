@@ -13,37 +13,47 @@ import org.bukkit.Material;
 @Getter
 public enum TalentType {
     // Mining
-    MINE_STRIP(TalentTag.MINE_STRIP, SkillType.MINING, null),
-    MINE_ORE_ALERT(TalentTag.MINE_ORE_ALERT, SkillType.MINING, TalentType.MINE_STRIP),
-    MINE_XRAY(TalentTag.MINE_XRAY, SkillType.MINING, TalentType.MINE_ORE_ALERT),
-    MINE_SILK_STRIP(TalentTag.MINE_SILK_STRIP, SkillType.MINING, TalentType.MINE_STRIP),
-    MINE_SILK_MULTI(TalentTag.MINE_SILK_MULTI, SkillType.MINING, TalentType.MINE_SILK_STRIP),
+    STRIP_MINING(TalentTag.STRIP_MINING, SkillType.MINING, null, 1),
+    VEIN_MINING(TalentTag.VEIN_MINING, SkillType.MINING, STRIP_MINING, 1),
+    VEIN_GEMS(TalentTag.VEIN_GEMS, SkillType.MINING, VEIN_MINING, 2),
+    VEIN_METALS(TalentTag.VEIN_METALS, SkillType.MINING, VEIN_MINING, 2),
+    SILK_STRIP(TalentTag.SILK_STRIP, SkillType.MINING, VEIN_MINING, 2),
+    SILK_METALS(TalentTag.SILK_METALS, SkillType.MINING, SILK_STRIP, 3),
+    SILK_MULTI(TalentTag.SILK_MULTI, SkillType.MINING, SILK_STRIP, 3),
+    MINER_SIGHT(TalentTag.MINER_SIGHT, SkillType.MINING, null, 1),
+    SUPER_VISION(TalentTag.SUPER_VISION, SkillType.MINING, MINER_SIGHT, 5),
+    NETHER_VISION(TalentTag.NETHER_VISION, SkillType.MINING, SUPER_VISION, 5),
+    ORE_ALERT(TalentTag.ORE_ALERT, SkillType.MINING, MINER_SIGHT, 3),
+    EMERALD_ALERT(TalentTag.EMERALD_ALERT, SkillType.MINING, ORE_ALERT, 4),
+    DEBRIS_ALERT(TalentTag.DEBRIS_ALERT, SkillType.MINING, EMERALD_ALERT, 5),
     // Combat
-    SEARING(TalentTag.SEARING, SkillType.COMBAT, null),
-    PYROMANIAC(TalentTag.PYROMANIAC, SkillType.COMBAT, SEARING),
-    DENIAL(TalentTag.DENIAL, SkillType.COMBAT, null), // +slow?
-    GOD_MODE(TalentTag.GOD_MODE, SkillType.COMBAT, TalentType.DENIAL),
-    ARCHER_ZONE(TalentTag.ARCHER_ZONE, SkillType.COMBAT, null),
-    IRON_AGE(TalentTag.IRON_AGE, SkillType.COMBAT, null),
-    EXECUTIONER(TalentTag.EXECUTIONER, SkillType.COMBAT, TalentType.IRON_AGE),
-    IMPALER(TalentTag.IMPALER, SkillType.COMBAT, TalentType.IRON_AGE),
-    TOXICIST(TalentTag.TOXICIST, SkillType.COMBAT, TalentType.DENIAL),
-    TOXIC_FUROR(TalentTag.TOXIC_FUROR, SkillType.COMBAT, TalentType.TOXICIST);
+    SEARING(TalentTag.SEARING, SkillType.COMBAT, null, 1),
+    PYROMANIAC(TalentTag.PYROMANIAC, SkillType.COMBAT, SEARING, 2),
+    DENIAL(TalentTag.DENIAL, SkillType.COMBAT, null, 1), // +slow?
+    GOD_MODE(TalentTag.GOD_MODE, SkillType.COMBAT, TalentType.DENIAL, 3),
+    ARCHER_ZONE(TalentTag.ARCHER_ZONE, SkillType.COMBAT, null, 2),
+    IRON_AGE(TalentTag.IRON_AGE, SkillType.COMBAT, null, 1),
+    EXECUTIONER(TalentTag.EXECUTIONER, SkillType.COMBAT, TalentType.IRON_AGE, 2),
+    IMPALER(TalentTag.IMPALER, SkillType.COMBAT, TalentType.IRON_AGE, 2),
+    TOXICIST(TalentTag.TOXICIST, SkillType.COMBAT, TalentType.DENIAL, 2),
+    TOXIC_FUROR(TalentTag.TOXIC_FUROR, SkillType.COMBAT, TalentType.TOXICIST, 3);
 
     public final TalentTag tag;
     public final String key;
     public final SkillType skillType;
     public final TalentType depends;
+    public final int talentPointCost;
     public final String displayName;
-    public static final int COUNT = 15;
+    public static final int COUNT = 15; // unused
     public static final Map<SkillType, Set<TalentType>> SKILL_MAP = new EnumMap<>(SkillType.class);
     private Talent talent;
 
-    TalentType(final TalentTag tag, final SkillType skillType, final TalentType depends) {
+    TalentType(final TalentTag tag, final SkillType skillType, final TalentType depends, final int talentPointCost) {
         this.tag = tag;
         this.key = name().toLowerCase();
         this.skillType = skillType;
         this.depends = depends;
+        this.talentPointCost = talentPointCost;
         this.displayName = Enums.human(this);
     }
 
@@ -77,7 +87,132 @@ public enum TalentType {
 
     public record TalentTag(String title, Material icon, int x, int y,
                                    String legacyDescription, String... legacyMoreText) {
-
+    //STRIP_MINING(TalentTag.STRIP_MINING, SkillType.MINING, null, 1),
+        public static final TalentTag STRIP_MINING = new
+            TalentTag("Strip Mining",
+                      Material.STONE_PICKAXE, 5, 3,
+                      "Mining with an Efficiency pickaxe breaks many block",
+                      "Unleash the full power of the Efficency enchantment."
+                      + " Mining stone type blocks will break several blocks"
+                      + " within your line of sight while mining straight.",
+                      "Mine without this feature by sneaking.");
+    //VEIN_MINING(TalentTag.VEIN_MINING, SkillType.MINING, STRIP_MINING, 1),
+        public static final TalentTag VEIN_MINING = new
+            TalentTag("Vein Mining - Basic",
+                      Material.IRON_PICKAXE, 6, 2,
+                      "Mining certain ores will attempt to break the entire vein",
+                      "Works on Coal, Redstone and Lapis Lazuli Ores."
+                      + "Requires the Efficiency enchantment on your pickaxe.",
+                      "Mine without this feature by sneaking.");
+    //VEIN_GEMS(TalentTag.VEIN_GEMS, SkillType.MINING, VEIN_MINING, 2),
+        public static final TalentTag VEIN_GEMS = new
+            TalentTag("Vein Mining - Basic",
+                      Material.DIAMOND_PICKAXE, 7, 2,
+                      "Mining certain ores will attempt to break the entire vein",
+                      "Works on Diamond, Emerald and Quartz Ores."
+                      + "Requires the Efficiency enchantment on your pickaxe.",
+                      "Mine without this feature by sneaking.");
+    //VEIN_METALS(TalentTag.VEIN_METALS, SkillType.MINING, VEIN_MINING, 2),
+        public static final TalentTag VEIN_METALS = new
+            TalentTag("Vein Mining - Basic",
+                      Material.NETHERITE_PICKAXE, 7, 1,
+                      "Mining certain ores will attempt to break the entire vein",
+                      "Works on Ancient Debris, Copper, Iron and Gold Ores"
+                      + "Requires the Efficiency enchantment on your pickaxe.",
+                      "Mine without this feature by sneaking.");
+    //SILK_STRIP(TalentTag.SILK_STRIP, SkillType.MINING, VEIN_MINING, 2),
+        public static final TalentTag SILK_STRIP = new
+            TalentTag("Silk Stripping",
+                      Material.GOLD_NUGGET, 6, 3,
+                      "Use a Silk Touch pickaxe to strip an ore of its contents",
+                      "Right-click with a Silk Touch pickaxe to use your"
+                      + " fine motory skills and remove those"
+                      + " gems right from the ore block."
+                      + "With any luck, you may repeat the procedure"
+                      + " as long as the ore stays intact,"
+                      + " getting more and more drops."
+                      + " Eventually, the ore will turn into stone and"
+                      + " you get the usual skill points for mining.",
+                      "This method may yield as much reward as Fortune 3"
+                      + " but is more random."
+                      + " It allows multiplying drops from ores usually"
+                      + " unaffected by Fortune: Iron and gold.");
+    //SILK_METALS(TalentTag.SILK_METALS, SkillType.MINING, SILK_STRIP, 3),
+        public static final TalentTag SILK_METALS = new
+            TalentTag("Silk Stripping",
+                      Material.NETHERITE_SCRAP, 7, 3,
+                      "Use a Silk Touch pickaxe to extract metals from an ore",
+                      "Right-click with a Silk Touch pickaxe to use your"
+                      + " fine motory skills and remove those"
+                      + " gems right from the ore block."
+                      + "With any luck, you may repeat the procedure"
+                      + " as long as the ore stays intact,"
+                      + " getting more and more drops."
+                      + " Eventually, the ore will turn into stone and"
+                      + " you get the usual skill points for mining.",
+                      "This method may yield as much reward as Fortune 3"
+                      + " but is more random."
+                      + " It allows multiplying drops from ores usually"
+                      + " unaffected by Fortune: Iron and gold.");
+    //SILK_MULTI(TalentTag.SILK_MULTI, SkillType.MINING, SILK_STRIP, 3),
+        public static final TalentTag SILK_MULTI = new
+            TalentTag("Silk Fortune",
+                      Material.GOLD_INGOT, 7, 4,
+                      "Silk stripping may yield even more drops from the same ore",
+                      "While using your Silk Touch pickaxe on ores,"
+                      + " this talent gives you an even greater chance"
+                      + " at getting multiple drops,"
+                      + " surpassing the yield capabilities of Fortune 3.",
+                      "The yields of this method may exceed those of Fortune 3"
+                      + " but are more random."
+                      + " It allows multiple drops from ores usually"
+                      + " unaffected by Fortune: Iron and gold.");
+    //MINER_SIGHT(TalentTag.MINER_SIGHT, SkillType.MINING, null, 1),
+        public static final TalentTag MINER_SIGHT = new
+            TalentTag("Miner's Sight",
+                      Material.TORCH, 3, 3,
+                      "Mining stone with a pickaxe grants you Night Vision");
+    //SUPER_VISION(TalentTag.SUPER_VISION, SkillType.MINING, MINER_SIGHT, 5),
+        public static final TalentTag SUPER_VISION = new
+            TalentTag("Super Vision",
+                      Material.GLOWSTONE, 2, 3,
+                      "Mining stone with a Fortune pickaxe"
+                      + " allows you to see through solid stone",
+                      "Nearby stone will be rendered see-through"
+                      + " for a few seconds so you can identify ores more easily.");
+    //NETHER_VISITON(TalentTag.NETHER_VISION, SkillType.MINING, SUPER_VISION, 5),
+        public static final TalentTag NETHER_VISION = new
+            TalentTag("Super Vision",
+                      Material.SHROOMLIGHT, 1, 3,
+                      "Mining stone with a Fortune pickaxe"
+                      + " allows you to see through solid stone",
+                      "Nearby stone will be rendered see-through"
+                      + " for a few seconds so you can identify ores more easily.");
+    //ORE_ALERT(TalentTag.ORE_ALERT, SkillType.MINING, MINER_SIGHT, 3),
+        public static final TalentTag ORE_ALERT = new
+            TalentTag("Super Vision",
+                      Material.DIAMOND_ORE, 3, 4,
+                      "Get alerts when Diamond Ore is nearby"
+                      + " allows you to see through solid stone",
+                      "Nearby stone will be rendered see-through"
+                      + " for a few seconds so you can identify ores more easily.");
+    //EMERALD_ALERT(TalentTag.EMERALD_ALERT, SkillType.MINING, ORE_ALERT, 4),
+        public static final TalentTag EMERALD_ALERT = new
+            TalentTag("Super Vision",
+                      Material.EMERALD_ORE, 2, 4,
+                      "Get alerts when Emerald Ore is nearby"
+                      + " allows you to see through solid stone",
+                      "Nearby stone will be rendered see-through"
+                      + " for a few seconds so you can identify ores more easily.");
+    //DEBRIS_ALERT(TalentTag.DEBRIS_ALERT, SkillType.MINING, EMERALD_ALERT, 5),
+        public static final TalentTag DEBRIS_ALERT = new
+            TalentTag("Super Vision",
+                      Material.ANCIENT_DEBRIS, 1, 4,
+                      "Get alerts when Ancient Debris is nearby"
+                      + " allows you to see through solid stone",
+                      "Nearby stone will be rendered see-through"
+                      + " for a few seconds so you can identify ores more easily.");
+/*
         public static final TalentTag MINE_STRIP = new
             TalentTag("Strip Mining",
                       Material.DIAMOND_PICKAXE, 5, 3,
@@ -136,7 +271,7 @@ public enum TalentType {
                       + " but are more random."
                       + " It allows multiple drops from ores usually"
                       + " unaffected by Fortune: Iron and gold.");
-
+*/
         public static final TalentTag SEARING = new
             TalentTag("Searing", Material.SOUL_CAMPFIRE, 4, 4, "Monsters set on fire deal -30% melee damage");
 
@@ -153,7 +288,7 @@ public enum TalentType {
             TalentTag("Toxic Furor", Material.EXPERIENCE_BOTTLE, 7, 2, "Deal extra damage while affected by Poison, Wither or Nausea");
 
         public static final TalentTag GOD_MODE = new
-            TalentTag("God Mode", Material.TOTEM_OF_UNDYING, 6, 3, "");
+            TalentTag("God Mode", Material.TOTEM_OF_UNDYING, 6, 3, "Melee kills make you immortal for 3 seconds");
 
         public static final TalentTag ARCHER_ZONE = new
             TalentTag("In The Zone",

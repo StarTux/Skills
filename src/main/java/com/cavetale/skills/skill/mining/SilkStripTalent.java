@@ -31,7 +31,7 @@ public final class SilkStripTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
 
     protected SilkStripTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.MINE_SILK_STRIP);
+        super(plugin, TalentType.SILK_STRIP);
         this.miningSkill = miningSkill;
     }
 
@@ -46,6 +46,7 @@ public final class SilkStripTalent extends Talent implements Listener {
         if (!event.hasItem()) return;
         final ItemStack item = event.getItem();
         final Block block = event.getClickedBlock();
+        final boolean metal = MiningSkill.metalOre(block);
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
         MiningReward reward = miningSkill.rewards.get(block.getType());
@@ -86,7 +87,8 @@ public final class SilkStripTalent extends Talent implements Listener {
         // (Maybe) change the Block
         double factor = 2.20; // Fortune 3
         Session session = plugin.sessions.of(player);
-        if (session.isTalentEnabled(TalentType.MINE_SILK_MULTI)) factor = 2.60;
+        if (metal && session.isTalentEnabled(TalentType.SILK_METALS)) factor = 2.60;
+        if (!metal && session.isTalentEnabled(TalentType.SILK_MULTI)) factor = 2.60;
         final double amount; // Expected value of additionally dropped items.
         amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.

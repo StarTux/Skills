@@ -17,11 +17,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-public final class OreAlertTalent extends Talent implements Listener {
+public final class EmeraldAlertTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
 
-    protected OreAlertTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.ORE_ALERT);
+    protected EmeraldAlertTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
+        super(plugin, TalentType.EMERALD_ALERT);
         this.miningSkill = miningSkill;
     }
 
@@ -50,7 +50,7 @@ public final class OreAlertTalent extends Talent implements Listener {
                     Block nbor = block.getRelative(x, y, z);
                     if (nbor.getY() < min) continue;
                     Material mat = nbor.getType();
-                    if (Tag.DIAMOND_ORES.isTagged(mat)) {
+                    if (Tag.EMERALD_ORES.isTagged(mat)) {
                         bs.add(nbor);
                     }
                 }
@@ -58,7 +58,7 @@ public final class OreAlertTalent extends Talent implements Listener {
         }
         if (bs.isEmpty()) return false;
         Block ore = bs.get(plugin.random.nextInt(bs.size()));
-        Effects.oreAlert(ore);
+        Effects.emeraldAlert(ore);
         return true;
     }
 }
