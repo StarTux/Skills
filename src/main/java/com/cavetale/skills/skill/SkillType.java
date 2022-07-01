@@ -39,11 +39,11 @@ public enum SkillType {
         this.skill = theSkill;
     }
 
-    // This tag is used for advancements and GUIs.
+    // This tag is used for GUIs.
     public record SkillTag(String title, TextColor color, BossBar.Color bossBarColor,
-                                 String description,
-                                 Material icon, String background,
-                                 String... moreText) {
+                           String description,
+                           Material icon, String background,
+                           String... moreText) {
         private static final SkillTag MINING = new
             SkillTag("Mining", NamedTextColor.DARK_AQUA, BossBar.Color.BLUE,
                      "Mine ores to get SP."

@@ -120,7 +120,6 @@ public final class Session {
                                    BossBar.Color.BLUE,
                                    BossBar.Overlay.PROGRESS);
         task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 1L, 1L);
-        updateAdvancements();
     }
 
     protected void disable() {
@@ -166,25 +165,6 @@ public final class Session {
 
     public int getTalentPoints(SkillType skillType) {
         return skills.get(skillType).getTalentPoints();
-    }
-
-    public void updateAdvancements() {
-        Player player = getPlayer();
-        if (player == null) return;
-        for (SkillType skillType : SkillType.values()) {
-            if (getLevel(skillType) > 0) {
-                plugin.advancements.give(player, skillType);
-            } else {
-                plugin.advancements.revoke(player, skillType);
-            }
-        }
-        for (TalentType talentType : TalentType.values()) {
-            if (talents.containsKey(talentType)) {
-                plugin.advancements.give(player, talentType);
-            } else {
-                plugin.advancements.revoke(player, talentType);
-            }
-        }
     }
 
     protected void showSkillBar(SkillType skillType, int level, int points, int required, int newPoints) {

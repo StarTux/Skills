@@ -1,6 +1,5 @@
 package com.cavetale.skills;
 
-import com.cavetale.skills.advancement.Advancements;
 import com.cavetale.skills.info.Infos;
 import com.cavetale.skills.session.Sessions;
 import com.cavetale.skills.skill.Skills;
@@ -25,7 +24,6 @@ public final class SkillsPlugin extends JavaPlugin {
     public final Skills skills = new Skills(this);
     public final Guis guis = new Guis(this);
     public final Sessions sessions = new Sessions(this);
-    public final Advancements advancements = new Advancements(this);
     public final Infos infos = new Infos(this);
 
     @Override
@@ -44,7 +42,6 @@ public final class SkillsPlugin extends JavaPlugin {
         adminCommand.enable();
         // UI
         guis.enable();
-        advancements.createAll();
         infos.enable();
     }
 
