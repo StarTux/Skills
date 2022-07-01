@@ -52,7 +52,8 @@ public final class VeinMiningTalent extends Talent implements Listener {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
-                    mineVein(player, block, item, reward, efficiency);
+                    miningSkill.giveStackedReward(player, block, reward, mineVein(player, block, item, reward, efficiency));
+                    
                 });
         }
     }
@@ -92,14 +93,16 @@ public final class VeinMiningTalent extends Talent implements Listener {
                 }
             }
         }
+        int rewardableBlockCount = 0;
         for (Block v : vein) {
             if (!Exploits.isPlayerPlaced(v)) {
-                miningSkill.giveReward(player, v, reward);
+                rewardableBlockCount++;
+//                miningSkill.giveReward(player, v, reward);
             }
             Bukkit.getPluginManager().callEvent(new PlayerBreakBlockEvent(player, v));
             Effects.mineBlockMagic(v);
             v.breakNaturally(item);
         }
-        return vein.size();
+        return rewardableBlockCount;
     }
 }
