@@ -7,7 +7,6 @@ import com.cavetale.skills.skill.Skills;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
-import com.cavetale.skills.worldmarker.WorldMarkerManager;
 import com.winthier.sql.SQLDatabase;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +27,6 @@ public final class SkillsPlugin extends JavaPlugin {
     public final Sessions sessions = new Sessions(this);
     public final Advancements advancements = new Advancements(this);
     public final Infos infos = new Infos(this);
-    @Getter private final WorldMarkerManager worldMarkerManager = new WorldMarkerManager(this);
 
     @Override
     public void onEnable() {
@@ -39,7 +37,6 @@ public final class SkillsPlugin extends JavaPlugin {
         }
         skills.enable();
         sessions.enable();
-        worldMarkerManager.enable();
         // Commands
         skillsCommand.enable();
         talentCommand.enable();
@@ -54,7 +51,6 @@ public final class SkillsPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         sessions.disable();
-        worldMarkerManager.disable();
     }
 
     public static int pointsForLevelUp(final int lvl) {

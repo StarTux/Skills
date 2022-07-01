@@ -18,12 +18,6 @@ public enum TalentType {
     MINE_XRAY(TalentTag.MINE_XRAY, SkillType.MINING, TalentType.MINE_ORE_ALERT),
     MINE_SILK_STRIP(TalentTag.MINE_SILK_STRIP, SkillType.MINING, TalentType.MINE_STRIP),
     MINE_SILK_MULTI(TalentTag.MINE_SILK_MULTI, SkillType.MINING, TalentType.MINE_SILK_STRIP),
-    // Farming
-    FARM_GROWSTICK_RADIUS(TalentTag.FARM_GROWSTICK_RADIUS, SkillType.FARMING, null),
-    FARM_PLANT_RADIUS(TalentTag.FARM_PLANT_RADIUS, SkillType.FARMING, TalentType.FARM_GROWSTICK_RADIUS),
-    FARM_CROP_DROPS(TalentTag.FARM_CROP_DROPS, SkillType.FARMING, TalentType.FARM_GROWSTICK_RADIUS),
-    FARM_DIAMOND_DROPS(TalentTag.FARM_DIAMOND_DROPS, SkillType.FARMING, TalentType.FARM_CROP_DROPS),
-    FARM_TALENT_POINTS(TalentTag.FARM_TALENT_POINTS, SkillType.FARMING, TalentType.FARM_DIAMOND_DROPS),
     // Combat
     SEARING(TalentTag.SEARING, SkillType.COMBAT, null),
     PYROMANIAC(TalentTag.PYROMANIAC, SkillType.COMBAT, SEARING),
@@ -83,48 +77,6 @@ public enum TalentType {
 
     public record TalentTag(String title, Material icon, int x, int y,
                                    String legacyDescription, String... legacyMoreText) {
-        public static final TalentTag FARM_GROWSTICK_RADIUS = new
-            TalentTag("Spoutcraft",
-                      Material.STICK, 5, 3,
-                      "Effective growstick radius +1",
-                      "Up your gardening powers."
-                      + " Save lots of time by watering"
-                      + " adjacent crops and soil,"
-                      + " all at once!");
-
-        public static final TalentTag FARM_CROP_DROPS = new
-            TalentTag("Cultivator",
-                      Material.WHEAT, 5, 4,
-                      "Increased crop yields",
-                      "Each fully grown watered plant"
-                      + " yields additional drops when"
-                      + " you harvest them.");
-
-        public static final TalentTag FARM_DIAMOND_DROPS = new
-            TalentTag("Gem Growth",
-                      Material.DIAMOND, 6, 4,
-                      "Diamond drops 100% more common",
-                      "Fully grown watered plants sometimes yield diamonds."
-                      + " This talent increases your chances drastically.");
-
-        public static final TalentTag FARM_TALENT_POINTS = new
-            TalentTag("Grand Granger",
-                      Material.CORNFLOWER, 7, 4,
-                      "Talent points drop more often",
-                      "Whenever a fully grown and watered plant drops a diamond,"
-                      + " there is also a small progress made toward your next talent point."
-                      + " Unlocking this skill increases your chances."
-                      + " This means even more talent points!");
-
-        public static final TalentTag FARM_PLANT_RADIUS = new
-            TalentTag("Springtime",
-                      Material.WHEAT_SEEDS, 5, 2,
-                      "Plant seeds in a 3x3 area",
-                      "Save time with this talent."
-                      + " Plant any seed"
-                      + " (wheat, carrot, potato, beetroot, nether wart)"
-                      + " and the surrounding 8 blocks will also be seeded where possible.",
-                      " Plant without this feature by sneaking.");
 
         public static final TalentTag MINE_STRIP = new
             TalentTag("Strip Mining",

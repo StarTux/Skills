@@ -12,7 +12,6 @@ import org.bukkit.Material;
 @Getter
 public enum SkillType {
     MINING(SkillTag.MINING),
-    FARMING(SkillTag.FARMING),
     COMBAT(SkillTag.COMBAT);
 
     public final String key;
@@ -54,17 +53,6 @@ public enum SkillType {
                      "Every ore you mine yields some skill points."
                      + " Diamond and emerald ore give you an"
                      + " additional chance to earn talent points.");
-
-        private static final SkillTag FARMING = new
-            SkillTag("Farming", NamedTextColor.DARK_GREEN, BossBar.Color.GREEN,
-                     "Water your crops with the growstick"
-                     + " and harvest them once they are fully grown.",
-                     Material.GOLDEN_HOE,
-                     "minecraft:textures/block/farmland_moist.png",
-                     "Use a stick on any freshly planted crop to water it."
-                     + " In the daylight it will grow quickly."
-                     + " Fully grown watered crops yield a"
-                     + " chance at dropping diamonds and talent points.");
 
         private static final SkillTag COMBAT = new
             SkillTag("Combat", NamedTextColor.RED, BossBar.Color.RED,

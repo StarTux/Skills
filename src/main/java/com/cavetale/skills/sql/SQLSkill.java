@@ -14,13 +14,14 @@ import lombok.NonNull;
 public final class SQLSkill implements SQLRow {
     @Id private Integer id;
     private UUID player;
-    @VarChar(16) private String skill;
+    @VarChar(40) private String skill;
     @Default("0") private int skillPoints;
     @Default("0") private int requiredSkillPoints;
     @Default("0") private int totalSkillPoints;
     @Default("0") private int level;
     @Default("0") private int talents;
     @Default("0") private int talentPoints;
+    @Default("0") private int moneyLevel;
 
     public SQLSkill() { }
 

@@ -17,8 +17,8 @@ import lombok.Data;
 public final class SQLTalent implements SQLRow {
     @Id private Integer id;
     private UUID player;
-    @VarChar(16) private String skill;
-    @VarChar(16) private String talent;
+    @VarChar(40) private String skill;
+    @VarChar(40) private String talent;
     @Default("0") private boolean enabled;
     @Default("NOW()") private Date created;
 

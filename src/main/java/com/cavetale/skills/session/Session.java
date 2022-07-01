@@ -38,7 +38,6 @@ public final class Session {
     private int actionSP;
     // Skills
     public final SkillSession mining = new SkillSession(this, SkillType.MINING);
-    public final SkillSession farming = new SkillSession(this, SkillType.FARMING);
     public final CombatSession combat = new CombatSession(this, SkillType.COMBAT);
     // Status effects, ticks remaining
     @Setter protected boolean xrayActive;
