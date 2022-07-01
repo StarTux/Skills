@@ -17,11 +17,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-public final class OreAlertTalent extends Talent implements Listener {
+public final class DebrisAlertTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
 
-    protected OreAlertTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.ORE_ALERT);
+    protected DebrisAlertTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
+        super(plugin, TalentType.DEBRIS_ALERT);
         this.miningSkill = miningSkill;
     }
 
@@ -33,7 +33,7 @@ public final class OreAlertTalent extends Talent implements Listener {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         Block block = event.getBlock();
-        if (!MiningSkill.stone(block)) return;
+        if (!MiningSkill.netherStone(block)) return;
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         oreAlert(player, block);
@@ -50,7 +50,7 @@ public final class OreAlertTalent extends Talent implements Listener {
                     Block nbor = block.getRelative(x, y, z);
                     if (nbor.getY() < min) continue;
                     Material mat = nbor.getType();
-                    if (Tag.DIAMOND_ORES.isTagged(mat)) {
+                    if (mat == Material.ANCIENT_DEBRIS) {
                         bs.add(nbor);
                     }
                 }
@@ -58,7 +58,7 @@ public final class OreAlertTalent extends Talent implements Listener {
         }
         if (bs.isEmpty()) return false;
         Block ore = bs.get(plugin.random.nextInt(bs.size()));
-        Effects.oreAlert(ore);
+        Effects.debrisAlert(ore);
         return true;
     }
 }

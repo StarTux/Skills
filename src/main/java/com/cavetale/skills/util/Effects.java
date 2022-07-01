@@ -145,6 +145,18 @@ public final class Effects {
                     Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS, 1.0f, 2.0f);
     }
 
+    public static void emeraldAlert(@NonNull Block block) {
+        World w = block.getWorld();
+        w.playSound(block.getLocation().add(0.5, 0.5, 0.5),
+                    Sound.BLOCK_AMETHYST_BLOCK_HIT, SoundCategory.BLOCKS, 2.0f, 1.0f);
+    }
+
+    public static void debrisAlert(@NonNull Block block) {
+        World w = block.getWorld();
+        w.playSound(block.getLocation().add(0.5, 0.5, 0.5),
+                    Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS, 1.0f, 2.0f); // placeholder effect, should not clash with the Diamond Ore sound
+    }
+
     public static void useSilk(@NonNull Player player, @NonNull Block block, @NonNull Location loc) {
         World w = loc.getWorld();
         w.playSound(loc,

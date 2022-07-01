@@ -96,8 +96,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         lines.add(prop("Talents ", talentsHas + "/" + talentCount));
         if (talentsHas < talentCount) {
             int talentPoints = session.getTalentPoints(skillType);
-            int talentCost = session.getTalentCost(skillType);
-            lines.add(prop("Talent Points ", talentPoints + "/" + talentCost));
+            lines.add(prop("Talent Points ", "" + talentPoints));
         }
         if (points >= req) {
             lines.add(Component.join(JoinConfiguration.noSeparators(),

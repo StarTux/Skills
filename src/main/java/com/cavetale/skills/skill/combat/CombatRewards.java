@@ -46,6 +46,7 @@ final class CombatRewards {
         reward(EntityType.ZOGLIN, 3);
         reward(EntityType.PILLAGER, 3);
         reward(EntityType.RAVAGER, 5);
+        reward(EntityType.WARDEN, 10);
     }
 
     private void reward(EntityType type, final int sp) {

@@ -40,7 +40,8 @@ public final class Session {
     public final SkillSession mining = new SkillSession(this, SkillType.MINING);
     public final CombatSession combat = new CombatSession(this, SkillType.COMBAT);
     // Status effects, ticks remaining
-    @Setter protected boolean xrayActive;
+    @Setter protected boolean superVisionActive;
+    @Setter protected boolean netherVisionActive;
     @Setter protected int archerZone = 0;
     @Setter protected int archerZoneKills = 0;
     @Setter protected boolean noParticles = false;
@@ -167,10 +168,6 @@ public final class Session {
         return skills.get(skillType).getTalentPoints();
     }
 
-    public int getTalentCost(SkillType skillType) {
-        return skills.get(skillType).getTalentCost();
-    }
-
     public void updateAdvancements() {
         Player player = getPlayer();
         if (player == null) return;
@@ -222,7 +219,7 @@ public final class Session {
     public boolean unlockTalent(@NonNull TalentType talentType, final Runnable callback) {
         if (unlockingTalent) return false;
         if (talents.containsKey(talentType)) return false;
-        final int cost = getTalentCost(talentType.skillType);
+        final int cost = talentType.talentPointCost;
         if (getTalentPoints(talentType.skillType) < cost) return false;
         unlockingTalent = true;
         skills.get(talentType.skillType).modifyTalents(-cost, 1, () -> {
