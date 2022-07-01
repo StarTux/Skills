@@ -217,6 +217,28 @@ public final class Session {
         return true;
     }
 
+    public boolean unlockMoneyBonus(SkillType skillType, final Runnable callback) {
+        if (unlockingTalent) return false;
+        if (getTalentPoints(skillType) < 1) return false;
+        unlockingTalent = true;
+        skills.get(skillType).modifyTalents(-1, 0, () -> {
+                unlockingTalent = false;
+                skills.get(skillType).increaseMoneyBonus(callback);
+            });
+        return true;
+    }
+
+    public boolean unlockExpBonus(SkillType skillType, final Runnable callback) {
+        if (unlockingTalent) return false;
+        if (getTalentPoints(skillType) < 1) return false;
+        unlockingTalent = true;
+        skills.get(skillType).modifyTalents(-1, 0, () -> {
+                unlockingTalent = false;
+                skills.get(skillType).increaseExpBonus(callback);
+            });
+        return true;
+    }
+
     public boolean setTalentEnabled(@NonNull TalentType talentType, boolean value) {
         SQLTalent sqlTalent = talents.get(talentType);
         if (sqlTalent == null || sqlTalent.isEnabled() == value) return false;
@@ -240,6 +262,10 @@ public final class Session {
 
     public int getExpBonus(SkillType skillType) {
         return skills.get(skillType).getExpBonus();
+    }
+
+    public int getMoneyBonus(SkillType skillType) {
+        return skills.get(skillType).getMoneyBonus();
     }
 
     private void tick() {

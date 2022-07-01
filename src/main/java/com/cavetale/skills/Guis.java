@@ -14,15 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.core.font.Unicode.tiny;
+import static net.kyori.adventure.text.Component.join;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.TextDecoration.*;
 
 @RequiredArgsConstructor
 public final class Guis {
@@ -52,13 +55,11 @@ public final class Guis {
         final int size = 6 * 9;
         final Gui gui = new Gui(plugin).size(size);
         GuiOverlay.Builder builder = GuiOverlay.builder(size)
-            .title(Component.join(JoinConfiguration.noSeparators(),
-                                  VanillaItems.componentOf(skillType.tag.icon()),
-                                  Component.text(skillType.tag.title() + " Skill",
-                                                 skillType.tag.color(),
-                                                 TextDecoration.BOLD)))
+            .title(join(noSeparators(),
+                        VanillaItems.componentOf(skillType.tag.icon()),
+                        text(skillType.tag.title() + " Skill", skillType.tag.color(), BOLD)))
             .layer(GuiOverlay.BLANK, skillType.tag.color())
-            .layer(GuiOverlay.TOP_BAR, NamedTextColor.GRAY);
+            .layer(GuiOverlay.TOP_BAR, GRAY);
         // Make top menu
         for (SkillType otherSkillType : SkillType.values()) {
             final int slot = 3 + otherSkillType.ordinal();
@@ -66,7 +67,7 @@ public final class Guis {
                 builder.highlightSlot(slot, skillType.tag.color());
             }
             ItemStack icon = icon(otherSkillType.tag.icon(),
-                                  Component.text(otherSkillType.tag.title(), otherSkillType.tag.color()));
+                                  text(otherSkillType.tag.title(), otherSkillType.tag.color()));
             gui.setItem(slot, icon, click -> {
                     if (!click.isLeftClick()) return;
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
@@ -77,16 +78,16 @@ public final class Guis {
         final int talentPoints = session.getTalentPoints(skillType);
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
-                                        Component.text(talentPoints + " "
-                                                       + skillType.displayName + " Talent Point"
-                                                       + (talentPoints > 1 ? "s" : "")));
+                                        text(talentPoints + " "
+                                             + skillType.displayName + " Talent Point"
+                                             + (talentPoints > 1 ? "s" : "")));
             talentItem.setAmount(Math.min(64, talentPoints));
             gui.setItem(8, talentItem);
         }
         // Root
-        gui.setItem(4 + 3 * 9, icon(skillType.tag.icon(), Component.text(skillType.tag.title(),
-                                                                         skillType.tag.color())));
-        builder.highlightSlot(4 + 3 * 9, NamedTextColor.WHITE);
+        gui.setItem(4 + 3 * 9, icon(skillType.tag.icon(), text(skillType.tag.title(),
+                                                               skillType.tag.color())));
+        builder.highlightSlot(4 + 3 * 9, WHITE);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
             final int slot = talentType.tag.x() + talentType.tag.y() * 9;
@@ -94,18 +95,16 @@ public final class Guis {
                 ItemStack icon = new ItemStack(talentType.tag.icon());
                 icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
                 List<Component> text = new ArrayList<>();
-                text.add(Component.text(talentType.tag.title(), skillType.tag.color()));
+                text.add(text(talentType.tag.title(), skillType.tag.color()));
                 if (session.isTalentEnabled(talentType)) {
-                    text.add(Component.text("Enabled", NamedTextColor.GREEN));
+                    text.add(text("Enabled", GREEN));
                 } else if (session.hasTalent(talentType)) {
-                    text.add(Component.text("Disabled", NamedTextColor.RED));
+                    text.add(text("Disabled", RED));
                 } else {
-                    text.add(Component.join(JoinConfiguration.noSeparators(),
-                                            Component.text("Unlock Cost ", NamedTextColor.GRAY),
-                                            Component.text(talentType.talentPointCost + "TP", NamedTextColor.WHITE)));
+                    text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
                 }
                 for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
-                    text.add(Component.text(line, NamedTextColor.GRAY));
+                    text.add(text(line, GRAY));
                 }
                 icon = Items.text(icon, text);
                 gui.setItem(slot, icon, click -> {
@@ -114,16 +113,55 @@ public final class Guis {
                     });
             }
             if (session.isTalentEnabled(talentType)) {
-                builder.highlightSlot(slot, NamedTextColor.WHITE);
+                builder.highlightSlot(slot, WHITE);
             } else if (session.hasTalent(talentType)) {
-                builder.highlightSlot(slot, NamedTextColor.GRAY);
+                builder.highlightSlot(slot, GRAY);
             } else {
                 builder.highlightSlot(slot, skillType.tag.color());
             }
         }
+        gui.setItem(9, getMoneyIcon(session, skillType), click -> {
+                if (!click.isLeftClick()) return;
+                boolean r = session.unlockMoneyBonus(skillType, () -> {
+                        talents(player);
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 1.0f);
+                    });
+                if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
+            });
+        gui.setItem(10, getExpIcon(session, skillType), click -> {
+                if (!click.isLeftClick()) return;
+                boolean r = session.unlockExpBonus(skillType, () -> {
+                        talents(player);
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 1.0f);
+                    });
+                if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
+            });
         gui.title(builder.build());
         gui.open(player);
         return gui;
+    }
+
+    private ItemStack getMoneyIcon(Session session, SkillType skillType) {
+        int bonus = session.getMoneyBonus(skillType);
+        int perc = SkillsPlugin.moneyBonusPercentage(bonus);
+        int next = SkillsPlugin.moneyBonusPercentage(bonus + 1);
+        ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
+        icon.setAmount(Math.max(1, Math.min(64, bonus)));
+        Items.text(icon, List.of(join(noSeparators(), text(tiny("current bonus "), GRAY), text(perc, WHITE), text("%", GRAY)),
+                                 join(noSeparators(), text(tiny("next bonus "), GRAY), text(next, WHITE), text("%", GRAY)),
+                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY))));
+        return icon;
+    }
+
+    private ItemStack getExpIcon(Session session, SkillType skillType) {
+        int bonus = session.getExpBonus(skillType);
+        ItemStack icon = new ItemStack(Material.EXPERIENCE_BOTTLE);
+        icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+        icon.setAmount(Math.max(1, Math.min(64, bonus)));
+        Items.text(icon, List.of(join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
+                                 join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY)),
+                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY))));
+        return icon;
     }
 
     private void onClickTalent(Player player, TalentType talentType) {

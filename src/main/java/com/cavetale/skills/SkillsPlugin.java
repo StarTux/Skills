@@ -51,10 +51,10 @@ public final class SkillsPlugin extends JavaPlugin {
     }
 
     public static int pointsForLevelUp(final int lvl) {
-        return lvl * 50 + lvl * lvl * 10;
+        return 100 * lvl;
     }
 
-    public static int expBonusForLevel(final int lvl) {
-        return lvl;
+    public static int moneyBonusPercentage(final int bonus) {
+        return bonus * 5;
     }
 }

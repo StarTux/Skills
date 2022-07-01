@@ -69,7 +69,7 @@ public class SkillSession {
                     .set("total_skill_points", newTotalSkillPoints)
                     .sync();
                 Bukkit.getScheduler().runTask(session.plugin, () -> {
-                        if (result != 1) {
+                        if (result == 1) {
                             session.plugin.getLogger().warning("AddSkillPoints mismatch: " + row);
                             onDatabaseMismatch();
                             return;
@@ -139,9 +139,35 @@ public class SkillSession {
     }
 
     public final int getExpBonus() {
-        if (row == null) return 0;
-        int level = getLevel();
-        return SkillsPlugin.expBonusForLevel(level);
+        return row != null
+            ? row.getExpBonus()
+            : 0;
+    }
+
+    public final int getMoneyBonus() {
+        return row != null
+            ? row.getMoneyBonus()
+            : 0;
+    }
+
+    protected final void increaseMoneyBonus(Runnable callback) {
+        session.plugin.database.update(SQLSkill.class)
+            .row(row)
+            .add("moneyBonus", 1)
+            .async(r -> {
+                    row.setMoneyBonus(row.getMoneyBonus() + 1);
+                    callback.run();
+                });
+    }
+
+    protected final void increaseExpBonus(Runnable callback) {
+        session.plugin.database.update(SQLSkill.class)
+            .row(row)
+            .add("expBonus", 1)
+            .async(r -> {
+                    row.setExpBonus(row.getExpBonus() + 1);
+                    callback.run();
+                });
     }
 
     /**
