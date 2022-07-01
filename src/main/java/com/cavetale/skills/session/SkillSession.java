@@ -63,7 +63,6 @@ public class SkillSession {
 
     public final void addSkillPoints(final int amount) {
         if (row == null) return;
-        if (getSkillPoints() >= getRequiredSkillPoints()) return;
         final int totalAmount = Math.min(row.getRequiredSkillPoints() - row.getSkillPoints(), amount);
         final int newSkillPoints = row.getSkillPoints() + totalAmount;
         final int newTotalSkillPoints = row.getTotalSkillPoints() + totalAmount;
@@ -82,7 +81,7 @@ public class SkillSession {
                             onDatabaseMismatch();
                             return;
                         }
-                        session.showSkillBar(skillType, getLevel(), getSkillPoints(), getRequiredSkillPoints(), amount);
+                        session.showSkillBar(skillType, getLevel(), rowHandle.getSkillPoints(), rowHandle.getRequiredSkillPoints(), amount);
                         if (newSkillPoints >= row.getRequiredSkillPoints()) {
                             levelUp();
                         }
