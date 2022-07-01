@@ -8,7 +8,6 @@ import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
 import lombok.NonNull;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

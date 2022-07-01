@@ -4,11 +4,9 @@ import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
-import com.destroystokyo.paper.MaterialTags;
 import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,8 +21,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public final class VeinMiningTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;

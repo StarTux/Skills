@@ -17,6 +17,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import static org.bukkit.Material.*;
 
 public final class MiningSkill extends Skill implements Listener {
     protected final EnumMap<Material, MiningReward> rewards = new EnumMap<>(Material.class);
@@ -55,31 +56,31 @@ public final class MiningSkill extends Skill implements Listener {
     protected void enable() {
         // exp values are maxima according to the wiki
         // Last three values are used by Silk Fortune, "null, 0, null" any values to disable
-        reward(Material.DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.STONE);
-        reward(Material.DEEPSLATE_DIAMOND_ORE, 10, 7, Material.DIAMOND, 1, Material.DEEPSLATE);
-        reward(Material.EMERALD_ORE, 10, 7, Material.EMERALD, 1, Material.STONE);
-        reward(Material.DEEPSLATE_EMERALD_ORE, 10, 7, Material.EMERALD, 1, Material.DEEPSLATE);
-        reward(Material.IRON_ORE, 3, 3, Material.RAW_IRON, 1, Material.STONE);
-        reward(Material.DEEPSLATE_IRON_ORE, 3, 3, Material.RAW_IRON, 1, Material.DEEPSLATE);
-        reward(Material.COPPER_ORE, 1, 3, Material.RAW_COPPER, 1, Material.STONE);
-        reward(Material.DEEPSLATE_COPPER_ORE, 1, 3, Material.RAW_COPPER, 1, Material.DEEPSLATE);
-        reward(Material.GOLD_ORE, 5, 3, Material.RAW_GOLD, 1, Material.STONE);
-        reward(Material.DEEPSLATE_GOLD_ORE, 5, 3, Material.RAW_GOLD, 1, Material.DEEPSLATE);
-        reward(Material.NETHER_GOLD_ORE, 5, 3, Material.GOLD_NUGGET, 4, Material.NETHERRACK); // 2-6
-        reward(Material.GILDED_BLACKSTONE, 5, 3, Material.GOLD_NUGGET, 0, Material.BLACKSTONE); // 10% to drop 2-5
-        reward(Material.COAL_ORE, 1, 2, Material.COAL, 1, Material.STONE);
-        reward(Material.DEEPSLATE_COAL_ORE, 1, 2, Material.COAL, 1, Material.DEEPSLATE);
-        reward(Material.LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 7, Material.STONE); // 4-9
-        reward(Material.DEEPSLATE_LAPIS_ORE, 1, 5, Material.LAPIS_LAZULI, 7, Material.DEEPSLATE);
-        reward(Material.NETHER_QUARTZ_ORE, 1, 5, Material.QUARTZ, 1, Material.NETHERRACK);
-        reward(Material.REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.STONE); // 4-5
-        reward(Material.DEEPSLATE_REDSTONE_ORE, 1, 5, Material.REDSTONE, 5, Material.DEEPSLATE);
-        reward(Material.ANCIENT_DEBRIS, 20, 10, Material.NETHERITE_SCRAP, 1, Material.NETHERRACK);
+        reward(DIAMOND_ORE, 10, 7, DIAMOND, 1, STONE);
+        reward(DEEPSLATE_DIAMOND_ORE, 10, 7, DIAMOND, 1, DEEPSLATE);
+        reward(EMERALD_ORE, 10, 7, EMERALD, 1, STONE);
+        reward(DEEPSLATE_EMERALD_ORE, 10, 7, EMERALD, 1, DEEPSLATE);
+        reward(IRON_ORE, 3, 3, RAW_IRON, 1, STONE);
+        reward(DEEPSLATE_IRON_ORE, 3, 3, RAW_IRON, 1, DEEPSLATE);
+        reward(COPPER_ORE, 1, 3, RAW_COPPER, 1, STONE);
+        reward(DEEPSLATE_COPPER_ORE, 1, 3, RAW_COPPER, 1, DEEPSLATE);
+        reward(GOLD_ORE, 5, 3, RAW_GOLD, 1, STONE);
+        reward(DEEPSLATE_GOLD_ORE, 5, 3, RAW_GOLD, 1, DEEPSLATE);
+        reward(NETHER_GOLD_ORE, 5, 3, GOLD_NUGGET, 4, NETHERRACK); // 2-6
+        reward(GILDED_BLACKSTONE, 5, 3, GOLD_NUGGET, 0, BLACKSTONE); // 10% to drop 2-5
+        reward(COAL_ORE, 1, 2, COAL, 1, STONE);
+        reward(DEEPSLATE_COAL_ORE, 1, 2, COAL, 1, DEEPSLATE);
+        reward(LAPIS_ORE, 1, 5, LAPIS_LAZULI, 7, STONE); // 4-9
+        reward(DEEPSLATE_LAPIS_ORE, 1, 5, LAPIS_LAZULI, 7, DEEPSLATE);
+        reward(NETHER_QUARTZ_ORE, 1, 5, QUARTZ, 1, NETHERRACK);
+        reward(REDSTONE_ORE, 1, 5, REDSTONE, 5, STONE); // 4-5
+        reward(DEEPSLATE_REDSTONE_ORE, 1, 5, REDSTONE, 5, DEEPSLATE);
+        reward(ANCIENT_DEBRIS, 20, 10, NETHERITE_SCRAP, 1, NETHERRACK);
         // not ores
-        reward(Material.RAW_COPPER_BLOCK, 5, 3, null, 0, null);
-        reward(Material.RAW_IRON_BLOCK, 15, 3, null, 0, null);
-        reward(Material.RAW_GOLD_BLOCK, 25, 3, null, 0, null); // currently does not generate
-        reward(Material.BUDDING_AMETHYST, 10, 1, Material.AMETHYST_SHARD, 3, Material.AMETHYST_BLOCK);
+        reward(RAW_COPPER_BLOCK, 5, 3, null, 0, null);
+        reward(RAW_IRON_BLOCK, 15, 3, null, 0, null);
+        reward(RAW_GOLD_BLOCK, 25, 3, null, 0, null); // currently does not generate
+        reward(BUDDING_AMETHYST, 10, 1, AMETHYST_SHARD, 3, AMETHYST_BLOCK);
     }
 
     private void reward(@NonNull Material material, final int sp, final int exp, Material item, int drops, Material replaceable) {
