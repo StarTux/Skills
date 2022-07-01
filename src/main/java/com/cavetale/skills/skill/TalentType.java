@@ -31,10 +31,10 @@ public enum TalentType {
     PYROMANIAC(TalentTag.PYROMANIAC, SkillType.COMBAT, SEARING, 2),
     DENIAL(TalentTag.DENIAL, SkillType.COMBAT, null, 1), // +slow?
     GOD_MODE(TalentTag.GOD_MODE, SkillType.COMBAT, TalentType.DENIAL, 3),
-    ARCHER_ZONE(TalentTag.ARCHER_ZONE, SkillType.COMBAT, null, 2),
+    ARCHER_ZONE(TalentTag.ARCHER_ZONE, SkillType.COMBAT, null, 3),
     IRON_AGE(TalentTag.IRON_AGE, SkillType.COMBAT, null, 1),
-    EXECUTIONER(TalentTag.EXECUTIONER, SkillType.COMBAT, TalentType.IRON_AGE, 2),
-    IMPALER(TalentTag.IMPALER, SkillType.COMBAT, TalentType.IRON_AGE, 2),
+    EXECUTIONER(TalentTag.EXECUTIONER, SkillType.COMBAT, TalentType.IRON_AGE, 3),
+    IMPALER(TalentTag.IMPALER, SkillType.COMBAT, TalentType.IRON_AGE, 3),
     TOXICIST(TalentTag.TOXICIST, SkillType.COMBAT, TalentType.DENIAL, 2),
     TOXIC_FUROR(TalentTag.TOXIC_FUROR, SkillType.COMBAT, TalentType.TOXICIST, 3);
 
@@ -94,19 +94,21 @@ public enum TalentType {
                       "Mining with an Efficiency pickaxe breaks many block",
                       "Unleash the full power of the Efficency enchantment."
                       + " Mining stone type blocks will break several blocks"
-                      + " within your line of sight while mining straight.",
+                      + " within a line while mining straight."
+                      + " Stone includes: Stone, Andesite, Diorite, Granite,"
+                      + " Tuff, Deepslate",
                       "Mine without this feature by sneaking.");
     //VEIN_MINING(TalentTag.VEIN_MINING, SkillType.MINING, STRIP_MINING, 1),
         public static final TalentTag VEIN_MINING = new
             TalentTag("Vein Mining - Basic",
-                      Material.IRON_PICKAXE, 6, 2,
+                      Material.IRON_PICKAXE, 6, 3,
                       "Mining certain ores will attempt to break the entire vein",
                       "Works on Coal, Redstone and Lapis Lazuli Ores."
                       + "Requires the Efficiency enchantment on your pickaxe.",
                       "Mine without this feature by sneaking.");
     //VEIN_GEMS(TalentTag.VEIN_GEMS, SkillType.MINING, VEIN_MINING, 2),
         public static final TalentTag VEIN_GEMS = new
-            TalentTag("Vein Mining - Basic",
+            TalentTag("Vein Mining - Gems",
                       Material.DIAMOND_PICKAXE, 7, 2,
                       "Mining certain ores will attempt to break the entire vein",
                       "Works on Diamond, Emerald and Quartz Ores."
@@ -114,8 +116,8 @@ public enum TalentType {
                       "Mine without this feature by sneaking.");
     //VEIN_METALS(TalentTag.VEIN_METALS, SkillType.MINING, VEIN_MINING, 2),
         public static final TalentTag VEIN_METALS = new
-            TalentTag("Vein Mining - Basic",
-                      Material.NETHERITE_PICKAXE, 7, 1,
+            TalentTag("Vein Mining - Metals",
+                      Material.NETHERITE_PICKAXE, 7, 3,
                       "Mining certain ores will attempt to break the entire vein",
                       "Works on Ancient Debris, Copper, Iron and Gold Ores"
                       + "Requires the Efficiency enchantment on your pickaxe.",
@@ -123,182 +125,141 @@ public enum TalentType {
     //SILK_STRIP(TalentTag.SILK_STRIP, SkillType.MINING, VEIN_MINING, 2),
         public static final TalentTag SILK_STRIP = new
             TalentTag("Silk Stripping",
-                      Material.GOLD_NUGGET, 6, 3,
+                      Material.GOLD_NUGGET, 6, 4,
                       "Use a Silk Touch pickaxe to strip an ore of its contents",
                       "Right-click with a Silk Touch pickaxe to use your"
                       + " fine motory skills and remove those"
-                      + " gems right from the ore block."
+                      + " treasures right from the ore block."
                       + "With any luck, you may repeat the procedure"
                       + " as long as the ore stays intact,"
                       + " getting more and more drops."
                       + " Eventually, the ore will turn into stone and"
                       + " you get the usual skill points for mining.",
                       "This method may yield as much reward as Fortune 3"
-                      + " but is more random."
-                      + " It allows multiplying drops from ores usually"
-                      + " unaffected by Fortune: Iron and gold.");
+                      + " but is more random.");
     //SILK_METALS(TalentTag.SILK_METALS, SkillType.MINING, SILK_STRIP, 3),
         public static final TalentTag SILK_METALS = new
-            TalentTag("Silk Stripping",
-                      Material.NETHERITE_SCRAP, 7, 3,
-                      "Use a Silk Touch pickaxe to extract metals from an ore",
-                      "Right-click with a Silk Touch pickaxe to use your"
-                      + " fine motory skills and remove those"
-                      + " gems right from the ore block."
-                      + "With any luck, you may repeat the procedure"
-                      + " as long as the ore stays intact,"
-                      + " getting more and more drops."
-                      + " Eventually, the ore will turn into stone and"
-                      + " you get the usual skill points for mining.",
-                      "This method may yield as much reward as Fortune 3"
-                      + " but is more random."
-                      + " It allows multiplying drops from ores usually"
-                      + " unaffected by Fortune: Iron and gold.");
-    //SILK_MULTI(TalentTag.SILK_MULTI, SkillType.MINING, SILK_STRIP, 3),
+            TalentTag("Silk Extraction",
+                      Material.NETHERITE_SCRAP, 7, 5,
+                      "Get more metal from Silk Stripping",
+                      "Upgrade Silk Stripping to get more drops"
+                      + " from metal ores. Works on Ancient Debris,"
+                      + " Copper, Iron and Gold Ores",
+                      "This method may yield as much reward as Fortune 4"
+                      + " would, but it is more random.");
+
         public static final TalentTag SILK_MULTI = new
             TalentTag("Silk Fortune",
-                      Material.GOLD_INGOT, 7, 4,
-                      "Silk stripping may yield even more drops from the same ore",
-                      "While using your Silk Touch pickaxe on ores,"
-                      + " this talent gives you an even greater chance"
-                      + " at getting multiple drops,"
-                      + " surpassing the yield capabilities of Fortune 3.",
-                      "The yields of this method may exceed those of Fortune 3"
-                      + " but are more random."
-                      + " It allows multiple drops from ores usually"
-                      + " unaffected by Fortune: Iron and gold.");
-    //MINER_SIGHT(TalentTag.MINER_SIGHT, SkillType.MINING, null, 1),
+                      Material.GOLD_INGOT, 6, 5,
+                      "Get more non-metallic drops from Silk Stripping",
+                      "Upgrade Silk Stripping to get more drops"
+                      + " from non-metallic ores. Works on everything"
+                      + " but Ancient Debris, Copper, Iron and Gold Ores",
+                      "This method may yield as much reward as Fortune 4"
+                      + " would, but it is more random.");
+
         public static final TalentTag MINER_SIGHT = new
             TalentTag("Miner's Sight",
                       Material.TORCH, 3, 3,
-                      "Mining stone with a pickaxe grants you Night Vision");
-    //SUPER_VISION(TalentTag.SUPER_VISION, SkillType.MINING, MINER_SIGHT, 5),
+                      "Mining stone with a pickaxe grants you Night Vision",
+                      "Stone includes: Stone, Andesite, Diorite, Granite,"
+                      + " Tuff, Deepslate");
+
         public static final TalentTag SUPER_VISION = new
             TalentTag("Super Vision",
-                      Material.GLOWSTONE, 2, 3,
+                      Material.LANTERN, 3, 2,
                       "Mining stone with a Fortune pickaxe"
                       + " allows you to see through solid stone",
                       "Nearby stone will be rendered see-through"
                       + " for a few seconds so you can identify ores more easily.");
-    //NETHER_VISITON(TalentTag.NETHER_VISION, SkillType.MINING, SUPER_VISION, 5),
+
         public static final TalentTag NETHER_VISION = new
-            TalentTag("Super Vision",
-                      Material.SHROOMLIGHT, 1, 3,
-                      "Mining stone with a Fortune pickaxe"
-                      + " allows you to see through solid stone",
-                      "Nearby stone will be rendered see-through"
-                      + " for a few seconds so you can identify ores more easily.");
-    //ORE_ALERT(TalentTag.ORE_ALERT, SkillType.MINING, MINER_SIGHT, 3),
+            TalentTag("Nether Vision",
+                      Material.SOUL_LANTERN, 2, 2,
+                      "Mining nether stone with a Fortune pickaxe"
+                      + " allows you to see through nether stones",
+                      "Nearby nether stone will be rendered see-through"
+                      + " for a few seconds so you can identify ores more easily."
+                      + " Nether stones include: Netherrack, Basalt, Blackstone");
+
         public static final TalentTag ORE_ALERT = new
-            TalentTag("Super Vision",
+            TalentTag("Diamond Ore Alert",
                       Material.DIAMOND_ORE, 3, 4,
-                      "Get alerts when Diamond Ore is nearby"
-                      + " allows you to see through solid stone",
-                      "Nearby stone will be rendered see-through"
-                      + " for a few seconds so you can identify ores more easily.");
-    //EMERALD_ALERT(TalentTag.EMERALD_ALERT, SkillType.MINING, ORE_ALERT, 4),
+                      "Get alerts when Diamond Ore is nearby",
+                      "Whenever you break stone with a pickaxe and there is"
+                      + " Diamond Ore nearby,"
+                      + " an alert sound will notify you of its existence."
+                      + " Follow that lead to earn more Diamonds.");
+
         public static final TalentTag EMERALD_ALERT = new
-            TalentTag("Super Vision",
+            TalentTag("Emerald Ore Alert",
                       Material.EMERALD_ORE, 2, 4,
                       "Get alerts when Emerald Ore is nearby"
-                      + " allows you to see through solid stone",
-                      "Nearby stone will be rendered see-through"
-                      + " for a few seconds so you can identify ores more easily.");
-    //DEBRIS_ALERT(TalentTag.DEBRIS_ALERT, SkillType.MINING, EMERALD_ALERT, 5),
+                      + "Whenever you break stone with a pickaxe and there is"
+                      + " Emerald Ore nearby,"
+                      + " an alert sound will notify you of its existence."
+                      + " Follow that lead to earn more Emeralds.");
+
         public static final TalentTag DEBRIS_ALERT = new
-            TalentTag("Super Vision",
+            TalentTag("Ancient Debris Alert",
                       Material.ANCIENT_DEBRIS, 1, 4,
                       "Get alerts when Ancient Debris is nearby"
-                      + " allows you to see through solid stone",
-                      "Nearby stone will be rendered see-through"
-                      + " for a few seconds so you can identify ores more easily.");
-/*
-        public static final TalentTag MINE_STRIP = new
-            TalentTag("Strip Mining",
-                      Material.DIAMOND_PICKAXE, 5, 3,
-                      "Mining with an Efficiency pickaxe breaks many block",
-                      "Unleash the full power of the Efficency enchantment."
-                      + " Mining stone type blocks will break several blocks"
-                      + " within your line of sight while mining straight."
-                      + " Breaking ores will attempt to break the entire vein."
-                      + " This only works deep underground.",
-                      "Mine without this feature by sneaking.");
-
-        public static final TalentTag MINE_ORE_ALERT = new
-            TalentTag("Ore Alert",
-                      Material.DIAMOND_ORE, 5, 4,
-                      "Get alerts when diamond ore is nearby",
-                      "Never miss diamonds near your mine again!"
-                      + " Whenever you mine stone at diamond level,"
-                      + " and there is diamond ore nearby,"
+                      + "Whenever you break nether stones with a pickaxe and"
+                      + " there is Ancient Debris nearby,"
                       + " an alert sound will notify you of its existence."
-                      + " Follow that lead to earn more diamonds.");
+                      + " Follow that lead to earn more Ancient Debris."
+                      + " Nether stones include: Netherrack, Basalt, Blackstone");
 
-        public static final TalentTag MINE_XRAY = new
-            TalentTag("Super Vision",
-                      Material.GLOWSTONE, 6, 4,
-                      "Mining stone with a Fortune pickaxe"
-                      + " allows you to see through solid stone",
-                      "Nearby stone will be rendered see-through"
-                      + " for a few seconds so you can identify ores more easily.");
-
-        public static final TalentTag MINE_SILK_STRIP = new
-            TalentTag("Silk Stripping",
-                      Material.GOLD_NUGGET, 5, 2,
-                      "Use a Silk Touch pickaxe to strip an ore of its gems",
-                      "Right-click with a Silk Touch pickaxe to use your"
-                      + " fine motory skills and remove those"
-                      + " gems right from the ore block."
-                      + "With any luck, you may repeat the procedure"
-                      + " as long as the ore stays intact,"
-                      + " getting more and more drops."
-                      + " Eventually, the ore will turn into stone and"
-                      + " you get the usual skill points for mining.",
-                      "This method may yield as much reward as Fortune 3"
-                      + " but is more random."
-                      + " It allows multiplying drops from ores usually"
-                      + " unaffected by Fortune: Iron and gold.");
-
-        public static final TalentTag MINE_SILK_MULTI = new
-            TalentTag("Silk Fortune",
-                      Material.GOLD_INGOT, 6, 2,
-                      "Silk stripping may yield even more drops from the same ore",
-                      "While using your Silk Touch pickaxe on ores,"
-                      + " this talent gives you an even greater chance"
-                      + " at getting multiple drops,"
-                      + " surpassing the yield capabilities of Fortune 3.",
-                      "The yields of this method may exceed those of Fortune 3"
-                      + " but are more random."
-                      + " It allows multiple drops from ores usually"
-                      + " unaffected by Fortune: Iron and gold.");
-*/
         public static final TalentTag SEARING = new
-            TalentTag("Searing", Material.SOUL_CAMPFIRE, 4, 4, "Monsters set on fire deal -30% melee damage");
+            TalentTag("Searing",
+                      Material.SOUL_CAMPFIRE, 4, 4,
+                      "Monsters set on fire deal -30% melee damage");
 
         public static final TalentTag PYROMANIAC = new
-            TalentTag("Pyromaniac", Material.CAMPFIRE, 4, 5, "Monsters set on fire take +30% damage");
+            TalentTag("Pyromaniac",
+                      Material.CAMPFIRE, 4, 5,
+                      "Monsters set on fire take +30% damage");
 
         public static final TalentTag DENIAL = new
-            TalentTag("Denial", Material.BARRIER, 5, 3, "Knockback denies mob spells, projectiles, poison");
+            TalentTag("Denial",
+                      Material.BARRIER, 5, 3,
+                      "Knockback denies mob spells, projectiles, poison"
+                      + " for 20 seconds");
 
         public static final TalentTag TOXICIST = new
-            TalentTag("Toxicist", Material.POISONOUS_POTATO, 6, 2, "Bane of Arthropods deals extra damage against poisoned mobs");
+            TalentTag("Toxicist",
+                      Material.POISONOUS_POTATO, 6, 2,
+                      "Bane of Arthropods deals extra damage"
+                      + " against poisoned mobs",
+                      "You deal +1 damage for every level of the"
+                      + " Bane of Arthropods enchantment on your weapon");
 
         public static final TalentTag TOXIC_FUROR = new
-            TalentTag("Toxic Furor", Material.EXPERIENCE_BOTTLE, 7, 2, "Deal extra damage while affected by Poison, Wither or Nausea");
+            TalentTag("Toxic Furor",
+                      Material.EXPERIENCE_BOTTLE, 7, 2,
+                      "Deal extra damage while you are affected"
+                      + " by Poison, Wither or Nausea",
+                      "You deal +1 damage for every level of"
+                      + " each of the listed effects");
 
         public static final TalentTag GOD_MODE = new
-            TalentTag("God Mode", Material.TOTEM_OF_UNDYING, 6, 3, "Melee kills make you immortal for 3 seconds");
+            TalentTag("God Mode",
+                      Material.TOTEM_OF_UNDYING, 6, 3,
+                      "Melee kills make you Immortal for 3 seconds",
+                      "While Immportal, you can not die, but you will"
+                      + " still take damage");
 
         public static final TalentTag ARCHER_ZONE = new
             TalentTag("In The Zone",
                       Material.SPECTRAL_ARROW, 4, 2,
-                      "Ranged kills give 5 seconds of double damage to ranged attacks");
+                      "Ranged kills give 5 seconds of double damage"
+                      + " to ranged attacks");
 
         public static final TalentTag IRON_AGE = new
             TalentTag("Iron Age",
                       Material.IRON_SWORD, 3, 3,
-                      "Iron weapons deal +1 base damage");
+                      "Iron weapons deal +1 base damage",
+                      "Iron weapons are Iron Sword and Iron Axe");
 
         public static final TalentTag EXECUTIONER = new
             TalentTag("Executioner",
@@ -308,6 +269,8 @@ public enum TalentType {
         public static final TalentTag IMPALER = new
             TalentTag("Impaler",
                       Material.TRIDENT, 2, 2,
-                      "Consecutive hits with a fully charged Impaling weapon against the same foe deal increasing damage");
+                      "Consecutive fully charged hits with a Impaling weapon"
+                      + " against the same foe deal increasing damage",
+                      "+1 damage for each consecutive hit, up to +6");
     }
 }

@@ -62,25 +62,25 @@ public final class MiningSkill extends Skill implements Listener {
         reward(DEEPSLATE_EMERALD_ORE, 10, 7, EMERALD, 1, DEEPSLATE);
         reward(IRON_ORE, 3, 3, RAW_IRON, 1, STONE);
         reward(DEEPSLATE_IRON_ORE, 3, 3, RAW_IRON, 1, DEEPSLATE);
-        reward(COPPER_ORE, 1, 3, RAW_COPPER, 1, STONE);
-        reward(DEEPSLATE_COPPER_ORE, 1, 3, RAW_COPPER, 1, DEEPSLATE);
+        reward(COPPER_ORE, 1, 3, RAW_COPPER, 4, STONE); // 2-5
+        reward(DEEPSLATE_COPPER_ORE, 1, 3, RAW_COPPER, 4, DEEPSLATE);
         reward(GOLD_ORE, 5, 3, RAW_GOLD, 1, STONE);
         reward(DEEPSLATE_GOLD_ORE, 5, 3, RAW_GOLD, 1, DEEPSLATE);
         reward(NETHER_GOLD_ORE, 5, 3, GOLD_NUGGET, 4, NETHERRACK); // 2-6
         reward(GILDED_BLACKSTONE, 5, 3, GOLD_NUGGET, 0, BLACKSTONE); // 10% to drop 2-5
         reward(COAL_ORE, 1, 2, COAL, 1, STONE);
         reward(DEEPSLATE_COAL_ORE, 1, 2, COAL, 1, DEEPSLATE);
-        reward(LAPIS_ORE, 1, 5, LAPIS_LAZULI, 7, STONE); // 4-9
-        reward(DEEPSLATE_LAPIS_ORE, 1, 5, LAPIS_LAZULI, 7, DEEPSLATE);
+        reward(LAPIS_ORE, 5, 5, LAPIS_LAZULI, 7, STONE); // 4-9
+        reward(DEEPSLATE_LAPIS_ORE, 5, 5, LAPIS_LAZULI, 7, DEEPSLATE);
         reward(NETHER_QUARTZ_ORE, 1, 5, QUARTZ, 1, NETHERRACK);
         reward(REDSTONE_ORE, 1, 5, REDSTONE, 5, STONE); // 4-5
         reward(DEEPSLATE_REDSTONE_ORE, 1, 5, REDSTONE, 5, DEEPSLATE);
+        // technically not ores
         reward(ANCIENT_DEBRIS, 20, 10, NETHERITE_SCRAP, 1, NETHERRACK);
-        // not ores
         reward(RAW_COPPER_BLOCK, 5, 3, null, 0, null);
         reward(RAW_IRON_BLOCK, 15, 3, null, 0, null);
         reward(RAW_GOLD_BLOCK, 25, 3, null, 0, null); // currently does not generate
-        reward(BUDDING_AMETHYST, 10, 1, AMETHYST_SHARD, 3, AMETHYST_BLOCK);
+        reward(BUDDING_AMETHYST, 10, 1, AMETHYST_SHARD, 2, AMETHYST_BLOCK);
     }
 
     private void reward(@NonNull Material material, final int sp, final int exp, Material item, int drops, Material replaceable) {
