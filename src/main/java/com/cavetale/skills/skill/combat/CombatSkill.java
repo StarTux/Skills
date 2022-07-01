@@ -99,6 +99,12 @@ public final class CombatSkill extends Skill {
         Tags.set(pdc, lastKillKey, now);
         if (kills > 50) return;
         session.addSkillPoints(SkillType.COMBAT, reward.sp);
+        if (reward.money > 0) {
+            int bonus = session.getMoneyBonus(SkillType.COMBAT);
+            double factor = 1.0 + SkillsPlugin.moneyBonusPercentage(bonus);
+            dropMoney(mob.getLocation(), reward.money * factor);
+        }
+        giveExpBonus(player, session);
         event.setDroppedExp(event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
     }
 

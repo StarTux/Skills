@@ -12,6 +12,7 @@ import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
@@ -69,6 +70,12 @@ public enum SkillType implements ComponentLike {
         this.skill = theSkill;
     }
 
+    private static ItemStack item(Material mat) {
+        ItemStack item = new ItemStack(mat);
+        item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+        return item;
+    }
+
     // This tag is used for GUIs.
     public record SkillTag(String title, TextColor color, BossBar.Color bossBarColor,
                            String description,
@@ -78,7 +85,7 @@ public enum SkillType implements ComponentLike {
             SkillTag("Mining", NamedTextColor.DARK_AQUA, BossBar.Color.BLUE,
                      "Mine ores to get SP."
                      + " Talents help you find and exploit ores.",
-                     () -> new ItemStack(Material.GOLDEN_PICKAXE),
+                     () -> item(Material.GOLDEN_PICKAXE),
                      "minecraft:textures/block/deepslate_diamond_ore.png",
                      "Every ore you mine yields some skill points."
                      + " Diamond and emerald ore give you an"
@@ -88,7 +95,7 @@ public enum SkillType implements ComponentLike {
             SkillTag("Combat", NamedTextColor.RED, BossBar.Color.RED,
                      "Kill monsters to get SP."
                      + " Unlock talents to enhance your combat strength.",
-                     () -> new ItemStack(Material.GOLDEN_SWORD),
+                     () -> item(Material.GOLDEN_SWORD),
                      "minecraft:textures/block/iron_block.png",
                      "Each monster kill gives some skill points."
                      + " However, they decrease quickly if you stay in place.");

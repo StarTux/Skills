@@ -7,6 +7,7 @@ import org.bukkit.Material;
 final class MiningReward {
     protected final Material material;
     protected final int sp;
+    protected final double money;
     protected final int exp;
     protected final Material item;
     protected final int drops;

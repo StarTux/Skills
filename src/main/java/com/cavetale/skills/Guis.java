@@ -146,9 +146,9 @@ public final class Guis {
         ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         Items.text(icon, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
+                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
                                  join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
-                                 join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY)),
-                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY))));
+                                 join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY))));
         return icon;
     }
 
@@ -158,9 +158,9 @@ public final class Guis {
         icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         Items.text(icon, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
+                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
                                  join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
-                                 join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY)),
-                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY))));
+                                 join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY))));
         return icon;
     }
 
