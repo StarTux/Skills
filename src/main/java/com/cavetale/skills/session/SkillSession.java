@@ -63,13 +63,14 @@ public class SkillSession {
 
     public final void addSkillPoints(final int amount) {
         if (row == null) return;
-        final int totalAmount = Math.min(row.getRequiredSkillPoints() - row.getSkillPoints(), amount);
-        final int newSkillPoints = row.getSkillPoints() + totalAmount;
-        final int newTotalSkillPoints = row.getTotalSkillPoints() + totalAmount;
         final SQLSkill rowHandle = row;
         session.plugin.database.scheduleAsyncTask(() -> {
                 // Do the whole thing in the async thread so that the
                 // stored value doesn't go out of sync!
+                final int requiredSkillPoints = rowHandle.getRequiredSkillPoints();
+                final int totalAmount = Math.min(requiredSkillPoints - rowHandle.getSkillPoints(), amount);
+                final int newSkillPoints = rowHandle.getSkillPoints() + totalAmount;
+                final int newTotalSkillPoints = rowHandle.getTotalSkillPoints() + totalAmount;
                 final int result = session.plugin.database.update(SQLSkill.class)
                     .row(rowHandle)
                     .atomic("skill_points", newSkillPoints)
@@ -81,7 +82,7 @@ public class SkillSession {
                             onDatabaseMismatch();
                             return;
                         }
-                        session.showSkillBar(skillType, getLevel(), rowHandle.getSkillPoints(), rowHandle.getRequiredSkillPoints(), amount);
+                        session.showSkillBar(skillType, getLevel(), newSkillPoints, requiredSkillPoints, amount);
                         if (newSkillPoints >= row.getRequiredSkillPoints()) {
                             levelUp();
                         }
