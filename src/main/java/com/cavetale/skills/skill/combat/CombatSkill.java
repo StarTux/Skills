@@ -35,7 +35,7 @@ public final class CombatSkill extends Skill {
     public final ToxicistTalent toxicistTalent;
     public final ToxicFurorTalent toxicFurorTalent;
 
-    protected static final long CHUNK_KILL_COOLDOWN = Duration.ofMinutes(5).toMillis();
+    protected static final long CHUNK_KILL_DECAY_TIME = Duration.ofMinutes(5).toMillis();
 
     public CombatSkill(@NonNull final SkillsPlugin plugin) {
         super(plugin, SkillType.COMBAT);
@@ -82,6 +82,7 @@ public final class CombatSkill extends Skill {
      * Give skill points when a player kills a mob.
      */
     protected void onPlayerKillMob(Player player, Mob mob, EntityDeathEvent event) {
+        if (mob.fromMobSpawner()) return;
         CombatReward reward = combatRewards.rewards.get(mob.getType());
         if (reward == null) return;
         if (!Players.playMode(player)) return;
@@ -90,14 +91,15 @@ public final class CombatSkill extends Skill {
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
         final PersistentDataContainer pdc = mob.getLocation().getChunk().getPersistentDataContainer();
         final long now = System.currentTimeMillis();
-        final Integer oldKills = Tags.getInt(pdc, killsKey);
-        final Long oldLastKill = Tags.getLong(pdc, lastKillKey);
-        int kills = oldKills != null ? oldKills : 0;
-        long lastKill = oldLastKill != null ? oldLastKill : 0L;
-        kills = now - lastKill < CHUNK_KILL_COOLDOWN ? kills + 1 : 0;
+        Integer oldKills = Tags.getInt(pdc, killsKey);
+        if (oldKills == null) oldKills = 0;
+        Long lastKill = Tags.getLong(pdc, lastKillKey);
+        if (lastKill == null) lastKill = 0L;
+        long subtraction = (now - lastKill) / CHUNK_KILL_DECAY_TIME;
+        final int kills = Math.max(0, oldKills - (int) subtraction) + 1;
         Tags.set(pdc, killsKey, kills);
         Tags.set(pdc, lastKillKey, now);
-        if (kills > 50) return;
+        if (kills > 10) return;
         session.addSkillPoints(SkillType.COMBAT, reward.sp);
         if (reward.money > 0) {
             int bonus = session.getMoneyBonus(SkillType.COMBAT);
