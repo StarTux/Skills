@@ -23,10 +23,13 @@ public abstract class Skill {
 
     protected abstract void enable();
 
+    protected final void giveExpBonus(Player player, Session session, int base) {
+        int bonus = base + session.getExpBonus(skillType);
+        if (bonus > 0) player.giveExp(bonus);
+    }
+
     protected final void giveExpBonus(Player player, Session session) {
-        int bonus = session.getExpBonus(skillType);
-        if (bonus == 0) return;
-        player.giveExp(bonus);
+        giveExpBonus(player, session, 0);
     }
 
     protected final boolean dropMoney(Location location, double money) {
