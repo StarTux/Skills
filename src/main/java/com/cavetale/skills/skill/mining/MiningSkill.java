@@ -6,7 +6,6 @@ import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.util.Players;
 import com.destroystokyo.paper.MaterialTags;
-import com.winthier.exploits.Exploits;
 import java.util.EnumMap;
 import lombok.NonNull;
 import org.bukkit.Material;
@@ -17,6 +16,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static org.bukkit.Material.*;
 
 public final class MiningSkill extends Skill implements Listener {
@@ -201,7 +201,7 @@ public final class MiningSkill extends Skill implements Listener {
      * stripping.
      */
     protected boolean giveReward(Player player, Block block, MiningReward reward) {
-        if (Exploits.isPlayerPlaced(block)) return false;
+        if (isPlayerPlaced(block)) return false;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;
         session.addSkillPoints(SkillType.MINING, reward.sp);
@@ -216,7 +216,7 @@ public final class MiningSkill extends Skill implements Listener {
     }
 
     protected boolean giveStackedReward(Player player, Block block, MiningReward reward, int stackCount) {
-        if (Exploits.isPlayerPlaced(block)) return false;
+        if (isPlayerPlaced(block)) return false;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;
         session.addSkillPoints(SkillType.MINING, reward.sp * stackCount);

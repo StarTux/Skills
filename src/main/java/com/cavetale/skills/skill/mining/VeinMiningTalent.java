@@ -7,7 +7,6 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
-import com.winthier.exploits.Exploits;
 import java.util.ArrayList;
 import java.util.HashSet;
 import lombok.NonNull;
@@ -21,6 +20,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 
 public final class VeinMiningTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
@@ -53,7 +53,6 @@ public final class VeinMiningTalent extends Talent implements Listener {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
                     miningSkill.giveStackedReward(player, block, reward, mineVein(player, block, item, reward, efficiency));
-                    
                 });
         }
     }
@@ -95,9 +94,8 @@ public final class VeinMiningTalent extends Talent implements Listener {
         }
         int rewardableBlockCount = 0;
         for (Block v : vein) {
-            if (!Exploits.isPlayerPlaced(v)) {
+            if (!isPlayerPlaced(v)) {
                 rewardableBlockCount++;
-//                miningSkill.giveReward(player, v, reward);
             }
             Bukkit.getPluginManager().callEvent(new PlayerBreakBlockEvent(player, v));
             Effects.mineBlockMagic(v);
