@@ -180,7 +180,7 @@ public final class Session {
                            text(level, skillType.tag.color(), BOLD),
                            text(tiny(" sp "), GRAY),
                            text(points, skillType.tag.color())));
-        skillBar.progress((float) points / (float) required);
+        skillBar.progress(Math.max(0.0f, Math.min(1.0f, (float) points / (float) required)));
         skillBar.color(skillType.tag.bossBarColor());
         shownSkill = skillType;
         skillBarCountdown = 100;

@@ -68,9 +68,8 @@ public class SkillSession {
                 // Do the whole thing in the async thread so that the
                 // stored value doesn't go out of sync!
                 final int requiredSkillPoints = rowHandle.getRequiredSkillPoints();
-                final int totalAmount = Math.min(requiredSkillPoints - rowHandle.getSkillPoints(), amount);
-                final int newSkillPoints = rowHandle.getSkillPoints() + totalAmount;
-                final int newTotalSkillPoints = rowHandle.getTotalSkillPoints() + totalAmount;
+                final int newSkillPoints = rowHandle.getSkillPoints() + amount;
+                final int newTotalSkillPoints = rowHandle.getTotalSkillPoints() + amount;
                 final int result = session.plugin.database.update(SQLSkill.class)
                     .row(rowHandle)
                     .atomic("skill_points", newSkillPoints)
@@ -82,10 +81,10 @@ public class SkillSession {
                             onDatabaseMismatch();
                             return;
                         }
-                        session.showSkillBar(skillType, getLevel(), newSkillPoints, requiredSkillPoints, amount);
                         if (newSkillPoints >= row.getRequiredSkillPoints()) {
                             levelUp();
                         }
+                        session.showSkillBar(skillType, getLevel(), newSkillPoints, requiredSkillPoints, amount);
                     });
             });
     }
@@ -93,12 +92,12 @@ public class SkillSession {
     public final boolean levelUp() {
         if (row == null) return false;
         if (getSkillPoints() < getRequiredSkillPoints()) return false;
-        int newLevel = row.getLevel() + 1;
-        int newSkillPoints = row.getSkillPoints() - row.getRequiredSkillPoints();
-        int newTalentPoints = row.getTalentPoints() + 1;
-        int newRequiredSkillPoints = SkillsPlugin.pointsForLevelUp(newLevel + 1);
         final SQLSkill rowHandle = row;
         session.plugin.database.scheduleAsyncTask(() -> {
+                final int newLevel = rowHandle.getLevel() + 1;
+                final int newSkillPoints = rowHandle.getSkillPoints() - rowHandle.getRequiredSkillPoints();
+                final int newTalentPoints = rowHandle.getTalentPoints() + 1;
+                final int newRequiredSkillPoints = SkillsPlugin.pointsForLevelUp(newLevel + 1);
                 final int result = session.plugin.database.update(SQLSkill.class)
                     .row(rowHandle)
                     .atomic("level", newLevel)
