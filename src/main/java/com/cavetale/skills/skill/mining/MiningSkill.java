@@ -68,8 +68,8 @@ public final class MiningSkill extends Skill implements Listener {
         reward(DEEPSLATE_COPPER_ORE, 1, 1.0, 3, 0, RAW_COPPER, 4, DEEPSLATE);
         reward(GOLD_ORE, 5, 5.0, 3, 0, RAW_GOLD, 1, STONE);
         reward(DEEPSLATE_GOLD_ORE, 5, 5.0, 3, 0, RAW_GOLD, 1, DEEPSLATE);
-        reward(NETHER_GOLD_ORE, 5, 5.0, 3, 1, GOLD_NUGGET, 4, NETHERRACK); // 2-6
-        reward(GILDED_BLACKSTONE, 5, 5.0, 3, 0, GOLD_NUGGET, 0, BLACKSTONE); // 10% to drop 2-5
+        reward(NETHER_GOLD_ORE, 5, 5.0, 1, 1, GOLD_NUGGET, 4, NETHERRACK); // 2-6
+        reward(GILDED_BLACKSTONE, 5, 5.0, 0, 0, GOLD_NUGGET, 0, BLACKSTONE); // 10% to drop 2-5
         reward(COAL_ORE, 1, 1.0, 2, 1, COAL, 1, STONE);
         reward(DEEPSLATE_COAL_ORE, 1, 1.0, 2, 1, COAL, 1, DEEPSLATE);
         reward(LAPIS_ORE, 5, 5.0, 5, 4, LAPIS_LAZULI, 7, STONE); // 4-9
