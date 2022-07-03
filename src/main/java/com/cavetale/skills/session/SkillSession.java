@@ -94,6 +94,7 @@ public class SkillSession {
         if (getSkillPoints() < getRequiredSkillPoints()) return false;
         final SQLSkill rowHandle = row;
         session.plugin.database.scheduleAsyncTask(() -> {
+                if (rowHandle.getSkillPoints() < rowHandle.getRequiredSkillPoints()) return;
                 final int newLevel = rowHandle.getLevel() + 1;
                 final int newSkillPoints = rowHandle.getSkillPoints() - rowHandle.getRequiredSkillPoints();
                 final int newTalentPoints = rowHandle.getTalentPoints() + 1;
