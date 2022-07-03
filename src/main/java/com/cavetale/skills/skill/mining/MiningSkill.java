@@ -10,6 +10,7 @@ import java.util.EnumMap;
 import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -54,37 +55,38 @@ public final class MiningSkill extends Skill implements Listener {
 
     @Override
     protected void enable() {
-        // exp values are maxima according to the wiki
+        // exp values are maximal according to the wiki, used for Silk Stripping
+        // veinExp values are averages rounded up, used for Vein Mining
         // Last three values are used by Silk Fortune, "null, 0, null" any values to disable
-        reward(DIAMOND_ORE, 10, 10.0, 7, DIAMOND, 1, STONE);
-        reward(DEEPSLATE_DIAMOND_ORE, 10, 10.0, 7, DIAMOND, 1, DEEPSLATE);
-        reward(EMERALD_ORE, 10, 10.0, 7, EMERALD, 1, STONE);
-        reward(DEEPSLATE_EMERALD_ORE, 10, 10.0, 7, EMERALD, 1, DEEPSLATE);
-        reward(IRON_ORE, 3, 3.0, 3, RAW_IRON, 1, STONE);
-        reward(DEEPSLATE_IRON_ORE, 3, 3.0, 3, RAW_IRON, 1, DEEPSLATE);
-        reward(COPPER_ORE, 1, 1.0, 3, RAW_COPPER, 4, STONE); // 2-5
-        reward(DEEPSLATE_COPPER_ORE, 1, 1.0, 3, RAW_COPPER, 4, DEEPSLATE);
-        reward(GOLD_ORE, 5, 5.0, 3, RAW_GOLD, 1, STONE);
-        reward(DEEPSLATE_GOLD_ORE, 5, 5.0, 3, RAW_GOLD, 1, DEEPSLATE);
-        reward(NETHER_GOLD_ORE, 5, 5.0, 3, GOLD_NUGGET, 4, NETHERRACK); // 2-6
-        reward(GILDED_BLACKSTONE, 5, 5.0, 3, GOLD_NUGGET, 0, BLACKSTONE); // 10% to drop 2-5
-        reward(COAL_ORE, 1, 1.0, 2, COAL, 1, STONE);
-        reward(DEEPSLATE_COAL_ORE, 1, 1.0, 2, COAL, 1, DEEPSLATE);
-        reward(LAPIS_ORE, 5, 5.0, 5, LAPIS_LAZULI, 7, STONE); // 4-9
-        reward(DEEPSLATE_LAPIS_ORE, 5, 5.0, 5, LAPIS_LAZULI, 7, DEEPSLATE);
-        reward(NETHER_QUARTZ_ORE, 1, 1.0, 5, QUARTZ, 1, NETHERRACK);
-        reward(REDSTONE_ORE, 1, 1.0, 5, REDSTONE, 5, STONE); // 4-5
-        reward(DEEPSLATE_REDSTONE_ORE, 1, 1.0, 5, REDSTONE, 5, DEEPSLATE);
+        reward(DIAMOND_ORE, 10, 10.0, 7, 5, DIAMOND, 1, STONE);
+        reward(DEEPSLATE_DIAMOND_ORE, 10, 10.0, 7, 5, DIAMOND, 1, DEEPSLATE);
+        reward(EMERALD_ORE, 10, 10.0, 7, 5, EMERALD, 1, STONE);
+        reward(DEEPSLATE_EMERALD_ORE, 10, 10.0, 7, 5, EMERALD, 1, DEEPSLATE);
+        reward(IRON_ORE, 3, 3.0, 3, 0, RAW_IRON, 1, STONE);
+        reward(DEEPSLATE_IRON_ORE, 3, 3.0, 3, 0, RAW_IRON, 1, DEEPSLATE);
+        reward(COPPER_ORE, 1, 1.0, 3, 0, RAW_COPPER, 4, STONE); // 2-5
+        reward(DEEPSLATE_COPPER_ORE, 1, 1.0, 3, 0, RAW_COPPER, 4, DEEPSLATE);
+        reward(GOLD_ORE, 5, 5.0, 3, 0, RAW_GOLD, 1, STONE);
+        reward(DEEPSLATE_GOLD_ORE, 5, 5.0, 3, 0, RAW_GOLD, 1, DEEPSLATE);
+        reward(NETHER_GOLD_ORE, 5, 5.0, 1, 1, GOLD_NUGGET, 4, NETHERRACK); // 2-6
+        reward(GILDED_BLACKSTONE, 5, 5.0, 0, 0, GOLD_NUGGET, 0, BLACKSTONE); // 10% to drop 2-5
+        reward(COAL_ORE, 1, 1.0, 2, 1, COAL, 1, STONE);
+        reward(DEEPSLATE_COAL_ORE, 1, 1.0, 2, 1, COAL, 1, DEEPSLATE);
+        reward(LAPIS_ORE, 5, 5.0, 5, 4, LAPIS_LAZULI, 7, STONE); // 4-9
+        reward(DEEPSLATE_LAPIS_ORE, 5, 5.0, 5, 4, LAPIS_LAZULI, 7, DEEPSLATE);
+        reward(NETHER_QUARTZ_ORE, 1, 1.0, 5, 4, QUARTZ, 1, NETHERRACK);
+        reward(REDSTONE_ORE, 1, 1.0, 5, 3, REDSTONE, 5, STONE); // 4-5
+        reward(DEEPSLATE_REDSTONE_ORE, 1, 1.0, 5, 3, REDSTONE, 5, DEEPSLATE);
         // technically not ores
-        reward(ANCIENT_DEBRIS, 20, 20.0, 10, NETHERITE_SCRAP, 1, NETHERRACK);
-        reward(RAW_COPPER_BLOCK, 5, 5.0, 3, null, 0, null);
-        reward(RAW_IRON_BLOCK, 15, 15.0, 3, null, 0, null);
-        reward(RAW_GOLD_BLOCK, 25, 25.0, 3, null, 0, null); // currently does not generate
-        reward(BUDDING_AMETHYST, 10, 10.0, 1, AMETHYST_SHARD, 2, AMETHYST_BLOCK);
+        reward(ANCIENT_DEBRIS, 20, 20.0, 10, 0, NETHERITE_SCRAP, 1, NETHERRACK);
+        reward(RAW_COPPER_BLOCK, 5, 5.0, 3, 0, null, 0, null);
+        reward(RAW_IRON_BLOCK, 15, 15.0, 3, 0, null, 0, null);
+        reward(RAW_GOLD_BLOCK, 25, 25.0, 3, 0, null, 0, null); // currently does not generate
+        reward(BUDDING_AMETHYST, 10, 10.0, 1, 0, AMETHYST_SHARD, 2, AMETHYST_BLOCK);
     }
 
-    private void reward(@NonNull Material material, final int sp, final double money, final int exp, Material item, int drops, Material replaceable) {
-        rewards.put(material, new MiningReward(material, sp, money, exp, item, drops, replaceable));
+    private void reward(@NonNull Material material, final int sp, final double money, final int exp, final int veinExp, Material item, int drops, Material replaceable) {
+        rewards.put(material, new MiningReward(material, sp, money, exp, veinExp, item, drops, replaceable));
     }
 
     protected static boolean stone(@NonNull Block block) {
@@ -194,7 +196,7 @@ public final class MiningSkill extends Skill implements Listener {
      * Give the SP reward for the broken block and roll talent points
      * where it applies.
      *
-     * Do NOT give exp rewards as their spawning location is
+     * Do NOT give exp orb rewards as their spawning location is
      * situational.
      *
      * Do NOT drop any items because they only drop when silk
@@ -211,7 +213,7 @@ public final class MiningSkill extends Skill implements Listener {
             double money = reward.money * factor;
             dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
         }
-        giveExpBonus(player, session, reward.exp);
+        giveExpBonus(player, session, 0);
         return true;
     }
 
@@ -226,7 +228,11 @@ public final class MiningSkill extends Skill implements Listener {
             double money = reward.money * stackCount * factor;
             dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
         }
-        giveExpBonus(player, session, reward.exp);
+        if (player.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.SILK_TOUCH) == 0) {
+            giveExpBonus(player, session, reward.veinExp * (stackCount));
+            return true;
+        }
+        giveExpBonus(player, session, 0);
         return true;
     }
 }

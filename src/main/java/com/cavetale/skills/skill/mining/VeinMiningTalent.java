@@ -7,6 +7,7 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
+import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
 import java.util.HashSet;
 import lombok.NonNull;
@@ -43,6 +44,7 @@ public final class VeinMiningTalent extends Talent implements Listener {
         final boolean gem = MiningSkill.gemOre(block);
         // Vein Mining
         final ItemStack item = player.getInventory().getItemInMainHand();
+        if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         MiningReward reward = miningSkill.rewards.get(block.getType());
         Session session = plugin.sessions.of(player);
