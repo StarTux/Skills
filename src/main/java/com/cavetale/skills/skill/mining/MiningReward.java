@@ -9,6 +9,7 @@ final class MiningReward {
     protected final int sp;
     protected final double money;
     protected final int exp;
+    protected final int veinExp;
     protected final Material item;
     protected final int drops;
     protected final Material replaceable;
