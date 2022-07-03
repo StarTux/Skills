@@ -207,7 +207,7 @@ public final class MiningSkill extends Skill implements Listener {
         session.addSkillPoints(SkillType.MINING, reward.sp);
         if (reward.money > 0.0) {
             int bonus = session.getMoneyBonus(SkillType.MINING);
-            double factor = 1.0 + SkillsPlugin.moneyBonusPercentage(bonus);
+            double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
             double money = reward.money * factor;
             dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
         }
@@ -222,7 +222,7 @@ public final class MiningSkill extends Skill implements Listener {
         session.addSkillPoints(SkillType.MINING, reward.sp * stackCount);
         if (reward.money > 0.0) {
             int bonus = session.getMoneyBonus(SkillType.MINING);
-            double factor = 1.0 + SkillsPlugin.moneyBonusPercentage(bonus);
+            double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
             double money = reward.money * stackCount * factor;
             dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
         }
