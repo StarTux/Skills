@@ -229,7 +229,7 @@ public final class MiningSkill extends Skill implements Listener {
             dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
         }
         if (player.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.SILK_TOUCH) == 0) {
-            giveExpBonus(player, session, reward.veinExp * (stackCount - 1));
+            giveExpBonus(player, session, reward.veinExp * (stackCount));
             return true;
         }
         giveExpBonus(player, session, 0);
