@@ -211,7 +211,7 @@ public final class MiningSkill extends Skill implements Listener {
             double money = reward.money * factor;
             dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
         }
-        giveExpBonus(player, session);
+        giveExpBonus(player, session, reward.exp);
         return true;
     }
 
