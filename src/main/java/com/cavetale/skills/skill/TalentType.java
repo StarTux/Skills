@@ -91,7 +91,7 @@ public enum TalentType {
         public static final TalentTag STRIP_MINING = new
             TalentTag("Strip Mining",
                       Material.STONE_PICKAXE, 5, 3,
-                      "Mining with an Efficiency pickaxe breaks many block",
+                      "Mining with an Efficiency pickaxe breaks many blocks",
                       "Unleash the full power of the Efficency enchantment."
                       + " Mining stone type blocks will break several blocks"
                       + " within a line while mining straight."

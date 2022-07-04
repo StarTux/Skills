@@ -25,7 +25,7 @@ public abstract class Skill {
 
     protected final void giveExpBonus(Player player, Session session, int base) {
         int bonus = base + session.getExpBonus(skillType);
-        if (bonus > 0) player.giveExp(bonus);
+        if (bonus > 0) player.giveExp(bonus, true);
     }
 
     protected final void giveExpBonus(Player player, Session session) {
