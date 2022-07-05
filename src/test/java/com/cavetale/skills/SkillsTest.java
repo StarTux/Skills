@@ -10,7 +10,9 @@ public final class SkillsTest {
     public void testTalentTypes() {
         for (SkillType skillType : SkillType.values()) {
             Collection<TalentType> talents = TalentType.SKILL_MAP.get(skillType);
+            int points = 0;
             for (TalentType a : talents) {
+                points += a.talentPointCost;
                 if (a.tag.x() == 4 && a.tag.y() == 3) {
                     throw new IllegalStateException("Centered x,y: " + a + ": " + a.tag.x() + "," + a.tag.y());
                 }
@@ -22,6 +24,7 @@ public final class SkillsTest {
                     }
                 }
             }
+            System.out.println(skillType + ": " + points + " talent points, " + talents.size() + " talents");
         }
     }
 }
