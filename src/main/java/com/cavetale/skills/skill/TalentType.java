@@ -14,6 +14,7 @@ import org.bukkit.Material;
 public enum TalentType {
     // Mining
     STRIP_MINING(TalentTag.STRIP_MINING, SkillType.MINING, null, 1),
+    DEEP_MINING(TalentTag.DEEP_MINING, SkillType.MINING, STRIP_MINING, 2),
     VEIN_MINING(TalentTag.VEIN_MINING, SkillType.MINING, STRIP_MINING, 1),
     VEIN_GEMS(TalentTag.VEIN_GEMS, SkillType.MINING, VEIN_MINING, 2),
     VEIN_METALS(TalentTag.VEIN_METALS, SkillType.MINING, VEIN_MINING, 2),
@@ -22,6 +23,7 @@ public enum TalentType {
     SILK_MULTI(TalentTag.SILK_MULTI, SkillType.MINING, SILK_STRIP, 3),
     MINER_SIGHT(TalentTag.MINER_SIGHT, SkillType.MINING, null, 1),
     SUPER_VISION(TalentTag.SUPER_VISION, SkillType.MINING, MINER_SIGHT, 5),
+    DEEP_VISION(TalentTag.DEEP_VISION, SkillType.MINING, SUPER_VISION, 5),
     NETHER_VISION(TalentTag.NETHER_VISION, SkillType.MINING, SUPER_VISION, 5),
     ORE_ALERT(TalentTag.ORE_ALERT, SkillType.MINING, MINER_SIGHT, 3),
     EMERALD_ALERT(TalentTag.EMERALD_ALERT, SkillType.MINING, ORE_ALERT, 4),
@@ -87,18 +89,21 @@ public enum TalentType {
 
     public record TalentTag(String title, Material icon, int x, int y,
                                    String legacyDescription, String... legacyMoreText) {
-    //STRIP_MINING(TalentTag.STRIP_MINING, SkillType.MINING, null, 1),
         public static final TalentTag STRIP_MINING = new
             TalentTag("Strip Mining",
-                      Material.STONE_PICKAXE, 5, 3,
-                      "Mining with an Efficiency pickaxe breaks many blocks",
+                      Material.STONE, 5, 3,
+                      "Mining stone with an Efficiency pickaxe breaks many blocks",
                       "Unleash the full power of the Efficency enchantment."
                       + " Mining stone type blocks will break several blocks"
                       + " within a line while mining straight."
-                      + " Stone includes: Stone, Andesite, Diorite, Granite,"
-                      + " Tuff, Deepslate",
+                      + " Stone includes: Stone, Andesite, Diorite, Granite",
                       "Mine without this feature by sneaking.");
-    //VEIN_MINING(TalentTag.VEIN_MINING, SkillType.MINING, STRIP_MINING, 1),
+
+        public static final TalentTag DEEP_MINING = new
+            TalentTag("Deep Strip Mining",
+                      Material.DEEPSLATE, 5, 2,
+                      "Strip Mining works on Deepslate and Tuff");
+
         public static final TalentTag VEIN_MINING = new
             TalentTag("Vein Mining - Basic",
                       Material.IRON_PICKAXE, 6, 3,
@@ -106,15 +111,15 @@ public enum TalentType {
                       "Works on Coal, Redstone and Lapis Lazuli Ores."
                       + "Requires the Efficiency enchantment on your pickaxe.",
                       "Mine without this feature by sneaking.");
-    //VEIN_GEMS(TalentTag.VEIN_GEMS, SkillType.MINING, VEIN_MINING, 2),
+
         public static final TalentTag VEIN_GEMS = new
             TalentTag("Vein Mining - Gems",
-                      Material.DIAMOND_PICKAXE, 7, 2,
+                      Material.DIAMOND_PICKAXE, 8, 3,
                       "Mining certain ores will attempt to break the entire vein",
                       "Works on Diamond, Emerald and Quartz Ores."
                       + "Requires the Efficiency enchantment on your pickaxe.",
                       "Mine without this feature by sneaking.");
-    //VEIN_METALS(TalentTag.VEIN_METALS, SkillType.MINING, VEIN_MINING, 2),
+
         public static final TalentTag VEIN_METALS = new
             TalentTag("Vein Mining - Metals",
                       Material.NETHERITE_PICKAXE, 7, 3,
@@ -122,22 +127,25 @@ public enum TalentType {
                       "Works on Ancient Debris, Copper, Iron and Gold Ores"
                       + "Requires the Efficiency enchantment on your pickaxe.",
                       "Mine without this feature by sneaking.");
-    //SILK_STRIP(TalentTag.SILK_STRIP, SkillType.MINING, VEIN_MINING, 2),
+
         public static final TalentTag SILK_STRIP = new
             TalentTag("Silk Stripping",
                       Material.GOLD_NUGGET, 6, 4,
-                      "Use a Silk Touch pickaxe to strip an ore of its contents",
+                      "Use a Silk Touch pickaxe to strip a natural ore of its contents",
                       "Right-click with a Silk Touch pickaxe to use your"
                       + " fine motory skills and remove those"
                       + " treasures right from the ore block."
                       + "With any luck, you may repeat the procedure"
                       + " as long as the ore stays intact,"
-                      + " getting more and more drops."
-                      + " Eventually, the ore will turn into stone and"
-                      + " you get the usual skill points for mining.",
-                      "This method may yield as much reward as Fortune 3"
-                      + " but is more random.");
-    //SILK_METALS(TalentTag.SILK_METALS, SkillType.MINING, SILK_STRIP, 3),
+                      + " getting more and more drops.",
+                      "Eventually, the ore will turn into stone and"
+                      + " you get the usual skill points for mining."
+                      + " This method may yield as much reward as Fortune 3"
+                      + " but is more random.",
+                      "Silk Stripping only works on natural ores."
+                      + " Picking up and moving the ore will compromise its structural integrity,"
+                      + " making Silk Stripping ineffective.");
+
         public static final TalentTag SILK_METALS = new
             TalentTag("Silk Extraction",
                       Material.NETHERITE_SCRAP, 7, 5,
@@ -150,11 +158,11 @@ public enum TalentType {
 
         public static final TalentTag SILK_MULTI = new
             TalentTag("Silk Fortune",
-                      Material.GOLD_INGOT, 6, 5,
+                      Material.DIAMOND, 6, 5,
                       "Get more non-metallic drops from Silk Stripping",
                       "Upgrade Silk Stripping to get more drops"
                       + " from non-metallic ores. Works on everything"
-                      + " but Ancient Debris, Copper, Iron and Gold Ores",
+                      + " but Ancient Debris, Copper, Iron and Gold Ores.",
                       "This method may yield as much reward as Fortune 4"
                       + " would, but it is more random.");
 
@@ -172,6 +180,11 @@ public enum TalentType {
                       + " allows you to see through solid stone",
                       "Nearby stone will be rendered see-through"
                       + " for a few seconds so you can identify ores more easily.");
+
+        public static final TalentTag DEEP_VISION = new
+            TalentTag("Super Deep Vision",
+                      Material.SPYGLASS, 3, 1,
+                      "Super Vision sees through deepslate and tuff");
 
         public static final TalentTag NETHER_VISION = new
             TalentTag("Nether Vision",

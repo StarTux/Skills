@@ -5,11 +5,13 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.util.Players;
+import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.EnumMap;
 import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -24,6 +26,7 @@ import static org.bukkit.Material.*;
 public final class MiningSkill extends Skill implements Listener {
     protected final EnumMap<Material, MiningReward> rewards = new EnumMap<>(Material.class);
     public final StripMiningTalent stripMiningTalent;
+    public final DeepMiningTalent deepMiningTalent;
     public final VeinMiningTalent veinMiningTalent;
     public final VeinGemsTalent veinGemsTalent;
     public final VeinMetalsTalent veinMetalsTalent;
@@ -32,14 +35,26 @@ public final class MiningSkill extends Skill implements Listener {
     public final SilkMultiTalent silkMultiTalent;
     public final MinerSightTalent minerSightTalent;
     public final SuperVisionTalent superVisionTalent;
+    public final DeepVisionTalent deepVisionTalent;
     public final NetherVisionTalent netherVisionTalent;
     public final OreAlertTalent oreAlertTalent;
     public final EmeraldAlertTalent emeraldAlertTalent;
     public final DebrisAlertTalent debrisAlertTalent;
+    private static final MaterialSetTag STONE_TYPES = new
+        MaterialSetTag(NamespacedKey.fromString("skills:stone_types"),
+                       STONE, DIORITE, ANDESITE, GRANITE).lock();
+    private static final MaterialSetTag DEEP_STONE_TYPES = new
+        MaterialSetTag(NamespacedKey.fromString("skills:deep_stone_types"),
+                       DEEPSLATE, TUFF).lock();
+    private static final MaterialSetTag ALL_STONE_TYPES = new
+        MaterialSetTag(NamespacedKey.fromString("skills:all_stone_types"))
+        .add(STONE_TYPES.getValues())
+        .add(DEEP_STONE_TYPES.getValues()).lock();
 
     public MiningSkill(@NonNull final SkillsPlugin plugin) {
         super(plugin, SkillType.MINING);
         this.stripMiningTalent = new StripMiningTalent(plugin, this);
+        this.deepMiningTalent = new DeepMiningTalent(plugin, this);
         this.veinMiningTalent = new VeinMiningTalent(plugin, this);
         this.veinGemsTalent = new VeinGemsTalent(plugin, this);
         this.veinMetalsTalent = new VeinMetalsTalent(plugin, this);
@@ -48,6 +63,7 @@ public final class MiningSkill extends Skill implements Listener {
         this.silkMultiTalent = new SilkMultiTalent(plugin, this);
         this.minerSightTalent = new MinerSightTalent(plugin, this);
         this.superVisionTalent = new SuperVisionTalent(plugin, this);
+        this.deepVisionTalent = new DeepVisionTalent(plugin, this);
         this.netherVisionTalent = new NetherVisionTalent(plugin, this);
         this.oreAlertTalent = new OreAlertTalent(plugin, this);
         this.emeraldAlertTalent = new EmeraldAlertTalent(plugin, this);
@@ -91,44 +107,24 @@ public final class MiningSkill extends Skill implements Listener {
     }
 
     protected static boolean stone(@NonNull Block block) {
-        switch (block.getType()) {
-        case STONE:
-        case DEEPSLATE:
-        case TUFF:
-        case DIORITE:
-        case ANDESITE:
-        case GRANITE:
-            return true;
-        default:
-            return false;
-        }
+        return STONE_TYPES.isTagged(block.getType());
     }
 
+    protected static boolean deepStone(@NonNull Block block) {
+        return DEEP_STONE_TYPES.isTagged(block.getType());
+    }
+
+    protected static boolean anyStone(Block block) {
+        return ALL_STONE_TYPES.isTagged(block.getType());
+    }
+
+    private static final MaterialSetTag DIRT_TYPES = new MaterialSetTag(NamespacedKey.fromString("skills:dirt_types"),
+                                                                        GRAVEL, DIRT).lock();
+
     protected static boolean dirt(@NonNull Block block) {
-        switch (block.getType()) {
-        case GRAVEL:
-        case DIRT:
-            return true;
-        default:
-            return false;
-        }
+        return DIRT_TYPES.isTagged(block.getType());
     }
-// unused
-/*
-    protected static boolean basicOre(@NonNull Block block) {
-        switch (block.getType()) {
-        case COAL_ORE:
-        case DEEPSLATE_COAL_ORE:
-        case REDSTONE_ORE:
-        case DEEPSLATE_REDSTONE_ORE:
-        case LAPIS_ORE:
-        case DEEPSLATE_LAPIS_ORE:
-            return true;
-        default:
-            return false;
-        }
-    }
-*/
+
     protected static boolean metalOre(@NonNull Block block) {
         switch (block.getType()) {
         case COPPER_ORE:

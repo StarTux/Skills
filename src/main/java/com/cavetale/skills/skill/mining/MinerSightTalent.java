@@ -30,7 +30,7 @@ public final class MinerSightTalent extends Talent implements Listener {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         Block block = event.getBlock();
-        if (!MiningSkill.stone(block)) return;
+        if (!MiningSkill.anyStone(block)) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return;
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;

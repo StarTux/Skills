@@ -32,8 +32,7 @@ public final class DenialTalent extends Talent implements Listener {
     protected DenialTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
         super(plugin, TalentType.DENIAL);
         this.combatSkill = combatSkill;
-        this.description = "Knockback denies mob spells"
-            + "for " + duration.toSeconds() + " seconds";
+        this.description = "Knockback denies mob spells, projectiles, poison for " + duration.toSeconds() + " seconds";
         this.infoPages = List.of(new Component[] {
                 // Page 1
                 Component.join(JoinConfiguration.noSeparators(), new Component[] {

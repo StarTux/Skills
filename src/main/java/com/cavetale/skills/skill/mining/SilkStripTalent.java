@@ -4,7 +4,6 @@ import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerChangeBlockEvent;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
@@ -14,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
+import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 
 public final class SilkStripTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
@@ -46,6 +45,7 @@ public final class SilkStripTalent extends Talent implements Listener {
         if (!event.hasItem()) return;
         final ItemStack item = event.getItem();
         final Block block = event.getClickedBlock();
+        if (isPlayerPlaced(block)) return;
         final boolean metal = MiningSkill.metalOre(block);
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
@@ -87,8 +87,8 @@ public final class SilkStripTalent extends Talent implements Listener {
         // (Maybe) change the Block
         double factor = 2.20; // Fortune 3
         Session session = plugin.sessions.of(player);
-        if (metal && session.isTalentEnabled(TalentType.SILK_METALS)) factor = 2.60;
-        if (!metal && session.isTalentEnabled(TalentType.SILK_MULTI)) factor = 2.60;
+        if (metal && session.isTalentEnabled(TalentType.SILK_METALS)) factor = 3.30;
+        if (!metal && session.isTalentEnabled(TalentType.SILK_MULTI)) factor = 3.30;
         final double amount; // Expected value of additionally dropped items.
         amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.
@@ -97,11 +97,6 @@ public final class SilkStripTalent extends Talent implements Listener {
         Effects.useSilk(player, block, dropLocation);
         if (roll < chance) {
             miningSkill.giveReward(player, block, reward, dropLocation);
-            if (reward.exp > 0) {
-                dropLocation.getWorld().spawn(dropLocation, ExperienceOrb.class, orb -> {
-                        orb.setExperience(reward.exp + session.getExpBonus(SkillType.MINING));
-                    });
-            }
             Effects.failSilk(player, block);
             new PlayerChangeBlockEvent(player, block, reward.replaceable.createBlockData()).callEvent();
             block.setType(reward.replaceable);

@@ -200,6 +200,8 @@ public final class Guis {
         Talent talent = talentType.getTalent();
         page.add(text(talentType.displayName, talentType.skillType.tag.color()));
         page.add(empty());
+        page.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost), text(tiny("tp"), GRAY)));
+        page.add(empty());
         page.add(text(talent.getDescription()));
         page.add(empty());
         page.add(DefaultFont.BACK_BUTTON.getComponent()

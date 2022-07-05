@@ -23,8 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 public final class SuperVisionTalent extends Talent implements Listener {
     protected final MiningSkill miningSkill;
-    protected final BlockData fakeStoneData = Material.BLACK_STAINED_GLASS.createBlockData();
-    protected final BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
+    protected static final BlockData GLASS = Material.BLACK_STAINED_GLASS.createBlockData();
 
     protected SuperVisionTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
         super(plugin, TalentType.SUPER_VISION);
@@ -38,10 +37,12 @@ public final class SuperVisionTalent extends Talent implements Listener {
     protected void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
-        Session session = plugin.sessions.of(player);
-        if (session.isSuperVisionActive()) return;
-        Block block = event.getBlock();
-        if (!MiningSkill.stone(block)) return;
+        final boolean hasDeep = plugin.sessions.of(player).isTalentEnabled(TalentType.DEEP_VISION);
+        if (!hasDeep) {
+            if (!MiningSkill.stone(event.getBlock())) return;
+        } else {
+            if (!MiningSkill.anyStone(event.getBlock())) return;
+        }
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return;
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
@@ -49,14 +50,14 @@ public final class SuperVisionTalent extends Talent implements Listener {
         if (fortune == 0) return;
         if (player.isSneaking()) return;
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-                xray(player, block);
+                xray(player, event.getBlock(), hasDeep);
             });
     }
 
     /**
      * Called by scheduler.
      */
-    protected int xray(@NonNull Player player, @NonNull Block block) {
+    protected int xray(@NonNull Player player, @NonNull Block block, final boolean hasDeep) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
         Session session = plugin.sessions.of(player);
@@ -66,8 +67,8 @@ public final class SuperVisionTalent extends Talent implements Listener {
         session.setSuperVisionActive(true);
         final int radius = 3;
         final int realRadius = 2;
-        final ArrayList<Block> bs = new ArrayList<>();
-        final ArrayList<Block> br = new ArrayList<>();
+        final ArrayList<Block> yes = new ArrayList<>();
+        final ArrayList<Block> no = new ArrayList<>();
         Location loc = player.getLocation();
         int px = loc.getBlockX();
         int pz = loc.getBlockZ();
@@ -80,36 +81,38 @@ public final class SuperVisionTalent extends Talent implements Listener {
                     if (nbor.getY() < min) continue;
                     if (nbor.isEmpty() || nbor.isLiquid()) continue;
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
-                    if ((!MiningSkill.stone(nbor) && !MiningSkill.dirt(nbor)) || d > realRadius) {
-                        br.add(nbor);
+                    if (d > realRadius) {
+                        no.add(nbor);
+                    } else if (MiningSkill.dirt(nbor)) {
+                        yes.add(nbor);
+                    } else if (!hasDeep && MiningSkill.stone(nbor)) {
+                        yes.add(nbor);
+                    } else if (hasDeep && MiningSkill.anyStone(nbor)) {
+                        yes.add(nbor);
                     } else {
-                        bs.add(nbor);
+                        no.add(nbor);
                     }
                 }
             }
         }
-        if (bs.isEmpty()) return 0;
-        for (Block b : bs) {
-            if (MiningSkill.dirt(b)) {
-                fakeBlock(player, b, fakeDirtData);
-            } else {
-                fakeBlock(player, b, fakeStoneData);
-            }
+        if (yes.isEmpty()) return 0;
+        for (Block b : yes) {
+            fakeBlock(player, b, GLASS);
         }
-        for (Block b : br) {
+        for (Block b : no) {
             fakeBlock(player, b, b.getBlockData());
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isValid()) return;
                 plugin.sessions.apply(player, s -> s.setSuperVisionActive(false));
                 if (!player.getWorld().equals(block.getWorld())) return;
-                for (Block b : bs) {
+                for (Block b : yes) {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
                     fakeBlock(player, b, b.getBlockData());
                 }
             }, 60L); // 3 seconds
-        return bs.size();
+        return yes.size();
     }
 
     protected void fakeBlock(Player player, Block block, BlockData fake) {

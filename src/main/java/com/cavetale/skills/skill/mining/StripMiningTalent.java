@@ -35,21 +35,24 @@ public final class StripMiningTalent extends Talent implements Listener {
         final Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         final Block block = event.getBlock();
-        final boolean sneak = player.isSneaking();
-        final boolean stone = MiningSkill.stone(block);
-        if (!sneak && stone) {
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    if (!player.isValid()) return;
-                    if (!player.getWorld().equals(block.getWorld())) return;
-                    stripMine(player, block);
-                });
+        if (player.isSneaking()) return;
+        boolean hasDeep = plugin.sessions.of(player).isTalentEnabled(TalentType.DEEP_MINING);
+        final boolean stone = MiningSkill.stone(block) || (hasDeep && MiningSkill.deepStone(block));
+        if (plugin.sessions.of(player).isDebugMode()) {
+            player.sendMessage(talentType + " hasDeep=" + hasDeep + " stone=" + stone);
         }
+        if (!stone) return;
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (!player.isValid()) return;
+                if (!player.getWorld().equals(block.getWorld())) return;
+                stripMine(player, block, hasDeep);
+            });
     }
 
     /**
      * Called via scheduler.
      */
-    protected int stripMine(@NonNull Player player, @NonNull Block block) {
+    protected int stripMine(@NonNull Player player, @NonNull Block block, boolean hasDeep) {
         // Check item
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return 0;
@@ -59,8 +62,7 @@ public final class StripMiningTalent extends Talent implements Listener {
         // Figure out direction
         Block head = player.getEyeLocation().getBlock();
         // Require straight mining
-        if (head.getX() != block.getX()
-            && head.getZ() != block.getZ()) return 0;
+        if (head.getX() != block.getX() && head.getZ() != block.getZ()) return 0;
         int dx = block.getX() - head.getX();
         int dz = block.getZ() - head.getZ();
         if (dx == 0 && dz == 0) return 0;
@@ -84,7 +86,11 @@ public final class StripMiningTalent extends Talent implements Listener {
         int total = efficiency / 2 + 1;
         for (int i = 0; i < total; i += 1) {
             nbor = nbor.getRelative(dx, 0, dz);
-            if (!MiningSkill.stone(nbor)) break;
+            if (hasDeep && !MiningSkill.anyStone(nbor)) {
+                break;
+            } else if (!hasDeep && !MiningSkill.stone(nbor)) {
+                break;
+            }
             if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, nbor)) return result;
             // Damage the pickaxe and cancel if it is used up.
             if (dmg != null) {
