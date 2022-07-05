@@ -105,11 +105,18 @@ public final class Guis {
             icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
             List<Component> text = new ArrayList<>();
             text.add(text(talentType.tag.title(), skillType.tag.color()));
-            text.add(join(noSeparators(), Mytems.MOUSE_LEFT, text(" More Info", GRAY, ITALIC)));
             if (session.isTalentEnabled(talentType)) {
                 text.add(text("Enabled", GREEN));
             } else if (session.hasTalent(talentType)) {
                 text.add(text("Disabled", RED));
+            } else {
+                text.add(text("Locked", DARK_RED));
+            }
+            text.add(join(noSeparators(), Mytems.MOUSE_LEFT, text(" More Info", GRAY, ITALIC)));
+            if (session.isTalentEnabled(talentType)) {
+                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Disable", GRAY, ITALIC)));
+            } else if (session.hasTalent(talentType)) {
+                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Enable", GRAY, ITALIC)));
             } else {
                 if (session.canAccessTalent(talentType)) {
                     text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)));
