@@ -194,8 +194,8 @@ public enum TalentType {
         public static final TalentTag EMERALD_ALERT = new
             TalentTag("Emerald Ore Alert",
                       Material.EMERALD_ORE, 2, 4,
-                      "Get alerts when Emerald Ore is nearby"
-                      + "Whenever you break stone with a pickaxe and there is"
+                      "Get alerts when Emerald Ore is nearby",
+                      "Whenever you break stone with a pickaxe and there is"
                       + " Emerald Ore nearby,"
                       + " an alert sound will notify you of its existence."
                       + " Follow that lead to earn more Emeralds.");
@@ -203,8 +203,8 @@ public enum TalentType {
         public static final TalentTag DEBRIS_ALERT = new
             TalentTag("Ancient Debris Alert",
                       Material.ANCIENT_DEBRIS, 1, 4,
-                      "Get alerts when Ancient Debris is nearby"
-                      + "Whenever you break nether stones with a pickaxe and"
+                      "Get alerts when Ancient Debris is nearby",
+                      "Whenever you break nether stones with a pickaxe and"
                       + " there is Ancient Debris nearby,"
                       + " an alert sound will notify you of its existence."
                       + " Follow that lead to earn more Ancient Debris."

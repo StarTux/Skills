@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.core.font.DefaultFont;
 import com.cavetale.core.font.GuiOverlay;
 import com.cavetale.core.font.VanillaItems;
 import com.cavetale.mytems.Mytems;
@@ -7,7 +8,9 @@ import com.cavetale.mytems.util.Items;
 import com.cavetale.mytems.util.Text;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.util.Books;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.skills.util.Gui;
 import java.util.ArrayList;
@@ -21,9 +24,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.font.Unicode.tiny;
+import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.join;
+import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
+import static net.kyori.adventure.text.JoinConfiguration.separator;
+import static net.kyori.adventure.text.event.ClickEvent.runCommand;
+import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.*;
 
@@ -93,11 +101,13 @@ public final class Guis {
             icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
             List<Component> text = new ArrayList<>();
             text.add(text(talentType.tag.title(), skillType.tag.color()));
+            text.add(join(noSeparators(), Mytems.MOUSE_LEFT, text(" More Info", GRAY, ITALIC)));
             if (session.isTalentEnabled(talentType)) {
                 text.add(text("Enabled", GREEN));
             } else if (session.hasTalent(talentType)) {
                 text.add(text("Disabled", RED));
             } else {
+                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)));
                 text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
             }
             for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
@@ -105,8 +115,11 @@ public final class Guis {
             }
             icon = Items.text(icon, text);
             gui.setItem(slot, icon, click -> {
-                    if (!click.isLeftClick()) return;
-                    onClickTalent(player, talentType);
+                    if (click.isLeftClick()) {
+                        onLeftClickTalent(player, talentType);
+                    } else if (click.isRightClick()) {
+                        onRightClickTalent(player, talentType);
+                    }
                 });
             if (session.isTalentEnabled(talentType)) {
                 builder.highlightSlot(slot, WHITE);
@@ -120,7 +133,7 @@ public final class Guis {
         }
         builder.highlightSlot(9, skillType.tag.color());
         gui.setItem(9, getMoneyIcon(session, skillType), click -> {
-                if (!click.isLeftClick()) return;
+                if (!click.isRightClick()) return;
                 boolean r = session.unlockMoneyBonus(skillType, () -> {
                         talents(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 1.0f);
@@ -129,7 +142,7 @@ public final class Guis {
             });
         builder.highlightSlot(10, skillType.tag.color());
         gui.setItem(10, getExpIcon(session, skillType), click -> {
-                if (!click.isLeftClick()) return;
+                if (!click.isRightClick()) return;
                 boolean r = session.unlockExpBonus(skillType, () -> {
                         talents(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 1.0f);
@@ -148,6 +161,7 @@ public final class Guis {
         ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         Items.text(icon, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
+                                 join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
                                  join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
                                  join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
                                  join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY))));
@@ -160,13 +174,32 @@ public final class Guis {
         icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         Items.text(icon, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
+                                 join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
                                  join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
                                  join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
                                  join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY))));
         return icon;
     }
 
-    private void onClickTalent(Player player, TalentType talentType) {
+    private void onLeftClickTalent(Player player, TalentType talentType) {
+        List<Component> pages = new ArrayList<>();
+        List<Component> page = new ArrayList<>();
+        Talent talent = talentType.getTalent();
+        page.add(text(talentType.displayName, talentType.skillType.tag.color()));
+        page.add(empty());
+        page.add(text(talent.getDescription()));
+        page.add(empty());
+        page.add(DefaultFont.BACK_BUTTON.getComponent()
+                 .hoverEvent(showText(text("Back to Talent Menu", GRAY)))
+                 .clickEvent(runCommand("/talent")));
+        pages.add(join(separator(newline()), page));
+        for (Component it : talent.getInfoPages()) {
+            pages.add(it);
+        }
+        Books.open(player, pages);
+    }
+
+    private void onRightClickTalent(Player player, TalentType talentType) {
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return;
         if (session.isTalentEnabled(talentType)) {
