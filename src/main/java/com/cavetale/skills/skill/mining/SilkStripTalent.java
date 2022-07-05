@@ -96,7 +96,7 @@ public final class SilkStripTalent extends Talent implements Listener {
         final double roll = plugin.random.nextDouble();
         Effects.useSilk(player, block, dropLocation);
         if (roll < chance) {
-            miningSkill.giveReward(player, block, reward);
+            miningSkill.giveReward(player, block, reward, dropLocation);
             if (reward.exp > 0) {
                 dropLocation.getWorld().spawn(dropLocation, ExperienceOrb.class, orb -> {
                         orb.setExperience(reward.exp + session.getExpBonus(SkillType.MINING));
@@ -107,5 +107,8 @@ public final class SilkStripTalent extends Talent implements Listener {
             block.setType(reward.replaceable);
         }
         event.setCancelled(true);
+        if (session.isDebugMode()) {
+            player.sendMessage(talentType + " metal=" + metal + " factor=" + factor);
+        }
     }
 }

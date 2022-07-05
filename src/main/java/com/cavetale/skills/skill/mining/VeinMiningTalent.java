@@ -54,7 +54,10 @@ public final class VeinMiningTalent extends Talent implements Listener {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
-                    miningSkill.giveStackedReward(player, block, reward, mineVein(player, block, item, reward, efficiency));
+                    int stacks = mineVein(player, block, item, reward, efficiency);
+                    if (stacks > 0) {
+                        miningSkill.giveStackedReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.5), stacks);
+                    }
                 });
         }
     }

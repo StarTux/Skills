@@ -1,5 +1,7 @@
 package com.cavetale.skills.session;
 
+import com.cavetale.core.event.hud.PlayerHudEvent;
+import com.cavetale.core.event.hud.PlayerHudPriority;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
@@ -37,6 +39,7 @@ public final class Session {
     protected SkillType shownSkill = null;
     protected int skillBarCountdown;
     private int actionSP;
+    private boolean showSkillBar;
     // Skills
     public final SkillSession mining = new SkillSession(this, SkillType.MINING);
     public final CombatSession combat = new CombatSession(this, SkillType.COMBAT);
@@ -45,8 +48,8 @@ public final class Session {
     @Setter protected boolean netherVisionActive;
     @Setter protected int archerZone = 0;
     @Setter protected int archerZoneKills = 0;
-    @Setter protected boolean noParticles = false;
     @Setter protected SkillType talentGui = SkillType.MINING;
+    @Setter protected boolean debugMode;
     protected boolean unlockingTalent = false; // big talent lock
 
     public Session(@NonNull final SkillsPlugin plugin, @NonNull final UUID uuid) {
@@ -128,12 +131,7 @@ public final class Session {
             task.cancel();
             task = null;
         }
-        if (skillBar != null) {
-            Player player = getPlayer();
-            if (player != null) {
-                player.hideBossBar(skillBar);
-            }
-        }
+        showSkillBar = false;
     }
 
     public Player getPlayer() {
@@ -186,7 +184,7 @@ public final class Session {
         skillBarCountdown = 100;
         Player player = getPlayer();
         if (player != null) {
-            player.showBossBar(skillBar);
+            showSkillBar = true;
             player.sendActionBar(join(noSeparators(),
                                       text("+"),
                                       text(actionSP, skillType.tag.color(), BOLD),
@@ -267,19 +265,26 @@ public final class Session {
         return skills.get(skillType).getMoneyBonus();
     }
 
+    protected void onPlayerHud(PlayerHudEvent event) {
+        if (showSkillBar || debugMode) {
+            event.bossbar(PlayerHudPriority.DEFAULT,
+                          (debugMode
+                           ? join(noSeparators(), text("Debug ", YELLOW, BOLD), skillBar.name())
+                           : skillBar.name()),
+                          skillBar.color(), skillBar.overlay(), skillBar.progress());
+        }
+    }
+
     private void tick() {
         if (archerZone > 0) {
             archerZone -= 1;
             if (archerZone == 0) archerZoneKills = 0;
         }
-        if (shownSkill != null && skillBarCountdown > 0) {
+        if (showSkillBar) {
             skillBarCountdown -= 1;
-            if (skillBarCountdown == 0) {
+            if (skillBarCountdown <= 0) {
                 shownSkill = null;
-                Player player = getPlayer();
-                if (player != null) {
-                    player.hideBossBar(skillBar);
-                }
+                showSkillBar = false;
             }
         }
     }

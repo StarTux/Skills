@@ -8,6 +8,7 @@ import com.cavetale.skills.util.Players;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.EnumMap;
 import lombok.NonNull;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -189,20 +190,14 @@ public final class MiningSkill extends Skill implements Listener {
         Block block = event.getBlock();
         MiningReward reward = rewards.get(block.getType());
         if (reward == null) return;
-        giveReward(player, block, reward);
+        giveReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.0));
     }
 
     /**
      * Give the SP reward for the broken block and roll talent points
      * where it applies.
-     *
-     * Do NOT give exp orb rewards as their spawning location is
-     * situational.
-     *
-     * Do NOT drop any items because they only drop when silk
-     * stripping.
      */
-    protected boolean giveReward(Player player, Block block, MiningReward reward) {
+    protected boolean giveReward(Player player, Block block, MiningReward reward, Location dropLocation) {
         if (isPlayerPlaced(block)) return false;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;
@@ -211,13 +206,13 @@ public final class MiningSkill extends Skill implements Listener {
             int bonus = session.getMoneyBonus(SkillType.MINING);
             double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
             double money = reward.money * factor;
-            dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
+            dropMoney(dropLocation, money);
         }
         giveExpBonus(player, session, 0);
         return true;
     }
 
-    protected boolean giveStackedReward(Player player, Block block, MiningReward reward, int stackCount) {
+    protected boolean giveStackedReward(Player player, Block block, MiningReward reward, Location dropLocation, int stackCount) {
         if (isPlayerPlaced(block)) return false;
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return false;
@@ -226,7 +221,7 @@ public final class MiningSkill extends Skill implements Listener {
             int bonus = session.getMoneyBonus(SkillType.MINING);
             double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
             double money = reward.money * stackCount * factor;
-            dropMoney(block.getLocation().add(0.5, 0.25, 0.5), money);
+            dropMoney(dropLocation, money);
         }
         if (player.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.SILK_TOUCH) == 0) {
             giveExpBonus(player, session, reward.veinExp * (stackCount));

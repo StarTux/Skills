@@ -1,5 +1,6 @@
 package com.cavetale.skills.session;
 
+import com.cavetale.core.event.hud.PlayerHudEvent;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.TalentType;
 import java.util.HashMap;
@@ -85,13 +86,18 @@ public final class Sessions implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    protected void onPlayerJoin(PlayerJoinEvent event) {
+    private void onPlayerJoin(PlayerJoinEvent event) {
         createAsync(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    protected void onPlayerQuit(PlayerQuitEvent event) {
+    private void onPlayerQuit(PlayerQuitEvent event) {
         remove(event.getPlayer());
+    }
+
+    @EventHandler
+    private void onPlayerHud(PlayerHudEvent event) {
+        apply(event.getPlayer(), session -> session.onPlayerHud(event));
     }
 
     public boolean isTalentEnabled(Player player, TalentType talentType) {
