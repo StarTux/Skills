@@ -57,7 +57,7 @@ public final class Guis {
         GuiOverlay.Builder builder = GuiOverlay.builder(size)
             .title(skillType.asComponent())
             .layer(GuiOverlay.BLANK, skillType.tag.color())
-            .layer(GuiOverlay.TOP_BAR, GRAY);
+            .layer(GuiOverlay.TOP_BAR, DARK_GRAY);
         // Make top menu
         for (SkillType otherSkillType : SkillType.values()) {
             final int slot = 3 + otherSkillType.ordinal();
@@ -89,35 +89,36 @@ public final class Guis {
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
             final int slot = talentType.tag.x() + talentType.tag.y() * 9;
-            if (session.canAccessTalent(talentType)) {
-                ItemStack icon = new ItemStack(talentType.tag.icon());
-                icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
-                List<Component> text = new ArrayList<>();
-                text.add(text(talentType.tag.title(), skillType.tag.color()));
-                if (session.isTalentEnabled(talentType)) {
-                    text.add(text("Enabled", GREEN));
-                } else if (session.hasTalent(talentType)) {
-                    text.add(text("Disabled", RED));
-                } else {
-                    text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
-                }
-                for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
-                    text.add(text(line, GRAY));
-                }
-                icon = Items.text(icon, text);
-                gui.setItem(slot, icon, click -> {
-                        if (!click.isLeftClick()) return;
-                        onClickTalent(player, talentType);
-                    });
+            ItemStack icon = new ItemStack(talentType.tag.icon());
+            icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+            List<Component> text = new ArrayList<>();
+            text.add(text(talentType.tag.title(), skillType.tag.color()));
+            if (session.isTalentEnabled(talentType)) {
+                text.add(text("Enabled", GREEN));
+            } else if (session.hasTalent(talentType)) {
+                text.add(text("Disabled", RED));
+            } else {
+                text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
             }
+            for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
+                text.add(text(line, GRAY));
+            }
+            icon = Items.text(icon, text);
+            gui.setItem(slot, icon, click -> {
+                    if (!click.isLeftClick()) return;
+                    onClickTalent(player, talentType);
+                });
             if (session.isTalentEnabled(talentType)) {
                 builder.highlightSlot(slot, WHITE);
             } else if (session.hasTalent(talentType)) {
+                builder.highlightSlot(slot, DARK_GRAY);
+            } else if (session.canAccessTalent(talentType)) {
                 builder.highlightSlot(slot, GRAY);
             } else {
                 builder.highlightSlot(slot, skillType.tag.color());
             }
         }
+        builder.highlightSlot(9, skillType.tag.color());
         gui.setItem(9, getMoneyIcon(session, skillType), click -> {
                 if (!click.isLeftClick()) return;
                 boolean r = session.unlockMoneyBonus(skillType, () -> {
@@ -126,6 +127,7 @@ public final class Guis {
                     });
                 if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
             });
+        builder.highlightSlot(10, skillType.tag.color());
         gui.setItem(10, getExpIcon(session, skillType), click -> {
                 if (!click.isLeftClick()) return;
                 boolean r = session.unlockExpBonus(skillType, () -> {
