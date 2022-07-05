@@ -82,6 +82,10 @@ public final class Guis {
                 });
         }
         final int talentPoints = session.getTalentPoints(skillType);
+        gui.setItem(0, Items.text(Mytems.TURN_LEFT.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
+                if (!click.isLeftClick()) return;
+                SkillsPlugin.instance.skillsCommand.skill(player, skillType);
+            });
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
                                         text(talentPoints + " "
@@ -193,15 +197,17 @@ public final class Guis {
                  .hoverEvent(showText(text("Back to Talent Menu", GRAY)))
                  .clickEvent(runCommand("/talent")));
         pages.add(join(separator(newline()), page));
-        for (Component it : talent.getInfoPages()) {
-            pages.add(it);
-        }
+        pages.addAll(talent.getInfoPages());
         Books.open(player, pages);
     }
 
     private void onRightClickTalent(Player player, TalentType talentType) {
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) return;
+        if (!session.canAccessTalent(talentType)) {
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
+            return;
+        }
         if (session.isTalentEnabled(talentType)) {
             session.setTalentEnabled(talentType, false);
             talents(player);
