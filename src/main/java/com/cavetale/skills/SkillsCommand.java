@@ -20,8 +20,8 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.Value;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.entity.Player;
+import static com.cavetale.core.font.Unicode.subscript;
 import static com.cavetale.core.font.Unicode.tiny;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.join;
@@ -244,7 +244,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         for (int offset = 0; offset < scores.size(); offset += 10) {
             List<Component> lines = new ArrayList<>();
             for (int line = 0; line < 10; line += 1) {
-                if (offset + line > scores.size()) break;
+                if (offset + line >= scores.size()) break;
                 lines.add(text(title + " Highscore", DARK_BLUE, BOLD));
                 lines.add(empty());
                 Score row = scores.get(offset + line);
@@ -254,7 +254,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                 }
                 lines.add(join(noSeparators(),
                                Glyph.toComponent("" + rank),
-                               text(tiny("" + row.score)),
+                               text(subscript(row.score)),
                                space(),
                                text("" + PlayerCache.nameForUuid(row.uuid))));
             }

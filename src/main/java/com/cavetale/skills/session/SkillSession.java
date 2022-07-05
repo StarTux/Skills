@@ -2,6 +2,7 @@ package com.cavetale.skills.session;
 
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -106,6 +107,10 @@ public class SkillSession {
                     .atomic("skillPoints", newSkillPoints)
                     .set("requiredSkillPoints", newRequiredSkillPoints)
                     .sync();
+                if (result != 0) {
+                    session.plugin.database.update(SQLPlayer.class)
+                        .row(session.sqlPlayer).add("levels", 1).sync();
+                }
                 Bukkit.getScheduler().runTask(session.plugin, () -> {
                         if (result != 1) {
                             session.plugin.getLogger().warning("LevelUp mismatch: " + row);

@@ -209,8 +209,8 @@ public final class Session {
                 SQLTalent sqlTalent = new SQLTalent(uuid, talentType);
                 talents.put(talentType, sqlTalent);
                 plugin.database.insertAsync(sqlTalent, null);
-                sqlPlayer.setTalents(sqlPlayer.getTalents() + 1);
-                plugin.database.updateAsync(sqlPlayer, null, "talents");
+                plugin.database.update(SQLPlayer.class)
+                    .row(sqlPlayer).add("talents", 1).async(null);
                 if (callback != null) callback.run();
             });
         return true;

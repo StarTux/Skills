@@ -111,7 +111,9 @@ public final class Guis {
             } else if (session.hasTalent(talentType)) {
                 text.add(text("Disabled", RED));
             } else {
-                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)));
+                if (session.canAccessTalent(talentType)) {
+                    text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)));
+                }
                 text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
             }
             for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
