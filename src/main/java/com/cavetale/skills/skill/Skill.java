@@ -33,16 +33,12 @@ public abstract class Skill {
     }
 
     protected final boolean dropMoney(Location location, double money) {
-        Denomination[] denos = Denomination.values();
-        double total = 0.0;
-        for (Denomination deno : denos) total += deno.value;
-        total /= (double) denos.length;
-        double chance = money / total;
-        double roll = plugin.random.nextDouble();
+        final Denomination deno = Denomination.GOLD;
+        final double chance = money / deno.value;
+        final double roll = plugin.random.nextDouble();
         if (roll >= chance) return false;
-        Denomination deno = denos[plugin.random.nextInt(denos.length)];
-        ItemStack itemStack = deno.mytems.createItemStack();
-        Item item = location.getWorld().dropItem(location, itemStack);
+        final ItemStack itemStack = deno.mytems.createItemStack();
+        final Item item = location.getWorld().dropItem(location, itemStack);
         if (item == null) return false;
         item.getItemStack().editMeta(meta -> {
                 Tags.set(meta.getPersistentDataContainer(), MytemsPlugin.namespacedKey("message"), skillType.displayName + " Skill");
