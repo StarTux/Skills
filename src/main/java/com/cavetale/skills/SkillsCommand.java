@@ -3,7 +3,8 @@ package com.cavetale.skills;
 import com.cavetale.core.command.AbstractCommand;
 import com.cavetale.core.command.CommandArgCompleter;
 import com.cavetale.core.command.CommandWarn;
-import com.cavetale.mytems.item.font.Glyph;
+import com.cavetale.core.font.VanillaItems;
+import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
@@ -141,6 +142,10 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                            text(tiny("sp"), GRAY),
                            text(points)));
         }
+        lines.add(space());
+        lines.add(join(noSeparators(), Mytems.GOLDEN_CUP, text("Highscores", DARK_BLUE))
+                  .hoverEvent(showText(text("/hi", GRAY)))
+                  .clickEvent(runCommand("/hi")));
         Books.open(player, List.of(join(separator(newline()), lines)));
         return true;
     }
@@ -169,25 +174,28 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
 
     protected boolean hi(@NonNull Player player, String[] args) {
         if (args.length == 0) {
-            List<Component> cb = new ArrayList<>();
-            cb.add(text("Options: ", LIGHT_PURPLE));
-            String cmd = "/sk hi total";
-            cb.add(text("Total", YELLOW)
-                   .clickEvent(runCommand(cmd))
-                   .hoverEvent(showText(text(cmd, YELLOW))));
-            cb.add(text(", ", DARK_PURPLE));
-            cmd = "/sk hi talents";
-            cb.add(text("Talents", YELLOW)
-                   .clickEvent(runCommand(cmd))
-                   .hoverEvent(showText(text(cmd, YELLOW))));
+            List<Component> lines = new ArrayList<>();
+            lines.add(text("Highscores", DARK_BLUE, BOLD)
+                      .hoverEvent(showText(text("/sk list", GRAY)))
+                      .clickEvent(runCommand("/sk list")));
+            lines.add(empty());
+            String cmd = "/hi total";
+            lines.add(join(noSeparators(), Mytems.GOLDEN_CUP, text("Total", DARK_BLUE))
+                      .clickEvent(runCommand(cmd))
+                      .hoverEvent(showText(text(cmd, GRAY))));
+            lines.add(empty());
+            cmd = "/hi talents";
+            lines.add(join(noSeparators(), VanillaItems.ENDER_EYE, text("Talents", DARK_PURPLE))
+                      .clickEvent(runCommand(cmd))
+                      .hoverEvent(showText(text(cmd, GRAY))));
             for (SkillType skill : SkillType.values()) {
-                cb.add(text(", ", DARK_PURPLE));
-                cmd = "/sk hi " + skill.key;
-                cb.add(text(skill.displayName, GOLD)
-                       .clickEvent(runCommand(cmd))
-                       .hoverEvent(showText(text(cmd, GOLD))));
+                lines.add(empty());
+                cmd = "/hi " + skill.key;
+                lines.add(skill.asComponent()
+                          .clickEvent(runCommand(cmd))
+                          .hoverEvent(showText(text(cmd, skill.tag.color()))));
             }
-            player.sendMessage(join(noSeparators(), cb));
+            Books.open(player, List.of(join(separator(newline()), lines)));
             return true;
         }
         if (args.length > 1) return false;
@@ -243,18 +251,19 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         int oldScore = -1;
         for (int offset = 0; offset < scores.size(); offset += 10) {
             List<Component> lines = new ArrayList<>();
+            lines.add(text(title + " Highscore", DARK_BLUE, BOLD)
+                      .hoverEvent(showText(text("/hi", GRAY)))
+                      .clickEvent(runCommand("/hi")));
             for (int line = 0; line < 10; line += 1) {
                 if (offset + line >= scores.size()) break;
-                lines.add(text(title + " Highscore", DARK_BLUE, BOLD));
-                lines.add(empty());
                 Score row = scores.get(offset + line);
                 if (oldScore != row.score) {
                     oldScore = row.score;
                     rank += 1;
                 }
                 lines.add(join(noSeparators(),
-                               Glyph.toComponent("" + rank),
-                               text(subscript(row.score)),
+                               text(rank, BLUE, BOLD),
+                               text(subscript(row.score), GRAY),
                                space(),
                                text("" + PlayerCache.nameForUuid(row.uuid))));
             }
