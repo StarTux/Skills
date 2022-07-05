@@ -213,12 +213,12 @@ public enum TalentType {
         public static final TalentTag SEARING = new
             TalentTag("Searing",
                       Material.SOUL_CAMPFIRE, 4, 4,
-                      "Monsters set on fire deal -30% melee damage");
+                      "Monsters set on fire deal -50% melee damage");
 
         public static final TalentTag PYROMANIAC = new
             TalentTag("Pyromaniac",
                       Material.CAMPFIRE, 4, 5,
-                      "Monsters set on fire take +30% damage");
+                      "Monsters set on fire take +50% damage");
 
         public static final TalentTag DENIAL = new
             TalentTag("Denial",
