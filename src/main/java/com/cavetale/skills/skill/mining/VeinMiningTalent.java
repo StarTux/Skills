@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
@@ -10,6 +9,7 @@ import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,17 +22,32 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
+import static com.cavetale.skills.SkillsPlugin.miningSkill;
+import static com.cavetale.skills.SkillsPlugin.sessions;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class VeinMiningTalent extends Talent implements Listener {
-    protected final MiningSkill miningSkill;
-
-    protected VeinMiningTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.VEIN_MINING);
-        this.miningSkill = miningSkill;
+    protected VeinMiningTalent() {
+        super(TalentType.VEIN_MINING);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Vein Mining - Basic";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Mining certain ores will attempt to break the entire vein",
+                      "Works on Coal, Redstone and Lapis Lazuli Ores."
+                      + "Requires the Efficiency enchantment on your pickaxe.",
+                       "Mine without this feature by sneaking.");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.IRON_PICKAXE);
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {
@@ -46,17 +61,17 @@ public final class VeinMiningTalent extends Talent implements Listener {
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
-        MiningReward reward = miningSkill.rewards.get(block.getType());
-        Session session = plugin.sessions.of(player);
+        MiningReward reward = miningSkill().rewards.get(block.getType());
+        Session session = sessions().of(player);
         if (!session.isTalentEnabled(TalentType.VEIN_METALS) && metal) return;
         if (!session.isTalentEnabled(TalentType.VEIN_GEMS) && gem) return;
         if (!sneak && efficiency > 0 && reward != null) {
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
+            Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                     if (!player.isValid()) return;
                     if (!player.getWorld().equals(block.getWorld())) return;
                     int stacks = mineVein(player, block, item, reward, efficiency);
                     if (stacks > 0) {
-                        miningSkill.giveStackedReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.5), stacks);
+                        miningSkill().giveStackedReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.5), stacks);
                     }
                 });
         }

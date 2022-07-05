@@ -2,7 +2,6 @@ package com.cavetale.skills.skill;
 
 import com.cavetale.core.item.ItemKinds;
 import com.cavetale.skills.SkillsPlugin;
-import com.cavetale.skills.util.Enums;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.NonNull;
@@ -14,6 +13,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.core.util.CamelCase.toCamelCase;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
@@ -32,7 +32,7 @@ public enum SkillType implements ComponentLike {
 
     SkillType(final SkillTag tag) {
         this.key = name().toLowerCase();
-        this.displayName = Enums.human(this);
+        this.displayName = toCamelCase(" ", this);
         this.tag = tag;
     }
 

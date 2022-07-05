@@ -1,12 +1,13 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,24 +21,40 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
+import static com.cavetale.skills.SkillsPlugin.sessions;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class SuperVisionTalent extends Talent implements Listener {
-    protected final MiningSkill miningSkill;
     protected static final BlockData GLASS = Material.BLACK_STAINED_GLASS.createBlockData();
 
-    protected SuperVisionTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.SUPER_VISION);
-        this.miningSkill = miningSkill;
+    protected SuperVisionTalent() {
+        super(TalentType.SUPER_VISION);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Super Vision";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Mining stone with a Fortune pickaxe"
+                       + " allows you to see through solid stone",
+                       "Nearby stone will be rendered see-through"
+                       + " for a few seconds so you can identify ores more easily.");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.LANTERN);
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
-        final boolean hasDeep = plugin.sessions.of(player).isTalentEnabled(TalentType.DEEP_VISION);
+        final boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_VISION);
         if (!hasDeep) {
             if (!MiningSkill.stone(event.getBlock())) return;
         } else {
@@ -49,7 +66,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         if (fortune == 0) return;
         if (player.isSneaking()) return;
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
+        Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                 xray(player, event.getBlock(), hasDeep);
             });
     }
@@ -60,7 +77,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
     protected int xray(@NonNull Player player, @NonNull Block block, final boolean hasDeep) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (!session.isEnabled()) return 0;
         // Actual XRay
         if (session.isSuperVisionActive()) return 0;
@@ -102,9 +119,9 @@ public final class SuperVisionTalent extends Talent implements Listener {
         for (Block b : no) {
             fakeBlock(player, b, b.getBlockData());
         }
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
                 if (!player.isValid()) return;
-                plugin.sessions.apply(player, s -> s.setSuperVisionActive(false));
+                sessions().apply(player, s -> s.setSuperVisionActive(false));
                 if (!player.getWorld().equals(block.getWorld())) return;
                 for (Block b : yes) {
                     if (!player.isValid()) return;

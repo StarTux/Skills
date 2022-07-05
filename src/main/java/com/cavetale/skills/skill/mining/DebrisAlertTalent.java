@@ -1,11 +1,11 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,17 +15,32 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.random;
 
 public final class DebrisAlertTalent extends Talent implements Listener {
-    protected final MiningSkill miningSkill;
-
-    protected DebrisAlertTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.DEBRIS_ALERT);
-        this.miningSkill = miningSkill;
+    protected DebrisAlertTalent() {
+        super(TalentType.DEBRIS_ALERT);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Ancient Debris Alert";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Get alerts when Ancient Debris is nearby",
+                       "Whenever you break nether stones with a pickaxe and"
+                       + " there is Ancient Debris nearby,"
+                       + " an alert sound will notify you of its existence."
+                       + " Follow that lead to earn more Ancient Debris."
+                       + " Nether stones include: Netherrack, Basalt, Blackstone");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.ANCIENT_DEBRIS);
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     protected void onBlockBreak(BlockBreakEvent event) {
@@ -56,7 +71,7 @@ public final class DebrisAlertTalent extends Talent implements Listener {
             }
         }
         if (bs.isEmpty()) return false;
-        Block ore = bs.get(plugin.random.nextInt(bs.size()));
+        Block ore = bs.get(random().nextInt(bs.size()));
         Effects.debrisAlert(ore);
         return true;
     }

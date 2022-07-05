@@ -1,9 +1,10 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
+import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,15 +16,26 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public final class MinerSightTalent extends Talent implements Listener {
-    protected final MiningSkill miningSkill;
-
-    protected MinerSightTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.MINER_SIGHT);
-        this.miningSkill = miningSkill;
+    protected MinerSightTalent() {
+        super(TalentType.MINER_SIGHT);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Miner's Sight";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Mining stone with a pickaxe grants you Night Vision",
+                       "Stone includes: Stone, Andesite, Diorite, Granite,"
+                       + " Tuff, Deepslate");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.TORCH);
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {

@@ -1,9 +1,9 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -12,19 +12,29 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 public final class ToxicFurorTalent extends Talent {
-    protected final CombatSkill combatSkill;
-
-    protected ToxicFurorTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
-        super(plugin, TalentType.TOXIC_FUROR);
-        this.combatSkill = combatSkill;
-        this.description = "Deal extra damage while affected by Poison, Wither or Nausea";
-        this.infoPages = List.of();
+    protected ToxicFurorTalent() {
+        super(TalentType.TOXIC_FUROR);
     }
 
-    @Override protected void enable() { }
+    @Override
+    public String getDisplayName() {
+        return "Toxic Furor";
+    }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile,
-                                     EntityDamageByEntityEvent event) {
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Deal extra damage while you are affected"
+                       + " by Poison, Wither or Nausea",
+                       "You deal +1 damage for every level of"
+                       + " each of the listed effects");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.EXPERIENCE_BOTTLE);
+    }
+
+    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (item == null || player.getAttackCooldown() != 1.0) return;
         if (!player.hasPotionEffect(PotionEffectType.POISON) && !player.hasPotionEffect(PotionEffectType.WITHER)

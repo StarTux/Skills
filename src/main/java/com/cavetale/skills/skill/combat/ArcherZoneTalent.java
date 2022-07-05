@@ -1,36 +1,46 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class ArcherZoneTalent extends Talent {
-    protected final CombatSkill combatSkill;
-
-    protected ArcherZoneTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
-        super(plugin, TalentType.ARCHER_ZONE);
-        this.combatSkill = combatSkill;
+    protected ArcherZoneTalent() {
+        super(TalentType.ARCHER_ZONE);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "In The Zone";
+    }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile,
-                                     EntityDamageByEntityEvent event) {
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Ranged kills give 5 seconds of double damage to ranged attacks");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.SPECTRAL_ARROW);
+    }
+
+    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (projectile == null) return;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (session.getArcherZone() <= 0) return;
         event.setDamage(event.getFinalDamage() * 2.0);
     }
@@ -38,7 +48,7 @@ public final class ArcherZoneTalent extends Talent {
     protected void onArcherKill(Player player, Mob mob, Projectile projectile, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (projectile == null) return;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         session.setArcherZone(5 * 20);
         session.setArcherZoneKills(session.getArcherZoneKills() + 1);
         player.sendActionBar(Component.join(JoinConfiguration.noSeparators(), new Component[] {

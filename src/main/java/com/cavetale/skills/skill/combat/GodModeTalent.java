@@ -1,6 +1,5 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
@@ -10,38 +9,50 @@ import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class GodModeTalent extends Talent implements Listener {
-    protected final CombatSkill combatSkill;
-    protected final Duration duration = Duration.ofSeconds(3);
+    protected static final int SECONDS = 3;
+    protected static final Duration DURATION = Duration.ofSeconds(SECONDS);
 
-    protected GodModeTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
-        super(plugin, TalentType.GOD_MODE);
-        this.combatSkill = combatSkill;
-        this.description = "Melee kills give " + duration.toSeconds() + " seconds of immortality";
-        this.infoPages = List.of(Component.text("Immortality stops you from dying, but"
-                                                + " you will still take damage!"));
+    protected GodModeTalent() {
+        super(TalentType.GOD_MODE);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "God Mode";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Melee kills give " + SECONDS + " seconds of immortality",
+                       "Immortality stops you from dying, but you will still take damage!");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.TOTEM_OF_UNDYING);
+    }
 
     /**
      * Kills grant god mode.
      */
     protected void onMeleeKill(Player player, Mob mob) {
         if (!isPlayerEnabled(player)) return;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (session.combat.getGodModeDuration() == 0) {
             player.sendActionBar(Component.text("God Mode!", NamedTextColor.GOLD, TextDecoration.BOLD));
         }
-        session.combat.setGodModeDuration(System.currentTimeMillis() + duration.toMillis());
+        session.combat.setGodModeDuration(System.currentTimeMillis() + DURATION.toMillis());
     }
 
     /**
@@ -52,7 +63,7 @@ public final class GodModeTalent extends Talent implements Listener {
     protected void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isPlayerEnabled(player)) return;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         long godModeDuration = session.combat.getGodModeDuration();
         if (godModeDuration == 0L) return;
         if (godModeDuration < System.currentTimeMillis()) {

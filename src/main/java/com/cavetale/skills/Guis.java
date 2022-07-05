@@ -100,11 +100,11 @@ public final class Guis {
         builder.highlightSlot(4 + 3 * 9, WHITE);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
-            final int slot = talentType.tag.x() + talentType.tag.y() * 9;
-            ItemStack icon = new ItemStack(talentType.tag.icon());
+            final int slot = talentType.slot.x() + talentType.slot.y() * 9;
+            ItemStack icon = talentType.getTalent().createIcon();
             icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
             List<Component> text = new ArrayList<>();
-            text.add(text(talentType.tag.title(), skillType.tag.color()));
+            text.add(talentType.asComponent());
             if (session.isTalentEnabled(talentType)) {
                 text.add(text("Enabled", GREEN));
             } else if (session.hasTalent(talentType)) {
@@ -123,7 +123,7 @@ public final class Guis {
                 }
                 text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
             }
-            for (String line : Text.wrapLine(talentType.getTalent().getDescription(), LINELENGTH)) {
+            for (String line : Text.wrapLine(talentType.getTalent().getRawDescription().get(0), LINELENGTH)) {
                 text.add(text(line, GRAY));
             }
             icon = Items.text(icon, text);
@@ -195,20 +195,23 @@ public final class Guis {
     }
 
     private void onLeftClickTalent(Player player, TalentType talentType) {
+        List<Component> description = talentType.getTalent().getDescription();
         List<Component> pages = new ArrayList<>();
         List<Component> page = new ArrayList<>();
         Talent talent = talentType.getTalent();
-        page.add(text(talentType.displayName, talentType.skillType.tag.color()));
+        page.add(talentType.asComponent());
         page.add(empty());
         page.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost), text(tiny("tp"), GRAY)));
         page.add(empty());
-        page.add(text(talent.getDescription()));
+        page.add(description.get(0));
         page.add(empty());
         page.add(DefaultFont.BACK_BUTTON.getComponent()
                  .hoverEvent(showText(text("Back to Talent Menu", GRAY)))
                  .clickEvent(runCommand("/talent")));
         pages.add(join(separator(newline()), page));
-        pages.addAll(talent.getInfoPages());
+        for (int i = 1; i < description.size(); i += 1) {
+            pages.add(description.get(i));
+        }
         Books.open(player, pages);
     }
 

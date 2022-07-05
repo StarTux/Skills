@@ -1,12 +1,17 @@
 package com.cavetale.skills.skill;
 
-import com.cavetale.skills.SkillsPlugin;
+import com.cavetale.core.font.Emoji;
+import com.cavetale.core.font.GlyphPolicy;
 import com.cavetale.skills.util.Players;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.sessions;
 
 /**
  * Implementation of a talent.  Talents are constructed by their
@@ -16,23 +21,40 @@ import org.bukkit.entity.Player;
  * will oftentimes be empty.
  */
 public abstract class Talent {
-    protected final SkillsPlugin plugin;
     @Getter protected final TalentType talentType;
-    @Getter protected String description = "";
-    @Getter protected List<Component> infoPages = List.of();
+    @Getter protected final List<Component> description;
 
-    protected Talent(final SkillsPlugin plugin, final TalentType talentType) {
-        this.plugin = plugin;
+    protected Talent(final TalentType talentType) {
         this.talentType = talentType;
-        this.description = talentType.tag.legacyDescription();
-        this.infoPages = new ArrayList<>();
-        for (String text : talentType.tag.legacyMoreText()) {
-            infoPages.add(Component.text(text));
-        }
+        this.description = computeDescription();
         talentType.register(this);
     }
 
-    protected abstract void enable();
+    /**
+     * Get the display name.
+     */
+    public abstract String getDisplayName();
+
+    /**
+     * Get the raw description.
+     */
+    public abstract List<String> getRawDescription();
+
+    /**
+     * Create the icon.
+     */
+    public abstract ItemStack createIcon();
+
+    /**
+     * Get the description as components.
+     */
+    public List<Component> computeDescription() {
+        List<Component> result = new ArrayList<>();
+        for (String string : getRawDescription()) {
+            result.add(Emoji.replaceText(string, GlyphPolicy.HIDDEN, false).asComponent());
+        }
+        return result;
+    }
 
     /**
      * Check if a player should be able to use this talent right now.  This implies:
@@ -43,6 +65,12 @@ public abstract class Talent {
      */
     protected final boolean isPlayerEnabled(Player player) {
         return Players.playMode(player)
-            && plugin.sessions.isTalentEnabled(player, talentType);
+            && sessions().isTalentEnabled(player, talentType);
+    }
+
+    protected final ItemStack createIcon(Material material) {
+        ItemStack item = new ItemStack(material);
+        item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+        return item;
     }
 }

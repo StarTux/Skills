@@ -35,7 +35,6 @@ public final class Skills {
                 plugin.getLogger().warning("Talent not implemented: " + talentType);
                 continue;
             }
-            talent.enable();
             if (talent instanceof Listener listener) {
                 Bukkit.getPluginManager().registerEvents(listener, plugin);
             }

@@ -1,6 +1,5 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
@@ -9,8 +8,7 @@ import com.cavetale.worldmarker.entity.EntityMarker;
 import com.destroystokyo.paper.event.entity.WitchThrowPotionEvent;
 import java.time.Duration;
 import java.util.List;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.JoinConfiguration;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.EntityCategory;
@@ -24,32 +22,38 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class DenialTalent extends Talent implements Listener {
-    protected final CombatSkill combatSkill;
-    protected final Duration duration = Duration.ofSeconds(20);
+    private static final int SECONDS = 20;
+    private static final Duration DURATION = Duration.ofSeconds(SECONDS);
 
-    protected DenialTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
-        super(plugin, TalentType.DENIAL);
-        this.combatSkill = combatSkill;
-        this.description = "Knockback denies mob spells, projectiles, poison for " + duration.toSeconds() + " seconds";
-        this.infoPages = List.of(new Component[] {
-                // Page 1
-                Component.join(JoinConfiguration.noSeparators(), new Component[] {
-                        Component.text("This effect denies the following for "),
-                        Component.text(duration.toSeconds() + " seconds"),
-                        Component.text(":"),
-                        Component.text("\n- Shooting Arrows"),
-                        Component.text("\n- Throwing Potions"),
-                        Component.text("\n- Spider Poison"),
-                    }),
-                // Page 2
-                Component.text("Use a Knockback weapon on an enemy to give it this status effect."),
-            });
+    protected DenialTalent() {
+        super(TalentType.DENIAL);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Denial";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Knockback denies mob spells, projectiles,"
+                       + " poison for " + SECONDS + " seconds",
+                       "This effect denies the following for "
+                       + SECONDS + " seconds"
+                       + ":"
+                       + "\n- Shooting Arrows"
+                       + "\n- Throwing Potions"
+                       + "\n- Spider Poison",
+                       "Use a Knockback weapon on an enemy to give it this status effect.");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.BARRIER);
+    }
 
     /**
      * When a mob is damaged, apply the Denial effect.
@@ -60,7 +64,7 @@ public final class DenialTalent extends Talent implements Listener {
         if (item == null || item.getEnchantmentLevel(Enchantment.KNOCKBACK) == 0) return;
         if (mob instanceof Boss) return;
         if (EntityMarker.hasId(mob, "boss")) return;
-        MobStatusEffect.DENIAL.set(mob, duration);
+        MobStatusEffect.DENIAL.set(mob, DURATION);
         Effects.applyStatusEffect(mob);
     }
 
@@ -96,8 +100,7 @@ public final class DenialTalent extends Talent implements Listener {
         if (projectile != null) return;
         if (mob.getCategory() != EntityCategory.ARTHROPOD) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
-        Session session = plugin.sessions.of(player);
-        session.combat.setPoisonFreebie(true);
+        sessionOf(player).combat.setPoisonFreebie(true);
     }
 
     /**
@@ -106,7 +109,7 @@ public final class DenialTalent extends Talent implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onEntityPotionEffect(EntityPotionEffectEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (!session.combat.isPoisonFreebie()) return;
         session.combat.setPoisonFreebie(false);
         if (event.getCause() != EntityPotionEffectEvent.Cause.ATTACK) {

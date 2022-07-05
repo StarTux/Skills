@@ -1,12 +1,13 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,25 +21,42 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
+import static com.cavetale.skills.SkillsPlugin.sessions;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class NetherVisionTalent extends Talent implements Listener {
-    protected final MiningSkill miningSkill;
     protected final BlockData fakeStoneData = Material.BLACK_STAINED_GLASS.createBlockData();
     protected final BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
 
-    protected NetherVisionTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.NETHER_VISION);
-        this.miningSkill = miningSkill;
+    protected NetherVisionTalent() {
+        super(TalentType.NETHER_VISION);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Nether Vision";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Mining nether stone with a Fortune pickaxe"
+                       + " allows you to see through nether stones",
+                       "Nearby nether stone will be rendered see-through"
+                       + " for a few seconds so you can identify ores more easily."
+                       + " Nether stones include: Netherrack, Basalt, Blackstone");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.SOUL_LANTERN);
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (session.isNetherVisionActive()) return;
         Block block = event.getBlock();
         if (!MiningSkill.netherStone(block)) return;
@@ -48,7 +66,7 @@ public final class NetherVisionTalent extends Talent implements Listener {
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         if (fortune == 0) return;
         if (player.isSneaking()) return;
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
+        Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                 xray(player, block);
             });
     }
@@ -59,7 +77,7 @@ public final class NetherVisionTalent extends Talent implements Listener {
     protected int xray(@NonNull Player player, @NonNull Block block) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (!session.isEnabled()) return 0;
         // Actual XRay
         if (session.isNetherVisionActive()) return 0;
@@ -99,9 +117,9 @@ public final class NetherVisionTalent extends Talent implements Listener {
         for (Block b : br) {
             fakeBlock(player, b, b.getBlockData());
         }
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
                 if (!player.isValid()) return;
-                plugin.sessions.apply(player, s -> s.setNetherVisionActive(false));
+                sessions().apply(player, s -> s.setNetherVisionActive(false));
                 if (!player.getWorld().equals(block.getWorld())) return;
                 for (Block b : bs) {
                     if (!player.isValid()) return;

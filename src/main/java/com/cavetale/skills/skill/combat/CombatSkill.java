@@ -24,16 +24,16 @@ public final class CombatSkill extends Skill {
     protected final CombatRewards combatRewards = new CombatRewards();
     protected final NamespacedKey killsKey;
     protected final NamespacedKey lastKillKey;
-    public final SearingTalent searingTalent;
-    public final PyromaniacTalent pyromaniacTalent;
-    public final DenialTalent denialTalent;
-    public final GodModeTalent godModeTalent;
-    public final ArcherZoneTalent archerZoneTalent;
-    public final IronAgeTalent ironAgeTalent;
-    public final ExecutionerTalent executionerTalent;
-    public final ImpalerTalent impalerTalent;
-    public final ToxicistTalent toxicistTalent;
-    public final ToxicFurorTalent toxicFurorTalent;
+    public final SearingTalent searingTalent = new SearingTalent();
+    public final PyromaniacTalent pyromaniacTalent = new PyromaniacTalent();
+    public final DenialTalent denialTalent = new DenialTalent();
+    public final GodModeTalent godModeTalent = new GodModeTalent();
+    public final ArcherZoneTalent archerZoneTalent = new ArcherZoneTalent();
+    public final IronAgeTalent ironAgeTalent = new IronAgeTalent();
+    public final ExecutionerTalent executionerTalent = new ExecutionerTalent();
+    public final ImpalerTalent impalerTalent = new ImpalerTalent();
+    public final ToxicistTalent toxicistTalent = new ToxicistTalent();
+    public final ToxicFurorTalent toxicFurorTalent = new ToxicFurorTalent();
 
     protected static final long CHUNK_KILL_DECAY_TIME = Duration.ofMinutes(5).toMillis();
 
@@ -41,16 +41,6 @@ public final class CombatSkill extends Skill {
         super(plugin, SkillType.COMBAT);
         this.killsKey = new NamespacedKey(plugin, "kills");
         this.lastKillKey = new NamespacedKey(plugin, "last_kill");
-        this.searingTalent = new SearingTalent(plugin, this);
-        this.pyromaniacTalent = new PyromaniacTalent(plugin, this);
-        this.denialTalent = new DenialTalent(plugin, this);
-        this.godModeTalent = new GodModeTalent(plugin, this);
-        this.archerZoneTalent = new ArcherZoneTalent(plugin, this);
-        this.ironAgeTalent = new IronAgeTalent(plugin, this);
-        this.executionerTalent = new ExecutionerTalent(plugin, this);
-        this.impalerTalent = new ImpalerTalent(plugin, this);
-        this.toxicistTalent = new ToxicistTalent(plugin, this);
-        this.toxicFurorTalent = new ToxicFurorTalent(plugin, this);
     }
 
     @Override

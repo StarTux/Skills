@@ -1,17 +1,28 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
+import java.util.List;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 public final class DeepMiningTalent extends Talent {
-    protected  final MiningSkill miningSkill;
-
-    protected DeepMiningTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.DEEP_MINING);
-        this.miningSkill = miningSkill;
+    protected DeepMiningTalent() {
+        super(TalentType.DEEP_MINING);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Deep Strip Mining";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Strip Mining works on Deepslate and Tuff");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.DEEPSLATE);
+    }
 }

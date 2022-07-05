@@ -2,12 +2,14 @@ package com.cavetale.skills.skill.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
+import java.util.List;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -18,17 +20,34 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import static com.cavetale.skills.SkillsPlugin.random;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class StripMiningTalent extends Talent implements Listener {
-    protected final MiningSkill miningSkill;
-
-    protected StripMiningTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.STRIP_MINING);
-        this.miningSkill = miningSkill;
+    protected StripMiningTalent() {
+        super(TalentType.STRIP_MINING);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Strip Mining";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Mining stone with an Efficiency pickaxe breaks many blocks",
+                       "Unleash the full power of the Efficency enchantment."
+                       + " Mining stone type blocks will break several blocks"
+                       + " within a line while mining straight."
+                       + " Stone includes: Stone, Andesite, Diorite, Granite",
+                       "Mine without this feature by sneaking.");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.STONE);
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {
@@ -36,13 +55,13 @@ public final class StripMiningTalent extends Talent implements Listener {
         if (!isPlayerEnabled(player)) return;
         final Block block = event.getBlock();
         if (player.isSneaking()) return;
-        boolean hasDeep = plugin.sessions.of(player).isTalentEnabled(TalentType.DEEP_MINING);
+        boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_MINING);
         final boolean stone = MiningSkill.stone(block) || (hasDeep && MiningSkill.deepStone(block));
-        if (plugin.sessions.of(player).isDebugMode()) {
+        if (sessionOf(player).isDebugMode()) {
             player.sendMessage(talentType + " hasDeep=" + hasDeep + " stone=" + stone);
         }
         if (!stone) return;
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
+        Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                 if (!player.isValid()) return;
                 if (!player.getWorld().equals(block.getWorld())) return;
                 stripMine(player, block, hasDeep);
@@ -95,7 +114,7 @@ public final class StripMiningTalent extends Talent implements Listener {
             // Damage the pickaxe and cancel if it is used up.
             if (dmg != null) {
                 if (dmg.getDamage() >= item.getType().getMaxDurability()) break;
-                if (unbreaking == 0 || plugin.random.nextInt(unbreaking) == 0) {
+                if (unbreaking == 0 || random().nextInt(unbreaking) == 0) {
                     dmg.setDamage(dmg.getDamage() + 1);
                     item.setItemMeta(meta);
                 }

@@ -1,17 +1,28 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
+import java.util.List;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 public final class DeepVisionTalent extends Talent {
-    protected  final MiningSkill miningSkill;
-
-    protected DeepVisionTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.DEEP_VISION);
-        this.miningSkill = miningSkill;
+    protected DeepVisionTalent() {
+        super(TalentType.DEEP_VISION);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Super Deep Vision";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Super Vision sees through deepslate and tuff");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.SPYGLASS);
+    }
 }

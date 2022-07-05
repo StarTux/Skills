@@ -13,14 +13,14 @@ public final class SkillsTest {
             int points = 0;
             for (TalentType a : talents) {
                 points += a.talentPointCost;
-                if (a.tag.x() == 4 && a.tag.y() == 3) {
-                    throw new IllegalStateException("Centered x,y: " + a + ": " + a.tag.x() + "," + a.tag.y());
+                if (a.slot.x() == 4 && a.slot.y() == 3) {
+                    throw new IllegalStateException("Centered x,y: " + a + ": " + a.slot.x() + "," + a.slot.y());
                 }
                 for (TalentType b : talents) {
                     if (a == b) continue;
-                    if (a.tag.x() == b.tag.x() && a.tag.y() == b.tag.y()) {
+                    if (a.slot.x() == b.slot.x() && a.slot.y() == b.slot.y()) {
                         throw new IllegalStateException("Duplicate x,y: " + a + "/" + b
-                                                        + ": " + a.tag.x() + "," + a.tag.y());
+                                                        + ": " + a.slot.x() + "," + a.slot.y());
                     }
                 }
             }

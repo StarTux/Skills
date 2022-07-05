@@ -25,21 +25,21 @@ import static org.bukkit.Material.*;
 
 public final class MiningSkill extends Skill implements Listener {
     protected final EnumMap<Material, MiningReward> rewards = new EnumMap<>(Material.class);
-    public final StripMiningTalent stripMiningTalent;
-    public final DeepMiningTalent deepMiningTalent;
-    public final VeinMiningTalent veinMiningTalent;
-    public final VeinGemsTalent veinGemsTalent;
-    public final VeinMetalsTalent veinMetalsTalent;
-    public final SilkStripTalent silkStripTalent;
-    public final SilkMetalsTalent silkMetalsTalent;
-    public final SilkMultiTalent silkMultiTalent;
-    public final MinerSightTalent minerSightTalent;
-    public final SuperVisionTalent superVisionTalent;
-    public final DeepVisionTalent deepVisionTalent;
-    public final NetherVisionTalent netherVisionTalent;
-    public final OreAlertTalent oreAlertTalent;
-    public final EmeraldAlertTalent emeraldAlertTalent;
-    public final DebrisAlertTalent debrisAlertTalent;
+    public final StripMiningTalent stripMiningTalent = new StripMiningTalent();
+    public final DeepMiningTalent deepMiningTalent = new DeepMiningTalent();
+    public final VeinMiningTalent veinMiningTalent = new VeinMiningTalent();
+    public final VeinGemsTalent veinGemsTalent = new VeinGemsTalent();
+    public final VeinMetalsTalent veinMetalsTalent = new VeinMetalsTalent();
+    public final SilkStripTalent silkStripTalent = new SilkStripTalent();
+    public final SilkMetalsTalent silkMetalsTalent = new SilkMetalsTalent();
+    public final SilkMultiTalent silkMultiTalent = new SilkMultiTalent();
+    public final MinerSightTalent minerSightTalent = new MinerSightTalent();
+    public final SuperVisionTalent superVisionTalent = new SuperVisionTalent();
+    public final DeepVisionTalent deepVisionTalent = new DeepVisionTalent();
+    public final NetherVisionTalent netherVisionTalent = new NetherVisionTalent();
+    public final OreAlertTalent oreAlertTalent = new OreAlertTalent();
+    public final EmeraldAlertTalent emeraldAlertTalent = new EmeraldAlertTalent();
+    public final DebrisAlertTalent debrisAlertTalent = new DebrisAlertTalent();
     private static final MaterialSetTag STONE_TYPES = new
         MaterialSetTag(NamespacedKey.fromString("skills:stone_types"),
                        STONE, DIORITE, ANDESITE, GRANITE).lock();
@@ -53,21 +53,6 @@ public final class MiningSkill extends Skill implements Listener {
 
     public MiningSkill(@NonNull final SkillsPlugin plugin) {
         super(plugin, SkillType.MINING);
-        this.stripMiningTalent = new StripMiningTalent(plugin, this);
-        this.deepMiningTalent = new DeepMiningTalent(plugin, this);
-        this.veinMiningTalent = new VeinMiningTalent(plugin, this);
-        this.veinGemsTalent = new VeinGemsTalent(plugin, this);
-        this.veinMetalsTalent = new VeinMetalsTalent(plugin, this);
-        this.silkStripTalent = new SilkStripTalent(plugin, this);
-        this.silkMetalsTalent = new SilkMetalsTalent(plugin, this);
-        this.silkMultiTalent = new SilkMultiTalent(plugin, this);
-        this.minerSightTalent = new MinerSightTalent(plugin, this);
-        this.superVisionTalent = new SuperVisionTalent(plugin, this);
-        this.deepVisionTalent = new DeepVisionTalent(plugin, this);
-        this.netherVisionTalent = new NetherVisionTalent(plugin, this);
-        this.oreAlertTalent = new OreAlertTalent(plugin, this);
-        this.emeraldAlertTalent = new EmeraldAlertTalent(plugin, this);
-        this.debrisAlertTalent = new DebrisAlertTalent(plugin, this);
     }
 
     @Override

@@ -2,12 +2,12 @@ package com.cavetale.skills.skill.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerChangeBlockEvent;
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,17 +25,42 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
+import static com.cavetale.skills.SkillsPlugin.miningSkill;
+import static com.cavetale.skills.SkillsPlugin.random;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class SilkStripTalent extends Talent implements Listener {
-    protected final MiningSkill miningSkill;
-
-    protected SilkStripTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.SILK_STRIP);
-        this.miningSkill = miningSkill;
+    protected SilkStripTalent() {
+        super(TalentType.SILK_STRIP);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Silk Stripping";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Use a Silk Touch pickaxe to strip a natural ore of its contents",
+                       "Right-click with a Silk Touch pickaxe to use your"
+                       + " fine motory skills and remove those"
+                       + " treasures right from the ore block."
+                       + "With any luck, you may repeat the procedure"
+                       + " as long as the ore stays intact,"
+                       + " getting more and more drops.",
+                       "Eventually, the ore will turn into stone and"
+                       + " you get the usual skill points for mining."
+                       + " This method may yield as much reward as Fortune 3"
+                       + " but is more random.",
+                       "Silk Stripping only works on natural ores."
+                       + " Picking up and moving the ore will compromise its structural integrity,"
+                       + " making Silk Stripping ineffective.");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.GOLD_NUGGET);
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     protected void onPlayerInteract(PlayerInteractEvent event) {
@@ -49,7 +74,7 @@ public final class SilkStripTalent extends Talent implements Listener {
         final boolean metal = MiningSkill.metalOre(block);
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
-        MiningReward reward = miningSkill.rewards.get(block.getType());
+        MiningReward reward = miningSkill().rewards.get(block.getType());
         if (reward == null || reward.item == null || reward.drops <= 0) return;
         if (item == null || item.getType() == Material.AIR) return;
         if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, block)) return;
@@ -61,7 +86,7 @@ public final class SilkStripTalent extends Talent implements Listener {
             Damageable dmg = (Damageable) meta;
             if (dmg.getDamage() >= item.getType().getMaxDurability()) return;
             int unbreaking = item.getEnchantmentLevel(Enchantment.DURABILITY);
-            if (unbreaking == 0 || plugin.random.nextInt(unbreaking) == 0) {
+            if (unbreaking == 0 || random().nextInt(unbreaking) == 0) {
                 dmg.setDamage(dmg.getDamage() + 1);
                 item.setItemMeta(meta);
             }
@@ -86,17 +111,17 @@ public final class SilkStripTalent extends Talent implements Listener {
         player.getWorld().dropItem(dropLocation, drop).setVelocity(vel);
         // (Maybe) change the Block
         double factor = 2.20; // Fortune 3
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (metal && session.isTalentEnabled(TalentType.SILK_METALS)) factor = 3.30;
         if (!metal && session.isTalentEnabled(TalentType.SILK_MULTI)) factor = 3.30;
         final double amount; // Expected value of additionally dropped items.
         amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.
         chance = 1.0 / amount;
-        final double roll = plugin.random.nextDouble();
+        final double roll = random().nextDouble();
         Effects.useSilk(player, block, dropLocation);
         if (roll < chance) {
-            miningSkill.giveReward(player, block, reward, dropLocation);
+            miningSkill().giveReward(player, block, reward, dropLocation);
             Effects.failSilk(player, block);
             new PlayerChangeBlockEvent(player, block, reward.replaceable.createBlockData()).callEvent();
             block.setType(reward.replaceable);

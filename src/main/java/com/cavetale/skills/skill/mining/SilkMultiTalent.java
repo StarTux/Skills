@@ -1,17 +1,33 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
+import java.util.List;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 public final class SilkMultiTalent extends Talent {
-    protected final MiningSkill miningSkill;
-
-    protected SilkMultiTalent(final SkillsPlugin plugin, final MiningSkill miningSkill) {
-        super(plugin, TalentType.SILK_MULTI);
-        this.miningSkill = miningSkill;
+    protected SilkMultiTalent() {
+        super(TalentType.SILK_MULTI);
     }
 
     @Override
-    protected void enable() { }
+    public String getDisplayName() {
+        return "Silk Fortune";
+    }
+
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Get more non-metallic drops from Silk Stripping",
+                       "Upgrade Silk Stripping to get more drops"
+                       + " from non-metallic ores. Works on everything"
+                       + " but Ancient Debris, Copper, Iron and Gold Ores.",
+                       "This method may yield as much reward as Fortune 4"
+                       + " would, but it is more random.");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.DIAMOND);
+    }
 }

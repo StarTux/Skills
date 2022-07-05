@@ -1,31 +1,39 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 
 public final class SearingTalent extends Talent {
-    protected final CombatSkill combatSkill;
-
-    protected SearingTalent(final SkillsPlugin plugin, final CombatSkill combatSkill) {
-        super(plugin, TalentType.SEARING);
-        this.combatSkill = combatSkill;
-        this.description = "Monsters set on fire deal -50% melee damage";
-        this.infoPages = List.of();
+    protected SearingTalent() {
+        super(TalentType.SEARING);
     }
 
-    @Override protected void enable() { }
+    @Override
+    public String getDisplayName() {
+        return "Searing";
+    }
 
-    protected void onMobDamagePlayer(Player player, Mob mob, Projectile projectile,
-                                     EntityDamageByEntityEvent event) {
+    @Override
+    public List<String> getRawDescription() {
+        return List.of("Monsters set on fire deal -30% melee damage");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return createIcon(Material.SOUL_CAMPFIRE);
+    }
+
+    protected void onMobDamagePlayer(Player player, Mob mob, Projectile projectile, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (projectile != null) return;
         if (mob.getFireTicks() <= 0) return;
-        event.setDamage(event.getFinalDamage() * 0.5);
+        event.setDamage(event.getFinalDamage() * 0.7);
     }
 }
