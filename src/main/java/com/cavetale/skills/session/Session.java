@@ -2,14 +2,18 @@ package com.cavetale.skills.session;
 
 import com.cavetale.core.event.hud.PlayerHudEvent;
 import com.cavetale.core.event.hud.PlayerHudPriority;
+import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -18,9 +22,11 @@ import lombok.Setter;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import static com.cavetale.core.font.Unicode.tiny;
-import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.Component.join;
+import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.*;
@@ -50,7 +56,7 @@ public final class Session {
     @Setter protected int archerZoneKills = 0;
     @Setter protected SkillType talentGui = SkillType.MINING;
     @Setter protected boolean debugMode;
-    protected boolean unlockingTalent = false; // big talent lock
+    protected boolean modifyingTalents = false; // big talent lock
 
     public Session(@NonNull final SkillsPlugin plugin, @NonNull final UUID uuid) {
         this.plugin = plugin;
@@ -194,16 +200,16 @@ public final class Session {
     }
 
     public boolean unlockTalent(@NonNull TalentType talentType, final Runnable callback) {
-        if (unlockingTalent) return false;
+        if (modifyingTalents) return false;
         if (talents.containsKey(talentType)) return false;
         final int cost = talentType.talentPointCost;
         if (getTalentPoints(talentType.skillType) < cost) return false;
-        unlockingTalent = true;
+        modifyingTalents = true;
         skills.get(talentType.skillType).modifyTalents(-cost, 1, () -> {
                 // This is silly because if the talent point removal
-                // fails, unlockingTalent will just get stuck until
+                // fails, modifyingTalents will just get stuck until
                 // the session is reloaded.
-                unlockingTalent = false;
+                modifyingTalents = false;
                 SQLTalent sqlTalent = new SQLTalent(uuid, talentType);
                 talents.put(talentType, sqlTalent);
                 plugin.database.insertAsync(sqlTalent, null);
@@ -215,22 +221,22 @@ public final class Session {
     }
 
     public boolean unlockMoneyBonus(SkillType skillType, final Runnable callback) {
-        if (unlockingTalent) return false;
+        if (modifyingTalents) return false;
         if (getTalentPoints(skillType) < 1) return false;
-        unlockingTalent = true;
+        modifyingTalents = true;
         skills.get(skillType).modifyTalents(-1, 0, () -> {
-                unlockingTalent = false;
+                modifyingTalents = false;
                 skills.get(skillType).increaseMoneyBonus(callback);
             });
         return true;
     }
 
     public boolean unlockExpBonus(SkillType skillType, final Runnable callback) {
-        if (unlockingTalent) return false;
+        if (modifyingTalents) return false;
         if (getTalentPoints(skillType) < 1) return false;
-        unlockingTalent = true;
+        modifyingTalents = true;
         skills.get(skillType).modifyTalents(-1, 0, () -> {
-                unlockingTalent = false;
+                modifyingTalents = false;
                 skills.get(skillType).increaseExpBonus(callback);
             });
         return true;
@@ -263,6 +269,65 @@ public final class Session {
 
     public int getMoneyBonus(SkillType skillType) {
         return skills.get(skillType).getMoneyBonus();
+    }
+
+    public int getTotalSpentTalentPoints(SkillType skillType) {
+        int result = 0;
+        for (TalentType it : talents.keySet()) {
+            if (it.skillType != skillType) continue;
+            result += it.talentPointCost;
+        }
+        result += getExpBonus(skillType);
+        result += getMoneyBonus(skillType);
+        return result;
+    }
+
+    public boolean respec(Player player, SkillType skillType) {
+        if (modifyingTalents) return false;
+        int talentPoints = 0;
+        List<SQLTalent> talentRows = new ArrayList<>();
+        for (Iterator<Map.Entry<TalentType, SQLTalent>> iter = talents.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<TalentType, SQLTalent> entry = iter.next();
+            TalentType talentType = entry.getKey();
+            if (talentType.skillType == skillType) {
+                talentPoints += talentType.talentPointCost;
+                talentRows.add(entry.getValue());
+                iter.remove();
+            }
+        }
+        talentPoints += getExpBonus(skillType);
+        talentPoints += getMoneyBonus(skillType);
+        if (talentPoints == 0) {
+            player.sendMessage(join(noSeparators(), text("You do not have any Talent Points in "), skillType).color(RED));
+            return false;
+        }
+        int spent = 0;
+        for (ItemStack itemStack : player.getInventory()) {
+            if (itemStack == null || itemStack.getType().isAir()) continue;
+            if (Mytems.KITTY_COIN.isItem(itemStack)) {
+                itemStack.subtract(1);
+                spent += 1;
+            }
+        }
+        if (spent == 0) {
+            player.sendMessage(join(noSeparators(), text("You do not have one "), Mytems.KITTY_COIN, text(" Kitty Coin!")).color(RED));
+            return false;
+        }
+        modifyingTalents = true;
+        final int talentPoints2 = talentPoints;
+        skills.get(skillType).respec(player, talentRows, talentPoints, tp -> {
+                modifyingTalents = false;
+                plugin.getLogger().info(player.getName() + " respec " + skillType + " " + tp + "/" + talentPoints2);
+                if (tp == 0) {
+                    plugin.getLogger().severe(player.getName() + " respect " + skillType + " failed!");
+                    player.sendMessage(text("Something went wrong!", RED));
+                } else {
+                    player.sendMessage(join(noSeparators(), text(tp + " "), skillType, text(" Talent Points refunded")));
+                }
+                if (!player.isValid()) return;
+                plugin.guis.talents(player);
+            });
+        return true;
     }
 
     protected void onPlayerHud(PlayerHudEvent event) {

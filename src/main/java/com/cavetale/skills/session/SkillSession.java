@@ -4,10 +4,15 @@ import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
+import com.cavetale.skills.sql.SQLTalent;
+import java.util.List;
+import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
+import static com.cavetale.skills.SkillsPlugin.database;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static java.time.Duration.ofSeconds;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
@@ -37,7 +42,7 @@ public class SkillSession {
         if (row == null) {
             SQLSkill newRow = new SQLSkill(session.uuid, skillType);
             newRow.setRequiredSkillPoints(SkillsPlugin.pointsForLevelUp(1));
-            session.plugin.database.insertAsync(newRow, count -> {
+            database().insertAsync(newRow, count -> {
                     if (count == 0) {
                         session.plugin.getLogger().warning("enable() insert mismatch: " + newRow);
                         onDatabaseMismatch();
@@ -65,16 +70,16 @@ public class SkillSession {
     public final void addSkillPoints(final int amount) {
         if (row == null) return;
         final SQLSkill rowHandle = row;
-        session.plugin.database.scheduleAsyncTask(() -> {
+        database().scheduleAsyncTask(() -> {
                 // Do the whole thing in the async thread so that the
                 // stored value doesn't go out of sync!
                 final int requiredSkillPoints = rowHandle.getRequiredSkillPoints();
                 final int newSkillPoints = rowHandle.getSkillPoints() + amount;
                 final int newTotalSkillPoints = rowHandle.getTotalSkillPoints() + amount;
-                final int result = session.plugin.database.update(SQLSkill.class)
+                final int result = database().update(SQLSkill.class)
                     .row(rowHandle)
-                    .atomic("skill_points", newSkillPoints)
-                    .set("total_skill_points", newTotalSkillPoints)
+                    .atomic("skillPoints", newSkillPoints)
+                    .set("totalSkillPoints", newTotalSkillPoints)
                     .sync();
                 Bukkit.getScheduler().runTask(session.plugin, () -> {
                         if (result == 0) {
@@ -94,21 +99,21 @@ public class SkillSession {
         if (row == null) return false;
         if (getSkillPoints() < getRequiredSkillPoints()) return false;
         final SQLSkill rowHandle = row;
-        session.plugin.database.scheduleAsyncTask(() -> {
+        database().scheduleAsyncTask(() -> {
                 if (rowHandle.getSkillPoints() < rowHandle.getRequiredSkillPoints()) return;
                 final int newLevel = rowHandle.getLevel() + 1;
                 final int newSkillPoints = rowHandle.getSkillPoints() - rowHandle.getRequiredSkillPoints();
                 final int newTalentPoints = rowHandle.getTalentPoints() + 1;
                 final int newRequiredSkillPoints = SkillsPlugin.pointsForLevelUp(newLevel + 1);
-                final int result = session.plugin.database.update(SQLSkill.class)
+                final int result = database().update(SQLSkill.class)
                     .row(rowHandle)
                     .atomic("level", newLevel)
-                    .atomic("talent_points", newTalentPoints)
+                    .atomic("talentPoints", newTalentPoints)
                     .atomic("skillPoints", newSkillPoints)
                     .set("requiredSkillPoints", newRequiredSkillPoints)
                     .sync();
                 if (result != 0) {
-                    session.plugin.database.update(SQLPlayer.class)
+                    database().update(SQLPlayer.class)
                         .row(session.sqlPlayer).add("levels", 1).sync();
                 }
                 Bukkit.getScheduler().runTask(session.plugin, () -> {
@@ -132,22 +137,44 @@ public class SkillSession {
 
     public final void modifyTalents(final int addPoints, final int addTalents, final Runnable callback) {
         if (row == null) return;
-        final int newTalentPoints = row.getTalentPoints() + addPoints;
-        final int newTalents = row.getTalents() + addTalents;
         final SQLSkill rowHandle = row;
-        session.plugin.database.scheduleAsyncTask(() -> {
-                final int result = session.plugin.database.update(SQLSkill.class)
+        database().scheduleAsyncTask(() -> {
+                final int newTalentPoints = rowHandle.getTalentPoints() + addPoints;
+                final int newTalents = rowHandle.getTalents() + addTalents;
+                final int result = database().update(SQLSkill.class)
                     .row(rowHandle)
-                    .atomic("talent_points", newTalentPoints)
+                    .atomic("talentPoints", newTalentPoints)
                     .atomic("talents", newTalents)
                     .sync();
                 Bukkit.getScheduler().runTask(session.plugin, () -> {
                         if (result != 1) {
-                            session.plugin.getLogger().warning("LevelUp mismatch: " + row);
+                            session.plugin.getLogger().warning("ModifyTalents mismatch: " + row);
                             onDatabaseMismatch();
                             return;
                         }
                         if (callback != null) callback.run();
+                    });
+            });
+    }
+
+    /**
+     * Call callback with new talent points.
+     */
+    protected void respec(Player player, List<SQLTalent> talentRows, final int talentPoints, Consumer<Integer> callback) {
+        database().scheduleAsyncTask(() -> {
+                int res = database().update(SQLSkill.class)
+                    .row(row)
+                    .atomic("talentPoints", row.getTalentPoints() + talentPoints)
+                    .atomic("talents", 0)
+                    .atomic("moneyBonus", 0)
+                    .atomic("expBonus", 0)
+                    .sync();
+                if (res == 0) {
+                    callback.accept(0);
+                }
+                database().delete(talentRows);
+                Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
+                        callback.accept(talentPoints);
                     });
             });
     }
@@ -175,7 +202,7 @@ public class SkillSession {
     }
 
     protected final void increaseMoneyBonus(Runnable callback) {
-        session.plugin.database.update(SQLSkill.class)
+        database().update(SQLSkill.class)
             .row(row)
             .add("moneyBonus", 1)
             .async(r -> {
@@ -185,7 +212,7 @@ public class SkillSession {
     }
 
     protected final void increaseExpBonus(Runnable callback) {
-        session.plugin.database.update(SQLSkill.class)
+        database().update(SQLSkill.class)
             .row(row)
             .add("expBonus", 1)
             .async(r -> {
@@ -202,7 +229,7 @@ public class SkillSession {
     protected void onDatabaseMismatch() {
         if (this.row == null) return; // Already reloading
         this.row = null;
-        session.plugin.database.find(SQLSkill.class)
+        database().find(SQLSkill.class)
             .eq("player", session.uuid)
             .findUniqueAsync(newRow -> {
                     load(newRow);

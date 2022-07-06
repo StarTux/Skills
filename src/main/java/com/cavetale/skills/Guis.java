@@ -162,6 +162,16 @@ public final class Guis {
                     });
                 if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
             });
+        if (session.getTotalSpentTalentPoints(skillType) > 0) {
+            gui.setItem(45, getRespecIcon(session, skillType), click -> {
+                    if (!click.isRightClick()) return;
+                    if (!session.respec(player, skillType)) {
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
+                    } else {
+                        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.MASTER, 1.0f, 1.0f);
+                    }
+                });
+        }
         gui.title(builder.build());
         gui.open(player);
         return gui;
@@ -173,24 +183,40 @@ public final class Guis {
         int next = SkillsPlugin.moneyBonusPercentage(bonus + 1);
         ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
-        Items.text(icon, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
-                                 join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
-                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
-                                 join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
-                                 join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY))));
+        icon.editMeta(meta -> {
+                Items.text(meta, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
+                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
+                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
+                                         join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
+                                         join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY))));
+            });
         return icon;
     }
 
     private ItemStack getExpIcon(Session session, SkillType skillType) {
         int bonus = session.getExpBonus(skillType);
         ItemStack icon = new ItemStack(Material.EXPERIENCE_BOTTLE);
-        icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
-        Items.text(icon, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
-                                 join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
-                                 join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
-                                 join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
-                                 join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY))));
+        icon.editMeta(meta -> {
+                meta.addItemFlags(ItemFlag.values());
+                Items.text(meta, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
+                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
+                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
+                                         join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
+                                         join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY))));
+            });
+        return icon;
+    }
+
+    private ItemStack getRespecIcon(Session session, SkillType skillType) {
+        ItemStack icon = Mytems.REDO.createIcon();
+        int tp = session.getTotalSpentTalentPoints(skillType);
+        icon.editMeta(meta -> {
+                Items.text(meta, List.of(join(noSeparators(), text(" Refund "), skillType, text(" Talent Points")).color(BLUE),
+                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Purchase", GRAY, ITALIC)),
+                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), Mytems.KITTY_COIN),
+                                         join(noSeparators(), text(tiny("total "), GRAY), text(tp, WHITE), text(tiny("tp"), GRAY))));
+            });
         return icon;
     }
 

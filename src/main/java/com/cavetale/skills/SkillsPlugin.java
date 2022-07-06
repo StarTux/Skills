@@ -86,4 +86,8 @@ public final class SkillsPlugin extends JavaPlugin {
     public static Random random() {
         return instance.random;
     }
+
+    public static SQLDatabase database() {
+        return instance.database;
+    }
 }
