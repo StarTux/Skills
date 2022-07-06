@@ -50,8 +50,8 @@ public final class SilkStripTalent extends Talent implements Listener {
                        + " getting more and more drops.",
                        "Eventually, the ore will turn into stone and"
                        + " you get the usual skill points for mining."
-                       + " This method may yield as much reward as Fortune 3"
-                       + " but is more random.",
+                       + " This method may yield as much reward as Fortune IV"
+                       + " would but with greater variance.",
                        "Silk Stripping only works on natural ores."
                        + " Picking up and moving the ore will compromise its structural integrity,"
                        + " making Silk Stripping ineffective.");
@@ -109,11 +109,16 @@ public final class SilkStripTalent extends Talent implements Listener {
                                 face.getModY() * spd,
                                 face.getModZ() * spd);
         player.getWorld().dropItem(dropLocation, drop).setVelocity(vel);
-        // (Maybe) change the Block
-        double factor = 2.20; // Fortune 3
+        // Calculation: https://minecraft.fandom.com/wiki/Fortune#Ore
+        // 1/(lvl+2) + (lvl + 1)/2
+        // Fortune 3 => 2.20
+        // Fortune 4 => 2.6666
+        // Fortune 5 => 3.1428
+        // Fortune 6 => 3.625
+        double factor = 2.6666;
         Session session = sessionOf(player);
-        if (metal && session.isTalentEnabled(TalentType.SILK_METALS)) factor = 3.30;
-        if (!metal && session.isTalentEnabled(TalentType.SILK_MULTI)) factor = 3.30;
+        if (metal && session.isTalentEnabled(TalentType.SILK_METALS)) factor = 3.1428;
+        if (!metal && session.isTalentEnabled(TalentType.SILK_MULTI)) factor = 3.1428;
         final double amount; // Expected value of additionally dropped items.
         amount = (double) reward.drops * factor;
         final double chance; // Chance at NOT getting another drop.

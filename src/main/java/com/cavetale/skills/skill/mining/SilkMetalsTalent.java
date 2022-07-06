@@ -22,8 +22,8 @@ public final class SilkMetalsTalent extends Talent {
                        "Upgrade Silk Stripping to get more drops"
                        + " from metal ores. Works on Ancient Debris,"
                        + " Copper, Iron and Gold Ores",
-                       "This method may yield as much reward as Fortune 4"
-                       + " would, but it is more random.");
+                       "This method may yield as much reward as Fortune V"
+                       + " would, but with greater variance.");
     }
 
     @Override
