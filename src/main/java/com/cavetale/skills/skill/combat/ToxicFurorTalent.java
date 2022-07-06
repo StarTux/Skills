@@ -3,12 +3,15 @@ package com.cavetale.skills.skill.combat;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 
 public final class ToxicFurorTalent extends Talent {
@@ -31,7 +34,14 @@ public final class ToxicFurorTalent extends Talent {
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.EXPERIENCE_BOTTLE);
+        ItemStack icon = new ItemStack(Material.POTION);
+        icon.editMeta(meta -> {
+                meta.addItemFlags(ItemFlag.values());
+                if (meta instanceof PotionMeta potionMeta) {
+                    potionMeta.setColor(Color.GREEN);
+                }
+            });
+        return icon;
     }
 
     protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile, EntityDamageByEntityEvent event) {
