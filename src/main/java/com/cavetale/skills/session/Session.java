@@ -181,11 +181,11 @@ public final class Session {
         skillBar.name(join(noSeparators(),
                            skillType,
                            text(tiny(" lvl "), GRAY),
-                           text(level, skillType.tag.color(), BOLD),
+                           text(level, skillType.textColor, BOLD),
                            text(tiny(" sp "), GRAY),
-                           text(points, skillType.tag.color())));
+                           text(points, skillType.textColor)));
         skillBar.progress(Math.max(0.0f, Math.min(1.0f, (float) points / (float) required)));
-        skillBar.color(skillType.tag.bossBarColor());
+        skillBar.color(skillType.bossBarColor);
         shownSkill = skillType;
         skillBarCountdown = 100;
         Player player = getPlayer();
@@ -193,7 +193,7 @@ public final class Session {
             showSkillBar = true;
             player.sendActionBar(join(noSeparators(),
                                       text("+"),
-                                      text(actionSP, skillType.tag.color(), BOLD),
+                                      text(actionSP, skillType.textColor, BOLD),
                                       text("SP"))
                                  .color(GRAY));
         }

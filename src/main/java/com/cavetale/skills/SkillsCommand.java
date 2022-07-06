@@ -97,11 +97,12 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .filter(t -> t.skillType == skillType)
             .filter(session::hasTalent).count();
         List<Component> lines = new ArrayList<>();
+        List<Component> description = skillType.getDescription();
         lines.add(skillType.asComponent()
                   .hoverEvent(showText(text("/sk list", GRAY)))
                   .clickEvent(runCommand("/sk list")));
         lines.add(empty());
-        lines.add(text(skillType.tag.description()));
+        lines.add(description.get(0));
         lines.add(empty());
         lines.add(prop("Level ", "" + level));
         lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skillType), "/talent " + skillType.key));
@@ -114,8 +115,8 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         }
         List<Component> pages = new ArrayList<>();
         pages.add(join(separator(newline()), lines));
-        for (String txt : skillType.tag.moreText()) {
-            pages.add(text(txt));
+        for (int i = 1; i < description.size(); i += 1) {
+            pages.add(description.get(i));
         }
         Books.open(player, pages);
     }
@@ -193,7 +194,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                 cmd = "/hi " + skill.key;
                 lines.add(skill.asComponent()
                           .clickEvent(runCommand(cmd))
-                          .hoverEvent(showText(text(cmd, skill.tag.color()))));
+                          .hoverEvent(showText(text(cmd, skill.textColor))));
             }
             Books.open(player, List.of(join(separator(newline()), lines)));
             return true;

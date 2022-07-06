@@ -64,16 +64,15 @@ public final class Guis {
         final Gui gui = new Gui(plugin).size(size);
         GuiOverlay.Builder builder = GuiOverlay.builder(size)
             .title(skillType.asComponent())
-            .layer(GuiOverlay.BLANK, skillType.tag.color())
+            .layer(GuiOverlay.BLANK, skillType.textColor)
             .layer(GuiOverlay.TOP_BAR, DARK_GRAY);
         // Make top menu
         for (SkillType otherSkillType : SkillType.values()) {
             final int slot = 3 + otherSkillType.ordinal();
             if (otherSkillType == skillType) {
-                builder.highlightSlot(slot, skillType.tag.color());
+                builder.highlightSlot(slot, skillType.textColor);
             }
-            ItemStack icon = Items.text(otherSkillType.createIcon(),
-                                        List.of(text(otherSkillType.tag.title(), otherSkillType.tag.color())));
+            ItemStack icon = Items.text(otherSkillType.createIcon(), List.of(otherSkillType.asComponent()));
             gui.setItem(slot, icon, click -> {
                     if (!click.isLeftClick()) return;
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
@@ -95,8 +94,7 @@ public final class Guis {
             gui.setItem(8, talentItem);
         }
         // Root
-        gui.setItem(4 + 3 * 9, Items.text(skillType.createIcon(),
-                                          List.of(text(skillType.tag.title(), skillType.tag.color()))));
+        gui.setItem(4 + 3 * 9, Items.text(skillType.createIcon(), List.of(skillType.asComponent())));
         builder.highlightSlot(4 + 3 * 9, WHITE);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
@@ -141,10 +139,10 @@ public final class Guis {
             } else if (session.canAccessTalent(talentType)) {
                 builder.highlightSlot(slot, GRAY);
             } else {
-                builder.highlightSlot(slot, skillType.tag.color());
+                builder.highlightSlot(slot, skillType.textColor);
             }
         }
-        builder.highlightSlot(9, skillType.tag.color());
+        builder.highlightSlot(9, skillType.textColor);
         gui.setItem(9, getMoneyIcon(session, skillType), click -> {
                 if (!click.isRightClick()) return;
                 boolean r = session.unlockMoneyBonus(skillType, () -> {
@@ -153,7 +151,7 @@ public final class Guis {
                     });
                 if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
             });
-        builder.highlightSlot(10, skillType.tag.color());
+        builder.highlightSlot(10, skillType.textColor);
         gui.setItem(10, getExpIcon(session, skillType), click -> {
                 if (!click.isRightClick()) return;
                 boolean r = session.unlockExpBonus(skillType, () -> {

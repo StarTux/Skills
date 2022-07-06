@@ -75,7 +75,7 @@ public enum TalentType implements ComponentLike {
     }
 
     public Component getDisplayComponent() {
-        return text(talent.getDisplayName(), skillType.tag.color());
+        return text(talent.getDisplayName(), skillType.textColor);
     }
 
     @Override
