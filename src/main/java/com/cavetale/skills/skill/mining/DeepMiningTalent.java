@@ -18,7 +18,7 @@ public final class DeepMiningTalent extends Talent {
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Strip Mining works on Deepslate and Tuff");
+        return List.of("Strip Mining also works on Deepslate and Tuff");
     }
 
     @Override
