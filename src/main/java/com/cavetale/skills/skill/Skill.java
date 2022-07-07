@@ -7,6 +7,8 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.worldmarker.util.Tags;
 import lombok.Getter;
 import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -48,6 +50,7 @@ public abstract class Skill {
         item.getItemStack().editMeta(meta -> {
                 Tags.set(meta.getPersistentDataContainer(), MytemsPlugin.namespacedKey("message"), skillType.displayName + " Skill");
             });
+        player.playSound(item.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0f, 0.75f);
         return true;
     }
 }
