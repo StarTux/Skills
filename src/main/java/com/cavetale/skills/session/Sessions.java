@@ -104,4 +104,12 @@ public final class Sessions implements Listener {
         Session session = of(player);
         return session.isEnabled() ? session.isTalentEnabled(talentType) : false;
     }
+
+    public Session getOrCreateForAdmin(UUID uuid) {
+        Session session = sessionsMap.get(uuid);
+        if (session != null && session.isEnabled()) return session;
+        session = new Session(plugin, uuid);
+        session.loadAll();
+        return session;
+    }
 }

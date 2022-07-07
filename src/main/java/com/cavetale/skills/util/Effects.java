@@ -102,7 +102,7 @@ public final class Effects {
 
     public static void talentUnlock(@NonNull Player player) {
         Location loc = player.getLocation();
-        player.playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1.0f, 1.0f);
+        player.playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.25f, 2.0f);
     }
 
     public static void harvest(@NonNull Block block) {

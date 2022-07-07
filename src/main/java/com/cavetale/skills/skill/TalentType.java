@@ -3,8 +3,10 @@ package com.cavetale.skills.skill;
 import com.cavetale.core.item.ItemKinds;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.util.Vec2i;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
@@ -102,5 +104,18 @@ public enum TalentType implements ComponentLike {
             SkillsPlugin.getInstance().getLogger().warning("Duplicate talent registration: " + this);
         }
         this.talent = newTalent;
+    }
+
+    public static List<TalentType> getTalents(SkillType skillType) {
+        return List.copyOf(SKILL_MAP.get(skillType));
+    }
+
+    public static List<String> getTalentKeys(SkillType skillType) {
+        List<TalentType> talents = getTalents(skillType);
+        List<String> result = new ArrayList<>(talents.size());
+        for (TalentType talent : talents) {
+            result.add(talent.key);
+        }
+        return result;
     }
 }

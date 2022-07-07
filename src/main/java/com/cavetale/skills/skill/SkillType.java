@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill;
 
+import com.cavetale.core.command.CommandWarn;
 import com.cavetale.core.font.Emoji;
 import com.cavetale.core.font.GlyphPolicy;
 import com.cavetale.core.item.ItemKinds;
@@ -88,6 +89,12 @@ public enum SkillType implements ComponentLike {
             if (key.equals(s.key)) return s;
         }
         return null;
+    }
+
+    public static SkillType require(String key) {
+        SkillType result = ofKey(key);
+        if (result == null) throw new CommandWarn("Unknown skill type: " + key);
+        return result;
     }
 
     protected void register(final Skill theSkill) {

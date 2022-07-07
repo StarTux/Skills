@@ -9,11 +9,8 @@ import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -173,6 +170,7 @@ public final class Session {
     }
 
     protected void showSkillBar(SkillType skillType, int level, int points, int required, int newPoints) {
+        if (!enabled) return;
         if (shownSkill == skillType) {
             actionSP += newPoints;
         } else {
@@ -271,33 +269,22 @@ public final class Session {
         return skills.get(skillType).getMoneyBonus();
     }
 
-    public int getTotalSpentTalentPoints(SkillType skillType) {
-        int result = 0;
-        for (TalentType it : talents.keySet()) {
-            if (it.skillType != skillType) continue;
-            result += it.talentPointCost;
-        }
-        result += getExpBonus(skillType);
-        result += getMoneyBonus(skillType);
-        return result;
+    public int getTalentCount(SkillType skillType) {
+        return skills.get(skillType).row.getTalents();
+    }
+
+    public int getTotalTalentPoints(SkillType skillType) {
+        return skills.get(skillType).row.getTotalTalentPoints();
+    }
+
+    public int getTalentPointsSpent(SkillType skillType) {
+        return getTotalTalentPoints(skillType) - getTalentPoints(skillType);
     }
 
     public boolean respec(Player player, SkillType skillType) {
         if (modifyingTalents) return false;
-        int talentPoints = 0;
-        List<SQLTalent> talentRows = new ArrayList<>();
-        for (Iterator<Map.Entry<TalentType, SQLTalent>> iter = talents.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<TalentType, SQLTalent> entry = iter.next();
-            TalentType talentType = entry.getKey();
-            if (talentType.skillType == skillType) {
-                talentPoints += talentType.talentPointCost;
-                talentRows.add(entry.getValue());
-                iter.remove();
-            }
-        }
-        talentPoints += getExpBonus(skillType);
-        talentPoints += getMoneyBonus(skillType);
-        if (talentPoints == 0) {
+        final int talentPointsSpent = getTalentPointsSpent(skillType);
+        if (talentPointsSpent == 0) {
             player.sendMessage(join(noSeparators(), text("You do not have any Talent Points in "), skillType).color(RED));
             return false;
         }
@@ -314,15 +301,15 @@ public final class Session {
             return false;
         }
         modifyingTalents = true;
-        final int talentPoints2 = talentPoints;
-        skills.get(skillType).respec(player, talentRows, talentPoints, tp -> {
+        skills.get(skillType).respec(player.getUniqueId(), talentPointsGiven -> {
                 modifyingTalents = false;
-                plugin.getLogger().info(player.getName() + " respec " + skillType + " " + tp + "/" + talentPoints2);
-                if (tp == 0) {
+                plugin.getLogger().info(player.getName() + " respec " + skillType + " " + talentPointsGiven + "/" + talentPointsSpent);
+                if (talentPointsGiven == 0) {
                     plugin.getLogger().severe(player.getName() + " respect " + skillType + " failed!");
                     player.sendMessage(text("Something went wrong!", RED));
                 } else {
-                    player.sendMessage(join(noSeparators(), text(tp + " "), skillType, text(" Talent Points refunded")));
+                    player.sendMessage(join(noSeparators(), text(talentPointsGiven + " "), skillType, text(" Talent Points refunded")));
+                    talents.keySet().removeAll(TalentType.getTalents(skillType));
                 }
                 if (!player.isValid()) return;
                 plugin.guis.talents(player);

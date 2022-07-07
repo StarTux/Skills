@@ -160,7 +160,7 @@ public final class Guis {
                     });
                 if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
             });
-        if (session.getTotalSpentTalentPoints(skillType) > 0) {
+        if (session.getTalentPointsSpent(skillType) > 0) {
             gui.setItem(45, getRespecIcon(session, skillType), click -> {
                     if (!click.isRightClick()) return;
                     if (!session.respec(player, skillType)) {
@@ -208,7 +208,7 @@ public final class Guis {
 
     private ItemStack getRespecIcon(Session session, SkillType skillType) {
         ItemStack icon = Mytems.REDO.createIcon();
-        int tp = session.getTotalSpentTalentPoints(skillType);
+        int tp = session.getTalentPointsSpent(skillType);
         icon.editMeta(meta -> {
                 Items.text(meta, List.of(join(noSeparators(), text(" Refund "), skillType, text(" Talent Points")).color(BLUE),
                                          join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Purchase", GRAY, ITALIC)),
