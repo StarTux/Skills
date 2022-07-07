@@ -1,11 +1,11 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Mob;
 import org.bukkit.persistence.PersistentDataContainer;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 /**
  * A status effect applicable to a mob.
@@ -16,9 +16,9 @@ public enum MobStatusEffect {
 
     private NamespacedKey key;
 
-    protected static void enable(SkillsPlugin plugin) {
+    protected static void enable() {
         for (MobStatusEffect it : MobStatusEffect.values()) {
-            it.key = new NamespacedKey(plugin, it.name().toLowerCase());
+            it.key = new NamespacedKey(skillsPlugin(), it.name().toLowerCase());
         }
     }
 

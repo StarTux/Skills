@@ -2,7 +2,6 @@ package com.cavetale.skills.util;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,11 +22,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class Gui implements InventoryHolder {
     public static final int OUTSIDE = -999;
-    @Getter final JavaPlugin plugin;
     private Inventory inventory;
     private Map<Integer, Slot> slots = new HashMap<>();
     private Consumer<InventoryCloseEvent> onClose = null;
@@ -35,7 +33,8 @@ public final class Gui implements InventoryHolder {
     @Getter @Setter private boolean editable = false;
     @Getter private int size = 3 * 9;
     @Getter private Component title = Component.empty();
-    boolean locked = false;
+    private boolean locked = false;
+    private static boolean enabled = false;
 
     @RequiredArgsConstructor @AllArgsConstructor
     private static final class Slot {
@@ -44,8 +43,8 @@ public final class Gui implements InventoryHolder {
         Consumer<InventoryClickEvent> onClick;
     }
 
-    public Gui(final JavaPlugin plugin) {
-        this.plugin = Objects.requireNonNull(plugin, "plugin=null");
+    public Gui() {
+        if (!enabled) throw new IllegalStateException("GUI not enabled");
     }
 
     public Gui title(Component newTitle) {
@@ -141,13 +140,13 @@ public final class Gui implements InventoryHolder {
 
     void onInventoryOpen(InventoryOpenEvent event) {
         if (onOpen != null) {
-            Bukkit.getScheduler().runTask(plugin, () -> onOpen.accept(event));
+            Bukkit.getScheduler().runTask(skillsPlugin(), () -> onOpen.accept(event));
         }
     }
 
     void onInventoryClose(InventoryCloseEvent event) {
         if (onClose != null) {
-            Bukkit.getScheduler().runTask(plugin, () -> onClose.accept(event));
+            Bukkit.getScheduler().runTask(skillsPlugin(), () -> onClose.accept(event));
         }
     }
 
@@ -165,7 +164,7 @@ public final class Gui implements InventoryHolder {
         Slot slot = slots.get(event.getSlot());
         if (slot != null && slot.onClick != null) {
             locked = true;
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                     locked = false;
                     slot.onClick.accept(event);
                 });
@@ -180,8 +179,6 @@ public final class Gui implements InventoryHolder {
 
     @RequiredArgsConstructor
     public static final class EventListener implements Listener {
-        private final JavaPlugin plugin;
-
         @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
         void onInventoryOpen(final InventoryOpenEvent event) {
             if (event.getInventory().getHolder() instanceof Gui) {
@@ -212,7 +209,7 @@ public final class Gui implements InventoryHolder {
 
         @EventHandler
         void onPluginDisable(PluginDisableEvent event) {
-            if (event.getPlugin() == plugin) {
+            if (event.getPlugin() == skillsPlugin()) {
                 Gui.disable();
             }
         }
@@ -229,8 +226,9 @@ public final class Gui implements InventoryHolder {
         return gui;
     }
 
-    public static void enable(JavaPlugin plugin) {
-        Bukkit.getPluginManager().registerEvents(new EventListener(plugin), plugin);
+    public static void enable() {
+        Bukkit.getPluginManager().registerEvents(new EventListener(), skillsPlugin());
+        enabled = true;
     }
 
     public static void disable() {

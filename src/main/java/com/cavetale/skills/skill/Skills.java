@@ -1,42 +1,35 @@
 package com.cavetale.skills.skill;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.combat.CombatSkill;
 import com.cavetale.skills.skill.mining.MiningSkill;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class Skills {
-    private final SkillsPlugin plugin;
-    public final MiningSkill mining;
-    public final CombatSkill combat;
-
-    public Skills(final SkillsPlugin plugin) {
-        this.plugin = plugin;
-        this.mining = new MiningSkill(plugin);
-        this.combat = new CombatSkill(plugin);
-    }
+    public final MiningSkill mining = new MiningSkill();
+    public final CombatSkill combat = new CombatSkill();
 
     public void enable() {
         for (SkillType skillType : SkillType.values()) {
             Skill skill = skillType.getSkill();
             if (skill == null) {
-                plugin.getLogger().warning("Skill not implemented: " + skillType);
+                skillsPlugin().getLogger().warning("Skill not implemented: " + skillType);
                 continue;
             }
             skill.enable();
             if (skill instanceof Listener listener) {
-                Bukkit.getPluginManager().registerEvents(listener, plugin);
+                Bukkit.getPluginManager().registerEvents(listener, skillsPlugin());
             }
         }
         for (TalentType talentType : TalentType.values()) {
             Talent talent = talentType.getTalent();
             if (talent == null) {
-                plugin.getLogger().warning("Talent not implemented: " + talentType);
+                skillsPlugin().getLogger().warning("Talent not implemented: " + talentType);
                 continue;
             }
             if (talent instanceof Listener listener) {
-                Bukkit.getPluginManager().registerEvents(listener, plugin);
+                Bukkit.getPluginManager().registerEvents(listener, skillsPlugin());
             }
         }
     }

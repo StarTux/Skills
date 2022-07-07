@@ -158,7 +158,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         } else if (args.length != 0) {
             return false;
         }
-        plugin.guis.talents(player);
+        Guis.talents(player);
         return true;
     }
 

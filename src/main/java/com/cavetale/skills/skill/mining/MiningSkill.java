@@ -1,6 +1,5 @@
 package com.cavetale.skills.skill.mining;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
@@ -21,6 +20,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
+import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static org.bukkit.Material.*;
 
 public final class MiningSkill extends Skill implements Listener {
@@ -51,8 +52,8 @@ public final class MiningSkill extends Skill implements Listener {
         .add(STONE_TYPES.getValues())
         .add(DEEP_STONE_TYPES.getValues()).lock();
 
-    public MiningSkill(@NonNull final SkillsPlugin plugin) {
-        super(plugin, SkillType.MINING);
+    public MiningSkill() {
+        super(SkillType.MINING);
     }
 
     @Override
@@ -180,12 +181,12 @@ public final class MiningSkill extends Skill implements Listener {
      */
     protected boolean giveReward(Player player, Block block, MiningReward reward, Location dropLocation) {
         if (isPlayerPlaced(block)) return false;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (!session.isEnabled()) return false;
         session.addSkillPoints(SkillType.MINING, reward.sp);
         if (reward.money > 0.0) {
             int bonus = session.getMoneyBonus(SkillType.MINING);
-            double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
+            double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
             double money = reward.money * factor;
             dropMoney(player, dropLocation, money);
         }
@@ -195,12 +196,12 @@ public final class MiningSkill extends Skill implements Listener {
 
     protected boolean giveStackedReward(Player player, Block block, MiningReward reward, Location dropLocation, int stackCount) {
         if (isPlayerPlaced(block)) return false;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (!session.isEnabled()) return false;
         session.addSkillPoints(SkillType.MINING, reward.sp * stackCount);
         if (reward.money > 0.0) {
             int bonus = session.getMoneyBonus(SkillType.MINING);
-            double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
+            double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
             double money = reward.money * stackCount * factor;
             dropMoney(player, dropLocation, money);
         }

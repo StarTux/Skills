@@ -15,7 +15,6 @@ import com.cavetale.skills.util.Effects;
 import com.cavetale.skills.util.Gui;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,6 +23,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.font.Unicode.tiny;
+import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
+import static com.cavetale.skills.SkillsPlugin.skillsCommand;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.newline;
@@ -35,14 +37,8 @@ import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.*;
 
-@RequiredArgsConstructor
 public final class Guis {
-    protected final SkillsPlugin plugin;
     protected static final int LINELENGTH = 24;
-
-    protected void enable() {
-        Gui.enable(plugin);
-    }
 
     private static ItemStack icon(Material material, Component... lines) {
         ItemStack icon = new ItemStack(material);
@@ -56,12 +52,12 @@ public final class Guis {
         return Items.text(icon, List.of(lines));
     }
 
-    public Gui talents(Player player) {
-        Session session = plugin.sessions.of(player);
+    public static Gui talents(Player player) {
+        Session session = sessionOf(player);
         if (!session.isEnabled()) return null;
         final SkillType skillType = session.getTalentGui();
         final int size = 6 * 9;
-        final Gui gui = new Gui(plugin).size(size);
+        final Gui gui = new Gui().size(size);
         GuiOverlay.Builder builder = GuiOverlay.builder(size)
             .title(skillType.asComponent())
             .layer(GuiOverlay.BLANK, skillType.textColor)
@@ -83,7 +79,7 @@ public final class Guis {
         final int talentPoints = session.getTalentPoints(skillType);
         gui.setItem(0, Items.text(Mytems.TURN_LEFT.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
                 if (!click.isLeftClick()) return;
-                SkillsPlugin.instance.skillsCommand.skill(player, skillType);
+                skillsCommand().skill(player, skillType);
             });
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
@@ -175,10 +171,10 @@ public final class Guis {
         return gui;
     }
 
-    private ItemStack getMoneyIcon(Session session, SkillType skillType) {
+    private static ItemStack getMoneyIcon(Session session, SkillType skillType) {
         int bonus = session.getMoneyBonus(skillType);
-        int perc = SkillsPlugin.moneyBonusPercentage(bonus);
-        int next = SkillsPlugin.moneyBonusPercentage(bonus + 1);
+        int perc = moneyBonusPercentage(bonus);
+        int next = moneyBonusPercentage(bonus + 1);
         ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         icon.editMeta(meta -> {
@@ -191,7 +187,7 @@ public final class Guis {
         return icon;
     }
 
-    private ItemStack getExpIcon(Session session, SkillType skillType) {
+    private static ItemStack getExpIcon(Session session, SkillType skillType) {
         int bonus = session.getExpBonus(skillType);
         ItemStack icon = new ItemStack(Material.EXPERIENCE_BOTTLE);
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
@@ -206,7 +202,7 @@ public final class Guis {
         return icon;
     }
 
-    private ItemStack getRespecIcon(Session session, SkillType skillType) {
+    private static ItemStack getRespecIcon(Session session, SkillType skillType) {
         ItemStack icon = Mytems.REDO.createIcon();
         int tp = session.getTalentPointsSpent(skillType);
         icon.editMeta(meta -> {
@@ -218,7 +214,7 @@ public final class Guis {
         return icon;
     }
 
-    private void onLeftClickTalent(Player player, TalentType talentType) {
+    private static void onLeftClickTalent(Player player, TalentType talentType) {
         List<Component> description = talentType.getTalent().getDescription();
         List<Component> pages = new ArrayList<>();
         List<Component> page = new ArrayList<>();
@@ -239,8 +235,8 @@ public final class Guis {
         Books.open(player, pages);
     }
 
-    private void onRightClickTalent(Player player, TalentType talentType) {
-        Session session = plugin.sessions.of(player);
+    private static void onRightClickTalent(Player player, TalentType talentType) {
+        Session session = sessionOf(player);
         if (!session.isEnabled()) return;
         if (!session.canAccessTalent(talentType)) {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
@@ -263,4 +259,6 @@ public final class Guis {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
         }
     }
+
+    private Guis() { }
 }

@@ -4,7 +4,6 @@ import com.cavetale.core.command.CommandWarn;
 import com.cavetale.core.font.Emoji;
 import com.cavetale.core.font.GlyphPolicy;
 import com.cavetale.core.item.ItemKinds;
-import com.cavetale.skills.SkillsPlugin;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -16,6 +15,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
@@ -29,7 +29,7 @@ public enum SkillType implements ComponentLike {
             return icon(Material.GOLDEN_PICKAXE);
         }
         @Override public List<String> getRawDescription() {
-            return List.of("Mine ores to get SP."
+            return List.of("Mine ores to level up."
                            + " Talents help you find and exploit ores.",
                            "Every ore you mine yields some skill points."
                            + " Diamond and emerald ore give you an"
@@ -41,8 +41,8 @@ public enum SkillType implements ComponentLike {
             return icon(Material.GOLDEN_SWORD);
         }
         @Override public List<String> getRawDescription() {
-            return List.of("Kill monsters to get SP."
-                           + " Unlock talents to enhance your combat strength.",
+            return List.of("Kill monsters to level up."
+                           + " Talents enhance your combat strength.",
                            "Each monster kill gives some skill points."
                            + " However, they decrease quickly if you stay in place.");
         }
@@ -99,7 +99,7 @@ public enum SkillType implements ComponentLike {
 
     protected void register(final Skill theSkill) {
         if (this.skill != null) {
-            SkillsPlugin.getInstance().getLogger().warning("Duplicate skill registration: " + this);
+            skillsPlugin().getLogger().warning("Duplicate skill registration: " + this);
         }
         this.skill = theSkill;
     }

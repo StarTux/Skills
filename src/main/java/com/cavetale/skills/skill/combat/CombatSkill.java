@@ -1,13 +1,11 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.util.Players;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;
-import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Ageable;
@@ -18,6 +16,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
+import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
+import static com.cavetale.skills.SkillsPlugin.sessionOf;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class CombatSkill extends Skill {
     protected final CombatListener combatListener = new CombatListener(this);;
@@ -37,17 +38,17 @@ public final class CombatSkill extends Skill {
 
     protected static final long CHUNK_KILL_DECAY_TIME = Duration.ofMinutes(5).toMillis();
 
-    public CombatSkill(@NonNull final SkillsPlugin plugin) {
-        super(plugin, SkillType.COMBAT);
-        this.killsKey = new NamespacedKey(plugin, "kills");
-        this.lastKillKey = new NamespacedKey(plugin, "last_kill");
+    public CombatSkill() {
+        super(SkillType.COMBAT);
+        this.killsKey = new NamespacedKey(skillsPlugin(), "kills");
+        this.lastKillKey = new NamespacedKey(skillsPlugin(), "last_kill");
     }
 
     @Override
     protected void enable() {
-        MobStatusEffect.enable(plugin);
+        MobStatusEffect.enable();
         combatRewards.enable();
-        Bukkit.getPluginManager().registerEvents(combatListener, plugin);
+        Bukkit.getPluginManager().registerEvents(combatListener, skillsPlugin());
     }
 
     protected void onMobDamagePlayer(Player player, Mob mob, Projectile projectile, EntityDamageByEntityEvent event) {
@@ -76,7 +77,7 @@ public final class CombatSkill extends Skill {
         CombatReward reward = combatRewards.rewards.get(mob.getType());
         if (reward == null) return;
         if (!Players.playMode(player)) return;
-        Session session = plugin.sessions.of(player);
+        Session session = sessionOf(player);
         if (!session.isEnabled()) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
         final PersistentDataContainer pdc = mob.getLocation().getChunk().getPersistentDataContainer();
@@ -93,7 +94,7 @@ public final class CombatSkill extends Skill {
         session.addSkillPoints(SkillType.COMBAT, reward.sp);
         if (reward.money > 0) {
             int bonus = session.getMoneyBonus(SkillType.COMBAT);
-            double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
+            double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
             dropMoney(player, mob.getLocation(), reward.money * factor);
         }
         giveExpBonus(player, session);

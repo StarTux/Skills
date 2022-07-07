@@ -1,7 +1,6 @@
 package com.cavetale.skills.skill;
 
 import com.cavetale.core.item.ItemKinds;
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.util.Vec2i;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -13,6 +12,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.util.Vec2i.v;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
@@ -101,7 +101,7 @@ public enum TalentType implements ComponentLike {
 
     protected void register(final Talent newTalent) {
         if (this.talent != null) {
-            SkillsPlugin.getInstance().getLogger().warning("Duplicate talent registration: " + this);
+            skillsPlugin().getLogger().warning("Duplicate talent registration: " + this);
         }
         this.talent = newTalent;
     }

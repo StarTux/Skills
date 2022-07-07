@@ -3,6 +3,7 @@ package com.cavetale.skills.session;
 import com.cavetale.core.event.hud.PlayerHudEvent;
 import com.cavetale.core.event.hud.PlayerHudPriority;
 import com.cavetale.mytems.Mytems;
+import com.cavetale.skills.Guis;
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
@@ -22,6 +23,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import static com.cavetale.core.font.Unicode.tiny;
+import static com.cavetale.skills.SkillsPlugin.database;
+import static com.cavetale.skills.SkillsPlugin.sessions;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
@@ -69,15 +73,15 @@ public final class Session {
      * from within the async database thread!
      */
     protected void loadPlayer() {
-        this.sqlPlayer = plugin.database.find(SQLPlayer.class).eq("uuid", uuid).findUnique();
+        this.sqlPlayer = database().find(SQLPlayer.class).eq("uuid", uuid).findUnique();
         if (sqlPlayer == null) {
             sqlPlayer = new SQLPlayer(uuid);
-            plugin.database.insert(sqlPlayer);
+            database().insert(sqlPlayer);
         }
     }
 
     protected void loadSkills() {
-        List<SQLSkill> sqlSkillRows = plugin.database.find(SQLSkill.class).eq("player", uuid).findList();
+        List<SQLSkill> sqlSkillRows = database().find(SQLSkill.class).eq("player", uuid).findList();
         for (SQLSkill sqlSkill : sqlSkillRows) {
             SkillType skillType = sqlSkill.getSkillType();
             if (skillType == null) {
@@ -89,7 +93,7 @@ public final class Session {
     }
 
     protected void loadTalents() {
-        List<SQLTalent> sqlTalentRows = plugin.database.find(SQLTalent.class).eq("player", uuid).findList();
+        List<SQLTalent> sqlTalentRows = database().find(SQLTalent.class).eq("player", uuid).findList();
         for (SQLTalent sqlTalent : sqlTalentRows) {
             TalentType talentType = sqlTalent.getTalentType();
             if (talentType == null) {
@@ -107,7 +111,7 @@ public final class Session {
     }
 
     protected void loadAsync(final Runnable callback) {
-        plugin.database.scheduleAsyncTask(() -> {
+        database().scheduleAsyncTask(() -> {
                 loadAll();
                 Bukkit.getScheduler().runTask(plugin, callback);
             });
@@ -117,7 +121,7 @@ public final class Session {
      * Enable for live use.
      */
     protected void enable() {
-        if (plugin.sessions.sessionsMap.get(uuid) != this) return;
+        if (sessions().sessionsMap.get(uuid) != this) return;
         enabled = true;
         for (SkillSession skillSession : skills.values()) {
             skillSession.enable();
@@ -210,8 +214,8 @@ public final class Session {
                 modifyingTalents = false;
                 SQLTalent sqlTalent = new SQLTalent(uuid, talentType);
                 talents.put(talentType, sqlTalent);
-                plugin.database.insertAsync(sqlTalent, null);
-                plugin.database.update(SQLPlayer.class)
+                database().insertAsync(sqlTalent, null);
+                database().update(SQLPlayer.class)
                     .row(sqlPlayer).add("talents", 1).async(null);
                 if (callback != null) callback.run();
             });
@@ -244,7 +248,7 @@ public final class Session {
         SQLTalent sqlTalent = talents.get(talentType);
         if (sqlTalent == null || sqlTalent.isEnabled() == value) return false;
         sqlTalent.setEnabled(value);
-        plugin.database.updateAsync(sqlTalent, null, "enabled");
+        database().updateAsync(sqlTalent, null, "enabled");
         return false;
     }
 
@@ -312,7 +316,7 @@ public final class Session {
                     talents.keySet().removeAll(TalentType.getTalents(skillType));
                 }
                 if (!player.isValid()) return;
-                plugin.guis.talents(player);
+                Guis.talents(player);
             });
         return true;
     }
@@ -345,7 +349,7 @@ public final class Session {
      * Load all data but do not prepare for live use!
      */
     public static void loadAsync(UUID uuid, Consumer<Session> callback) {
-        Session session = new Session(SkillsPlugin.getInstance(), uuid);
+        Session session = new Session(skillsPlugin(), uuid);
         session.loadAsync(() -> {
                 callback.accept(session);
             });
@@ -355,7 +359,7 @@ public final class Session {
      * Load all data but do not prepare for live use!
      */
     public static Session loadSync(UUID uuid) {
-        Session session = new Session(SkillsPlugin.getInstance(), uuid);
+        Session session = new Session(skillsPlugin(), uuid);
         session.loadAll();
         return session;
     }

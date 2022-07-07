@@ -8,42 +8,45 @@ import com.cavetale.skills.skill.mining.MiningSkill;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
+import com.cavetale.skills.util.Gui;
 import com.winthier.sql.SQLDatabase;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SkillsPlugin extends JavaPlugin {
-    @Getter protected static SkillsPlugin instance;
+    private static SkillsPlugin instance;
     protected SkillsCommand skillsCommand = new SkillsCommand(this);
     protected TalentCommand talentCommand = new TalentCommand(this);
     protected HighscoreCommand highscoreCommand = new HighscoreCommand(this);
     protected AdminCommand adminCommand = new AdminCommand(this);
-    public final Random random = ThreadLocalRandom.current();
-    public final SQLDatabase database = new SQLDatabase(this);
-    public final Skills skills = new Skills(this);
-    public final Guis guis = new Guis(this);
-    public final Sessions sessions = new Sessions(this);
+    protected final Random random = ThreadLocalRandom.current();
+    protected final SQLDatabase database = new SQLDatabase(this);
+    protected Skills skills;
+    protected Sessions sessions;
+
+    @Override
+    public void onLoad() {
+        instance = this;
+    }
 
     @Override
     public void onEnable() {
-        instance = this;
         database.registerTables(List.of(SQLSkill.class, SQLPlayer.class, SQLTalent.class));
         if (!database.createAllTables()) {
             throw new IllegalStateException("Database initialization failed!");
         }
+        this.skills = new Skills();
+        this.sessions = new Sessions(this);
         skills.enable();
         sessions.enable();
-        // Commands
         skillsCommand.enable();
         talentCommand.enable();
         highscoreCommand.enable();
         adminCommand.enable();
-        // UI
-        guis.enable();
+        Gui.enable();
     }
 
     @Override
@@ -89,5 +92,9 @@ public final class SkillsPlugin extends JavaPlugin {
 
     public static SQLDatabase database() {
         return instance.database;
+    }
+
+    public static SkillsCommand skillsCommand() {
+        return instance.skillsCommand;
     }
 }
