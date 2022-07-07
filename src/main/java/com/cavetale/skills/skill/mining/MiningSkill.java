@@ -187,7 +187,7 @@ public final class MiningSkill extends Skill implements Listener {
             int bonus = session.getMoneyBonus(SkillType.MINING);
             double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
             double money = reward.money * factor;
-            dropMoney(dropLocation, money);
+            dropMoney(player, dropLocation, money);
         }
         giveExpBonus(player, session, 0);
         return true;
@@ -202,7 +202,7 @@ public final class MiningSkill extends Skill implements Listener {
             int bonus = session.getMoneyBonus(SkillType.MINING);
             double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
             double money = reward.money * stackCount * factor;
-            dropMoney(dropLocation, money);
+            dropMoney(player, dropLocation, money);
         }
         if (player.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.SILK_TOUCH) == 0) {
             giveExpBonus(player, session, reward.veinExp * (stackCount));

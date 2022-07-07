@@ -32,13 +32,18 @@ public abstract class Skill {
         giveExpBonus(player, session, 0);
     }
 
-    protected final boolean dropMoney(Location location, double money) {
+    protected final boolean dropMoney(Player player, Location location, double money) {
         final Denomination deno = Denomination.GOLD;
         final double chance = money / deno.value;
         final double roll = plugin.random.nextDouble();
         if (roll >= chance) return false;
         final ItemStack itemStack = deno.mytems.createItemStack();
-        final Item item = location.getWorld().dropItem(location, itemStack);
+        final Item item = location.getWorld().dropItem(location, itemStack, drop -> {
+                drop.setCanMobPickup(false);
+                drop.setOwner(player.getUniqueId());
+                drop.setPickupDelay(0);
+                drop.setInvulnerable(true);
+            });
         if (item == null) return false;
         item.getItemStack().editMeta(meta -> {
                 Tags.set(meta.getPersistentDataContainer(), MytemsPlugin.namespacedKey("message"), skillType.displayName + " Skill");

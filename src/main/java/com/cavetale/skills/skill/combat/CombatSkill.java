@@ -94,7 +94,7 @@ public final class CombatSkill extends Skill {
         if (reward.money > 0) {
             int bonus = session.getMoneyBonus(SkillType.COMBAT);
             double factor = 1.0 + 0.01 * SkillsPlugin.moneyBonusPercentage(bonus);
-            dropMoney(mob.getLocation(), reward.money * factor);
+            dropMoney(player, mob.getLocation(), reward.money * factor);
         }
         giveExpBonus(player, session);
         event.setDroppedExp(event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
