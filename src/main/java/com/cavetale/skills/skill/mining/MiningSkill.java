@@ -29,6 +29,7 @@ public final class MiningSkill extends Skill implements Listener {
     public final StripMiningTalent stripMiningTalent = new StripMiningTalent();
     public final DeepMiningTalent deepMiningTalent = new DeepMiningTalent();
     public final VeinMiningTalent veinMiningTalent = new VeinMiningTalent();
+    public final MineMagnetTalent mineMagnetTalent = new MineMagnetTalent();
     public final VeinGemsTalent veinGemsTalent = new VeinGemsTalent();
     public final VeinMetalsTalent veinMetalsTalent = new VeinMetalsTalent();
     public final SilkStripTalent silkStripTalent = new SilkStripTalent();
@@ -41,6 +42,7 @@ public final class MiningSkill extends Skill implements Listener {
     public final OreAlertTalent oreAlertTalent = new OreAlertTalent();
     public final EmeraldAlertTalent emeraldAlertTalent = new EmeraldAlertTalent();
     public final DebrisAlertTalent debrisAlertTalent = new DebrisAlertTalent();
+    public final RubyTalent rubyTalent = new RubyTalent();
     private static final MaterialSetTag STONE_TYPES = new
         MaterialSetTag(NamespacedKey.fromString("skills:stone_types"),
                        STONE, DIORITE, ANDESITE, GRANITE).lock();
@@ -172,6 +174,9 @@ public final class MiningSkill extends Skill implements Listener {
         Block block = event.getBlock();
         MiningReward reward = rewards.get(block.getType());
         if (reward == null) return;
+        if (!veinMiningTalent.tryToVeinMine(player, item, block, reward, event)) {
+            return;
+        }
         giveReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.0));
     }
 

@@ -26,8 +26,7 @@ import static com.cavetale.skills.SkillsPlugin.sessions;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class NetherVisionTalent extends Talent implements Listener {
-    protected final BlockData fakeStoneData = Material.BLACK_STAINED_GLASS.createBlockData();
-    protected final BlockData fakeDirtData = Material.WHITE_STAINED_GLASS.createBlockData();
+    protected static final BlockData GLASS = Material.RED_STAINED_GLASS.createBlockData();
 
     protected NetherVisionTalent() {
         super(TalentType.NETHER_VISION);
@@ -49,7 +48,7 @@ public final class NetherVisionTalent extends Talent implements Listener {
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.SOUL_LANTERN);
+        return createIcon(Material.RED_STAINED_GLASS);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
@@ -65,7 +64,6 @@ public final class NetherVisionTalent extends Talent implements Listener {
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         if (fortune == 0) return;
-        if (player.isSneaking()) return;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                 xray(player, block);
             });
@@ -108,11 +106,7 @@ public final class NetherVisionTalent extends Talent implements Listener {
         }
         if (bs.isEmpty()) return 0;
         for (Block b : bs) {
-            if (MiningSkill.netherDirt(b)) {
-                fakeBlock(player, b, fakeDirtData);
-            } else {
-                fakeBlock(player, b, fakeStoneData);
-            }
+            fakeBlock(player, b, GLASS);
         }
         for (Block b : br) {
             fakeBlock(player, b, b.getBlockData());

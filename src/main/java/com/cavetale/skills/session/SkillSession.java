@@ -46,7 +46,7 @@ public class SkillSession {
             newRow.setRequiredSkillPoints(SkillsPlugin.pointsForLevelUp(1));
             database().insertAsync(newRow, count -> {
                     if (count == 0) {
-                        session.plugin.getLogger().warning("enable() insert mismatch: " + newRow);
+                        skillsPlugin().getLogger().warning("enable() insert mismatch: " + newRow);
                         onDatabaseMismatch();
                         return;
                     }
@@ -83,9 +83,9 @@ public class SkillSession {
                     .atomic("skillPoints", newSkillPoints)
                     .set("totalSkillPoints", newTotalSkillPoints)
                     .sync();
-                Bukkit.getScheduler().runTask(session.plugin, () -> {
+                Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                         if (result == 0) {
-                            session.plugin.getLogger().warning("AddSkillPoints mismatch: " + row);
+                            skillsPlugin().getLogger().warning("AddSkillPoints mismatch: " + row);
                             onDatabaseMismatch();
                             return;
                         }
@@ -120,9 +120,9 @@ public class SkillSession {
                     database().update(SQLPlayer.class)
                         .row(session.sqlPlayer).add("levels", 1).sync();
                 }
-                Bukkit.getScheduler().runTask(session.plugin, () -> {
+                Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                         if (result != 1) {
-                            session.plugin.getLogger().warning("LevelUp mismatch: " + row);
+                            skillsPlugin().getLogger().warning("LevelUp mismatch: " + row);
                             onDatabaseMismatch();
                             return;
                         }
@@ -152,9 +152,9 @@ public class SkillSession {
                     .atomic("talents", newTalents)
                     .atomic("totalTalentPoints", newTotalTalentPoints)
                     .sync();
-                Bukkit.getScheduler().runTask(session.plugin, () -> {
+                Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                         if (result != 1) {
-                            session.plugin.getLogger().warning("ModifyTalents mismatch: " + row);
+                            skillsPlugin().getLogger().warning("ModifyTalents mismatch: " + row);
                             onDatabaseMismatch();
                             return;
                         }

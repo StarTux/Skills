@@ -1,10 +1,8 @@
 package com.cavetale.skills.skill.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
-import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.List;
 import lombok.NonNull;
@@ -20,6 +18,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
@@ -119,9 +118,7 @@ public final class StripMiningTalent extends Talent implements Listener {
                     item.setItemMeta(meta);
                 }
             }
-            if (!PlayerBreakBlockEvent.call(player, nbor)) return result;
-            Effects.mineBlockMagic(nbor);
-            nbor.breakNaturally(item);
+            if (!miningSkill().mineMagnetTalent.breakBlock(player, item, nbor)) return result;
             result += 1;
         }
         return result;

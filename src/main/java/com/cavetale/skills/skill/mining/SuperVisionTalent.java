@@ -26,7 +26,8 @@ import static com.cavetale.skills.SkillsPlugin.sessions;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class SuperVisionTalent extends Talent implements Listener {
-    protected static final BlockData GLASS = Material.BLACK_STAINED_GLASS.createBlockData();
+    protected static final BlockData STONE_GLASS = Material.LIGHT_GRAY_STAINED_GLASS.createBlockData();
+    protected static final BlockData DEEP_GLASS = Material.BLACK_STAINED_GLASS.createBlockData();
 
     protected SuperVisionTalent() {
         super(TalentType.SUPER_VISION);
@@ -47,7 +48,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.LANTERN);
+        return createIcon(Material.LIGHT_GRAY_STAINED_GLASS);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
@@ -114,7 +115,11 @@ public final class SuperVisionTalent extends Talent implements Listener {
         }
         if (yes.isEmpty()) return 0;
         for (Block b : yes) {
-            fakeBlock(player, b, GLASS);
+            if (MiningSkill.deepStone(b)) {
+                fakeBlock(player, b, DEEP_GLASS);
+            } else {
+                fakeBlock(player, b, STONE_GLASS);
+            }
         }
         for (Block b : no) {
             fakeBlock(player, b, b.getBlockData());

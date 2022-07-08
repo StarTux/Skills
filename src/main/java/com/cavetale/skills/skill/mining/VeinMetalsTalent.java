@@ -13,15 +13,20 @@ public final class VeinMetalsTalent extends Talent {
 
     @Override
     public String getDisplayName() {
-        return "Vein Mining - Metals";
+        return "Metal Vein Mining";
     }
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Mining certain ores will attempt to break the entire vein",
-                       "Works on Ancient Debris, Copper, Iron and Gold Ores"
-                       + "Requires the Efficiency enchantment on your pickaxe.",
-                       "Mine without this feature by sneaking.");
+        return List.of("Mining metal ores will attempt to break the entire vein",
+                       "Works on"
+                       + " :ancient_debris:Ancient Debris,"
+                       + " :copper_ore:Copper,"
+                       + " :iron_ore:Iron and"
+                       + " :gold_ore:Gold Ores."
+                       + " Requires the Efficiency enchantment on your pickaxe."
+                       + " Each level of Efficiency lets you break 5 blocks at once."
+                       + "\n\nMine without this feature by sneaking.");
     }
 
     @Override

@@ -1,14 +1,12 @@
 package com.cavetale.skills.session;
 
 import com.cavetale.core.event.hud.PlayerHudEvent;
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.TalentType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,17 +14,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
-@RequiredArgsConstructor
 public final class Sessions implements Listener {
-    protected final SkillsPlugin plugin;
     protected final Map<UUID, Session> sessionsMap = new HashMap<>();
 
     public void enable() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             createAsync(player);
         }
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        Bukkit.getPluginManager().registerEvents(this, skillsPlugin());
     }
 
     public void disable() {
@@ -41,7 +38,7 @@ public final class Sessions implements Listener {
      */
     private Session createAsync(Player player) {
         remove(player);
-        Session session = new Session(plugin, player);
+        Session session = new Session(player);
         sessionsMap.put(session.uuid, session);
         session.loadAsync(() -> session.enable());
         return session;
@@ -108,7 +105,7 @@ public final class Sessions implements Listener {
     public Session getOrCreateForAdmin(UUID uuid) {
         Session session = sessionsMap.get(uuid);
         if (session != null && session.isEnabled()) return session;
-        session = new Session(plugin, uuid);
+        session = new Session(uuid);
         session.loadAll();
         return session;
     }

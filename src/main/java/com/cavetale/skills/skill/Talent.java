@@ -2,6 +2,7 @@ package com.cavetale.skills.skill;
 
 import com.cavetale.core.font.Emoji;
 import com.cavetale.core.font.GlyphPolicy;
+import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.util.Players;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,16 @@ public abstract class Talent {
     protected final ItemStack createIcon(Material material) {
         ItemStack item = new ItemStack(material);
         item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+        return item;
+    }
+
+    protected final ItemStack createIcon(Mytems mytems) {
+        ItemStack item = mytems.createItemStack();
+        item.editMeta(meta -> {
+                meta.displayName(null);
+                meta.lore(List.of());
+                meta.addItemFlags(ItemFlag.values());
+            });
         return item;
     }
 }

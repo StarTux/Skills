@@ -106,16 +106,19 @@ public final class Guis {
             } else {
                 text.add(text("Locked", DARK_RED));
             }
-            text.add(join(noSeparators(), Mytems.MOUSE_LEFT, text(" More Info", GRAY, ITALIC)));
+            text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
+            if (talentType.depends != null) {
+                text.add(join(noSeparators(), text(tiny("requires "), GRAY), talentType.depends));
+            }
+            text.add(join(noSeparators(), Mytems.MOUSE_LEFT, text(" More Info", AQUA, ITALIC)));
             if (session.isTalentEnabled(talentType)) {
-                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Disable", GRAY, ITALIC)));
+                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Disable", RED, ITALIC)));
             } else if (session.hasTalent(talentType)) {
-                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Enable", GRAY, ITALIC)));
+                text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Enable", GREEN, ITALIC)));
             } else {
                 if (session.canAccessTalent(talentType)) {
-                    text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)));
+                    text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GREEN, ITALIC)));
                 }
-                text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
             }
             for (String line : Text.wrapLine(talentType.getTalent().getRawDescription().get(0), LINELENGTH)) {
                 text.add(text(line, GRAY));

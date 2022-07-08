@@ -23,6 +23,6 @@ public final class DeepVisionTalent extends Talent {
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.SPYGLASS);
+        return createIcon(Material.BLACK_STAINED_GLASS);
     }
 }

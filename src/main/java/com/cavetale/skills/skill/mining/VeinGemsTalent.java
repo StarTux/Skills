@@ -13,15 +13,19 @@ public final class VeinGemsTalent extends Talent {
 
     @Override
     public String getDisplayName() {
-        return "Vein Mining - Gems";
+        return "Gem Vein Mining";
     }
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Mining certain ores will attempt to break the entire vein",
-                       "Works on Diamond, Emerald and Quartz Ores."
-                       + "Requires the Efficiency enchantment on your pickaxe.",
-                       "Mine without this feature by sneaking.");
+        return List.of("Mining gem ores will attempt to break the entire vein",
+                       "Works on"
+                       + " :diamond_ore:Diamond,"
+                       + " :emerald_ore:Emerald, and"
+                       + " :nether_quartz_ore:Nether Quartz."
+                       + " Requires Efficiency on your pickaxe."
+                       + " Each Efficiency level breaks 5 blocks at once."
+                       + "\n\nMine without this feature by sneaking.");
     }
 
     @Override

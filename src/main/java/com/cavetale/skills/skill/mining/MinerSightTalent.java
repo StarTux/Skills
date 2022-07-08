@@ -28,13 +28,18 @@ public final class MinerSightTalent extends Talent implements Listener {
     @Override
     public List<String> getRawDescription() {
         return List.of("Mining stone with a pickaxe grants you Night Vision",
-                       "Stone includes: Stone, Andesite, Diorite, Granite,"
-                       + " Tuff, Deepslate");
+                       "Stone includes:"
+                       + " :stone:Stone,"
+                       + " :andesite:Andesite,"
+                       + " :diorite:Diorite,"
+                       + " :granite:Granite,"
+                       + " :tuff:tuff,"
+                       + " :deepslate:Deepslate.");
     }
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.TORCH);
+        return createIcon(Material.LANTERN);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
@@ -44,9 +49,7 @@ public final class MinerSightTalent extends Talent implements Listener {
         Block block = event.getBlock();
         if (!MiningSkill.anyStone(block)) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
-        if (item == null) return;
-        if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
-        if (player.isSneaking()) return;
+        if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
         if (nightVision == null || nightVision.getDuration() < 20 * 20) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,

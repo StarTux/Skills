@@ -24,8 +24,10 @@ public enum TalentType implements ComponentLike {
     STRIP_MINING(SkillType.MINING, null, 1, v(5, 3)),
     DEEP_MINING(SkillType.MINING, STRIP_MINING, 2, v(5, 2)),
     VEIN_MINING(SkillType.MINING, STRIP_MINING, 1, v(6, 3)),
+    MINE_MAGNET(SkillType.MINING, VEIN_MINING, 1, v(4, 4)),
     VEIN_METALS(SkillType.MINING, VEIN_MINING, 2, v(7, 3)),
     VEIN_GEMS(SkillType.MINING, VEIN_MINING, 2, v(8, 3)),
+    RUBY(SkillType.MINING, VEIN_GEMS, 2, v(8, 2)),
     SILK_STRIP(SkillType.MINING, VEIN_MINING, 2, v(6, 4)),
     SILK_METALS(SkillType.MINING, SILK_STRIP, 3, v(7, 5)),
     SILK_MULTI(SkillType.MINING, SILK_STRIP, 3, v(6, 5)),
@@ -66,9 +68,11 @@ public enum TalentType implements ComponentLike {
     }
 
     static {
+        for (SkillType skillType : SkillType.values()) {
+            SKILL_MAP.put(skillType, EnumSet.noneOf(TalentType.class));
+        }
         for (TalentType talent : TalentType.values()) {
-            SKILL_MAP.computeIfAbsent(talent.skillType, sk -> EnumSet.of(talent))
-                .add(talent);
+            SKILL_MAP.get(talent.skillType).add(talent);
         }
     }
 

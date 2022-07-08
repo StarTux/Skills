@@ -39,7 +39,7 @@ public final class SkillsPlugin extends JavaPlugin {
             throw new IllegalStateException("Database initialization failed!");
         }
         this.skills = new Skills();
-        this.sessions = new Sessions(this);
+        this.sessions = new Sessions();
         skills.enable();
         sessions.enable();
         skillsCommand.enable();

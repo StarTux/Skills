@@ -4,7 +4,6 @@ import com.cavetale.core.event.hud.PlayerHudEvent;
 import com.cavetale.core.event.hud.PlayerHudPriority;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.Guis;
-import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
@@ -34,7 +33,6 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 
 @Getter
 public final class Session {
-    protected final SkillsPlugin plugin;
     protected final UUID uuid;
     protected boolean enabled = false;
     protected SQLPlayer sqlPlayer;
@@ -59,13 +57,12 @@ public final class Session {
     @Setter protected boolean debugMode;
     protected boolean modifyingTalents = false; // big talent lock
 
-    public Session(@NonNull final SkillsPlugin plugin, @NonNull final UUID uuid) {
-        this.plugin = plugin;
+    public Session(@NonNull final UUID uuid) {
         this.uuid = uuid;
     }
 
-    public Session(@NonNull final SkillsPlugin plugin, @NonNull final Player player) {
-        this(plugin, player.getUniqueId());
+    public Session(@NonNull final Player player) {
+        this(player.getUniqueId());
     }
 
     /**
@@ -85,7 +82,7 @@ public final class Session {
         for (SQLSkill sqlSkill : sqlSkillRows) {
             SkillType skillType = sqlSkill.getSkillType();
             if (skillType == null) {
-                plugin.getLogger().warning("Invalid skill row: " + sqlSkill);
+                skillsPlugin().getLogger().warning("Invalid skill row: " + sqlSkill);
                 continue;
             }
             skills.get(skillType).load(sqlSkill);
@@ -97,7 +94,7 @@ public final class Session {
         for (SQLTalent sqlTalent : sqlTalentRows) {
             TalentType talentType = sqlTalent.getTalentType();
             if (talentType == null) {
-                plugin.getLogger().warning("Invalid talent row: " + sqlTalent);
+                skillsPlugin().getLogger().warning("Invalid talent row: " + sqlTalent);
                 continue;
             }
             talents.put(talentType, sqlTalent);
@@ -113,7 +110,7 @@ public final class Session {
     protected void loadAsync(final Runnable callback) {
         database().scheduleAsyncTask(() -> {
                 loadAll();
-                Bukkit.getScheduler().runTask(plugin, callback);
+                Bukkit.getScheduler().runTask(skillsPlugin(), callback);
             });
     }
 
@@ -130,7 +127,7 @@ public final class Session {
                                    1.0f,
                                    BossBar.Color.BLUE,
                                    BossBar.Overlay.PROGRESS);
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 1L, 1L);
+        task = Bukkit.getScheduler().runTaskTimer(skillsPlugin(), this::tick, 1L, 1L);
     }
 
     protected void disable() {
@@ -307,9 +304,9 @@ public final class Session {
         modifyingTalents = true;
         skills.get(skillType).respec(player.getUniqueId(), talentPointsGiven -> {
                 modifyingTalents = false;
-                plugin.getLogger().info(player.getName() + " respec " + skillType + " " + talentPointsGiven + "/" + talentPointsSpent);
+                skillsPlugin().getLogger().info(player.getName() + " respec " + skillType + " " + talentPointsGiven + "/" + talentPointsSpent);
                 if (talentPointsGiven == 0) {
-                    plugin.getLogger().severe(player.getName() + " respect " + skillType + " failed!");
+                    skillsPlugin().getLogger().severe(player.getName() + " respect " + skillType + " failed!");
                     player.sendMessage(text("Something went wrong!", RED));
                 } else {
                     player.sendMessage(join(noSeparators(), text(talentPointsGiven + " "), skillType, text(" Talent Points refunded")));
@@ -349,7 +346,7 @@ public final class Session {
      * Load all data but do not prepare for live use!
      */
     public static void loadAsync(UUID uuid, Consumer<Session> callback) {
-        Session session = new Session(skillsPlugin(), uuid);
+        Session session = new Session(uuid);
         session.loadAsync(() -> {
                 callback.accept(session);
             });
@@ -359,7 +356,7 @@ public final class Session {
      * Load all data but do not prepare for live use!
      */
     public static Session loadSync(UUID uuid) {
-        Session session = new Session(skillsPlugin(), uuid);
+        Session session = new Session(uuid);
         session.loadAll();
         return session;
     }
