@@ -28,6 +28,6 @@ public final class SilkMultiTalent extends Talent {
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.DIAMOND);
+        return createIcon(Material.LAPIS_LAZULI);
     }
 }

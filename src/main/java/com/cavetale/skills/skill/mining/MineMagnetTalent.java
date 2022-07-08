@@ -27,7 +27,7 @@ public final class MineMagnetTalent extends Talent implements Listener {
 
     @Override
     public String getDisplayName() {
-        return "Miner Magnet";
+        return "Mining Magnet";
     }
 
     @Override

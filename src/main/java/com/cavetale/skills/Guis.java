@@ -90,8 +90,8 @@ public final class Guis {
             gui.setItem(8, talentItem);
         }
         // Root
-        gui.setItem(4 + 3 * 9, Items.text(skillType.createIcon(), List.of(skillType.asComponent())));
-        builder.highlightSlot(4 + 3 * 9, WHITE);
+        gui.setItem(5 + 3 * 9, Items.text(skillType.createIcon(), List.of(skillType.asComponent())));
+        builder.highlightSlot(5 + 3 * 9, GOLD);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
             final int slot = talentType.slot.x() + talentType.slot.y() * 9;
@@ -150,8 +150,8 @@ public final class Guis {
                     });
                 if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
             });
-        builder.highlightSlot(10, skillType.textColor);
-        gui.setItem(10, getExpIcon(session, skillType), click -> {
+        builder.highlightSlot(18, skillType.textColor);
+        gui.setItem(18, getExpIcon(session, skillType), click -> {
                 if (!click.isRightClick()) return;
                 boolean r = session.unlockExpBonus(skillType, () -> {
                         talents(player);

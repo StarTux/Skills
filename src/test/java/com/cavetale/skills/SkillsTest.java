@@ -13,8 +13,14 @@ public final class SkillsTest {
             int points = 0;
             for (TalentType a : talents) {
                 points += a.talentPointCost;
-                if (a.slot.x() == 4 && a.slot.y() == 3) {
-                    throw new IllegalStateException("Centered x,y: " + a + ": " + a.slot.x() + "," + a.slot.y());
+                if (a.slot.x() == 5 && a.slot.y() == 3) {
+                    throw new IllegalStateException("Centered x,y: " + a);
+                }
+                if (a.slot.x() < 0 || a.slot.x() > 8) {
+                    throw new IllegalStateException("x out of bounds: " + a);
+                }
+                if (a.slot.y() < 0 || a.slot.y() > 5) {
+                    throw new IllegalStateException("y out of bounds: " + a);
                 }
                 for (TalentType b : talents) {
                     if (a == b) continue;

@@ -22,7 +22,7 @@ public final class MinerSightTalent extends Talent implements Listener {
 
     @Override
     public String getDisplayName() {
-        return "Miner's Sight";
+        return "Miner Sight";
     }
 
     @Override
