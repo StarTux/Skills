@@ -174,7 +174,7 @@ public final class MiningSkill extends Skill implements Listener {
         Block block = event.getBlock();
         MiningReward reward = rewards.get(block.getType());
         if (reward == null) return;
-        if (!veinMiningTalent.tryToVeinMine(player, item, block, reward, event)) {
+        if (veinMiningTalent.tryToVeinMine(player, item, block, reward, event)) {
             return;
         }
         giveReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.0));
