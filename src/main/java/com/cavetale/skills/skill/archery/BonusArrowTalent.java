@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.archery;
 
 import com.cavetale.mytems.Mytems;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
@@ -42,12 +43,17 @@ public final class BonusArrowTalent extends Talent {
     protected void onArrowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
         if ((!arrow.isCritical() && !ArcherySkill.isPrimaryArrow(arrow)) && !ArcherySkill.isBonusArrow(arrow)) return;
+        Session session = sessionOf(player);
+        if (session.archery.isBonusArrowFiring()) return;
+        session.archery.setBonusArrowFiring(true);
         Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
+                session.archery.setBonusArrowFiring(false);
+                if (!player.isOnline()) return;
                 Arrow bonusArrow = player.launchProjectile(Arrow.class);
                 if (bonusArrow == null) return;
                 ArcherySkill.setBonusArrow(bonusArrow);
                 bonusArrow.setCritical(false);
-                bonusArrow.setPickupRule(AbstractArrow.PickupRule.DISALLOWED);
+                bonusArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                 archerySkill().onShootArrow(player, arrow);
                 player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, SoundCategory.MASTER, 0.2f, 1.5f);
                 if (sessionOf(player).isDebugMode()) {
