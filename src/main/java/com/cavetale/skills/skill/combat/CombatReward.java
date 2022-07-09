@@ -71,7 +71,7 @@ public final class CombatReward {
     }
 
     private static void reward(final int sp, final double moneyFactor, EntityType type) {
-        REWARDS.put(type, new CombatReward(type, sp * 10, 2.0 * (double) sp * moneyFactor));
+        REWARDS.put(type, new CombatReward(type, sp * 5, 2.0 * (double) sp * moneyFactor));
     }
 
     public static CombatReward combatReward(Entity entity) {

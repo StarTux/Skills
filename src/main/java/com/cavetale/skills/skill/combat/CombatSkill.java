@@ -88,7 +88,7 @@ public final class CombatSkill extends Skill {
         Tags.set(pdc, killsKey, kills);
         Tags.set(pdc, lastKillKey, now);
         if (kills > 10) return;
-        session.addSkillPoints(SkillType.COMBAT, reward.sp);
+        session.addSkillPoints(SkillType.COMBAT, reward.sp * 2);
         if (reward.money > 0) {
             int bonus = session.getMoneyBonus(SkillType.COMBAT);
             double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
