@@ -23,12 +23,12 @@ public enum TalentType implements ComponentLike {
     // Mining
     MINE_MAGNET(SkillType.MINING, null, 1, v(5, 4)),
 
-    STRIP_MINING(SkillType.MINING, null, 1, v(6, 2)),
-    DEEP_MINING(SkillType.MINING, STRIP_MINING, 2, v(6, 1)),
-    VEIN_MINING(SkillType.MINING, STRIP_MINING, 1, v(7, 2)),
-    VEIN_METALS(SkillType.MINING, VEIN_MINING, 2, v(8, 2)),
-    VEIN_GEMS(SkillType.MINING, VEIN_MINING, 2, v(8, 3)),
-    RUBY(SkillType.MINING, VEIN_GEMS, 2, v(8, 4)),
+    STRIP_MINING(SkillType.MINING, null, 1, v(6, 3)),
+    DEEP_MINING(SkillType.MINING, STRIP_MINING, 2, v(6, 2)),
+    VEIN_MINING(SkillType.MINING, STRIP_MINING, 1, v(7, 3)),
+    VEIN_METALS(SkillType.MINING, VEIN_MINING, 2, v(8, 3)),
+    VEIN_GEMS(SkillType.MINING, VEIN_MINING, 2, v(8, 4)),
+    RUBY(SkillType.MINING, VEIN_GEMS, 2, v(8, 5)),
 
     MINER_SIGHT(SkillType.MINING, null, 1, v(4, 3)),
 
@@ -48,13 +48,38 @@ public enum TalentType implements ComponentLike {
     SEARING(SkillType.COMBAT, null, 1, v(5, 4)),
     PYROMANIAC(SkillType.COMBAT, SEARING, 2, v(5, 5)),
     DENIAL(SkillType.COMBAT, null, 1, v(6, 3)), // +slow?
-    ARCHER_ZONE(SkillType.COMBAT, null, 3, v(5, 2)),
     IRON_AGE(SkillType.COMBAT, null, 1, v(4, 3)),
     EXECUTIONER(SkillType.COMBAT, TalentType.IRON_AGE, 3, v(3, 3)),
     IMPALER(SkillType.COMBAT, TalentType.IRON_AGE, 3, v(3, 2)),
     TOXICIST(SkillType.COMBAT, TalentType.DENIAL, 2, v(7, 2)),
     TOXIC_FUROR(SkillType.COMBAT, TalentType.TOXICIST, 3, v(8, 2)),
     GOD_MODE(SkillType.COMBAT, TalentType.DENIAL, 3, v(7, 3)),
+
+    // Archery
+
+    // Right: Arrow Precision
+    ARCHER_ZONE(SkillType.ARCHERY, null, 1, v(6, 3)),
+    ARCHER_ZONE_DEATH(SkillType.ARCHERY, ARCHER_ZONE, 1, v(7, 3)),
+    ARROW_SWIFTNESS(SkillType.ARCHERY, ARCHER_ZONE_DEATH, 2, v(8, 3)),
+    ARROW_DAMAGE(SkillType.ARCHERY, ARROW_SWIFTNESS, 3, v(8, 2)),
+    BONUS_ARROW(SkillType.ARCHERY, ARROW_DAMAGE, 4, v(8, 1)),
+
+    // Up: Shotgun
+    // BOW_SHOTGUN(SkillType.ARCHERY, null, 1, v(5, 2)),
+    // BOW_EXPLOSION(SkillType.ARCHERY, null, 2, v(5, 1)),
+
+    // Down: Tipped
+    // TIPPED_INFINITY(SkillType.ARCHERY, null, 1, v(5, 4)),
+    // GLOW_INFINITY(SkillType.ARCHERY, null, 2, v(5, 5)),
+    // GLOW_MARK(SkillType.ARCHERY, null, 4, v(6, 5)),
+    // TIPPED_LINGER(SkillType.ARCHERY, null, 4, v(7, 5)),
+
+    // Utility
+    ARROW_MAGNET(SkillType.ARCHERY, null, 1, v(5, 2)),
+
+    // Left: Crossbows
+    // XBOW_RAY_TRACE(SkillType.ARCHERY, null, 3, v(4, 3)),
+    // XBOW_INFINITY(SkillType.ARCHERY, null, 3, v(3, 3)),
     ;
 
     public final String key;
@@ -64,6 +89,7 @@ public enum TalentType implements ComponentLike {
     public final Vec2i slot;
     public static final Map<SkillType, Set<TalentType>> SKILL_MAP = new EnumMap<>(SkillType.class);
     private Talent talent;
+    private boolean enabled;
 
     TalentType(final SkillType skillType, final TalentType depends, final int talentPointCost, final Vec2i slot) {
         this.key = name().toLowerCase();
@@ -71,6 +97,7 @@ public enum TalentType implements ComponentLike {
         this.depends = depends;
         this.talentPointCost = talentPointCost;
         this.slot = slot;
+        new DefaultTalent(this);
     }
 
     static {
@@ -110,10 +137,13 @@ public enum TalentType implements ComponentLike {
     }
 
     protected void register(final Talent newTalent) {
-        if (this.talent != null) {
+        if (enabled) {
             skillsPlugin().getLogger().warning("Duplicate talent registration: " + this);
         }
         this.talent = newTalent;
+        if (!(newTalent instanceof DefaultTalent)) {
+            this.enabled = true;
+        }
     }
 
     public static List<TalentType> getTalents(SkillType skillType) {

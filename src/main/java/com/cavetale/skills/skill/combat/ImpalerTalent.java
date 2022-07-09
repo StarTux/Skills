@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
@@ -35,8 +34,7 @@ public final class ImpalerTalent extends Talent {
         return createIcon(Material.TRIDENT);
     }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile,
-                                     EntityDamageByEntityEvent event) {
+    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (item == null || item.getType() == Material.ENCHANTED_BOOK || item.getEnchantmentLevel(Enchantment.IMPALING) <= 0
                         || player.getAttackCooldown() != 1.0) return;

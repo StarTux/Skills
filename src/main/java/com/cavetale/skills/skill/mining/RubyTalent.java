@@ -23,7 +23,7 @@ public final class RubyTalent extends Talent {
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Mining diamond veins will sometimes drop diamonds",
+        return List.of("Mining diamond veins will sometimes drop a ruby",
                        "The chance depends on the size of the vein:"
                        + " Each :diamond_ore:block adds 5% to the total drop chance.");
     }

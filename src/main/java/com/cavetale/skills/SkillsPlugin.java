@@ -3,6 +3,7 @@ package com.cavetale.skills;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.session.Sessions;
 import com.cavetale.skills.skill.Skills;
+import com.cavetale.skills.skill.archery.ArcherySkill;
 import com.cavetale.skills.skill.combat.CombatSkill;
 import com.cavetale.skills.skill.mining.MiningSkill;
 import com.cavetale.skills.sql.SQLPlayer;
@@ -84,6 +85,10 @@ public final class SkillsPlugin extends JavaPlugin {
 
     public static MiningSkill miningSkill() {
         return instance.skills.mining;
+    }
+
+    public static ArcherySkill archerySkill() {
+        return instance.skills.archery;
     }
 
     public static Random random() {

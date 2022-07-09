@@ -64,7 +64,7 @@ public abstract class Talent {
      * - Talent is unlocked
      * - Talent is not disabled
      */
-    protected final boolean isPlayerEnabled(Player player) {
+    public final boolean isPlayerEnabled(Player player) {
         return Players.playMode(player)
             && sessions().isTalentEnabled(player, talentType);
     }

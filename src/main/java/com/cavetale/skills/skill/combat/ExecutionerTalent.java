@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -32,8 +31,7 @@ public final class ExecutionerTalent extends Talent {
         return createIcon(Material.IRON_AXE);
     }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile, EntityDamageByEntityEvent event) {
-        if (projectile != null) return;
+    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (item == null
             || !MaterialTags.AXES.isTagged(item.getType())

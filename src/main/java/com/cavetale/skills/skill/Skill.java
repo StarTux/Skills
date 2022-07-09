@@ -12,6 +12,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.random;
+import static com.cavetale.skills.util.Players.playMode;
 
 public abstract class Skill {
     @Getter protected final SkillType skillType;
@@ -50,5 +51,9 @@ public abstract class Skill {
             });
         player.playSound(item.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0f, 0.75f);
         return true;
+    }
+
+    protected final boolean isPlayerEnabled(Player player) {
+        return playMode(player);
     }
 }

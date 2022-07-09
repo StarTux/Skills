@@ -138,25 +138,24 @@ public final class Gui implements InventoryHolder {
         return this;
     }
 
-    void onInventoryOpen(InventoryOpenEvent event) {
+    private void onInventoryOpen(InventoryOpenEvent event) {
         if (onOpen != null) {
             Bukkit.getScheduler().runTask(skillsPlugin(), () -> onOpen.accept(event));
         }
     }
 
-    void onInventoryClose(InventoryCloseEvent event) {
+    private void onInventoryClose(InventoryCloseEvent event) {
         if (onClose != null) {
             Bukkit.getScheduler().runTask(skillsPlugin(), () -> onClose.accept(event));
         }
     }
 
-    void onInventoryClick(InventoryClickEvent event) {
+    private void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
         if (!editable) {
             event.setCancelled(true);
         }
         if (locked) return;
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        Player player = (Player) event.getWhoClicked();
         if (event.getClickedInventory() != null
             && !inventory.equals(event.getClickedInventory())) {
             return;
@@ -171,7 +170,8 @@ public final class Gui implements InventoryHolder {
         }
     }
 
-    void onInventoryDrag(InventoryDragEvent event) {
+    private void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
         if (!editable) {
             event.setCancelled(true);
         }

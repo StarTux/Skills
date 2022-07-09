@@ -21,6 +21,7 @@ import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
 import static net.kyori.adventure.text.event.ClickEvent.runCommand;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
+import static net.kyori.adventure.text.format.TextColor.color;
 
 @Getter
 public enum SkillType implements ComponentLike {
@@ -47,6 +48,15 @@ public enum SkillType implements ComponentLike {
                            + " However, they decrease quickly if you stay in place.");
         }
     },
+    ARCHERY("Archery", color(0xFFC0CB), BossBar.Color.PINK) {
+        @Override public ItemStack createIcon() {
+            return icon(Material.SPECTRAL_ARROW);
+        }
+        @Override public List<String> getRawDescription() {
+            return List.of("Shoot monsters to level up."
+                           + " Talents enhance your bow shooting abilities.");
+        }
+    }
     ;
 
     public final String key;

@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -31,8 +30,7 @@ public final class IronAgeTalent extends Talent {
         return createIcon(Material.IRON_SWORD);
     }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile, EntityDamageByEntityEvent event) {
-        if (projectile != null) return;
+    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         // Check for dealing damage with an iron weapon
         if (item.getType() != Material.IRON_SWORD && item.getType() != Material.IRON_AXE) return;

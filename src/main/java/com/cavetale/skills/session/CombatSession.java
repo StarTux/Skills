@@ -14,7 +14,7 @@ public final class CombatSession extends SkillSession {
     @Setter protected int impalerTargetId = 0;
     @Setter protected int impalerStack = 0;
 
-    protected CombatSession(final Session session, final SkillType skillType) {
-        super(session, skillType);
+    protected CombatSession(final Session session) {
+        super(session, SkillType.COMBAT);
     }
 }

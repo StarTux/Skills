@@ -14,7 +14,6 @@ import org.bukkit.entity.Boss;
 import org.bukkit.entity.EntityCategory;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -58,9 +57,8 @@ public final class DenialTalent extends Talent implements Listener {
     /**
      * When a mob is damaged, apply the Denial effect.
      */
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, Projectile projectile, EntityDamageByEntityEvent event) {
+    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (projectile != null) return;
         if (item == null || item.getEnchantmentLevel(Enchantment.KNOCKBACK) == 0) return;
         if (mob instanceof Boss) return;
         if (EntityMarker.hasId(mob, "boss")) return;
@@ -95,9 +93,8 @@ public final class DenialTalent extends Talent implements Listener {
      * this by setting the PoisonFreebie, so that the effect below,
      * which does not know the causing entity, can pick up on it.
      */
-    protected void onMobDamagePlayer(Player player, Mob mob, Projectile projectile, EntityDamageByEntityEvent event) {
+    protected void onMobDamagePlayer(Player player, Mob mob, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (projectile != null) return;
         if (mob.getCategory() != EntityCategory.ARTHROPOD) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
         sessionOf(player).combat.setPoisonFreebie(true);

@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill;
 
+import com.cavetale.skills.skill.archery.ArcherySkill;
 import com.cavetale.skills.skill.combat.CombatSkill;
 import com.cavetale.skills.skill.mining.MiningSkill;
 import org.bukkit.Bukkit;
@@ -9,6 +10,7 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 public final class Skills {
     public final MiningSkill mining = new MiningSkill();
     public final CombatSkill combat = new CombatSkill();
+    public final ArcherySkill archery = new ArcherySkill();
 
     public void enable() {
         for (SkillType skillType : SkillType.values()) {
@@ -23,12 +25,11 @@ public final class Skills {
             }
         }
         for (TalentType talentType : TalentType.values()) {
-            Talent talent = talentType.getTalent();
-            if (talent == null) {
+            if (!talentType.isEnabled()) {
                 skillsPlugin().getLogger().warning("Talent not implemented: " + talentType);
                 continue;
             }
-            if (talent instanceof Listener listener) {
+            if (talentType.getTalent() instanceof Listener listener) {
                 Bukkit.getPluginManager().registerEvents(listener, skillsPlugin());
             }
         }

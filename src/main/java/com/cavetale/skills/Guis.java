@@ -94,6 +94,7 @@ public final class Guis {
         builder.highlightSlot(5 + 3 * 9, GOLD);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
+            if (!talentType.isEnabled() && !session.isDebugMode()) continue;
             final int slot = talentType.slot.x() + talentType.slot.y() * 9;
             ItemStack icon = talentType.getTalent().createIcon();
             icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
@@ -218,6 +219,7 @@ public final class Guis {
     }
 
     private static void onLeftClickTalent(Player player, TalentType talentType) {
+        if (!talentType.isEnabled()) return;
         List<Component> description = talentType.getTalent().getDescription();
         List<Component> pages = new ArrayList<>();
         List<Component> page = new ArrayList<>();
@@ -239,6 +241,7 @@ public final class Guis {
     }
 
     private static void onRightClickTalent(Player player, TalentType talentType) {
+        if (!talentType.isEnabled()) return;
         Session session = sessionOf(player);
         if (!session.isEnabled()) return;
         if (!session.canAccessTalent(talentType)) {

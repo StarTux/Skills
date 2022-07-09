@@ -21,6 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import static com.cavetale.core.font.Unicode.subscript;
 import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.skills.SkillsPlugin.database;
 import static com.cavetale.skills.SkillsPlugin.sessions;
@@ -47,12 +48,11 @@ public final class Session {
     private boolean showSkillBar;
     // Skills
     public final SkillSession mining = new SkillSession(this, SkillType.MINING);
-    public final CombatSession combat = new CombatSession(this, SkillType.COMBAT);
+    public final CombatSession combat = new CombatSession(this);
+    public final ArcherySession archery = new ArcherySession(this);
     // Status effects, ticks remaining
     @Setter protected boolean superVisionActive;
     @Setter protected boolean netherVisionActive;
-    @Setter protected int archerZone = 0;
-    @Setter protected int archerZoneKills = 0;
     @Setter protected SkillType talentGui = SkillType.MINING;
     @Setter protected boolean debugMode;
     protected boolean modifyingTalents = false; // big talent lock
@@ -182,7 +182,8 @@ public final class Session {
                            text(tiny(" lvl "), GRAY),
                            text(level, skillType.textColor, BOLD),
                            text(tiny(" sp "), GRAY),
-                           text(points, skillType.textColor)));
+                           text(points, skillType.textColor),
+                           text(subscript("+" + actionSP), skillType.textColor)));
         skillBar.progress(Math.max(0.0f, Math.min(1.0f, (float) points / (float) required)));
         skillBar.color(skillType.bossBarColor);
         shownSkill = skillType;
@@ -190,11 +191,6 @@ public final class Session {
         Player player = getPlayer();
         if (player != null) {
             showSkillBar = true;
-            player.sendActionBar(join(noSeparators(),
-                                      text("+"),
-                                      text(actionSP, skillType.textColor, BOLD),
-                                      text("SP"))
-                                 .color(GRAY));
         }
     }
 
@@ -329,10 +325,6 @@ public final class Session {
     }
 
     private void tick() {
-        if (archerZone > 0) {
-            archerZone -= 1;
-            if (archerZone == 0) archerZoneKills = 0;
-        }
         if (showSkillBar) {
             skillBarCountdown -= 1;
             if (skillBarCountdown <= 0) {
