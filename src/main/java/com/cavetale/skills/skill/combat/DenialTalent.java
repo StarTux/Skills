@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
@@ -42,10 +43,11 @@ public final class DenialTalent extends Talent implements Listener {
                        + " poison for " + SECONDS + " seconds",
                        "This effect denies the following for "
                        + SECONDS + " seconds"
-                       + ":"
-                       + "\n- Shooting Arrows"
-                       + "\n- Throwing Potions"
-                       + "\n- Spider Poison",
+                       + ":\n"
+                       + "\n:barrier: Shooting :arrow:Arrows"
+                       + "\n:barrier: Throwing :splash_potion:Potions"
+                       + "\n:barrier: :spider_face:Spider Poison"
+                       + "\n:barrier: :creeper_face:Creeper Explosion",
                        "Use a Knockback weapon on an enemy to give it this status effect.");
     }
 
@@ -116,6 +118,13 @@ public final class DenialTalent extends Talent implements Listener {
         case ADDED: case CHANGED: break;
         default: return;
         }
+        event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    protected void onExplosionPrime(ExplosionPrimeEvent event) {
+        if (!(event.getEntity() instanceof Mob mob)) return;
+        if (!MobStatusEffect.DENIAL.has(mob)) return;
         event.setCancelled(true);
     }
 }
