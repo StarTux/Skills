@@ -84,6 +84,7 @@ public final class CombatReward {
             default: break;
             }
         }
+        if (entity.fromMobSpawner()) return null;
         return REWARDS.get(entity.getType());
     }
 }

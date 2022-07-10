@@ -26,6 +26,7 @@ import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
+import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldown;
 
 /**
  * The Archery Skill.
@@ -56,7 +57,9 @@ public final class ArcherySkill extends Skill implements Listener {
     private void onArrowKill(Player player, AbstractArrow arrow, Mob mob, EntityDeathEvent event) {
         archerZoneDeathTalent.onArrowKill(player, arrow, mob);
         Session session = sessionOf(player);
-        CombatReward reward = combatReward(mob);
+        CombatReward reward = addKillAndCheckCooldown(mob.getLocation())
+            ? null
+            : combatReward(mob);
         final boolean hasMagnet = arrowMagnetTalent.isPlayerEnabled(player);
         if (reward != null) {
             session.addSkillPoints(skillType, reward.sp);
