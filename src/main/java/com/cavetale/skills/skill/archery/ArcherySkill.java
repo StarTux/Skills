@@ -168,7 +168,7 @@ public final class ArcherySkill extends Skill implements Listener {
         }
         if (isBonusArrow(arrow) || isSpamArrow(arrow)) {
             Bukkit.getScheduler().runTask(skillsPlugin(), () -> arrow.remove());
-        } else if (arrow.getPickupStatus() == AbstractArrow.PickupStatus.DISALLOWED) {
+        } else if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) {
             Bukkit.getScheduler().runTask(skillsPlugin(), () -> arrow.remove());
         }
     }
