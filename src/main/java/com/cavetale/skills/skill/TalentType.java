@@ -66,6 +66,7 @@ public enum TalentType implements ComponentLike {
 
     // Up: Shotgun
     // BOW_SHOTGUN(SkillType.ARCHERY, null, 1, v(5, 2)),
+    // BOW_PIERCING
     // BOW_EXPLOSION(SkillType.ARCHERY, null, 2, v(5, 1)),
 
     // Down: Tipped

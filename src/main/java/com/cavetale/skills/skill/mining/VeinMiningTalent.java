@@ -36,7 +36,7 @@ public final class VeinMiningTalent extends Talent {
         return List.of("Mining rocky ores will attempt to break the entire vein",
                        "Works on :coal_ore:coal, :redstone_ore:redstone and :lapis_ore:lapis lazuli ores."
                        + " Requires the Efficiency enchantment on your pickaxe."
-                       + " Each level of Efficiency lets you break 5 blocks at once."
+                       + " Each level of Efficiency lets you break 4 blocks at once."
                        + "\n\nMine without this feature by sneaking.");
     }
 

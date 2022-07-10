@@ -80,7 +80,7 @@ public final class CombatSkill extends Skill {
             double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
             dropMoney(player, mob.getLocation(), reward.money * factor);
         }
-        event.setDroppedExp(5 * event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
+        event.setDroppedExp(3 * event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
     }
 
     private static final NamespacedKey KEY_KILLS = NamespacedKey.fromString("skills:kills");
