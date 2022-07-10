@@ -5,6 +5,7 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.cavetale.worldmarker.entity.EntityMarker;
+import com.destroystokyo.paper.event.entity.EndermanEscapeEvent;
 import com.destroystokyo.paper.event.entity.WitchThrowPotionEvent;
 import java.time.Duration;
 import java.util.List;
@@ -47,7 +48,8 @@ public final class DenialTalent extends Talent implements Listener {
                        + "\n:barrier: Shooting :arrow:Arrows"
                        + "\n:barrier: Throwing :splash_potion:Potions"
                        + "\n:barrier: :spider_face:Spider Poison"
-                       + "\n:barrier: :creeper_face:Creeper Explosion",
+                       + "\n:barrier: :creeper_face:Creeper Explosion"
+                       + "\n:barrier: :enderman_face:Enderman Escape",
                        "Use a Knockback weapon on an enemy to give it this status effect.");
     }
 
@@ -125,6 +127,12 @@ public final class DenialTalent extends Talent implements Listener {
     protected void onExplosionPrime(ExplosionPrimeEvent event) {
         if (!(event.getEntity() instanceof Mob mob)) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    protected void onEndermanEscape(EndermanEscapeEvent event) {
+        if (!MobStatusEffect.DENIAL.has(event.getEntity())) return;
         event.setCancelled(true);
     }
 }
