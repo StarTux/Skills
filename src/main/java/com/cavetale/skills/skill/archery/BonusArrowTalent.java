@@ -29,9 +29,10 @@ public final class BonusArrowTalent extends Talent {
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Fully charged arrow hits trigger another free shot",
-                       "As soon as a fully charnged arrow hits a mob, you launch another free arrow."
-                       + " The additional arrow is shot in the direction you are looking"
+        return List.of("Fully charged bow hits trigger another free shot",
+                       "As soon as a fully charged :arrow:arrow hits a mob,"
+                       + " you launch another free :arrow:arrow."
+                       + " The additional :arrow:arrow is shot in the direction you are looking"
                        + " and may trigger yet another arrow.");
     }
 
@@ -40,7 +41,7 @@ public final class BonusArrowTalent extends Talent {
         return createIcon(Mytems.GOLDEN_QUIVER);
     }
 
-    protected void onArrowDamage(Player player, AbstractArrow arrow, Mob mob) {
+    protected void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
         if ((!arrow.isCritical() && !ArcherySkill.isPrimaryArrow(arrow)) && !ArcherySkill.isBonusArrow(arrow)) return;
         Session session = sessionOf(player);
@@ -54,7 +55,7 @@ public final class BonusArrowTalent extends Talent {
                 ArcherySkill.setBonusArrow(bonusArrow);
                 bonusArrow.setCritical(false);
                 bonusArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-                archerySkill().onShootArrow(player, arrow);
+                archerySkill().onShootBow(player, arrow);
                 player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, SoundCategory.MASTER, 0.2f, 1.5f);
                 if (sessionOf(player).isDebugMode()) {
                     player.sendMessage(talentType + "!");

@@ -8,6 +8,7 @@ import com.cavetale.worldmarker.util.Tags;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Item;
@@ -45,6 +46,8 @@ public final class ArcherySkill extends Skill implements Listener {
     public final ArrowDamageTalent arrowDamageTalent = new ArrowDamageTalent();
     public final BonusArrowTalent bonusArrowTalent = new BonusArrowTalent();
     public final ArrowMagnetTalent arrowMagnetTalent = new ArrowMagnetTalent();
+    public final CrossbowInfinityTalent crossbowInfinityTalent = new CrossbowInfinityTalent();
+    public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
 
     public ArcherySkill() {
         super(SkillType.ARCHERY);
@@ -55,7 +58,9 @@ public final class ArcherySkill extends Skill implements Listener {
     }
 
     private void onArrowKill(Player player, AbstractArrow arrow, Mob mob, EntityDeathEvent event) {
-        archerZoneDeathTalent.onArrowKill(player, arrow, mob);
+        if (!arrow.isShotFromCrossbow()) {
+            archerZoneDeathTalent.onBowKill(player, arrow, mob);
+        }
         Session session = sessionOf(player);
         CombatReward reward = addKillAndCheckCooldown(mob.getLocation())
             ? null
@@ -86,8 +91,10 @@ public final class ArcherySkill extends Skill implements Listener {
     }
 
     private void onArrowDamage(Player player, AbstractArrow arrow, Mob mob, EntityDamageByEntityEvent event) {
-        archerZoneTalent.onArrowDamage(player, arrow, mob);
-        bonusArrowTalent.onArrowDamage(player, arrow, mob);
+        if (!arrow.isShotFromCrossbow()) {
+            archerZoneTalent.onBowDamage(player, arrow, mob);
+            bonusArrowTalent.onBowDamage(player, arrow, mob);
+        }
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(skillType + " onArrowDamage "
                                + " arrowDmg=" + arrow.getDamage()
@@ -129,12 +136,6 @@ public final class ArcherySkill extends Skill implements Listener {
         }
     }
 
-    protected void onShootArrow(Player player, AbstractArrow arrow) {
-        archerZoneTalent.onShootArrow(player, arrow);
-        arrowSwiftnessTalent.onShootArrow(player, arrow);
-        arrowDamageTalent.onShootArrow(player, arrow);
-    }
-
     /**
      * Mark shot arrows as primary.
      */
@@ -146,10 +147,11 @@ public final class ArcherySkill extends Skill implements Listener {
         ItemStack bow = event.getBow();
         if (bow == null) return;
         setPrimaryArrow(arrow);
-        onShootArrow(player, arrow);
-        // if (bow.getType() == Material.BOW) {
-        // } else if (bow.getType() == Material.CROSSBOW) {
-        // }
+        if (bow.getType() == Material.BOW) {
+            onShootBow(player, arrow);
+        } else if (bow.getType() == Material.CROSSBOW) {
+            crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
+        }
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(skillType + " " + event.getEventName()
                                + " " + bow.getType()
@@ -171,6 +173,14 @@ public final class ArcherySkill extends Skill implements Listener {
         } else if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) {
             Bukkit.getScheduler().runTask(skillsPlugin(), () -> arrow.remove());
         }
+    }
+
+    /**
+     * Called by onShootBow and BonusArrowTalent.
+     */
+    protected void onShootBow(Player player, AbstractArrow arrow) {
+        archerZoneTalent.onShootBow(player, arrow);
+        arrowSwiftnessTalent.onShootBow(player, arrow);
     }
 
     /**

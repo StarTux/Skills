@@ -57,17 +57,19 @@ public enum TalentType implements ComponentLike {
 
     // Archery
 
-    // Right: Arrow Precision
+    // Right: Bow Precision
     ARCHER_ZONE(SkillType.ARCHERY, null, 1, v(6, 3)),
-    ARCHER_ZONE_DEATH(SkillType.ARCHERY, ARCHER_ZONE, 1, v(7, 3)),
-    ARROW_SWIFTNESS(SkillType.ARCHERY, ARCHER_ZONE_DEATH, 2, v(8, 3)),
-    ARROW_DAMAGE(SkillType.ARCHERY, ARROW_SWIFTNESS, 3, v(8, 2)),
-    BONUS_ARROW(SkillType.ARCHERY, ARROW_DAMAGE, 4, v(8, 1)),
+    ARCHER_ZONE_DEATH(SkillType.ARCHERY, ARCHER_ZONE, 2, v(7, 3)),
+    ARROW_SWIFTNESS(SkillType.ARCHERY, ARCHER_ZONE_DEATH, 3, v(8, 3)),
+    ARROW_DAMAGE(SkillType.ARCHERY, ARROW_SWIFTNESS, 4, v(8, 2)),
+    BONUS_ARROW(SkillType.ARCHERY, ARROW_DAMAGE, 5, v(8, 1)),
 
-    // Up: Shotgun
-    // BOW_SHOTGUN(SkillType.ARCHERY, null, 1, v(5, 2)),
-    // BOW_PIERCING
-    // BOW_EXPLOSION(SkillType.ARCHERY, null, 2, v(5, 1)),
+    // Left: Crossbow AoE
+    XBOW_INFINITY(SkillType.ARCHERY, null, 1, v(4, 3)),
+    // XBOW_VOLLEY(SkillType.ARCHERY, null, 2, v(3, 3)),
+    // XBOW_PIERCING(SkillType.ARCHERY, null, 3, v(2, 2)), // up
+    // XBOW_HAIL(SkillType.ARCHERY, null, 4, v(2, 1)),
+    // XBOW_EXPLOSION(SkillType.ARCHERY, null, 4, v(2, 4)), // down
 
     // Down: Tipped
     // TIPPED_INFINITY(SkillType.ARCHERY, null, 1, v(5, 4)),
@@ -75,12 +77,9 @@ public enum TalentType implements ComponentLike {
     // GLOW_MARK(SkillType.ARCHERY, null, 4, v(6, 5)),
     // TIPPED_LINGER(SkillType.ARCHERY, null, 4, v(7, 5)),
 
-    // Utility
+    // Up: Utility
     ARROW_MAGNET(SkillType.ARCHERY, null, 1, v(5, 2)),
-
-    // Left: Crossbows
-    // XBOW_RAY_TRACE(SkillType.ARCHERY, null, 3, v(4, 3)),
-    // XBOW_INFINITY(SkillType.ARCHERY, null, 3, v(3, 3)),
+    INFINITY_MENDING(SkillType.ARCHERY, ARROW_MAGNET, 5, v(5, 1)),
     ;
 
     public final String key;

@@ -23,7 +23,7 @@ public final class ArcherZoneDeathTalent extends Talent {
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Arrow kills increase arrow damage",
+        return List.of("Arrow kills increase bow damage",
                        "In the Zone damage increases event more"
                        + " every time you kill a mob which yields SP with an arrow.");
     }
@@ -33,7 +33,7 @@ public final class ArcherZoneDeathTalent extends Talent {
         return createIcon(Material.BELL);
     }
 
-    protected void onArrowKill(Player player, AbstractArrow arrow, Mob mob) {
+    protected void onBowKill(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
         if (combatReward(mob) == null) return;
         archerySkill().archerZoneTalent.increaseZone(player);

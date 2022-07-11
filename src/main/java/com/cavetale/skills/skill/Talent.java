@@ -3,6 +3,7 @@ package com.cavetale.skills.skill;
 import com.cavetale.core.font.Emoji;
 import com.cavetale.core.font.GlyphPolicy;
 import com.cavetale.mytems.Mytems;
+import com.cavetale.skills.crafting.AnvilEnchantment;
 import com.cavetale.skills.util.Players;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,5 +84,14 @@ public abstract class Talent {
                 meta.addItemFlags(ItemFlag.values());
             });
         return item;
+    }
+
+    /**
+     * Get the anvil enchantments which this talent unlocks.  Session
+     * collects them for a player.  CraftingListener wants to know in
+     * order to modify the recipe.
+     */
+    public List<AnvilEnchantment> getAnvilEnchantments() {
+        return List.of();
     }
 }

@@ -4,11 +4,13 @@ import com.cavetale.core.event.hud.PlayerHudEvent;
 import com.cavetale.core.event.hud.PlayerHudPriority;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.Guis;
+import com.cavetale.skills.crafting.AnvilEnchantment;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.UUID;
@@ -276,6 +278,16 @@ public final class Session {
 
     public int getTalentPointsSpent(SkillType skillType) {
         return getTotalTalentPoints(skillType) - getTalentPoints(skillType);
+    }
+
+    public List<AnvilEnchantment> getAnvilEnchantments() {
+        List<AnvilEnchantment> anvilEnchantments = new ArrayList<>();
+        for (TalentType talent : TalentType.values()) {
+            if (isTalentEnabled(talent)) {
+                anvilEnchantments.addAll(talent.getTalent().getAnvilEnchantments());
+            }
+        }
+        return anvilEnchantments;
     }
 
     public boolean respec(Player player, SkillType skillType) {

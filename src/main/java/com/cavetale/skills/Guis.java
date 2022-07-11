@@ -77,10 +77,6 @@ public final class Guis {
                 });
         }
         final int talentPoints = session.getTalentPoints(skillType);
-        gui.setItem(0, Items.text(Mytems.TURN_LEFT.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
-                if (!click.isLeftClick()) return;
-                skillsCommand().skill(player, skillType);
-            });
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
                                         text(talentPoints + " "
@@ -90,7 +86,10 @@ public final class Guis {
             gui.setItem(8, talentItem);
         }
         // Root
-        gui.setItem(5 + 3 * 9, Items.text(skillType.createIcon(), List.of(skillType.asComponent())));
+        gui.setItem(5 + 3 * 9, Items.text(skillType.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
+                if (!click.isLeftClick()) return;
+                skillsCommand().skill(player, skillType);
+            });
         builder.highlightSlot(5 + 3 * 9, GOLD);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {

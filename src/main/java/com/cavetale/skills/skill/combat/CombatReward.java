@@ -68,6 +68,9 @@ public final class CombatReward {
         reward(20, 1.0, WARDEN);
         reward(50, 1.0, ENDER_DRAGON);
         reward(50, 1.0, WITHER);
+
+        // Removed
+        reward(1, 1.0, GIANT);
     }
 
     private static void reward(final int sp, final double moneyFactor, EntityType type) {

@@ -1,5 +1,6 @@
 package com.cavetale.skills;
 
+import com.cavetale.skills.crafting.CraftingListener;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.session.Sessions;
 import com.cavetale.skills.skill.Skills;
@@ -27,6 +28,7 @@ public final class SkillsPlugin extends JavaPlugin {
     protected final SQLDatabase database = new SQLDatabase(this);
     protected Skills skills;
     protected Sessions sessions;
+    protected CraftingListener craftingListener = new CraftingListener();
 
     @Override
     public void onLoad() {
@@ -47,6 +49,7 @@ public final class SkillsPlugin extends JavaPlugin {
         talentCommand.enable();
         highscoreCommand.enable();
         adminCommand.enable();
+        craftingListener.enable();
         Gui.enable();
     }
 
