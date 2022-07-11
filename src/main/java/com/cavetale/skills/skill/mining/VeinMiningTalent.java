@@ -88,7 +88,7 @@ public final class VeinMiningTalent extends Talent {
         if (itemDamageCount > 0) item.setItemMeta(itemMeta);
         event.setCancelled(true);
         if (rewardableBlockCount > 0) {
-            miningSkill().giveStackedReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.5), rewardableBlockCount);
+            miningSkill().giveStackedReward(player, item, reward, block.getLocation().add(0.5, 0.25, 0.5), rewardableBlockCount);
             miningSkill().rubyTalent.onVeinMine(player, block, reward, rewardableBlockCount);
         }
         return true;

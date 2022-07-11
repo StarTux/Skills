@@ -8,7 +8,6 @@ import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.EnumMap;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -23,7 +22,6 @@ import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
-import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static org.bukkit.Material.*;
 
 public final class MiningSkill extends Skill implements Listener {
@@ -197,11 +195,11 @@ public final class MiningSkill extends Skill implements Listener {
             double money = reward.money * factor;
             dropMoney(player, dropLocation, money);
         }
-        giveExpBonus(player, session, 0);
+        giveExpBonus(player, session, reward.exp);
         return true;
     }
 
-    protected boolean giveStackedReward(Player player, Block block, MiningReward reward, Location dropLocation, int stackCount) {
+    protected boolean giveStackedReward(Player player, ItemStack item, MiningReward reward, Location dropLocation, int stackCount) {
         Session session = sessionOf(player);
         if (!session.isEnabled()) return false;
         session.addSkillPoints(SkillType.MINING, reward.sp * stackCount);
@@ -211,11 +209,10 @@ public final class MiningSkill extends Skill implements Listener {
             double money = reward.money * stackCount * factor;
             dropMoney(player, dropLocation, money);
         }
-        if (reward.veinExp > 0 && player.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.SILK_TOUCH) == 0) {
-            Bukkit.getScheduler().runTask(skillsPlugin(), () -> player.giveExp(reward.veinExp * stackCount));
-            return true;
-        }
-        Bukkit.getScheduler().runTask(skillsPlugin(), () -> giveExpBonus(player, session, 0));
+        final int exp = reward.veinExp > 0 && item.getEnchantmentLevel(Enchantment.SILK_TOUCH) == 0
+            ? reward.exp + reward.veinExp
+            : reward.exp;
+        giveExpBonus(player, session, exp * stackCount);
         return true;
     }
 }
