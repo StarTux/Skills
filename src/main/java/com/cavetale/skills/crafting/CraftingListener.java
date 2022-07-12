@@ -5,7 +5,6 @@ import com.cavetale.skills.session.Session;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,7 +32,7 @@ public final class CraftingListener implements Listener {
         final ItemStack first = event.getInventory().getFirstItem();
         if (first == null || first.getType().isAir() || Mytems.forItem(first) != null) return;
         final ItemStack second = event.getInventory().getSecondItem();
-        if (second == null || second.getType() != Material.ENCHANTED_BOOK || Mytems.forItem(second) != null) return;
+        if (second == null || second.getType().isAir() || Mytems.forItem(second) != null) return;
         if (!(event.getView().getPlayer() instanceof Player player)) return;
         if (!playMode(player)) return;
         Session session = sessionOf(player);
@@ -55,7 +54,7 @@ public final class CraftingListener implements Listener {
         if (result == null) {
             result = first.clone();
         }
-        Map<Enchantment, Integer> enchantments = ((EnchantmentStorageMeta) second.getItemMeta()).getStoredEnchants();
+        Map<Enchantment, Integer> enchantments = getEnchantments(second);
         int addedLevels = 0;
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
@@ -108,6 +107,13 @@ public final class CraftingListener implements Listener {
         return meta instanceof EnchantmentStorageMeta storage
             ? storage.getStoredEnchantLevel(enchantment)
             : meta.getEnchantLevel(enchantment);
+    }
+
+    private static Map<Enchantment, Integer> getEnchantments(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        return meta instanceof EnchantmentStorageMeta storage
+            ? storage.getStoredEnchants()
+            : meta.getEnchants();
     }
 
     private static void setEnchantmentLevel(ItemStack item, Enchantment enchantment, int level) {
