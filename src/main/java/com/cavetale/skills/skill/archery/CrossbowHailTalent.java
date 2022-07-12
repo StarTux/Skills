@@ -46,7 +46,7 @@ public final class CrossbowHailTalent extends Talent implements Listener {
                 if (!arrow.isValid() || arrow.isDead()) return;
                 if (arrow.getLocation().getY() < player.getLocation().getY() + 10) return;
                 arrow.setVelocity(new Vector(0.0, -3.2, 0.0));
-                ArcherySkill.setHailArrow(arrow);
+                ArrowType.HAIL.set(arrow);
             }, 20L);
     }
 
@@ -54,7 +54,7 @@ public final class CrossbowHailTalent extends Talent implements Listener {
     private void onProjectileCollide(ProjectileCollideEvent event) {
         if (event.getEntity() instanceof AbstractArrow arrow
             && Objects.equals(arrow.getShooter(), event.getCollidedWith())
-            && ArcherySkill.isHailArrow(arrow)) {
+            && ArrowType.HAIL.is(arrow)) {
             event.setCancelled(true);
         }
     }

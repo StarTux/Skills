@@ -43,7 +43,7 @@ public final class BonusArrowTalent extends Talent {
 
     protected void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
-        if ((!arrow.isCritical() && !ArcherySkill.isPrimaryArrow(arrow)) && !ArcherySkill.isBonusArrow(arrow)) return;
+        if ((!arrow.isCritical() && !ArrowType.PRIMARY.is(arrow)) && !ArrowType.BONUS.is(arrow)) return;
         Session session = sessionOf(player);
         if (session.archery.isBonusArrowFiring()) return;
         session.archery.setBonusArrowFiring(true);
@@ -52,7 +52,7 @@ public final class BonusArrowTalent extends Talent {
                 if (!player.isOnline()) return;
                 Arrow bonusArrow = player.launchProjectile(Arrow.class);
                 if (bonusArrow == null) return;
-                ArcherySkill.setBonusArrow(bonusArrow);
+                ArrowType.BONUS.set(bonusArrow);
                 bonusArrow.setCritical(false);
                 bonusArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                 archerySkill().onShootBow(player, arrow);

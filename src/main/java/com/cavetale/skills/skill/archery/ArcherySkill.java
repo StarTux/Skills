@@ -4,12 +4,10 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.combat.CombatReward;
-import com.cavetale.worldmarker.util.Tags;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Mob;
@@ -39,10 +37,6 @@ import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldo
  * TippedArrow is deprecated and now in Arrow!
  */
 public final class ArcherySkill extends Skill implements Listener {
-    protected static final NamespacedKey PRIMARY_ARROW = NamespacedKey.fromString("skills:primary_arrow");
-    protected static final NamespacedKey BONUS_ARROW = NamespacedKey.fromString("skills:bonus_arrow");
-    protected static final NamespacedKey SPAM_ARROW = NamespacedKey.fromString("skills:spam_arrow");
-    protected static final NamespacedKey HAIL_ARROW = NamespacedKey.fromString("skills:hail_arrow");
     public final ArcherZoneTalent archerZoneTalent = new ArcherZoneTalent();
     public final ArcherZoneDeathTalent archerZoneDeathTalent = new ArcherZoneDeathTalent();
     public final ArrowSwiftnessTalent arrowSwiftnessTalent = new ArrowSwiftnessTalent();
@@ -107,8 +101,8 @@ public final class ArcherySkill extends Skill implements Listener {
                                + " eventDmg=" + event.getDamage()
                                + " finalDmg=" + event.getFinalDamage()
                                + " crit=" + arrow.isCritical()
-                               + " primary=" + isPrimaryArrow(arrow)
-                               + " bonus=" + isBonusArrow(arrow));
+                               + " primary=" + ArrowType.PRIMARY.is(arrow)
+                               + " bonus=" + ArrowType.BONUS.is(arrow));
         }
     }
 
@@ -152,7 +146,7 @@ public final class ArcherySkill extends Skill implements Listener {
         if (!(event.getProjectile() instanceof AbstractArrow arrow)) return;
         ItemStack bow = event.getBow();
         if (bow == null) return;
-        setPrimaryArrow(arrow);
+        ArrowType.PRIMARY.set(arrow);
         if (bow.getType() == Material.BOW) {
             onShootBow(player, arrow);
         } else if (bow.getType() == Material.CROSSBOW) {
@@ -185,10 +179,10 @@ public final class ArcherySkill extends Skill implements Listener {
         if (event.getHitBlock() != null) {
             archerZoneTalent.onArrowHitBlock(player, arrow);
         }
-        if (isBonusArrow(arrow) || isSpamArrow(arrow)) {
-            Bukkit.getScheduler().runTask(skillsPlugin(), () -> arrow.remove());
+        if (ArrowType.BONUS.is(arrow) || ArrowType.SPAM.is(arrow)) {
+            Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
         } else if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) {
-            Bukkit.getScheduler().runTask(skillsPlugin(), () -> arrow.remove());
+            Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
         }
     }
 
@@ -206,43 +200,5 @@ public final class ArcherySkill extends Skill implements Listener {
      */
     protected void onShootCrossbow(Player player, AbstractArrow arrow) {
         crossbowHailTalent.onShootCrossbow(player, arrow);
-    }
-
-    /**
-     * Arrow show manually via bow or crossbow.
-     */
-    public static boolean isPrimaryArrow(AbstractArrow arrow) {
-        return arrow.getPersistentDataContainer().has(PRIMARY_ARROW);
-    }
-
-    public static void setPrimaryArrow(AbstractArrow arrow) {
-        Tags.set(arrow.getPersistentDataContainer(), PRIMARY_ARROW, (byte) 1);
-    }
-
-    /**
-     * Arrow shot by talent.  Not spam.
-     */
-    public static boolean isBonusArrow(AbstractArrow arrow) {
-        return arrow.getPersistentDataContainer().has(BONUS_ARROW);
-    }
-
-    public static void setBonusArrow(AbstractArrow arrow) {
-        Tags.set(arrow.getPersistentDataContainer(), BONUS_ARROW, (byte) 1);
-    }
-
-    public static boolean isSpamArrow(AbstractArrow arrow) {
-        return arrow.getPersistentDataContainer().has(SPAM_ARROW);
-    }
-
-    public static void setSpamArrow(AbstractArrow arrow) {
-        Tags.set(arrow.getPersistentDataContainer(), SPAM_ARROW, (byte) 1);
-    }
-
-    public static boolean isHailArrow(AbstractArrow arrow) {
-        return arrow.getPersistentDataContainer().has(HAIL_ARROW);
-    }
-
-    public static void setHailArrow(AbstractArrow arrow) {
-        Tags.set(arrow.getPersistentDataContainer(), HAIL_ARROW, (byte) 1);
     }
 }

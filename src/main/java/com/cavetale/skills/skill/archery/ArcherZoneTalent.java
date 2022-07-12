@@ -63,13 +63,13 @@ public final class ArcherZoneTalent extends Talent implements Listener {
     protected void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
         if (combatReward(mob) == null) return;
-        if (!ArcherySkill.isPrimaryArrow(arrow)) return;
+        if (!ArrowType.PRIMARY.is(arrow)) return;
         increaseZone(player);
     }
 
     protected void onArrowHitBlock(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
-        if (!ArcherySkill.isPrimaryArrow(arrow)) return;
+        if (!ArrowType.PRIMARY.is(arrow)) return;
         resetZone(player);
     }
 

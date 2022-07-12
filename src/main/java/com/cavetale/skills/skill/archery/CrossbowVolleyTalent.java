@@ -82,7 +82,7 @@ public final class CrossbowVolleyTalent extends Talent {
             spam.setCritical(true);
             spam.setPierceLevel(arrow.getPierceLevel());
             spam.setFireTicks(arrow.getFireTicks());
-            ArcherySkill.setSpamArrow(spam);
+            ArrowType.SPAM.set(spam);
             archerySkill().onShootCrossbow(player, spam);
         }
         if (sessionOf(player).isDebugMode()) {
