@@ -11,8 +11,9 @@ import lombok.NonNull;
 public final class SQLPlayer implements SQLRow {
     @Id private Integer id;
     @Unique private UUID uuid;
-    private int levels = 0;
-    private int talents = 0;
+    @Default("0") private int levels = 0;
+    @Default("0") private int talents = 0;
+    @Default("0") private int talentGui = 0;
 
     public SQLPlayer() { }
 

@@ -13,6 +13,7 @@ import com.cavetale.skills.sql.SQLTalent;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -55,7 +56,7 @@ public final class Session {
     // Status effects, ticks remaining
     @Setter protected boolean superVisionActive;
     @Setter protected boolean netherVisionActive;
-    @Setter protected SkillType talentGui = SkillType.MINING;
+    private SkillType talentGui = SkillType.MINING;
     @Setter protected boolean debugMode;
     protected boolean modifyingTalents = false; // big talent lock
 
@@ -77,6 +78,9 @@ public final class Session {
             sqlPlayer = new SQLPlayer(uuid);
             database().insert(sqlPlayer);
         }
+        try {
+            talentGui = SkillType.values()[sqlPlayer.getTalentGui()];
+        } catch (ArrayIndexOutOfBoundsException aioobe) { }
     }
 
     protected void loadSkills() {
@@ -170,6 +174,13 @@ public final class Session {
 
     public int getTalentPoints(SkillType skillType) {
         return skills.get(skillType).getTalentPoints();
+    }
+
+    public void setTalentGui(SkillType skillType) {
+        if (talentGui == skillType) return;
+        talentGui = skillType;
+        sqlPlayer.setTalentGui(skillType.ordinal());
+        database().updateAsync(sqlPlayer, Set.of("talentGui"), null);
     }
 
     protected void showSkillBar(SkillType skillType, int level, int points, int required, int newPoints) {
