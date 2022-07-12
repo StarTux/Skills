@@ -42,6 +42,7 @@ public final class ArcherySkill extends Skill implements Listener {
     protected static final NamespacedKey PRIMARY_ARROW = NamespacedKey.fromString("skills:primary_arrow");
     protected static final NamespacedKey BONUS_ARROW = NamespacedKey.fromString("skills:bonus_arrow");
     protected static final NamespacedKey SPAM_ARROW = NamespacedKey.fromString("skills:spam_arrow");
+    protected static final NamespacedKey HAIL_ARROW = NamespacedKey.fromString("skills:hail_arrow");
     public final ArcherZoneTalent archerZoneTalent = new ArcherZoneTalent();
     public final ArcherZoneDeathTalent archerZoneDeathTalent = new ArcherZoneDeathTalent();
     public final ArrowSwiftnessTalent arrowSwiftnessTalent = new ArrowSwiftnessTalent();
@@ -51,6 +52,7 @@ public final class ArcherySkill extends Skill implements Listener {
     public final CrossbowInfinityTalent crossbowInfinityTalent = new CrossbowInfinityTalent();
     public final CrossbowVolleyTalent crossbowVolleyTalent = new CrossbowVolleyTalent();
     public final CrossbowFlameTalent crossbowFlameTalent = new CrossbowFlameTalent();
+    public final CrossbowHailTalent crossbowHailTalent = new CrossbowHailTalent();
     public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
 
     public ArcherySkill() {
@@ -154,6 +156,12 @@ public final class ArcherySkill extends Skill implements Listener {
         if (bow.getType() == Material.BOW) {
             onShootBow(player, arrow);
         } else if (bow.getType() == Material.CROSSBOW) {
+            // Called 3 times in case of Multishot
+            onShootCrossbow(player, arrow);
+            // The ones below we do not want to be called for custom
+            // arrows.  Flame would be a consideration, but it will
+            // simply adopt the flame status of the original arrow,
+            // which is a simple solution.
             crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
             crossbowFlameTalent.onShootCrossbow(player, bow, arrow);
             crossbowVolleyTalent.onShootCrossbow(player, bow, arrow);
@@ -161,11 +169,12 @@ public final class ArcherySkill extends Skill implements Listener {
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(skillType + " " + event.getEventName()
                                + " " + bow.getType()
-                               + " velo=" + arrow.getVelocity().length()
-                               + " dmg=" + arrow.getDamage()
-                               + " crit=" + arrow.isCritical()
-                               + " force=" + event.getForce()
-                               + " fire=" + arrow.getFireTicks());
+                               + " velo:" + arrow.getVelocity().length()
+                               + " dmg:" + arrow.getDamage()
+                               + " crit:" + arrow.isCritical()
+                               + " force:" + event.getForce()
+                               + " fire:" + arrow.getFireTicks()
+                               + " consume:" + event.shouldConsumeItem());
         }
     }
 
@@ -184,11 +193,19 @@ public final class ArcherySkill extends Skill implements Listener {
     }
 
     /**
-     * Called by onShootBow and BonusArrowTalent.
+     * Called by onEntityShootBow and BonusArrowTalent.
      */
     protected void onShootBow(Player player, AbstractArrow arrow) {
         archerZoneTalent.onShootBow(player, arrow);
         arrowSwiftnessTalent.onShootBow(player, arrow);
+    }
+
+    /**
+     * Contains functions to be called for every crossbow arrow.
+     * Called by onEntityShootBow and CrossbowVolleyTalent.
+     */
+    protected void onShootCrossbow(Player player, AbstractArrow arrow) {
+        crossbowHailTalent.onShootCrossbow(player, arrow);
     }
 
     /**
@@ -217,8 +234,15 @@ public final class ArcherySkill extends Skill implements Listener {
         return arrow.getPersistentDataContainer().has(SPAM_ARROW);
     }
 
-    public static void setSpawmArrow(AbstractArrow arrow) {
+    public static void setSpamArrow(AbstractArrow arrow) {
         Tags.set(arrow.getPersistentDataContainer(), SPAM_ARROW, (byte) 1);
     }
 
+    public static boolean isHailArrow(AbstractArrow arrow) {
+        return arrow.getPersistentDataContainer().has(HAIL_ARROW);
+    }
+
+    public static void setHailArrow(AbstractArrow arrow) {
+        Tags.set(arrow.getPersistentDataContainer(), HAIL_ARROW, (byte) 1);
+    }
 }
