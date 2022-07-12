@@ -12,14 +12,14 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
+import static com.cavetale.skills.SkillsPlugin.archerySkill;
 import static com.cavetale.skills.SkillsPlugin.random;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
-public final class CrossbowVolleyTalent extends Talent implements Listener {
+public final class CrossbowVolleyTalent extends Talent {
     public CrossbowVolleyTalent() {
         super(TalentType.XBOW_VOLLEY);
     }
@@ -39,9 +39,9 @@ public final class CrossbowVolleyTalent extends Talent implements Listener {
                        + " You can either combine books or add books to your"
                        + " :crossbow:crossbow on an anvil.",
                        "Arrows are multiplied based on your Multishot level:\n"
-                       + "\n:crossbow: I :arrow_right: :arrow:x2"
-                       + "\n:crossbow: II :arrow_right: :arrow:x4"
-                       + "\n:crossbow: III :arrow_right: :arrow:x9");
+                       + "\n:crossbow: I :arrow_right: :arrow:x3"
+                       + "\n:crossbow: II :arrow_right: :arrow:x10"
+                       + "\n:crossbow: III :arrow_right: :arrow:x20");
     }
 
     @Override
@@ -60,13 +60,19 @@ public final class CrossbowVolleyTalent extends Talent implements Listener {
         if (multishot == 0) return;
         List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
         if (arrows.isEmpty() || !Tag.ITEMS_ARROWS.isTagged(arrows.get(0).getType())) return;
-        final int arrowCount = multishot == 1 ? 1 : multishot * multishot - 1;
+        final int arrowCount = switch (multishot) {
+        case 0 -> 0;
+        case 1 -> 3;
+        case 2 -> 10;
+        case 3 -> 20;
+        default -> 0;
+        };
         final double velocity = arrow.getVelocity().length();
         int count;
-        for (count = 0; count < arrowCount; count += 1) {
+        for (count = 0; count < arrowCount - 1; count += 1) {
             Location location = player.getLocation();
             float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 45.0);
-            float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 11.25);
+            float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 18.0);
             location.setYaw(yaw);
             location.setPitch(Math.max(-90.0f, Math.min(90.0f, pitch)));
             Arrow spam = player.launchProjectile(Arrow.class, location.getDirection().multiply(velocity));
@@ -77,9 +83,10 @@ public final class CrossbowVolleyTalent extends Talent implements Listener {
             spam.setPierceLevel(arrow.getPierceLevel());
             spam.setFireTicks(arrow.getFireTicks());
             ArcherySkill.setSpawmArrow(spam);
+            archerySkill().onShootCrossbow(player, spam);
         }
         if (sessionOf(player).isDebugMode()) {
-            player.sendMessage(talentType + " multi:" + multishot + "arrows:" + count + "/" + arrowCount);
+            player.sendMessage(talentType + " multi:" + multishot + " arrows:" + count + "/" + arrowCount);
         }
     }
 
