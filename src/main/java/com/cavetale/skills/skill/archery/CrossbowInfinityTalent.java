@@ -68,7 +68,7 @@ public final class CrossbowInfinityTalent extends Talent {
             player.sendMessage(talentType + " arrows:" + arrows.size());
         }
         arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-        for (ItemStack drop : player.getInventory().addItem(arrows.get(0).clone()).values()) {
+        for (ItemStack drop : player.getInventory().addItem(arrows.get(0).asOne()).values()) {
             player.getWorld().dropItem(player.getLocation(), drop).setPickupDelay(0);
         }
     }

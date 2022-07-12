@@ -47,6 +47,8 @@ public final class ArcherySkill extends Skill implements Listener {
     public final CrossbowVolleyTalent crossbowVolleyTalent = new CrossbowVolleyTalent();
     public final CrossbowFlameTalent crossbowFlameTalent = new CrossbowFlameTalent();
     public final CrossbowHailTalent crossbowHailTalent = new CrossbowHailTalent();
+    public final CrossbowPierceTalent crossbowPierceTalent = new CrossbowPierceTalent();
+    public final CrossbowDualTalent crossbowDualTalent = new CrossbowDualTalent();
     public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
 
     public ArcherySkill() {
@@ -159,6 +161,7 @@ public final class ArcherySkill extends Skill implements Listener {
             crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
             crossbowFlameTalent.onShootCrossbow(player, bow, arrow);
             crossbowVolleyTalent.onShootCrossbow(player, bow, arrow);
+            crossbowDualTalent.onShootCrossbow(player);
         }
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(skillType + " " + event.getEventName()

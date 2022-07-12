@@ -68,7 +68,9 @@ public enum TalentType implements ComponentLike {
     XBOW_INFINITY(SkillType.ARCHERY, null, 1, v(4, 3)),
     XBOW_VOLLEY(SkillType.ARCHERY, XBOW_INFINITY, 2, v(3, 3)),
     XBOW_FLAME(SkillType.ARCHERY, XBOW_VOLLEY, 3, v(2, 3)),
-    XBOW_HAIL(SkillType.ARCHERY, XBOW_FLAME, 4, v(2, 2)),
+    XBOW_PIERCE(SkillType.ARCHERY, XBOW_FLAME, 4, v(2, 4)), // down
+    XBOW_DUAL(SkillType.ARCHERY, XBOW_PIERCE, 5, v(2, 5)),
+    XBOW_HAIL(SkillType.ARCHERY, XBOW_FLAME, 5, v(2, 2)), // up
 
     // Down: Tipped
     // TIPPED_INFINITY(SkillType.ARCHERY, null, 1, v(5, 4)),
