@@ -40,8 +40,8 @@ public final class CrossbowVolleyTalent extends Talent {
                        + " :crossbow:crossbow on an anvil.",
                        "Arrows are multiplied based on your Multishot level:\n"
                        + "\n:crossbow: I :arrow_right: :arrow:x3"
-                       + "\n:crossbow: II :arrow_right: :arrow:x10"
-                       + "\n:crossbow: III :arrow_right: :arrow:x20");
+                       + "\n:crossbow: II :arrow_right: :arrow:x5"
+                       + "\n:crossbow: III :arrow_right: :arrow:x10");
     }
 
     @Override
@@ -63,8 +63,8 @@ public final class CrossbowVolleyTalent extends Talent {
         final int arrowCount = switch (multishot) {
         case 0 -> 0;
         case 1 -> 3;
-        case 2 -> 10;
-        case 3 -> 20;
+        case 2 -> 5;
+        case 3 -> 10;
         default -> 0;
         };
         final double velocity = arrow.getVelocity().length();
@@ -74,7 +74,7 @@ public final class CrossbowVolleyTalent extends Talent {
             float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 45.0);
             float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 18.0);
             location.setYaw(yaw);
-            location.setPitch(Math.max(-90.0f, Math.min(90.0f, pitch)));
+            location.setPitch(pitch);
             Arrow spam = player.launchProjectile(Arrow.class, location.getDirection().multiply(velocity));
             if (spam == null) break;
             spam.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
