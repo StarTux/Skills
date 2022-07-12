@@ -11,14 +11,13 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
-public final class CrossbowInfinityTalent extends Talent implements Listener {
+public final class CrossbowInfinityTalent extends Talent {
     public CrossbowInfinityTalent() {
         super(TalentType.XBOW_INFINITY);
     }

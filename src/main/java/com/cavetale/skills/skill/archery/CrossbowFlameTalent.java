@@ -9,12 +9,11 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
-public final class CrossbowFlameTalent extends Talent implements Listener {
+public final class CrossbowFlameTalent extends Talent {
     public CrossbowFlameTalent() {
         super(TalentType.XBOW_FLAME);
     }
