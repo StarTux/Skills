@@ -30,8 +30,8 @@ public final class CrossbowInfinityTalent extends Talent implements Listener {
                        "With this talent, you can combine a :crossbow:crossbow with an"
                        + " :enchanted_book:enchanted book on an"
                        + " anvil to enchant the crossbow with Infinity."
-                       + "\n\nWhen shooting the crossbow with Infinity,"
-                       + " it get the :arrow:arrow back.");
+                       + "\n\nWhen shooting a crossbow with Infinity,"
+                       + " you get the :arrow:arrow back.");
     }
 
     @Override
