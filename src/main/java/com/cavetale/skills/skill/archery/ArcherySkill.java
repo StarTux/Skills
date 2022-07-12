@@ -35,6 +35,8 @@ import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldo
  * Arrow#getDamage() == 2.0 (always), Power: +1, +1.5, +2, +2.5, +3
  * Power: (lvl + 1) / 2 (wiki says /4, meaning hearts!)
  * Power Crit: 6, 9, 11, 12, 14, 15
+ * AbstractArrow <- Arrow/SpectralArrow
+ * TippedArrow is deprecated and now in Arrow!
  */
 public final class ArcherySkill extends Skill implements Listener {
     protected static final NamespacedKey PRIMARY_ARROW = NamespacedKey.fromString("skills:primary_arrow");
@@ -48,6 +50,7 @@ public final class ArcherySkill extends Skill implements Listener {
     public final ArrowMagnetTalent arrowMagnetTalent = new ArrowMagnetTalent();
     public final CrossbowInfinityTalent crossbowInfinityTalent = new CrossbowInfinityTalent();
     public final CrossbowVolleyTalent crossbowVolleyTalent = new CrossbowVolleyTalent();
+    public final CrossbowFlameTalent crossbowFlameTalent = new CrossbowFlameTalent();
     public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
 
     public ArcherySkill() {
@@ -152,6 +155,7 @@ public final class ArcherySkill extends Skill implements Listener {
             onShootBow(player, arrow);
         } else if (bow.getType() == Material.CROSSBOW) {
             crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
+            crossbowFlameTalent.onShootCrossbow(player, bow, arrow);
             crossbowVolleyTalent.onShootCrossbow(player, bow, arrow);
         }
         if (sessionOf(player).isDebugMode()) {
@@ -160,7 +164,8 @@ public final class ArcherySkill extends Skill implements Listener {
                                + " velo=" + arrow.getVelocity().length()
                                + " dmg=" + arrow.getDamage()
                                + " crit=" + arrow.isCritical()
-                               + " force=" + event.getForce());
+                               + " force=" + event.getForce()
+                               + " fire=" + arrow.getFireTicks());
         }
     }
 

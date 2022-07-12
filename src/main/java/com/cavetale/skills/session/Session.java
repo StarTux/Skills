@@ -284,7 +284,7 @@ public final class Session {
         List<AnvilEnchantment> anvilEnchantments = new ArrayList<>();
         for (TalentType talent : TalentType.values()) {
             if (isTalentEnabled(talent)) {
-                anvilEnchantments.addAll(talent.getTalent().getAnvilEnchantments());
+                anvilEnchantments.addAll(talent.getTalent().getAnvilEnchantments(this));
             }
         }
         return anvilEnchantments;

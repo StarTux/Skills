@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.crafting.AnvilEnchantment;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
@@ -45,8 +46,10 @@ public final class CrossbowInfinityTalent extends Talent implements Listener {
     }
 
     @Override
-    public List<AnvilEnchantment> getAnvilEnchantments() {
-        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.ARROW_INFINITE, Set.of(Enchantment.MENDING)));
+    public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
+        return session.isTalentEnabled(TalentType.INFINITY_MENDING)
+            ? List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.ARROW_INFINITE))
+            : List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.ARROW_INFINITE, Set.of(Enchantment.MENDING)));
     }
 
     protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {

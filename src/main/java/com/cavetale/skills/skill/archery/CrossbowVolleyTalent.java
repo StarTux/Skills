@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.crafting.AnvilEnchantment;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
@@ -57,14 +58,12 @@ public final class CrossbowVolleyTalent extends Talent implements Listener {
         if (!isPlayerEnabled(player)) return;
         final int multishot = crossbow.getEnchantmentLevel(Enchantment.MULTISHOT);
         if (multishot == 0) return;
-        if (sessionOf(player).isDebugMode()) {
-            player.sendMessage(talentType + " " + multishot);
-        }
         List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
         if (arrows.isEmpty() || !Tag.ITEMS_ARROWS.isTagged(arrows.get(0).getType())) return;
         final int arrowCount = multishot == 1 ? 1 : multishot * multishot - 1;
         final double velocity = arrow.getVelocity().length();
-        for (int i = 0; i < arrowCount; i += 1) {
+        int count;
+        for (count = 0; count < arrowCount; count += 1) {
             Location location = player.getLocation();
             float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 45.0);
             float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 11.25);
@@ -75,12 +74,17 @@ public final class CrossbowVolleyTalent extends Talent implements Listener {
             spam.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
             spam.setShotFromCrossbow(true);
             spam.setCritical(true);
+            spam.setPierceLevel(arrow.getPierceLevel());
+            spam.setFireTicks(arrow.getFireTicks());
             ArcherySkill.setSpawmArrow(spam);
+        }
+        if (sessionOf(player).isDebugMode()) {
+            player.sendMessage(talentType + " multi:" + multishot + "arrows:" + count + "/" + arrowCount);
         }
     }
 
     @Override
-    public List<AnvilEnchantment> getAnvilEnchantments() {
+    public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
         return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT, 3),
                        new AnvilEnchantment(Material.ENCHANTED_BOOK, Enchantment.MULTISHOT, 3));
     }

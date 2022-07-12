@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.crafting.AnvilEnchantment;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
@@ -25,8 +26,7 @@ public final class InfinityMendingTalent extends Talent {
                        + " which already has Infinity with an"
                        + " :enchanted_book:enchanted book on an"
                        + " anvil to add Mending."
-                       + "\n\nDoes not work the other way around.",
-                       "This also works with :crossbow:crossbows.");
+                       + "\n\nThis also works with :crossbow:crossbows.");
     }
 
     @Override
@@ -35,8 +35,9 @@ public final class InfinityMendingTalent extends Talent {
     }
 
     @Override
-    public List<AnvilEnchantment> getAnvilEnchantments() {
+    public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
         return List.of(new AnvilEnchantment(Material.BOW, Enchantment.MENDING),
+                       new AnvilEnchantment(Material.BOW, Enchantment.ARROW_INFINITE),
                        new AnvilEnchantment(Material.CROSSBOW, Enchantment.MENDING));
     }
 };

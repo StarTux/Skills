@@ -5,6 +5,7 @@ import com.cavetale.skills.session.Session;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,7 +33,7 @@ public final class CraftingListener implements Listener {
         final ItemStack first = event.getInventory().getFirstItem();
         if (first == null || first.getType().isAir() || Mytems.forItem(first) != null) return;
         final ItemStack second = event.getInventory().getSecondItem();
-        if (second == null || second.getType().isAir() || Mytems.forItem(second) != null) return;
+        if (second == null || second.getType() != Material.ENCHANTED_BOOK || Mytems.forItem(second) != null) return;
         if (!(event.getView().getPlayer() instanceof Player player)) return;
         if (!playMode(player)) return;
         Session session = sessionOf(player);
