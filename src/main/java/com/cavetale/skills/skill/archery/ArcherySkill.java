@@ -47,6 +47,7 @@ public final class ArcherySkill extends Skill implements Listener {
     public final BonusArrowTalent bonusArrowTalent = new BonusArrowTalent();
     public final ArrowMagnetTalent arrowMagnetTalent = new ArrowMagnetTalent();
     public final CrossbowInfinityTalent crossbowInfinityTalent = new CrossbowInfinityTalent();
+    public final CrossbowVolleyTalent crossbowVolleyTalent = new CrossbowVolleyTalent();
     public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
 
     public ArcherySkill() {
@@ -151,10 +152,12 @@ public final class ArcherySkill extends Skill implements Listener {
             onShootBow(player, arrow);
         } else if (bow.getType() == Material.CROSSBOW) {
             crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
+            crossbowVolleyTalent.onShootCrossbow(player, bow, arrow);
         }
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(skillType + " " + event.getEventName()
                                + " " + bow.getType()
+                               + " velo=" + arrow.getVelocity().length()
                                + " dmg=" + arrow.getDamage()
                                + " crit=" + arrow.isCritical()
                                + " force=" + event.getForce());

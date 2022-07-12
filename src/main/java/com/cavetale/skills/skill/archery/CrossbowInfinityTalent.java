@@ -53,7 +53,7 @@ public final class CrossbowInfinityTalent extends Talent implements Listener {
         if (!isPlayerEnabled(player)) return;
         if (crossbow.getEnchantmentLevel(Enchantment.ARROW_INFINITE) == 0) return;
         List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
-        if (arrows.size() != 1 || arrows.get(0) == null || arrows.get(0).getType() != Material.ARROW) return;
+        if (arrows.isEmpty() || arrows.get(0).getType() != Material.ARROW) return;
         arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         for (ItemStack drop : player.getInventory().addItem(arrows.get(0).clone()).values()) {
             player.getWorld().dropItem(player.getLocation(), drop).setPickupDelay(0);

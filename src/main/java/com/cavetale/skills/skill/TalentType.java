@@ -66,7 +66,7 @@ public enum TalentType implements ComponentLike {
 
     // Left: Crossbow AoE
     XBOW_INFINITY(SkillType.ARCHERY, null, 1, v(4, 3)),
-    // XBOW_VOLLEY(SkillType.ARCHERY, null, 2, v(3, 3)),
+    XBOW_VOLLEY(SkillType.ARCHERY, XBOW_INFINITY, 2, v(3, 3)),
     // XBOW_PIERCING(SkillType.ARCHERY, null, 3, v(2, 2)), // up
     // XBOW_HAIL(SkillType.ARCHERY, null, 4, v(2, 1)),
     // XBOW_EXPLOSION(SkillType.ARCHERY, null, 4, v(2, 4)), // down

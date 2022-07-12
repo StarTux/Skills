@@ -4,7 +4,6 @@ import com.cavetale.skills.crafting.AnvilEnchantment;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
-import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -37,7 +36,7 @@ public final class InfinityMendingTalent extends Talent {
 
     @Override
     public List<AnvilEnchantment> getAnvilEnchantments() {
-        return List.of(new AnvilEnchantment(Material.BOW, Enchantment.MENDING, Set.of()),
-                       new AnvilEnchantment(Material.CROSSBOW, Enchantment.MENDING, Set.of()));
+        return List.of(new AnvilEnchantment(Material.BOW, Enchantment.MENDING),
+                       new AnvilEnchantment(Material.CROSSBOW, Enchantment.MENDING));
     }
 };

@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
@@ -40,7 +41,7 @@ public final class CraftingListener implements Listener {
         RECIPES: for (AnvilEnchantment it : session.getAnvilEnchantments()) {
             if (it.item != first.getType()) continue;
             for (Enchantment conflict : it.conflicts) {
-                if (first.getEnchantmentLevel(conflict) != 0) {
+                if (getEnchantmentLevel(first, conflict) != 0) {
                     continue RECIPES;
                 }
             }
@@ -57,22 +58,36 @@ public final class CraftingListener implements Listener {
         int addedLevels = 0;
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
-            if (!anvilEnchantmentMap.containsKey(enchantment)) continue;
+            AnvilEnchantment recipe = anvilEnchantmentMap.get(enchantment);
+            if (recipe == null) continue;
             int level = entry.getValue();
-            int firstLevel = first.getEnchantmentLevel(enchantment);
-            int vanillaLevel = result.getEnchantmentLevel(enchantment);
-            if (firstLevel != vanillaLevel) {
+            int firstLevel = getEnchantmentLevel(first, enchantment);
+            int vanillaLevel = getEnchantmentLevel(result, enchantment);
+            if (firstLevel < vanillaLevel) {
+                if (session.isDebugMode()) {
+                    player.sendMessage(event.getEventName() + " Handled by Vanilla: " + recipe
+                                       + " " + firstLevel + "<" + vanillaLevel);
+                }
                 // Handled by vanilla enchants
                 continue;
             } else if (firstLevel == 0) {
+                if (session.isDebugMode()) {
+                    player.sendMessage(event.getEventName() + " New enchantment: " + recipe);
+                }
                 // Add
-                result.addUnsafeEnchantment(enchantment, level);
+                setEnchantmentLevel(result, enchantment, level);
                 addedLevels += level;
-            } else if (level == firstLevel && level < enchantment.getMaxLevel()) {
+            } else if (level == firstLevel && level < recipe.maxLevel) {
+                if (session.isDebugMode()) {
+                    player.sendMessage(event.getEventName() + " Increase level: " + recipe);
+                }
                 // Increase level
-                result.addUnsafeEnchantment(enchantment, level + 1);
+                setEnchantmentLevel(result, enchantment, level + 1);
                 addedLevels += level + 1;
             } else {
+                if (session.isDebugMode()) {
+                    player.sendMessage(event.getEventName() + " None of the above: " + recipe);
+                }
                 continue;
             }
         }
@@ -85,5 +100,23 @@ public final class CraftingListener implements Listener {
         result.editMeta(meta -> ((Repairable) meta).setRepairCost(baseRepairCost + 1));
         event.setResult(result);
         event.getInventory().setRepairCost(baseRepairCost + addedLevels);
+    }
+
+    private static int getEnchantmentLevel(ItemStack item, Enchantment enchantment) {
+        ItemMeta meta = item.getItemMeta();
+        return meta instanceof EnchantmentStorageMeta storage
+            ? storage.getStoredEnchantLevel(enchantment)
+            : meta.getEnchantLevel(enchantment);
+    }
+
+    private static void setEnchantmentLevel(ItemStack item, Enchantment enchantment, int level) {
+        item.editMeta(meta -> {
+                // ignoreLevelRestriction: true
+                if (meta instanceof EnchantmentStorageMeta storage) {
+                    storage.addStoredEnchant(enchantment, level, true);
+                } else {
+                    meta.addEnchant(enchantment, level, true);
+                }
+            });
     }
 }
