@@ -158,9 +158,13 @@ public final class ArcherySkill extends Skill implements Listener {
             // arrows.  Flame would be a consideration, but it will
             // simply adopt the flame status of the original arrow,
             // which is a simple solution.
-            crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
+            // The order matters:
+            // - Apply flame first
+            // - Volley will copy the flame state
+            // - Infinity will DISALLOW the pickup status (volley)
             crossbowFlameTalent.onShootCrossbow(player, bow, arrow);
             crossbowVolleyTalent.onShootCrossbow(player, bow, arrow);
+            crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
             crossbowDualTalent.onShootCrossbow(player);
         }
         if (sessionOf(player).isDebugMode()) {

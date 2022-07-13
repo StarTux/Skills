@@ -6,7 +6,6 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
 import java.util.Set;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
@@ -15,7 +14,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
-import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class CrossbowInfinityTalent extends Talent {
     public CrossbowInfinityTalent() {
@@ -56,14 +54,11 @@ public final class CrossbowInfinityTalent extends Talent {
 
     protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
+        if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) return;
         if (crossbow.getEnchantmentLevel(Enchantment.ARROW_INFINITE) == 0) return;
         Session session = sessionOf(player);
         List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
         if (arrows.isEmpty() || arrows.get(0).getType() != Material.ARROW) return;
-        // Only once per tick so we do not return 3 multishot arrows
-        if (session.archery.isXbowInfinityLock()) return;
-        session.archery.setXbowInfinityLock(true);
-        Bukkit.getScheduler().runTask(skillsPlugin(), () -> session.archery.setXbowInfinityLock(false));
         if (session.isDebugMode()) {
             player.sendMessage(talentType + " arrows:" + arrows.size());
         }

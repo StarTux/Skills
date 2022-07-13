@@ -38,10 +38,10 @@ public final class CrossbowVolleyTalent extends Talent {
                        "Use :enchanted_book:Enchanted Books to create higher levels of Multishot."
                        + " You can either combine books or add books to your"
                        + " :crossbow:crossbow on an anvil.",
-                       "Arrows are multiplied based on your Multishot level:\n"
-                       + "\n:crossbow: I :arrow_right: :arrow:x3"
-                       + "\n:crossbow: II :arrow_right: :arrow:x5"
-                       + "\n:crossbow: III :arrow_right: :arrow:x10");
+                       "Arrows shot based on your Multishot level:\n"
+                       + "\n:crossbow: I :arrow_right: :arrow:x9"
+                       + "\n:crossbow: II :arrow_right: :arrow:x15"
+                       + "\n:crossbow: III :arrow_right: :arrow:x25");
     }
 
     @Override
@@ -56,20 +56,21 @@ public final class CrossbowVolleyTalent extends Talent {
 
     protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
+        if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) return;
         final int multishot = crossbow.getEnchantmentLevel(Enchantment.MULTISHOT);
         if (multishot == 0) return;
         List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
         if (arrows.isEmpty() || !Tag.ITEMS_ARROWS.isTagged(arrows.get(0).getType())) return;
         final int arrowCount = switch (multishot) {
         case 0 -> 0;
-        case 1 -> 3;
-        case 2 -> 5;
-        case 3 -> 10;
+        case 1 -> 9;
+        case 2 -> 15;
+        case 3 -> 25;
         default -> 0;
         };
         final double velocity = arrow.getVelocity().length();
         int count;
-        for (count = 0; count < arrowCount - 1; count += 1) {
+        for (count = 0; count < arrowCount - 3; count += 1) {
             Location location = player.getLocation();
             float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 45.0);
             float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 18.0);
