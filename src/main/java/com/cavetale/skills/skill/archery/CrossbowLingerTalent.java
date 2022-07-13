@@ -28,12 +28,12 @@ public final class CrossbowLingerTalent extends Talent {
 
     @Override
     public String getDisplayName() {
-        return "";
+        return "Water Bomb";
     }
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Crossbow bullets with effect hitting blocks create a lingering effect cloud",
+        return List.of("Tipped crossbow bullets create a lingering effect cloud when they hit a block",
                        "When one of your crossbow :spectral_arrow:spectral or :tipped_arrow:tipped arrows"
                        + " hits the ground,"
                        + " it leaves behind a brief :ucloud:lingering effect cloud on the floor.");

@@ -23,7 +23,7 @@ public final class InstantHitTalent extends Talent {
     @Override
     public List<String> getRawDescription() {
         return List.of("Fully charged arrows reset any mob's invulnerability ticks",
-                       "Mobs are invulnerable to all attack damage for a few ticks after they take damage."
+                       "Mobs are invulnerable to all attack damage for half a second after they take damage."
                        + " This talent resets their invulnerability when you hit them"
                        + " with a fully charged :arrow:arrow."
                        + "\n\nThat way, mobs cannot deflect your arrows without a shield.");
