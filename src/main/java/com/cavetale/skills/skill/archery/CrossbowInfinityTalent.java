@@ -58,7 +58,17 @@ public final class CrossbowInfinityTalent extends Talent {
         if (crossbow.getEnchantmentLevel(Enchantment.ARROW_INFINITE) == 0) return;
         Session session = sessionOf(player);
         List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
-        if (arrows.isEmpty() || arrows.get(0).getType() != Material.ARROW) return;
+        if (arrows.isEmpty()) return;
+        switch (arrows.get(0).getType()) {
+        case ARROW: break;
+        case TIPPED_ARROW:
+            if (!session.isTalentEnabled(TalentType.TIPPED_INFINITY) || !TippedInfinityTalent.roll()) return;
+            break;
+        case SPECTRAL_ARROW:
+            if (!session.isTalentEnabled(TalentType.SPECTRAL_INFINITY) || !SpectralInfinityTalent.roll()) return;
+            break;
+        default: return;
+        }
         if (session.isDebugMode()) {
             player.sendMessage(talentType + " arrows:" + arrows.size());
         }

@@ -4,12 +4,14 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.combat.CombatReward;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Trident;
@@ -37,19 +39,29 @@ import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldo
  * TippedArrow is deprecated and now in Arrow!
  */
 public final class ArcherySkill extends Skill implements Listener {
+    // Right
     public final ArcherZoneTalent archerZoneTalent = new ArcherZoneTalent();
     public final ArcherZoneDeathTalent archerZoneDeathTalent = new ArcherZoneDeathTalent();
     public final ArrowSwiftnessTalent arrowSwiftnessTalent = new ArrowSwiftnessTalent();
-    public final ArrowDamageTalent arrowDamageTalent = new ArrowDamageTalent();
     public final BonusArrowTalent bonusArrowTalent = new BonusArrowTalent();
+    public final ArrowDamageTalent arrowDamageTalent = new ArrowDamageTalent();
+    public final ArrowVelocityTalent arrowVelocityTalent = new ArrowVelocityTalent();
+    // Up
     public final ArrowMagnetTalent arrowMagnetTalent = new ArrowMagnetTalent();
+    public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
+    public final InstantHitTalent instantHitTalent = new InstantHitTalent();
+    // Left
     public final CrossbowInfinityTalent crossbowInfinityTalent = new CrossbowInfinityTalent();
     public final CrossbowVolleyTalent crossbowVolleyTalent = new CrossbowVolleyTalent();
     public final CrossbowFlameTalent crossbowFlameTalent = new CrossbowFlameTalent();
     public final CrossbowHailTalent crossbowHailTalent = new CrossbowHailTalent();
+    public final CrossbowLingerTalent crossbowLingerTalent = new CrossbowLingerTalent();
     public final CrossbowPierceTalent crossbowPierceTalent = new CrossbowPierceTalent();
     public final CrossbowDualTalent crossbowDualTalent = new CrossbowDualTalent();
-    public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
+    // Down
+    public final TippedInfinityTalent tippedInfinityTalent = new TippedInfinityTalent();
+    public final SpectralInfinityTalent spectralInfinityTalent = new SpectralInfinityTalent();
+    public final GlowMarkTalent glowMarkTalent = new GlowMarkTalent();
 
     public ArcherySkill() {
         super(SkillType.ARCHERY);
@@ -150,7 +162,10 @@ public final class ArcherySkill extends Skill implements Listener {
         if (bow == null) return;
         ArrowType.PRIMARY.set(arrow);
         if (bow.getType() == Material.BOW) {
+            ItemStack consumable = event.getConsumable();
             onShootBow(player, arrow);
+            tippedInfinityTalent.onShootBow(player, bow, consumable, arrow, event);
+            spectralInfinityTalent.onShootBow(player, bow, consumable, arrow, event);
         } else if (bow.getType() == Material.CROSSBOW) {
             // Called 3 times in case of Multishot
             onShootCrossbow(player, arrow);
@@ -179,17 +194,29 @@ public final class ArcherySkill extends Skill implements Listener {
         }
     }
 
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private void onProjectileCollide(ProjectileCollideEvent event) {
+        if (!(event.getEntity() instanceof AbstractArrow arrow) || arrow instanceof Trident) return;
+        if (!(arrow.getShooter() instanceof Player player)) return;
+        if (!(event.getCollidedWith() instanceof LivingEntity target)) return;
+        arrowDamageTalent.onArrowCollide(player, arrow);
+        glowMarkTalent.onArrowCollide(player, arrow, target);
+        instantHitTalent.onArrowCollide(player, arrow, target);
+    }
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private void onProjectileHit(ProjectileHitEvent event) {
         if (!(event.getEntity() instanceof AbstractArrow arrow) || arrow instanceof Trident) return;
         if (!(arrow.getShooter() instanceof Player player)) return;
         if (event.getHitBlock() != null) {
             archerZoneTalent.onArrowHitBlock(player, arrow);
-        }
-        if (ArrowType.BONUS.is(arrow) || ArrowType.SPAM.is(arrow)) {
-            Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
-        } else if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) {
-            Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
+            crossbowLingerTalent.onArrowHitBlock(player, arrow, event);
+            if (arrow.isDead()) return;
+            if (ArrowType.BONUS.is(arrow) || ArrowType.SPAM.is(arrow)) {
+                Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
+            } else if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) {
+                Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
+            }
         }
     }
 
@@ -199,6 +226,7 @@ public final class ArcherySkill extends Skill implements Listener {
     protected void onShootBow(Player player, AbstractArrow arrow) {
         archerZoneTalent.onShootBow(player, arrow);
         arrowSwiftnessTalent.onShootBow(player, arrow);
+        arrowVelocityTalent.onShootBow(player, arrow);
     }
 
     /**

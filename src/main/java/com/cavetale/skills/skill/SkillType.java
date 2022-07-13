@@ -48,7 +48,7 @@ public enum SkillType implements ComponentLike {
                            + " However, they decrease quickly if you stay in place.");
         }
     },
-    ARCHERY("Archery", color(0xFFC0CB), BossBar.Color.PINK) {
+    ARCHERY("Archery", color(0xFF1493), BossBar.Color.PINK) {
         @Override public ItemStack createIcon() {
             return icon(Material.SPECTRAL_ARROW);
         }

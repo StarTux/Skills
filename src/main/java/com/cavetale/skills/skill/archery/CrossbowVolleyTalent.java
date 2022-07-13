@@ -5,6 +5,7 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
+import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
+import org.bukkit.potion.PotionType;
 import static com.cavetale.skills.SkillsPlugin.archerySkill;
 import static com.cavetale.skills.SkillsPlugin.random;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
@@ -39,9 +41,9 @@ public final class CrossbowVolleyTalent extends Talent {
                        + " You can either combine books or add books to your"
                        + " :crossbow:crossbow on an anvil.",
                        "Arrows shot based on your Multishot level:\n"
-                       + "\n:crossbow: I :arrow_right: :arrow:x9"
-                       + "\n:crossbow: II :arrow_right: :arrow:x15"
-                       + "\n:crossbow: III :arrow_right: :arrow:x25");
+                       + "\n:crossbow: I :arrow_right: :arrow:x6"
+                       + "\n:crossbow: II :arrow_right: :arrow:x9"
+                       + "\n:crossbow: III :arrow_right: :arrow:x15");
     }
 
     @Override
@@ -63,26 +65,31 @@ public final class CrossbowVolleyTalent extends Talent {
         if (arrows.isEmpty() || !Tag.ITEMS_ARROWS.isTagged(arrows.get(0).getType())) return;
         final int arrowCount = switch (multishot) {
         case 0 -> 0;
-        case 1 -> 9;
-        case 2 -> 15;
-        case 3 -> 25;
+        case 1 -> 6;
+        case 2 -> 9;
+        case 3 -> 15;
         default -> 0;
         };
         final double velocity = arrow.getVelocity().length();
         int count;
         for (count = 0; count < arrowCount - 3; count += 1) {
             Location location = player.getLocation();
-            float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 45.0);
-            float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 18.0);
+            float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 35.0);
+            float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 12.0);
             location.setYaw(yaw);
             location.setPitch(pitch);
-            Arrow spam = player.launchProjectile(Arrow.class, location.getDirection().multiply(velocity));
+            AbstractArrow spam = player.launchProjectile(arrow.getClass(), location.getDirection().multiply(velocity));
             if (spam == null) break;
             spam.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
             spam.setShotFromCrossbow(true);
             spam.setCritical(true);
             spam.setPierceLevel(arrow.getPierceLevel());
             spam.setFireTicks(arrow.getFireTicks());
+            if (arrow instanceof Arrow arrow2 && spam instanceof Arrow spam2) {
+                if (arrow2.getBasePotionData().getType() != PotionType.UNCRAFTABLE) {
+                    spam2.setBasePotionData(arrow2.getBasePotionData());
+                }
+            }
             ArrowType.SPAM.set(spam);
             archerySkill().onShootCrossbow(player, spam);
         }
@@ -93,7 +100,7 @@ public final class CrossbowVolleyTalent extends Talent {
 
     @Override
     public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
-        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT, 3),
+        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT, 3, Set.of(Enchantment.PIERCING)),
                        new AnvilEnchantment(Material.ENCHANTED_BOOK, Enchantment.MULTISHOT, 3));
     }
 }

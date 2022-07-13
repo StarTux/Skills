@@ -14,6 +14,7 @@ public enum ArrowType {
     BONUS("skills:bonus_arrow"), // Shot by talent
     SPAM("skills:spam_arrow"), // Shot by talent
     HAIL("skills:hail_arrow"), // Do not damage shooter
+    MARK("skills:mark_arrow"), // Damage already doubled
     ;
 
     private final NamespacedKey namespacedKey;
@@ -28,5 +29,15 @@ public enum ArrowType {
 
     public void set(AbstractArrow arrow) {
         Tags.set(arrow.getPersistentDataContainer(), namespacedKey, (byte) 1);
+    }
+
+    /**
+     * Set the state if not already present.
+     * @true if the state was set, false otherwise
+     */
+    public boolean getOrSet(AbstractArrow arrow) {
+        if (is(arrow)) return false;
+        set(arrow);
+        return true;
     }
 }

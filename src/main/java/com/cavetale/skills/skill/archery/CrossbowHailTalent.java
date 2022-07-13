@@ -6,6 +6,7 @@ import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import java.util.List;
 import java.util.Objects;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
@@ -44,10 +45,16 @@ public final class CrossbowHailTalent extends Talent implements Listener {
         if (!isPlayerEnabled(player)) return;
         Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
                 if (!arrow.isValid() || arrow.isDead()) return;
-                if (arrow.getLocation().getY() < player.getLocation().getY() + 10) return;
-                arrow.setVelocity(new Vector(0.0, -3.2, 0.0));
+                Location location = arrow.getLocation();
+                Vector velocity = arrow.getVelocity();
+                double y = velocity.getY();
+                if (y < 0.0 || (y * y) < Math.abs(velocity.getX() * velocity.getZ())) return;
+                // Arrows face backwards!
+                location.setDirection(new Vector(0.0, 1.0, 0.0));
+                arrow.teleport(location);
+                arrow.setVelocity(new Vector(velocity.getX(), -y, velocity.getZ()));
                 ArrowType.HAIL.set(arrow);
-            }, 20L);
+            }, 10L);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)

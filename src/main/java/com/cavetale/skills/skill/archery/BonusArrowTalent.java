@@ -45,7 +45,7 @@ public final class BonusArrowTalent extends Talent {
 
     protected void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
-        if ((!arrow.isCritical() && !ArrowType.PRIMARY.is(arrow)) && !ArrowType.BONUS.is(arrow)) return;
+        if ((!arrow.isCritical() || !ArrowType.PRIMARY.is(arrow)) && !ArrowType.BONUS.is(arrow)) return;
         Session session = sessionOf(player);
         if (session.archery.isBonusArrowFiring()) return;
         if (player.getInventory().getItemInMainHand().getType() != Material.BOW) return;
@@ -57,9 +57,9 @@ public final class BonusArrowTalent extends Talent {
                 Arrow bonusArrow = player.launchProjectile(Arrow.class);
                 if (bonusArrow == null) return;
                 ArrowType.BONUS.set(bonusArrow);
-                bonusArrow.setCritical(false);
+                bonusArrow.setCritical(true);
                 bonusArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-                archerySkill().onShootBow(player, arrow);
+                archerySkill().onShootBow(player, bonusArrow);
                 player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, SoundCategory.MASTER, 0.2f, 1.5f);
                 if (sessionOf(player).isDebugMode()) {
                     player.sendMessage(talentType + "!");

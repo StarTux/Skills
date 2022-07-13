@@ -2,20 +2,15 @@ package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Trident;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
-public final class ArrowDamageTalent extends Talent implements Listener {
+public final class ArrowDamageTalent extends Talent {
     public ArrowDamageTalent() {
         super(TalentType.ARROW_DAMAGE);
     }
@@ -38,12 +33,9 @@ public final class ArrowDamageTalent extends Talent implements Listener {
         return createIcon(Material.SPYGLASS);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    private void onProjectileCollide(ProjectileCollideEvent event) {
-        if (!(event.getEntity() instanceof AbstractArrow arrow) || arrow instanceof Trident) return;
-        if (!(arrow.getShooter() instanceof Player player)) return;
+    protected void onArrowCollide(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
-        if (!arrow.isCritical()) return;
+        if (!arrow.isCritical() || arrow.isShotFromCrossbow()) return;
         Location a = player.getLocation();
         Location b = arrow.getLocation();
         if (!a.getWorld().equals(b.getWorld())) return;
