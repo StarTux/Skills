@@ -6,6 +6,7 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.AbstractArrow;
@@ -33,7 +34,8 @@ public final class BonusArrowTalent extends Talent {
                        "As soon as a fully charged :arrow:arrow hits a mob,"
                        + " you launch another free :arrow:arrow."
                        + " The additional :arrow:arrow is shot in the direction you are looking"
-                       + " and may trigger yet another arrow.");
+                       + " and may trigger yet another arrow."
+                       + "\n\nYour bow must be in your main hand.");
     }
 
     @Override
@@ -46,10 +48,12 @@ public final class BonusArrowTalent extends Talent {
         if ((!arrow.isCritical() && !ArrowType.PRIMARY.is(arrow)) && !ArrowType.BONUS.is(arrow)) return;
         Session session = sessionOf(player);
         if (session.archery.isBonusArrowFiring()) return;
+        if (player.getInventory().getItemInMainHand().getType() != Material.BOW) return;
         session.archery.setBonusArrowFiring(true);
         Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
                 session.archery.setBonusArrowFiring(false);
                 if (!player.isOnline()) return;
+                if (player.getInventory().getItemInMainHand().getType() != Material.BOW) return;
                 Arrow bonusArrow = player.launchProjectile(Arrow.class);
                 if (bonusArrow == null) return;
                 ArrowType.BONUS.set(bonusArrow);
