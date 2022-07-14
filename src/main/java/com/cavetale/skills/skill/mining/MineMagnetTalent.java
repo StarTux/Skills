@@ -5,7 +5,6 @@ import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
-import com.destroystokyo.paper.MaterialTags;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -32,7 +31,7 @@ public final class MineMagnetTalent extends Talent implements Listener {
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Mining blocks with your pickaxe will drop items right at your feet");
+        return List.of("Broken blocks will drop items right at your feet");
     }
 
     @Override
@@ -71,7 +70,6 @@ public final class MineMagnetTalent extends Talent implements Listener {
         Player player = event.getPlayer();
         if (player == null || !isPlayerEnabled(player)) return;
         final ItemStack hand = player.getInventory().getItemInMainHand();
-        if (hand == null || !MaterialTags.PICKAXES.isTagged(hand.getType())) return;
         for (Item item : event.getItems()) {
             item.teleport(player.getLocation());
             item.setPickupDelay(0);
