@@ -85,9 +85,9 @@ public final class MiningSkill extends Skill implements Listener {
         reward(DEEPSLATE_REDSTONE_ORE, 1, 1.0, 5, 3, REDSTONE, 5, DEEPSLATE);
         // technically not ores
         reward(ANCIENT_DEBRIS, 10, 50.0, 10, 0, NETHERITE_SCRAP, 1, NETHERRACK);
-        reward(RAW_COPPER_BLOCK, 10, 50.0, 3, 0, null, 0, null);
-        reward(RAW_IRON_BLOCK, 10, 50.0, 3, 0, null, 0, null);
-        reward(RAW_GOLD_BLOCK, 10, 50.0, 3, 0, null, 0, null); // currently does not generate
+        reward(RAW_COPPER_BLOCK, 5, 50.0, 3, 0, null, 0, null);
+        reward(RAW_IRON_BLOCK, 15, 50.0, 3, 0, null, 0, null);
+        reward(RAW_GOLD_BLOCK, 25, 50.0, 3, 0, null, 0, null); // currently does not generate
         reward(BUDDING_AMETHYST, 10, 10.0, 1, 0, AMETHYST_SHARD, 2, AMETHYST_BLOCK);
     }
 
