@@ -69,7 +69,6 @@ public final class MineMagnetTalent extends Talent implements Listener {
     private void onBlockDropItem(BlockDropItemEvent event) {
         Player player = event.getPlayer();
         if (player == null || !isPlayerEnabled(player)) return;
-        final ItemStack hand = player.getInventory().getItemInMainHand();
         for (Item item : event.getItems()) {
             item.teleport(player.getLocation());
             item.setPickupDelay(0);
