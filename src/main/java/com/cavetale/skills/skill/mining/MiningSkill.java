@@ -3,6 +3,7 @@ package com.cavetale.skills.skill.mining;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Players;
 import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
@@ -177,7 +178,10 @@ public final class MiningSkill extends Skill implements Listener {
         if (veinMiningTalent.tryToVeinMine(player, item, block, reward, event)) {
             return;
         }
-        giveReward(player, block, reward, block.getLocation().add(0.5, 0.25, 0.0));
+        final Location dropLocation = sessionOf(player).isTalentEnabled(TalentType.MINE_MAGNET)
+            ? player.getLocation()
+            : block.getLocation().add(0.5, 0.25, 0.0);
+        giveReward(player, block, reward, dropLocation);
     }
 
     /**

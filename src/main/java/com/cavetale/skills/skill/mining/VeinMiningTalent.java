@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -88,7 +89,10 @@ public final class VeinMiningTalent extends Talent {
         if (itemDamageCount > 0) item.setItemMeta(itemMeta);
         event.setCancelled(true);
         if (rewardableBlockCount > 0) {
-            miningSkill().giveStackedReward(player, item, reward, block.getLocation().add(0.5, 0.25, 0.5), rewardableBlockCount);
+            final Location dropLocation = session.isTalentEnabled(TalentType.MINE_MAGNET)
+                ? player.getLocation()
+                : block.getLocation().add(0.5, 0.25, 0.5);
+            miningSkill().giveStackedReward(player, item, reward, dropLocation, rewardableBlockCount);
             miningSkill().rubyTalent.onVeinMine(player, block, reward, rewardableBlockCount);
         }
         return true;

@@ -4,6 +4,7 @@ import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
+import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -44,8 +45,10 @@ public final class RubyTalent extends Talent {
             player.sendMessage(talentType + " " + roll + "/" + chance);
         }
         if (roll >= chance) return false;
-        originalBlock.getWorld().dropItem(originalBlock.getLocation().add(0.5, 0.5, 0.5),
-                                          Mytems.RUBY.createItemStack());
+        final Location dropLocation = sessionOf(player).isTalentEnabled(TalentType.MINE_MAGNET)
+            ? player.getLocation()
+            : originalBlock.getLocation().add(0.5, 0.5, 0.5);
+        originalBlock.getWorld().dropItem(dropLocation, Mytems.RUBY.createItemStack());
         return true;
     }
 }
