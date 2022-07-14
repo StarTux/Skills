@@ -24,7 +24,7 @@ public final class ArcherZoneDeathTalent extends Talent {
     @Override
     public List<String> getRawDescription() {
         return List.of("Arrow kills increase bow damage",
-                       "In the Zone damage increases event more"
+                       "In the Zone damage increases even more"
                        + " every time you kill a mob which yields SP with an arrow.");
     }
 
