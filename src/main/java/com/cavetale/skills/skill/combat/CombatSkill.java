@@ -101,6 +101,6 @@ public final class CombatSkill extends Skill {
         final int kills = Math.max(0, oldKills - (int) subtraction) + 1;
         Tags.set(pdc, KEY_KILLS, kills);
         Tags.set(pdc, KEY_LAST_KILL, now);
-        return kills > 10;
+        return kills > 5;
     }
 }
