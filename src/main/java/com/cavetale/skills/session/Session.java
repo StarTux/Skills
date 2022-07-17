@@ -330,6 +330,8 @@ public final class Session {
                 } else {
                     player.sendMessage(join(noSeparators(), text(talentPointsGiven + " "), skillType, text(" Talent Points refunded")));
                     talents.keySet().removeAll(TalentType.getTalents(skillType));
+                    database().update(SQLPlayer.class)
+                        .row(sqlPlayer).set("talents", talents.size()).async(null);
                 }
                 if (!player.isValid()) return;
                 Guis.talents(player);
