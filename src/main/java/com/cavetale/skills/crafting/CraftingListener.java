@@ -27,9 +27,6 @@ public final class CraftingListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     private void onPrepareAnvil(PrepareAnvilEvent event) {
-        if (event.getInventory().getRenameText() != null && !event.getInventory().getRenameText().isEmpty()) {
-            return;
-        }
         final ItemStack first = event.getInventory().getFirstItem();
         if (first == null || first.getType().isAir() || Mytems.forItem(first) != null) return;
         final ItemStack second = event.getInventory().getSecondItem();
