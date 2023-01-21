@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill.combat;
 
+import com.cavetale.core.connect.NetworkServer;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
@@ -91,6 +92,7 @@ public final class CombatSkill extends Skill {
      * @return true if location (chunk) is on cooldown
      */
     public static boolean addKillAndCheckCooldown(Location location) {
+        if (NetworkServer.current() == NetworkServer.MOB_ARENA) return false;
         final PersistentDataContainer pdc = location.getChunk().getPersistentDataContainer();
         final long now = System.currentTimeMillis();
         Integer oldKills = Tags.getInt(pdc, KEY_KILLS);
