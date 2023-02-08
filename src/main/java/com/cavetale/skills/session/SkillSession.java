@@ -128,7 +128,7 @@ public class SkillSession {
                         }
                         Player player = session.getPlayer();
                         if (player != null) {
-                            player.showTitle(title(skillType.asComponent(),
+                            player.showTitle(title(skillType.getIconTitle(),
                                                    text("Level " + newLevel, GOLD),
                                                    times(ofSeconds(1), ofSeconds(1), ofSeconds(1))));
                             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,

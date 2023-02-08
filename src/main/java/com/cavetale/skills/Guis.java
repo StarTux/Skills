@@ -59,7 +59,7 @@ public final class Guis {
         final int size = 6 * 9;
         final Gui gui = new Gui().size(size);
         GuiOverlay.Builder builder = GuiOverlay.builder(size)
-            .title(skillType.asComponent())
+            .title(skillType.getIconTitle())
             .layer(GuiOverlay.BLANK, skillType.textColor)
             .layer(GuiOverlay.TOP_BAR, DARK_GRAY);
         // Make top menu
@@ -68,7 +68,7 @@ public final class Guis {
             if (otherSkillType == skillType) {
                 builder.highlightSlot(slot, skillType.textColor);
             }
-            ItemStack icon = Items.text(otherSkillType.createIcon(), List.of(otherSkillType.asComponent()));
+            ItemStack icon = Items.text(otherSkillType.createIcon(), List.of(otherSkillType.getIconTitle()));
             gui.setItem(slot, icon, click -> {
                     if (!click.isLeftClick()) return;
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
@@ -77,6 +77,11 @@ public final class Guis {
                 });
         }
         final int talentPoints = session.getTalentPoints(skillType);
+        gui.setItem(0, Mytems.TURN_LEFT.createIcon(List.of(text("Back to Overview", GRAY))), click -> {
+                if (!click.isLeftClick()) return;
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, SoundCategory.MASTER, 1.0f, 1.0f);
+                skillsCommand().skill(player, skillType);
+            });
         if (talentPoints > 0) {
             ItemStack talentItem = icon(Material.ENDER_EYE,
                                         text(talentPoints + " "
@@ -106,6 +111,10 @@ public final class Guis {
             } else {
                 text.add(text("Locked", DARK_RED));
             }
+            for (String line : Text.wrapLine(talentType.getTalent().getRawDescription().get(0), LINELENGTH)) {
+                text.add(text(line, GRAY));
+            }
+            text.add(empty());
             text.add(join(noSeparators(), text(tiny("cost "), GRAY), text(talentType.talentPointCost, WHITE), text(tiny("tp"), GRAY)));
             if (talentType.depends != null) {
                 text.add(join(noSeparators(), text(tiny("requires "), GRAY), talentType.depends));
@@ -119,9 +128,6 @@ public final class Guis {
                 if (session.canAccessTalent(talentType)) {
                     text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GREEN, ITALIC)));
                 }
-            }
-            for (String line : Text.wrapLine(talentType.getTalent().getRawDescription().get(0), LINELENGTH)) {
-                text.add(text(line, GRAY));
             }
             icon = Items.text(icon, text);
             gui.setItem(slot, icon, click -> {
@@ -182,10 +188,11 @@ public final class Guis {
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         icon.editMeta(meta -> {
                 Items.text(meta, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
-                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
-                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
                                          join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
-                                         join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY))));
+                                         join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY)),
+                                         empty(),
+                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
+                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
             });
         return icon;
     }
@@ -197,10 +204,11 @@ public final class Guis {
         icon.editMeta(meta -> {
                 meta.addItemFlags(ItemFlag.values());
                 Items.text(meta, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
-                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC)),
-                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
                                          join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
-                                         join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY))));
+                                         join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY)),
+                                         empty(),
+                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
+                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
             });
         return icon;
     }
@@ -209,10 +217,11 @@ public final class Guis {
         ItemStack icon = Mytems.REDO.createIcon();
         int tp = session.getTalentPointsSpent(skillType);
         icon.editMeta(meta -> {
-                Items.text(meta, List.of(join(noSeparators(), text(" Refund "), skillType, text(" Talent Points")).color(BLUE),
-                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Purchase", GRAY, ITALIC)),
+                Items.text(meta, List.of(join(noSeparators(), text(" Refund "), skillType.getIconTitle(), text(" Talent Points")).color(BLUE),
+                                         join(noSeparators(), text(tiny("total "), GRAY), text(tp, WHITE), text(tiny("tp"), GRAY)),
+                                         empty(),
                                          join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), Mytems.KITTY_COIN),
-                                         join(noSeparators(), text(tiny("total "), GRAY), text(tp, WHITE), text(tiny("tp"), GRAY))));
+                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Purchase", GRAY, ITALIC))));
             });
         return icon;
     }

@@ -9,22 +9,18 @@ import java.util.List;
 import lombok.Getter;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
-import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
-import static net.kyori.adventure.text.event.ClickEvent.runCommand;
-import static net.kyori.adventure.text.event.HoverEvent.showText;
+import static net.kyori.adventure.text.Component.textOfChildren;
 import static net.kyori.adventure.text.format.TextColor.color;
 
 @Getter
-public enum SkillType implements ComponentLike {
+public enum SkillType {
     MINING("Mining", NamedTextColor.DARK_AQUA, BossBar.Color.BLUE) {
         @Override public ItemStack createIcon() {
             return icon(Material.GOLDEN_PICKAXE);
@@ -86,12 +82,8 @@ public enum SkillType implements ComponentLike {
         return text(displayName, textColor);
     }
 
-    @Override
-    public Component asComponent() {
-        String cmd = "/sk " + key;
-        return join(noSeparators(), getIconComponent(), getDisplayComponent())
-            .hoverEvent(showText(text(cmd, textColor)))
-            .clickEvent(runCommand(cmd));
+    public Component getIconTitle() {
+        return textOfChildren(getIconComponent(), getDisplayComponent());
     }
 
     public static SkillType ofKey(String key) {

@@ -24,6 +24,7 @@ public final class Books {
     }
 
     public static void open(Player player, List<Component> pages) {
+        player.closeInventory();
         player.openBook(make(pages));
     }
 }

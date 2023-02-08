@@ -29,9 +29,8 @@ import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.skills.SkillsPlugin.database;
 import static com.cavetale.skills.SkillsPlugin.sessions;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
-import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
+import static net.kyori.adventure.text.Component.textOfChildren;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.*;
 
@@ -190,13 +189,12 @@ public final class Session {
         } else {
             actionSP = newPoints;
         }
-        skillBar.name(join(noSeparators(),
-                           skillType,
-                           text(tiny(" lvl "), GRAY),
-                           text(level, skillType.textColor, BOLD),
-                           text(tiny(" sp "), GRAY),
-                           text(points, skillType.textColor),
-                           text(subscript("+" + actionSP), skillType.textColor)));
+        skillBar.name(textOfChildren(skillType.getIconTitle(),
+                                     text(tiny(" lvl "), GRAY),
+                                     text(level, skillType.textColor, BOLD),
+                                     text(tiny(" sp "), GRAY),
+                                     text(points, skillType.textColor),
+                                     text(subscript("+" + actionSP), skillType.textColor)));
         skillBar.progress(Math.max(0.0f, Math.min(1.0f, (float) points / (float) required)));
         skillBar.color(skillType.bossBarColor);
         shownSkill = skillType;
@@ -305,7 +303,8 @@ public final class Session {
         if (modifyingTalents) return false;
         final int talentPointsSpent = getTalentPointsSpent(skillType);
         if (talentPointsSpent == 0) {
-            player.sendMessage(join(noSeparators(), text("You do not have any Talent Points in "), skillType).color(RED));
+            player.sendMessage(textOfChildren(text("You do not have any Talent Points in "),
+                                              skillType.getIconComponent()).color(RED));
             return false;
         }
         int spent = 0;
@@ -317,7 +316,7 @@ public final class Session {
             }
         }
         if (spent == 0) {
-            player.sendMessage(join(noSeparators(), text("You do not have one "), Mytems.KITTY_COIN, text(" Kitty Coin!")).color(RED));
+            player.sendMessage(textOfChildren(text("You do not have one "), Mytems.KITTY_COIN, text(" Kitty Coin!")).color(RED));
             return false;
         }
         modifyingTalents = true;
@@ -328,7 +327,7 @@ public final class Session {
                     skillsPlugin().getLogger().severe(player.getName() + " respect " + skillType + " failed!");
                     player.sendMessage(text("Something went wrong!", RED));
                 } else {
-                    player.sendMessage(join(noSeparators(), text(talentPointsGiven + " "), skillType, text(" Talent Points refunded")));
+                    player.sendMessage(textOfChildren(text(talentPointsGiven + " "), skillType.getIconTitle(), text(" Talent Points refunded")));
                     talents.keySet().removeAll(TalentType.getTalents(skillType));
                     database().update(SQLPlayer.class)
                         .row(sqlPlayer).set("talents", talents.size()).async(null);
@@ -343,9 +342,17 @@ public final class Session {
         if (showSkillBar || debugMode) {
             event.bossbar(PlayerHudPriority.LOW,
                           (debugMode
-                           ? join(noSeparators(), text("Debug ", YELLOW, BOLD), skillBar.name())
+                           ? textOfChildren(text("Debug ", YELLOW, BOLD), skillBar.name())
                            : skillBar.name()),
                           skillBar.color(), skillBar.overlay(), skillBar.progress());
+        }
+        for (SkillSession sk : skills.values()) {
+            if (sk.getTalentPoints() == 0) continue;
+            var c = sk.skillType.getIconComponent();
+            event.sidebar(PlayerHudPriority.LOW,
+                          List.of(textOfChildren(c, text("You have more ", AQUA)),
+                                  textOfChildren(c, text("/tal", YELLOW), text("ent points", AQUA))));
+            break;
         }
     }
 

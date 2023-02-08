@@ -23,13 +23,14 @@ import lombok.Value;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import static com.cavetale.core.font.Unicode.subscript;
+import static com.cavetale.core.font.Unicode.superscript;
 import static com.cavetale.core.font.Unicode.tiny;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
+import static net.kyori.adventure.text.Component.textOfChildren;
 import static net.kyori.adventure.text.JoinConfiguration.separator;
 import static net.kyori.adventure.text.event.ClickEvent.runCommand;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
@@ -57,6 +58,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                 .description(skillType.displayName + " Skill")
                 .playerCaller((player) -> skill(player, skillType));
         }
+        rootNode.playerCaller(this::list);
         rootNode.addChild("list").denyTabCompletion()
             .description("List all skills")
             .playerCaller(this::list);
@@ -70,17 +72,15 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     }
 
     protected Component prop(String left, String right, String cmd) {
-        return join(noSeparators(),
-                    text(tiny(left.toLowerCase()), GRAY),
-                    text(right))
+        return textOfChildren(text(tiny(left.toLowerCase()), GRAY),
+                              text(right))
             .hoverEvent(showText(text(cmd, GRAY)))
             .clickEvent(runCommand(cmd));
     }
 
     protected Component prop(String left, String right) {
-        return join(noSeparators(),
-                    text(tiny(left.toLowerCase()), GRAY),
-                    text(right));
+        return textOfChildren(text(tiny(left.toLowerCase()), GRAY),
+                              text(right));
     }
 
     protected void skill(Player player, SkillType skillType) {
@@ -98,20 +98,27 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
             .filter(session::hasTalent).count();
         List<Component> lines = new ArrayList<>();
         List<Component> description = skillType.getDescription();
-        lines.add(skillType.asComponent()
-                  .hoverEvent(showText(text("/sk list", GRAY)))
+        lines.add(skillType.getIconTitle()
+                  .hoverEvent(showText(join(separator(newline()),
+                                            text("/sk list", GRAY),
+                                            textOfChildren(Mytems.MOUSE_LEFT, text(" Back to List", GRAY)))))
                   .clickEvent(runCommand("/sk list")));
         lines.add(empty());
+        lines.add(textOfChildren(VanillaItems.ENDER_EYE, text(" Talents", skillType.textColor))
+                  .hoverEvent(showText(join(separator(newline()),
+                                            text("/tal " + skillType.key, skillType.textColor),
+                                            textOfChildren(Mytems.MOUSE_LEFT, text(" Open Talent Menu", GRAY)))))
+                  .clickEvent(runCommand("/tal " + skillType.key)));
         lines.add(description.get(0));
         lines.add(empty());
         lines.add(prop("Level ", "" + level));
-        lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skillType), "/talent " + skillType.key));
-        lines.add(prop("Money Bonus ", "" + SkillsPlugin.moneyBonusPercentage(session.getMoneyBonus(skillType)) + "%", "/talent " + skillType.key));
+        lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skillType), "/tal " + skillType.key));
+        lines.add(prop("Money Bonus ", "" + SkillsPlugin.moneyBonusPercentage(session.getMoneyBonus(skillType)) + "%", "/tal " + skillType.key));
         lines.add(prop("Points ", points + "/" + req));
-        lines.add(prop("Talents ", talentsHas + "/" + talentCount, "/talent " + skillType.key));
+        lines.add(prop("Talents ", talentsHas + "/" + talentCount, "/tal " + skillType.key));
         if (talentsHas < talentCount) {
             int talentPoints = session.getTalentPoints(skillType);
-            lines.add(prop("Talent Points ", "" + talentPoints, "/talent " + skillType.key));
+            lines.add(prop("Talent Points ", "" + talentPoints, "/tal " + skillType.key));
         }
         List<Component> pages = new ArrayList<>();
         pages.add(join(separator(newline()), lines));
@@ -124,27 +131,50 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     protected boolean list(@NonNull Player player, String[] args) {
         if (args.length != 0) return false;
         List<Component> lines = new ArrayList<>();
-        lines.add(text("Skills Mk2", DARK_BLUE, BOLD));
+        lines.add(text("Skills Mk2", DARK_BLUE));
         Session session = plugin.sessions.of(player);
         if (!session.isEnabled()) {
             throw new CommandWarn("Session not ready. Please try again later!");
         }
+        lines.add(empty());
         for (SkillType skill : SkillType.values()) {
-            lines.add(empty());
             int level = session.getLevel(skill);
             int points = session.getSkillPoints(skill);
             int req = plugin.pointsForLevelUp(level + 1);
-            lines.add(join(noSeparators(),
-                           skill,
-                           space(),
-                           text(tiny("lvl"), GRAY),
-                           text(level),
-                           space(),
-                           text(tiny("sp"), GRAY),
-                           text(points)));
+            int talents = session.getTalentCount(skill);
+            int talentPoints = session.getTalentPoints(skill);
+            String cmd = "/sk " + skill.key;
+            String cmd2 = "/tal " + skill.key;
+            List<Component> skillTooltip = new ArrayList<>();
+            skillTooltip.add(skill.getIconTitle());
+            skillTooltip.add(text(cmd, skill.textColor));
+            skillTooltip.add(empty());
+            skillTooltip.add(prop("Level ", "" + level));
+            skillTooltip.add(prop("Points ", superscript(points) + "/" + subscript(req)));
+            skillTooltip.add(empty());
+            skillTooltip.add(textOfChildren(Mytems.MOUSE_LEFT, text(" Details", GRAY)));
+            List<Component> talentTooltip = new ArrayList<>();
+            talentTooltip.add(skill.getIconTitle());
+            talentTooltip.add(text(cmd2, skill.textColor));
+            talentTooltip.add(empty());
+            talentTooltip.add(prop("Talents ", "" + talents));
+            talentTooltip.add(prop("Talent Points ", "" + talentPoints));
+            talentTooltip.add(empty());
+            talentTooltip.add(textOfChildren(Mytems.MOUSE_LEFT, text(" Details", GRAY)));
+            lines.add(textOfChildren(textOfChildren(skill.getIconTitle(),
+                                                    space(),
+                                                    text(tiny("lvl"), GRAY),
+                                                    text(level))
+                                     .hoverEvent(showText(join(separator(newline()), skillTooltip)))
+                                     .clickEvent(runCommand(cmd)),
+                                     textOfChildren(space(),
+                                                    text(tiny("tal"), GRAY),
+                                                    text(talents))
+                                     .hoverEvent(showText(join(separator(newline()), talentTooltip)))
+                                     .clickEvent(runCommand(cmd2))));
         }
         lines.add(space());
-        lines.add(join(noSeparators(), Mytems.GOLDEN_CUP, text("Highscores", DARK_BLUE))
+        lines.add(textOfChildren(Mytems.GOLDEN_CUP, text("Highscores", DARK_BLUE))
                   .hoverEvent(showText(text("/hi", GRAY)))
                   .clickEvent(runCommand("/hi")));
         Books.open(player, List.of(join(separator(newline()), lines)));
@@ -181,18 +211,18 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                       .clickEvent(runCommand("/sk list")));
             lines.add(empty());
             String cmd = "/hi total";
-            lines.add(join(noSeparators(), Mytems.GOLDEN_CUP, text("Total", DARK_BLUE))
+            lines.add(textOfChildren(Mytems.GOLDEN_CUP, text("Total", DARK_BLUE))
                       .clickEvent(runCommand(cmd))
                       .hoverEvent(showText(text(cmd, GRAY))));
             lines.add(empty());
             cmd = "/hi talents";
-            lines.add(join(noSeparators(), VanillaItems.ENDER_EYE, text("Talents", DARK_PURPLE))
+            lines.add(textOfChildren(VanillaItems.ENDER_EYE, text("Talents", DARK_PURPLE))
                       .clickEvent(runCommand(cmd))
                       .hoverEvent(showText(text(cmd, GRAY))));
             for (SkillType skill : SkillType.values()) {
                 lines.add(empty());
                 cmd = "/hi " + skill.key;
-                lines.add(skill.asComponent()
+                lines.add(skill.getIconTitle()
                           .clickEvent(runCommand(cmd))
                           .hoverEvent(showText(text(cmd, skill.textColor))));
             }
@@ -262,11 +292,10 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
                     oldScore = row.score;
                     rank += 1;
                 }
-                lines.add(join(noSeparators(),
-                               text(rank, BLUE, BOLD),
-                               text(subscript(row.score), GRAY),
-                               space(),
-                               text("" + PlayerCache.nameForUuid(row.uuid))));
+                lines.add(textOfChildren(text(rank, BLUE, BOLD),
+                                         text(subscript(row.score), GRAY),
+                                         space(),
+                                         text("" + PlayerCache.nameForUuid(row.uuid))));
             }
             pages.add(join(separator(newline()), lines));
         }
