@@ -26,6 +26,8 @@ import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsCommand;
+import static java.awt.Color.HSBtoRGB;
+import static java.awt.Color.RGBtoHSB;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.newline;
@@ -35,6 +37,7 @@ import static net.kyori.adventure.text.JoinConfiguration.separator;
 import static net.kyori.adventure.text.event.ClickEvent.runCommand;
 import static net.kyori.adventure.text.event.HoverEvent.showText;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.TextColor.color;
 import static net.kyori.adventure.text.format.TextDecoration.*;
 
 public final class Guis {
@@ -60,13 +63,15 @@ public final class Guis {
         final Gui gui = new Gui().size(size);
         GuiOverlay.Builder builder = GuiOverlay.builder(size)
             .title(skillType.getIconTitle())
-            .layer(GuiOverlay.BLANK, skillType.textColor)
-            .layer(GuiOverlay.TOP_BAR, DARK_GRAY);
+            .layer(GuiOverlay.BLANK, skillType.textColor);
         // Make top menu
         for (SkillType otherSkillType : SkillType.values()) {
             final int slot = 3 + otherSkillType.ordinal();
             if (otherSkillType == skillType) {
-                builder.highlightSlot(slot, skillType.textColor);
+                float[] hsb = RGBtoHSB(skillType.textColor.red(),
+                                       skillType.textColor.green(),
+                                       skillType.textColor.blue(), null);
+                builder.tab(slot, skillType.textColor, color(HSBtoRGB(hsb[0], hsb[1] * 0.65f, hsb[2] * 0.65f)));
             }
             ItemStack icon = Items.text(otherSkillType.createIcon(), List.of(otherSkillType.getIconTitle()));
             gui.setItem(slot, icon, click -> {

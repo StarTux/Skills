@@ -33,7 +33,7 @@ public enum SkillType {
                            + " additional chance to earn talent points.");
         }
     },
-    COMBAT("Combat", NamedTextColor.RED, BossBar.Color.RED) {
+    COMBAT("Combat", color(0xDD5555), BossBar.Color.RED) {
         @Override public ItemStack createIcon() {
             return icon(Material.GOLDEN_SWORD);
         }
@@ -44,7 +44,7 @@ public enum SkillType {
                            + " However, they decrease quickly if you stay in place.");
         }
     },
-    ARCHERY("Archery", color(0xFF1493), BossBar.Color.PINK) {
+    ARCHERY("Archery", color(0xEE1493), BossBar.Color.PINK) {
         @Override public ItemStack createIcon() {
             return icon(Material.SPECTRAL_ARROW);
         }
