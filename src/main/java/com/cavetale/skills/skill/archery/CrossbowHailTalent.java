@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import java.util.List;
 import java.util.Objects;
 import org.bukkit.Bukkit;
@@ -13,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
@@ -58,11 +58,14 @@ public final class CrossbowHailTalent extends Talent implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    private void onProjectileCollide(ProjectileCollideEvent event) {
-        if (event.getEntity() instanceof AbstractArrow arrow
-            && Objects.equals(arrow.getShooter(), event.getCollidedWith())
-            && ArrowType.HAIL.is(arrow)) {
-            event.setCancelled(true);
-        }
+    /**
+     * Avoid Hail self hit.
+     */
+    private void onProjectileHit(ProjectileHitEvent event) {
+        if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
+        if (event.getHitEntity() == null) return;
+        if (!Objects.equals(arrow.getShooter(), event.getHitEntity())) return;
+        if (!(ArrowType.HAIL.is(arrow))) return;
+        event.setCancelled(true);
     }
 }

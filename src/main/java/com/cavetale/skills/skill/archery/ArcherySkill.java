@@ -4,7 +4,6 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.combat.CombatReward;
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -194,16 +193,6 @@ public final class ArcherySkill extends Skill implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    private void onProjectileCollide(ProjectileCollideEvent event) {
-        if (!(event.getEntity() instanceof AbstractArrow arrow) || arrow instanceof Trident) return;
-        if (!(arrow.getShooter() instanceof Player player)) return;
-        if (!(event.getCollidedWith() instanceof LivingEntity target)) return;
-        arrowDamageTalent.onArrowCollide(player, arrow);
-        glowMarkTalent.onArrowCollide(player, arrow, target);
-        instantHitTalent.onArrowCollide(player, arrow, target);
-    }
-
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private void onProjectileHit(ProjectileHitEvent event) {
         if (!(event.getEntity() instanceof AbstractArrow arrow) || arrow instanceof Trident) return;
@@ -217,6 +206,10 @@ public final class ArcherySkill extends Skill implements Listener {
             } else if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) {
                 Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
             }
+        } else if (event.getHitEntity() instanceof LivingEntity target) {
+            arrowDamageTalent.onArrowCollide(player, arrow);
+            glowMarkTalent.onArrowCollide(player, arrow, target);
+            instantHitTalent.onArrowCollide(player, arrow, target);
         }
     }
 
