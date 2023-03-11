@@ -47,7 +47,7 @@ public final class MinerSightTalent extends Talent implements Listener {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         Block block = event.getBlock();
-        if (!MiningSkill.anyStone(block)) return;
+        if (!MiningSkill.anyStone(block) && !MiningSkill.metalOre(block) && !MiningSkill.gemOre(block)) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
