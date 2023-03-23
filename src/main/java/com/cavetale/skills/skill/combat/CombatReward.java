@@ -1,10 +1,12 @@
 package com.cavetale.skills.skill.combat;
 
+import com.cavetale.worldmarker.util.Tags;
 import java.util.EnumMap;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import static com.cavetale.mytems.MytemsPlugin.namespacedKey;
 import static org.bukkit.entity.EntityType.*;
 
 @RequiredArgsConstructor
@@ -78,11 +80,17 @@ public final class CombatReward {
     }
 
     public static CombatReward combatReward(Entity entity) {
+        Integer skillPoints = Tags.getInt(entity.getPersistentDataContainer(), namespacedKey("skillPoints"));
+        if (skillPoints != null) {
+            // WART: Money equals skillPoints
+            return new CombatReward(entity.getType(), skillPoints.intValue(), skillPoints.doubleValue());
+        }
         SpawnReason spawnReason = entity.getEntitySpawnReason();
         if (spawnReason != null) {
             switch (spawnReason) {
             case SLIME_SPLIT:
             case SPAWNER:
+            case SPELL:
                 return null;
             default: break;
             }
