@@ -91,6 +91,7 @@ public final class CombatReward {
             case SLIME_SPLIT:
             case SPAWNER:
             case SPELL:
+            case REINFORCEMENTS:
                 return null;
             default: break;
             }
