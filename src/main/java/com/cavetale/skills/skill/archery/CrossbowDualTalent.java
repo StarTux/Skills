@@ -71,6 +71,10 @@ public final class CrossbowDualTalent extends Talent implements Listener {
 
     protected void onShootCrossbow(Player player) {
         if (!isPlayerEnabled(player)) return;
+        // Main Hand
+        ItemStack hand = player.getInventory().getItemInMainHand();
+        if (hand == null || hand.getType() != Material.CROSSBOW) return;
+        // Off Hand
         ItemStack offhand = player.getInventory().getItemInOffHand();
         if (offhand == null || offhand.getType() != Material.CROSSBOW) return;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
