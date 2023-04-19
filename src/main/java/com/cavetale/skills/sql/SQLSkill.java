@@ -24,6 +24,7 @@ public final class SQLSkill implements SQLRow {
     @Default("0") private int totalTalentPoints;
     @Default("0") private int moneyBonus;
     @Default("0") private int expBonus;
+    @Default("0") private boolean reminder;
 
     public SQLSkill() { }
 

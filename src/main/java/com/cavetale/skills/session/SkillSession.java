@@ -115,6 +115,7 @@ public class SkillSession {
                     .atomic("totalTalentPoints", newTotalTalentPoints)
                     .atomic("skillPoints", newSkillPoints)
                     .set("requiredSkillPoints", newRequiredSkillPoints)
+                    .set("reminder", true)
                     .sync();
                 if (result != 0) {
                     database().update(SQLPlayer.class)
@@ -214,6 +215,16 @@ public class SkillSession {
     public final void setSkillLevel(int level) {
         row.setLevel(level);
         database().updateAsync(row, Set.of("level"), null);
+    }
+
+    public final boolean isReminder() {
+        return row.isReminder();
+    }
+
+    public final void setReminder(final boolean value) {
+        if (row.isReminder() == value) return;
+        row.setReminder(value);
+        database().updateAsync(row, Set.of("reminder"), null);
     }
 
     protected final void increaseMoneyBonus(Runnable callback) {

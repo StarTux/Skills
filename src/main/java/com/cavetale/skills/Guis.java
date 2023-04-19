@@ -73,7 +73,10 @@ public final class Guis {
                                        skillType.textColor.blue(), null);
                 builder.tab(slot, skillType.textColor, color(HSBtoRGB(hsb[0], hsb[1] * 0.65f, hsb[2] * 0.65f)));
             }
-            ItemStack icon = Items.text(otherSkillType.createIcon(), List.of(otherSkillType.getIconTitle()));
+            final int otherTalentPoints = session.getTalentPoints(otherSkillType);
+            final boolean focus = otherTalentPoints > 0;
+            ItemStack icon = Items.text(otherSkillType.createIcon(focus), List.of(otherSkillType.getIconTitle()));
+            icon.setAmount(Math.max(otherTalentPoints, 1));
             gui.setItem(slot, icon, click -> {
                     if (!click.isLeftClick()) return;
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
@@ -180,8 +183,14 @@ public final class Guis {
                     }
                 });
         }
+        gui.setItem(Gui.OUTSIDE, null, click -> {
+                if (!click.isLeftClick()) return;
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, SoundCategory.MASTER, 1.0f, 1.0f);
+                skillsCommand().skill(player, skillType);
+            });
         gui.title(builder.build());
         gui.open(player);
+        session.getSkill(skillType).setReminder(false);
         return gui;
     }
 

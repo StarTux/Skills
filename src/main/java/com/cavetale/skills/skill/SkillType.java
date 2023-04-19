@@ -22,8 +22,8 @@ import static net.kyori.adventure.text.format.TextColor.color;
 @Getter
 public enum SkillType {
     MINING("Mining", NamedTextColor.DARK_AQUA, BossBar.Color.BLUE) {
-        @Override public ItemStack createIcon() {
-            return icon(Material.GOLDEN_PICKAXE);
+        @Override public ItemStack createIcon(boolean focus) {
+            return icon(focus ? Material.GOLDEN_PICKAXE : Material.IRON_PICKAXE);
         }
         @Override public List<String> getRawDescription() {
             return List.of("Mine ores to level up."
@@ -34,8 +34,8 @@ public enum SkillType {
         }
     },
     COMBAT("Combat", color(0xDD5555), BossBar.Color.RED) {
-        @Override public ItemStack createIcon() {
-            return icon(Material.GOLDEN_SWORD);
+        @Override public ItemStack createIcon(boolean focus) {
+            return icon(focus ? Material.GOLDEN_SWORD : Material.IRON_SWORD);
         }
         @Override public List<String> getRawDescription() {
             return List.of("Kill monsters to level up."
@@ -45,8 +45,8 @@ public enum SkillType {
         }
     },
     ARCHERY("Archery", color(0xEE1493), BossBar.Color.PINK) {
-        @Override public ItemStack createIcon() {
-            return icon(Material.SPECTRAL_ARROW);
+        @Override public ItemStack createIcon(boolean focus) {
+            return icon(focus ? Material.SPECTRAL_ARROW : Material.ARROW);
         }
         @Override public List<String> getRawDescription() {
             return List.of("Shoot monsters to level up."
@@ -70,7 +70,11 @@ public enum SkillType {
         this.description = List.copyOf(computeDescription());
     }
 
-    public abstract ItemStack createIcon();
+    public abstract ItemStack createIcon(boolean focus);
+
+    public ItemStack createIcon() {
+        return createIcon(true);
+    }
 
     public abstract List<String> getRawDescription();
 

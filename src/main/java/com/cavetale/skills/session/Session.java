@@ -347,7 +347,7 @@ public final class Session {
                           skillBar.color(), skillBar.overlay(), skillBar.progress());
         }
         for (SkillSession sk : skills.values()) {
-            if (sk.getTalentPoints() == 0) continue;
+            if (sk.getTalentPoints() == 0 || !sk.isReminder()) continue;
             var c = sk.skillType.getIconComponent();
             event.sidebar(PlayerHudPriority.LOW,
                           List.of(textOfChildren(c, text("You have more ", AQUA)),
