@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill;
 
+import com.cavetale.core.connect.NetworkServer;
 import com.cavetale.core.font.Emoji;
 import com.cavetale.core.font.GlyphPolicy;
 import com.cavetale.mytems.Mytems;
@@ -67,8 +68,13 @@ public abstract class Talent {
      * - Talent is not disabled
      */
     public final boolean isPlayerEnabled(Player player) {
-        return Players.playMode(player)
-            && sessions().isTalentEnabled(player, talentType);
+        switch (NetworkServer.current()) {
+        case FESTIVAL:
+            return false;
+        default:
+            return Players.playMode(player)
+                && sessions().isTalentEnabled(player, talentType);
+        }
     }
 
     protected final ItemStack createIcon(Material material) {
