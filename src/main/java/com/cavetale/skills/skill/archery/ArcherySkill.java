@@ -87,7 +87,7 @@ public final class ArcherySkill extends Skill implements Listener {
                 Location location = hasMagnet ? player.getLocation() : mob.getLocation();
                 dropMoney(player, location, reward.money * factor);
             }
-            event.setDroppedExp(3 * event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
+            event.setDroppedExp(3 * event.getDroppedExp() + session.getExpBonus(SkillType.ARCHERY));
         }
         if (hasMagnet) {
             int exp = event.getDroppedExp();
