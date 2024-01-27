@@ -34,7 +34,9 @@ public abstract class Skill {
     }
 
     protected final boolean dropMoney(Player player, Location location, double money) {
-        final Denomination deno = Denomination.GOLD;
+        final Denomination deno = money < 500.0
+            ? Denomination.GOLD // 1,000
+            : Denomination.DIAMOND; // 10,000
         final double chance = money / deno.value;
         final double roll = random().nextDouble();
         if (roll >= chance) return false;
