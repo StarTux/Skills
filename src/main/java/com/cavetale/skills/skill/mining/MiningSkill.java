@@ -215,7 +215,7 @@ public final class MiningSkill extends Skill implements Listener {
         if (rewardEvent.isCancelled()) return false;
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
-        player.giveExp(rewardEvent.getFinalExp());
+        player.giveExp(rewardEvent.getFinalExp(), true);
         return true;
     }
 }
