@@ -340,7 +340,7 @@ public final class Session {
 
     protected void onPlayerHud(PlayerHudEvent event) {
         if (showSkillBar || debugMode) {
-            event.bossbar(PlayerHudPriority.LOW,
+            event.bossbar(PlayerHudPriority.DEFAULT,
                           (debugMode
                            ? textOfChildren(text("Debug ", YELLOW, BOLD), skillBar.name())
                            : skillBar.name()),
