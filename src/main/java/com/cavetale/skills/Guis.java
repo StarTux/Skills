@@ -107,7 +107,7 @@ public final class Guis {
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
             if (!talentType.isEnabled() && !session.isDebugMode()) continue;
-            final int slot = talentType.slot.x() + talentType.slot.y() * 9;
+            final int slot = talentType.slot.getX() + talentType.slot.getZ() * 9;
             ItemStack icon = talentType.getTalent().createIcon();
             icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
             List<Component> text = new ArrayList<>();

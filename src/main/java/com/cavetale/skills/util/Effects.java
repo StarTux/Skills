@@ -49,7 +49,7 @@ public final class Effects {
     public static void mineBlockMagic(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-        w.spawnParticle(Particle.BLOCK_DUST,
+        w.spawnParticle(Particle.BLOCK_CRACK,
                         loc,
                         16, // count
                         0.25, 0.25, 0.25, // offset
@@ -81,7 +81,7 @@ public final class Effects {
         w.playSound(loc,
                     Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,
                     1.0f, 2.0f);
-        w.spawnParticle(Particle.BLOCK_DUST,
+        w.spawnParticle(Particle.BLOCK_CRACK,
                         loc,
                         3, // count
                         0.0, 0.0, 0.0, // offset

@@ -13,20 +13,20 @@ public final class SkillsTest {
             int points = 0;
             for (TalentType a : talents) {
                 points += a.talentPointCost;
-                if (a.slot.x() == 5 && a.slot.y() == 3) {
-                    throw new IllegalStateException("Centered x,y: " + a);
+                if (a.slot.getX() == 5 && a.slot.getZ() == 3) {
+                    throw new IllegalStateException("Centered x,z: " + a);
                 }
-                if (a.slot.x() < 0 || a.slot.x() > 8) {
+                if (a.slot.getX() < 0 || a.slot.getX() > 8) {
                     throw new IllegalStateException("x out of bounds: " + a);
                 }
-                if (a.slot.y() < 0 || a.slot.y() > 5) {
-                    throw new IllegalStateException("y out of bounds: " + a);
+                if (a.slot.getZ() < 0 || a.slot.getZ() > 5) {
+                    throw new IllegalStateException("z out of bounds: " + a);
                 }
                 for (TalentType b : talents) {
                     if (a == b) continue;
-                    if (a.slot.x() == b.slot.x() && a.slot.y() == b.slot.y()) {
-                        throw new IllegalStateException("Duplicate x,y: " + a + "/" + b
-                                                        + ": " + a.slot.x() + "," + a.slot.y());
+                    if (a.slot.getX() == b.slot.getX() && a.slot.getZ() == b.slot.getZ()) {
+                        throw new IllegalStateException("Duplicate x,z: " + a + "/" + b
+                                                        + ": " + a.slot.getX() + "," + a.slot.getZ());
                     }
                 }
             }
