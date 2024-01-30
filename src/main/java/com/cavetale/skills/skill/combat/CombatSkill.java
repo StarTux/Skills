@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.combat;
 
 import com.cavetale.core.connect.NetworkServer;
+import com.cavetale.core.event.skills.SkillsMobKillRewardEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
@@ -17,7 +18,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
-import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
@@ -75,13 +75,15 @@ public final class CombatSkill extends Skill {
         if (!session.isEnabled()) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
         if (addKillAndCheckCooldown(mob.getLocation())) return;
-        session.addSkillPoints(SkillType.COMBAT, reward.sp * 2);
-        if (reward.money > 0) {
-            int bonus = session.getMoneyBonus(SkillType.COMBAT);
-            double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
-            dropMoney(player, mob.getLocation(), reward.money * factor);
-        }
-        event.setDroppedExp(3 * event.getDroppedExp() + session.getExpBonus(SkillType.COMBAT));
+        final var rewardEvent = new SkillsMobKillRewardEvent(player, mob,
+                                                             reward.sp * 2,
+                                                             session.computeMoneyDrop(skillType, reward.money),
+                                                             3 * event.getDroppedExp() + session.getExpBonus(skillType));
+        rewardEvent.callEvent();
+        if (rewardEvent.isCancelled()) return;
+        session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
+        dropMoney(player, mob.getLocation(), rewardEvent.getFinalMoney());
+        event.setDroppedExp(rewardEvent.getFinalExp());
     }
 
     private static final NamespacedKey KEY_KILLS = NamespacedKey.fromString("skills:kills");

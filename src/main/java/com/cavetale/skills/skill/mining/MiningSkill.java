@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill.mining;
 
+import com.cavetale.core.event.skills.SkillsBlockBreakRewardEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
@@ -8,12 +9,12 @@ import com.cavetale.skills.util.Players;
 import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.EnumMap;
+import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -21,7 +22,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
-import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static org.bukkit.Material.*;
 
@@ -192,31 +192,30 @@ public final class MiningSkill extends Skill implements Listener {
         if (isPlayerPlaced(block)) return false;
         Session session = sessionOf(player);
         if (!session.isEnabled()) return false;
-        session.addSkillPoints(SkillType.MINING, reward.sp);
-        if (reward.money > 0.0) {
-            int bonus = session.getMoneyBonus(SkillType.MINING);
-            double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
-            double money = reward.money * factor;
-            dropMoney(player, dropLocation, money);
-        }
-        giveExpBonus(player, session, reward.exp);
+        final var rewardEvent = new SkillsBlockBreakRewardEvent(player, block,
+                                                                reward.sp,
+                                                                session.computeMoneyDrop(skillType, reward.money),
+                                                                reward.exp + session.getExpBonus(skillType));
+        rewardEvent.callEvent();
+        if (rewardEvent.isCancelled()) return false;
+        session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
+        dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
+        player.giveExp(rewardEvent.getFinalExp(), true);
         return true;
     }
 
-    protected boolean giveStackedReward(Player player, ItemStack item, MiningReward reward, Location dropLocation, int stackCount) {
+    protected boolean giveStackedReward(Player player, ItemStack item, List<Block> blocks, MiningReward reward, Location dropLocation, int stackCount) {
         Session session = sessionOf(player);
         if (!session.isEnabled()) return false;
-        session.addSkillPoints(SkillType.MINING, reward.sp * stackCount);
-        if (reward.money > 0.0) {
-            int bonus = session.getMoneyBonus(SkillType.MINING);
-            double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
-            double money = reward.money * stackCount * factor;
-            dropMoney(player, dropLocation, money);
-        }
-        final int exp = reward.veinExp > 0 && item.getEnchantmentLevel(Enchantment.SILK_TOUCH) == 0
-            ? reward.exp + reward.veinExp
-            : reward.exp;
-        giveExpBonus(player, session, exp * stackCount);
+        final var rewardEvent = new SkillsBlockBreakRewardEvent(player, blocks,
+                                                                reward.sp * stackCount,
+                                                                session.computeMoneyDrop(skillType, reward.money * (double) stackCount),
+                                                                (reward.exp + session.getExpBonus(skillType)) * stackCount);
+        rewardEvent.callEvent();
+        if (rewardEvent.isCancelled()) return false;
+        session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
+        dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
+        player.giveExp(rewardEvent.getFinalExp());
         return true;
     }
 }

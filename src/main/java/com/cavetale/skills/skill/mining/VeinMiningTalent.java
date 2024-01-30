@@ -92,7 +92,7 @@ public final class VeinMiningTalent extends Talent {
             final Location dropLocation = session.isTalentEnabled(TalentType.MINE_MAGNET)
                 ? player.getLocation()
                 : block.getLocation().add(0.5, 0.25, 0.5);
-            miningSkill().giveStackedReward(player, item, reward, dropLocation, rewardableBlockCount);
+            miningSkill().giveStackedReward(player, item, vein, reward, dropLocation, rewardableBlockCount);
             miningSkill().rubyTalent.onVeinMine(player, block, reward, rewardableBlockCount);
         }
         return true;

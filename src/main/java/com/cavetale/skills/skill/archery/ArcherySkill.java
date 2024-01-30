@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill.archery;
 
+import com.cavetale.core.event.skills.SkillsMobKillRewardEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
@@ -22,7 +23,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
@@ -74,22 +74,13 @@ public final class ArcherySkill extends Skill implements Listener {
         if (!arrow.isShotFromCrossbow()) {
             archerZoneDeathTalent.onBowKill(player, arrow, mob);
         }
-        Session session = sessionOf(player);
-        CombatReward reward = addKillAndCheckCooldown(mob.getLocation())
+        final CombatReward reward = addKillAndCheckCooldown(mob.getLocation())
             ? null
             : combatReward(mob);
-        final boolean hasMagnet = arrowMagnetTalent.isPlayerEnabled(player);
         if (reward != null) {
-            session.addSkillPoints(skillType, reward.sp);
-            if (reward.money > 0) {
-                int bonus = session.getMoneyBonus(skillType);
-                double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
-                Location location = hasMagnet ? player.getLocation() : mob.getLocation();
-                dropMoney(player, location, reward.money * factor);
-            }
-            event.setDroppedExp(3 * event.getDroppedExp() + session.getExpBonus(SkillType.ARCHERY));
+            reward(player, arrow, mob, event, reward);
         }
-        if (hasMagnet) {
+        if (arrowMagnetTalent.isPlayerEnabled(player)) {
             int exp = event.getDroppedExp();
             event.setDroppedExp(0);
             player.giveExp(exp, true);
@@ -101,6 +92,24 @@ public final class ArcherySkill extends Skill implements Listener {
                 item.setOwner(player.getUniqueId());
             }
         }
+    }
+
+    private boolean reward(Player player, AbstractArrow arrow, Mob mob, EntityDeathEvent event, CombatReward reward) {
+        final Session session = sessionOf(player);
+        if (!session.isEnabled()) return false;
+        final var rewardEvent = new SkillsMobKillRewardEvent(player, mob,
+                                                             reward.sp * 2,
+                                                             session.computeMoneyDrop(skillType, reward.money),
+                                                             3 * event.getDroppedExp() + session.getExpBonus(skillType));
+        rewardEvent.callEvent();
+        if (rewardEvent.isCancelled()) return false;
+        final Location location = arrowMagnetTalent.isPlayerEnabled(player)
+            ? player.getLocation()
+            : mob.getLocation();
+        session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
+        dropMoney(player, location, rewardEvent.getFinalMoney());
+        event.setDroppedExp(rewardEvent.getFinalExp());
+        return true;
     }
 
     private void onArrowDamage(Player player, AbstractArrow arrow, Mob mob, EntityDamageByEntityEvent event) {
