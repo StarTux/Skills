@@ -26,12 +26,12 @@ public abstract class Skill {
     protected final boolean dropMoney(Player player, Location location, double money) {
         if (money < 0.01) return false;
         final Denomination deno;
-        if (money > 2500.0) {
-            deno = Denomination.RUBY; // 100,000
-        } else if (money > 250.0) {
+        if (money <= Denomination.GOLD.value) {
+            deno = Denomination.GOLD; // 1000
+        } else if (money <= Denomination.DIAMOND.value) {
             deno = Denomination.DIAMOND; // 10,000
         } else {
-            deno = Denomination.GOLD; // 1,000
+            deno = Denomination.RUBY; // 100,000
         }
         final double chance = money / deno.value;
         final double roll = random().nextDouble();
