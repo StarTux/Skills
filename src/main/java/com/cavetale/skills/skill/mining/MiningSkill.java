@@ -210,7 +210,7 @@ public final class MiningSkill extends Skill implements Listener {
         final var rewardEvent = new SkillsBlockBreakRewardEvent(player, blocks,
                                                                 reward.sp * stackCount,
                                                                 session.computeMoneyDrop(skillType, reward.money * (double) stackCount),
-                                                                (reward.exp + session.getExpBonus(skillType)) * stackCount);
+                                                                (reward.exp + reward.veinExp + session.getExpBonus(skillType)) * stackCount);
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return false;
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
