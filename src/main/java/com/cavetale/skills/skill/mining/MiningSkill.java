@@ -23,6 +23,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static org.bukkit.Material.*;
 
 public final class MiningSkill extends Skill implements Listener {
@@ -198,6 +199,7 @@ public final class MiningSkill extends Skill implements Listener {
                                                                 reward.exp + session.getExpBonus(skillType));
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return false;
+        skillsPlugin().getLogger().info("[Mining] [" + block.getType() + "] " + rewardEvent.debugString());
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
         player.giveExp(rewardEvent.getFinalExp(), true);
@@ -213,6 +215,7 @@ public final class MiningSkill extends Skill implements Listener {
                                                                 (reward.exp + reward.veinExp + session.getExpBonus(skillType)) * stackCount);
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return false;
+        skillsPlugin().getLogger().info("[Mining] [" + stackCount + "x" + blocks.get(0).getType() + "] " + player.getName() + " " + rewardEvent.debugString());
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
         player.giveExp(rewardEvent.getFinalExp(), true);
