@@ -1,11 +1,15 @@
 package com.cavetale.skills.skill.mining;
 
+import com.cavetale.core.struct.Vec3i;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -20,9 +24,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BlockIterator;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
-import static com.cavetale.skills.SkillsPlugin.sessions;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class SuperVisionTalent extends Talent implements Listener {
@@ -52,7 +57,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    protected void onBlockBreak(BlockBreakEvent event) {
+    private void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         final boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_VISION);
@@ -73,18 +78,45 @@ public final class SuperVisionTalent extends Talent implements Listener {
     }
 
     /**
-     * Called by scheduler.
+     * Make fake blocks visible in case one of them is left clicked by
+     * the player so they can break them with the correct speed.
+     */
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.HIGHEST)
+    private void onBlockDamage(BlockDamageEvent event) {
+        final Player player = event.getPlayer();
+        final Session session = sessionOf(player);
+        if (!session.isEnabled()) return;
+        final Tag tag = session.getMining().getSuperVisionTag();
+        if (tag == null) return;
+        final Block block = event.getBlock();
+        if (tag.fakeBlockMap.remove(Vec3i.of(block)) == null) return;
+        sendRealBlock(player, block);
+        // Do vision blocks as well
+        for (Block vision : getVisionBlocks(player, 2)) {
+            if (tag.fakeBlockMap.remove(Vec3i.of(vision)) == null) continue;
+            sendRealBlock(player, vision);
+        }
+    }
+
+    /**
+     * Turn stone blocks within a radius into glass.
      */
     protected int xray(@NonNull Player player, @NonNull Block block, final boolean hasDeep) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
-        Session session = sessionOf(player);
+        final Session session = sessionOf(player);
         if (!session.isEnabled()) return 0;
-        // Actual XRay
-        if (session.isSuperVisionActive()) return 0;
-        session.setSuperVisionActive(true);
+        final Tag tag = getOrCreateTag(session);
         final int radius = 3;
         final int realRadius = 2;
+        // Send vision blocks
+        final List<Block> visionBlocks = getVisionBlocks(player, radius);
+        for (var it : visionBlocks) {
+            final var vec = Vec3i.of(it);
+            if (tag.fakeBlockMap.remove(vec) != null) continue;
+            sendRealBlock(player, block);
+        }
+        // Actual XRay
         final ArrayList<Block> yes = new ArrayList<>();
         final ArrayList<Block> no = new ArrayList<>();
         Location loc = player.getLocation();
@@ -95,7 +127,9 @@ public final class SuperVisionTalent extends Talent implements Listener {
             for (int z = -radius; z <= radius; z += 1) {
                 for (int x = -radius; x <= radius; x += 1) {
                     if (x == 0 && y == 0 && z == 0) continue;
+                    if (x * x + y * y + z * z > radius * radius) continue;
                     Block nbor = block.getRelative(x, y, z);
+                    if (visionBlocks.contains(nbor)) continue;
                     if (nbor.getY() < min) continue;
                     if (nbor.isEmpty() || nbor.isLiquid()) continue;
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
@@ -116,28 +150,51 @@ public final class SuperVisionTalent extends Talent implements Listener {
         if (yes.isEmpty()) return 0;
         for (Block b : yes) {
             if (MiningSkill.deepStone(b)) {
-                fakeBlock(player, b, DEEP_GLASS);
+                sendFakeBlock(player, b, DEEP_GLASS);
             } else {
-                fakeBlock(player, b, STONE_GLASS);
+                sendFakeBlock(player, b, STONE_GLASS);
             }
+            tag.fakeBlockMap.put(Vec3i.of(b), System.currentTimeMillis() + 5000L);
         }
         for (Block b : no) {
-            fakeBlock(player, b, b.getBlockData());
+            sendRealBlock(player, b);
+            tag.fakeBlockMap.remove(Vec3i.of(b));
         }
-        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
-                if (!player.isValid()) return;
-                sessions().apply(player, s -> s.setSuperVisionActive(false));
-                if (!player.getWorld().equals(block.getWorld())) return;
-                for (Block b : yes) {
-                    if (!player.isValid()) return;
-                    if (!player.getWorld().equals(block.getWorld())) return;
-                    fakeBlock(player, b, b.getBlockData());
-                }
-            }, 60L); // 3 seconds
+        scheduleCleanup(session);
         return yes.size();
     }
 
-    protected void fakeBlock(Player player, Block block, BlockData fake) {
+    private void scheduleCleanup(final Session session) {
+        final Tag tag = getOrCreateTag(session);
+        if (tag.cleanupScheduled) return;
+        tag.cleanupScheduled = true;
+        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> cleanup(session), 20L);
+    }
+
+    private void cleanup(Session session) {
+        if (!session.isEnabled()) return;
+        final Player player = session.getPlayer();
+        if (player == null) return;
+        final Tag tag = getOrCreateTag(session);
+        if (tag.fakeBlockMap.isEmpty()) return;
+        tag.cleanupScheduled = false;
+        final long now = System.currentTimeMillis();
+        final Vec3i here = Vec3i.of(player.getLocation());
+        final int dist = player.getWorld().getViewDistance();
+        for (Iterator<Map.Entry<Vec3i, Long>> iter = tag.fakeBlockMap.entrySet().iterator(); iter.hasNext();) {
+            final var entry = iter.next();
+            final long expiry = entry.getValue();
+            if (now < expiry) continue;
+            iter.remove();
+            final Vec3i vec = entry.getKey();
+            if (here.maxHorizontalDistance(vec) > dist) continue;
+            sendRealBlock(player, vec.toBlock(player.getWorld()));
+        }
+        if (tag.fakeBlockMap.isEmpty()) return;
+        scheduleCleanup(session);
+    }
+
+    private void sendFakeBlock(Player player, Block block, BlockData fake) {
         player.sendBlockChange(block.getLocation(), fake);
         // Find spectators
         for (Player p : player.getWorld().getPlayers()) {
@@ -147,5 +204,38 @@ public final class SuperVisionTalent extends Talent implements Listener {
             if (t == null || !t.equals(player)) continue;
             p.sendBlockChange(block.getLocation(), fake);
         }
+    }
+
+    protected void sendRealBlock(Player player, Block block) {
+        player.sendBlockChange(block.getLocation(), block.getBlockData());
+    }
+
+    private Tag getOrCreateTag(Session session) {
+        Tag tag = session.getMining().getSuperVisionTag();
+        if (tag == null) {
+            tag = new Tag();
+            session.getMining().setSuperVisionTag(tag);
+        }
+        final Player player = session.getPlayer();
+        if (player != null && !player.getWorld().getName().equals(tag.worldName)) {
+            tag.fakeBlockMap.clear();
+            tag.worldName = player.getWorld().getName();
+        }
+        return tag;
+    }
+
+    private static List<Block> getVisionBlocks(Player player, int distance) {
+        final var result = new ArrayList<Block>();
+        final var blockIterator = new BlockIterator(player, distance);
+        while (blockIterator.hasNext()) {
+            result.add(blockIterator.next());
+        }
+        return result;
+    }
+
+    public static final class Tag {
+        private boolean cleanupScheduled;
+        private String worldName = "";
+        private Map<Vec3i, Long> fakeBlockMap = new HashMap<>();
     }
 }

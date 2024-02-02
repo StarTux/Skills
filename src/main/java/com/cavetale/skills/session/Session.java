@@ -50,11 +50,10 @@ public final class Session {
     private int actionSP;
     private boolean showSkillBar;
     // Skills
-    public final SkillSession mining = new SkillSession(this, SkillType.MINING);
+    public final MiningSession mining = new MiningSession(this);
     public final CombatSession combat = new CombatSession(this);
     public final ArcherySession archery = new ArcherySession(this);
     // Status effects, ticks remaining
-    @Setter protected boolean superVisionActive;
     @Setter protected boolean netherVisionActive;
     private SkillType talentGui = SkillType.MINING;
     @Setter protected boolean debugMode;
@@ -137,6 +136,7 @@ public final class Session {
     }
 
     protected void disable() {
+        enabled = false;
         if (task != null) {
             task.cancel();
             task = null;
