@@ -70,6 +70,7 @@ public class SkillSession {
     }
 
     public final void addSkillPoints(final int amount) {
+        if (amount <= 0) return;
         if (row == null) return;
         final SQLSkill rowHandle = row;
         database().scheduleAsyncTask(() -> {
