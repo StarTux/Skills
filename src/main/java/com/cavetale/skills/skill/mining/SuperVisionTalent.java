@@ -113,7 +113,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
         final List<Block> visionBlocks = getVisionBlocks(player, radius);
         for (var it : visionBlocks) {
             final var vec = Vec3i.of(it);
-            if (tag.fakeBlockMap.remove(vec) != null) continue;
+            if (tag.fakeBlockMap.remove(vec) == null) continue;
             sendRealBlock(player, block);
         }
         // Actual XRay
