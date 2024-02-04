@@ -181,7 +181,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
         tag.cleanupScheduled = false;
         final long now = System.currentTimeMillis();
         final Vec3i here = Vec3i.of(player.getLocation());
-        final int dist = player.getWorld().getViewDistance();
+        final int dist = player.getWorld().getViewDistance() * 16;
         for (Iterator<Map.Entry<Vec3i, Long>> iter = tag.fakeBlockMap.entrySet().iterator(); iter.hasNext();) {
             final var entry = iter.next();
             final long expiry = entry.getValue();
