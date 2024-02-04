@@ -89,8 +89,8 @@ public final class SuperVisionTalent extends Talent implements Listener {
         final Tag tag = session.getMining().getSuperVisionTag();
         if (tag == null || tag.fakeBlockMap.isEmpty()) return;
         final Block block = event.getBlock();
-        if (tag.fakeBlockMap.remove(Vec3i.of(block)) == null) {
-            return;
+        if (tag.fakeBlockMap.remove(Vec3i.of(block)) != null) {
+            sendRealBlock(player, block);
         }
         // Do vision blocks as well
         for (Block vision : getVisionBlocks(player, 2)) {
