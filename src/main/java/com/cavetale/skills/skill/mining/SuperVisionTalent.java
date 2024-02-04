@@ -87,10 +87,11 @@ public final class SuperVisionTalent extends Talent implements Listener {
         final Session session = sessionOf(player);
         if (!session.isEnabled()) return;
         final Tag tag = session.getMining().getSuperVisionTag();
-        if (tag == null) return;
+        if (tag == null || tag.fakeBlockMap.isEmpty()) return;
         final Block block = event.getBlock();
-        if (tag.fakeBlockMap.remove(Vec3i.of(block)) == null) return;
-        sendRealBlock(player, block);
+        if (tag.fakeBlockMap.remove(Vec3i.of(block)) == null) {
+            return;
+        }
         // Do vision blocks as well
         for (Block vision : getVisionBlocks(player, 2)) {
             if (tag.fakeBlockMap.remove(Vec3i.of(vision)) == null) continue;
@@ -127,13 +128,13 @@ public final class SuperVisionTalent extends Talent implements Listener {
             for (int z = -radius; z <= radius; z += 1) {
                 for (int x = -radius; x <= radius; x += 1) {
                     if (x == 0 && y == 0 && z == 0) continue;
-                    if (x * x + y * y + z * z > radius * radius) continue;
                     Block nbor = block.getRelative(x, y, z);
-                    if (visionBlocks.contains(nbor)) continue;
                     if (nbor.getY() < min) continue;
                     if (nbor.isEmpty() || nbor.isLiquid()) continue;
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
-                    if (d > realRadius) {
+                    if (visionBlocks.contains(nbor)) {
+                        no.add(nbor);
+                    } else if (d > realRadius) {
                         no.add(nbor);
                     } else if (MiningSkill.dirt(nbor)) {
                         yes.add(nbor);
