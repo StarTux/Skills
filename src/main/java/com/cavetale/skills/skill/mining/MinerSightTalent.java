@@ -4,16 +4,18 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class MinerSightTalent extends Talent implements Listener {
     protected MinerSightTalent() {
@@ -27,7 +29,7 @@ public final class MinerSightTalent extends Talent implements Listener {
 
     @Override
     public List<String> getRawDescription() {
-        return List.of("Mining stone with a pickaxe grants you Night Vision",
+        return List.of("Mining stone with a pickaxe creates a light source",
                        "Stone includes:"
                        + " :stone:Stone,"
                        + " :andesite:Andesite,"
@@ -44,20 +46,21 @@ public final class MinerSightTalent extends Talent implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
-        Block block = event.getBlock();
+        final Block block = event.getBlock();
         if (!MiningSkill.anyStone(block) && !MiningSkill.metalOre(block) && !MiningSkill.gemOre(block)) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
-        PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
-        if (nightVision == null || nightVision.getDuration() < 20 * 20) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,
-                                                    60 * 20, // ticks
-                                                    0, // amplifier
-                                                    true, // ambient
-                                                    false, // particles
-                                                    true)); // icon
-        }
+        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
+                if (block.isEmpty()) {
+                    player.sendBlockChange(block.getLocation(), Material.LIGHT.createBlockData());
+                } else if (block.getType() == Material.WATER) {
+                    final BlockData blockData = Material.LIGHT.createBlockData();
+                    if (!(blockData instanceof Waterlogged waterlogged)) return;
+                    waterlogged.setWaterlogged(true);
+                    player.sendBlockChange(block.getLocation(), blockData);
+                }
+            }, 6L);
     }
 }
