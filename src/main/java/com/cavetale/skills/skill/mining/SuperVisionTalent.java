@@ -135,6 +135,10 @@ public final class SuperVisionTalent extends Talent implements Listener {
                     if (visionBlocks.contains(nbor)) {
                         no.add(nbor);
                     } else if (d > realRadius) {
+                        // Blocks right outside the visible area
+                        if (tag.fakeBlockMap.containsKey(Vec3i.of(nbor))) {
+                            continue;
+                        }
                         no.add(nbor);
                     } else if (MiningSkill.dirt(nbor)) {
                         yes.add(nbor);
