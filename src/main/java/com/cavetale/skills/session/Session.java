@@ -199,7 +199,7 @@ public final class Session {
         skillBar.progress(Math.max(0.0f, Math.min(1.0f, (float) points / (float) required)));
         skillBar.color(skillType.bossBarColor);
         shownSkill = skillType;
-        skillBarCountdown = 100;
+        skillBarCountdown = 200;
         Player player = getPlayer();
         if (player != null) {
             showSkillBar = true;
