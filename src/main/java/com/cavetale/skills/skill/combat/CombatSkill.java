@@ -81,7 +81,9 @@ public final class CombatSkill extends Skill {
                                                              3 * event.getDroppedExp() + session.getExpBonus(skillType));
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return;
-        skillsPlugin().getLogger().info("[Combat] [" + mob.getType() + "] " + player.getName() + " " + rewardEvent.debugString());
+        if (rewardEvent.getPostMultiplyFactor() != 1.0) {
+            skillsPlugin().getLogger().info("[Combat] [" + mob.getType() + "] " + player.getName() + " " + rewardEvent.debugString());
+        }
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, mob.getLocation(), rewardEvent.getFinalMoney());
         event.setDroppedExp(rewardEvent.getFinalExp());

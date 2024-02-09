@@ -103,7 +103,9 @@ public final class ArcherySkill extends Skill implements Listener {
                                                              3 * event.getDroppedExp() + session.getExpBonus(skillType));
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return false;
-        skillsPlugin().getLogger().info("[Archery] [" + mob.getType() + "] " + player.getName() + " " + rewardEvent.debugString());
+        if (rewardEvent.getPostMultiplyFactor() != 1.0) {
+            skillsPlugin().getLogger().info("[Archery] [" + mob.getType() + "] " + player.getName() + " " + rewardEvent.debugString());
+        }
         final Location location = arrowMagnetTalent.isPlayerEnabled(player)
             ? player.getLocation()
             : mob.getLocation();
