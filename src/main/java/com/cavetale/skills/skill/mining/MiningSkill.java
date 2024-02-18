@@ -246,7 +246,7 @@ public final class MiningSkill extends Skill implements Listener {
                                                                 (reward.exp + reward.veinExp + session.getExpBonus(skillType)) * stackCount);
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return false;
-        skillsPlugin().getLogger().info("[Mining] [" + stackCount + "x" + blocks.get(0).getType() + "] " + player.getName() + " " + rewardEvent.debugString());
+        skillsPlugin().getLogger().info("[Mining] [" + stackCount + "x" + reward.getMaterial() + "] " + player.getName() + " " + rewardEvent.debugString());
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
         player.giveExp(rewardEvent.getFinalExp(), true);
