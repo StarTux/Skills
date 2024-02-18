@@ -10,10 +10,12 @@ import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.EnumMap;
 import java.util.List;
+import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,6 +28,7 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static org.bukkit.Material.*;
 
+@Getter
 public final class MiningSkill extends Skill implements Listener {
     protected final EnumMap<Material, MiningReward> rewards = new EnumMap<>(Material.class);
     public final StripMiningTalent stripMiningTalent = new StripMiningTalent();
@@ -55,6 +58,11 @@ public final class MiningSkill extends Skill implements Listener {
         MaterialSetTag(NamespacedKey.fromString("skills:all_stone_types"))
         .add(STONE_TYPES.getValues())
         .add(DEEP_STONE_TYPES.getValues()).lock();
+    private static final MaterialSetTag BUILDING_STONE_TYPES = new
+        MaterialSetTag(NamespacedKey.fromString("skills:building_stone_types"))
+        .add(Tag.STONE_BRICKS.getValues())
+        .add(COBBLESTONE).add(MOSSY_COBBLESTONE)
+        .lock();
 
     public MiningSkill() {
         super(SkillType.MINING);
@@ -108,11 +116,22 @@ public final class MiningSkill extends Skill implements Listener {
         return ALL_STONE_TYPES.isTagged(block.getType());
     }
 
+    protected static boolean buildingStone(Block block) {
+        return BUILDING_STONE_TYPES.isTagged(block.getType());
+    }
+
     private static final MaterialSetTag DIRT_TYPES = new MaterialSetTag(NamespacedKey.fromString("skills:dirt_types"),
                                                                         GRAVEL, DIRT).lock();
 
     protected static boolean dirt(@NonNull Block block) {
         return DIRT_TYPES.isTagged(block.getType());
+    }
+
+    protected static boolean otherOre(@NonNull Block block) {
+        final Material mat = block.getType();
+        return Tag.LAPIS_ORES.isTagged(mat)
+            || Tag.REDSTONE_ORES.isTagged(mat)
+            || Tag.COAL_ORES.isTagged(mat);
     }
 
     protected static boolean metalOre(@NonNull Block block) {
@@ -175,14 +194,24 @@ public final class MiningSkill extends Skill implements Listener {
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         Block block = event.getBlock();
         MiningReward reward = rewards.get(block.getType());
-        if (reward == null) return;
-        if (veinMiningTalent.tryToVeinMine(player, item, block, reward, event)) {
+        if (reward != null && veinMiningTalent.tryToVeinMine(player, item, block, reward, event)) {
             return;
         }
+        stripMiningTalent.onWillBreakBlock(player, block);
+        minerSightTalent.onWillBreakBlock(player, block);
+        if (reward == null) return;
         final Location dropLocation = sessionOf(player).isTalentEnabled(TalentType.MINE_MAGNET)
             ? player.getLocation()
             : block.getLocation().add(0.5, 0.25, 0.0);
         giveReward(player, block, reward, dropLocation);
+    }
+
+    public MiningReward getReward(Material material) {
+        return rewards.get(material);
+    }
+
+    public MiningReward getReward(Block block) {
+        return rewards.get(block.getType());
     }
 
     /**

@@ -4,20 +4,18 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.List;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.type.Light;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
-public final class MinerSightTalent extends Talent implements Listener {
+public final class MinerSightTalent extends Talent {
     protected MinerSightTalent() {
         super(TalentType.MINER_SIGHT);
     }
@@ -44,23 +42,36 @@ public final class MinerSightTalent extends Talent implements Listener {
         return createIcon(Material.LANTERN);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    protected void onBlockBreak(BlockBreakEvent event) {
-        final Player player = event.getPlayer();
+    protected void onWillBreakBlock(Player player, Block block) {
         if (!isPlayerEnabled(player)) return;
-        final Block block = event.getBlock();
-        if (!MiningSkill.anyStone(block) && !MiningSkill.metalOre(block) && !MiningSkill.gemOre(block)) return;
+        if (!MiningSkill.anyStone(block) && !MiningSkill.buildingStone(block) && miningSkill().getReward(block) == null) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
-        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
+        final String worldName = player.getWorld().getName();
+        final int distance = player.getWorld().getViewDistance() * 16;
+        new BukkitRunnable() {
+            private int ticks = 0;
+
+            @Override
+            public void run() {
+                ticks += 1;
+                if (ticks > 15) {
+                    cancel();
+                    return;
+                }
+                if (!player.isValid() || !player.isOnline() || !player.getWorld().getName().equals(worldName)) return;
+                final var loc = player.getLocation();
+                if (Math.abs(loc.getBlockX() - block.getX()) > distance) return;
+                if (Math.abs(loc.getBlockZ() - block.getZ()) > distance) return;
+                final BlockData blockData = Material.LIGHT.createBlockData();
+                if (blockData instanceof Light light) light.setLevel(ticks);
                 if (block.isEmpty()) {
-                    player.sendBlockChange(block.getLocation(), Material.LIGHT.createBlockData());
+                    player.sendBlockChange(block.getLocation(), blockData);
                 } else if (block.getType() == Material.WATER) {
-                    final BlockData blockData = Material.LIGHT.createBlockData();
-                    if (!(blockData instanceof Waterlogged waterlogged)) return;
-                    waterlogged.setWaterlogged(true);
+                    if (blockData instanceof Waterlogged waterlogged) waterlogged.setWaterlogged(true);
                     player.sendBlockChange(block.getLocation(), blockData);
                 }
-            }, 6L);
+            }
+        }.runTaskTimer(skillsPlugin(), 6L, 1L);
     }
 }

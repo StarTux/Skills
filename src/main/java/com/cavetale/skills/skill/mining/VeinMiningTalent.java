@@ -76,6 +76,7 @@ public final class VeinMiningTalent extends Talent {
             if (!isPlayerPlaced(v)) {
                 rewardableBlockCount += 1;
             }
+            miningSkill().getMinerSightTalent().onWillBreakBlock(player, v);
             if (!miningSkill().mineMagnetTalent.breakBlock(player, item, v)) continue;
             brokenBlockCount += 1;
             // Item Damage

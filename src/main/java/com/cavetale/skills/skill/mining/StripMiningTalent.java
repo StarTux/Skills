@@ -11,10 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,7 +19,7 @@ import static com.cavetale.skills.SkillsPlugin.random;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
-public final class StripMiningTalent extends Talent implements Listener {
+public final class StripMiningTalent extends Talent {
     protected StripMiningTalent() {
         super(TalentType.STRIP_MINING);
     }
@@ -48,23 +44,21 @@ public final class StripMiningTalent extends Talent implements Listener {
         return createIcon(Material.STONE);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    protected void onBlockBreak(BlockBreakEvent event) {
-        final Player player = event.getPlayer();
-        if (!isPlayerEnabled(player)) return;
-        final Block block = event.getBlock();
-        if (player.isSneaking()) return;
-        boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_MINING);
+    protected boolean onWillBreakBlock(Player player, Block block) {
+        if (!isPlayerEnabled(player)) return false;
+        if (player.isSneaking()) return false;
+        final boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_MINING);
         final boolean stone = MiningSkill.stone(block) || (hasDeep && MiningSkill.deepStone(block));
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(talentType + " hasDeep=" + hasDeep + " stone=" + stone);
         }
-        if (!stone) return;
+        if (!stone) return false;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                 if (!player.isValid()) return;
                 if (!player.getWorld().equals(block.getWorld())) return;
                 stripMine(player, block, hasDeep);
             });
+        return true;
     }
 
     /**
@@ -118,7 +112,8 @@ public final class StripMiningTalent extends Talent implements Listener {
                     item.setItemMeta(meta);
                 }
             }
-            if (!miningSkill().mineMagnetTalent.breakBlock(player, item, nbor)) return result;
+            miningSkill().getMinerSightTalent().onWillBreakBlock(player, nbor);
+            if (!miningSkill().getMineMagnetTalent().breakBlock(player, item, nbor)) return result;
             result += 1;
         }
         return result;
