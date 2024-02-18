@@ -18,58 +18,58 @@ public final class CombatReward {
 
     static {
         // Regular
-        reward(5, 20.0, DROWNED);
-        reward(5, 20.0, HUSK);
-        reward(5, 20.0, SKELETON);
-        reward(5, 20.0, STRAY);
-        reward(5, 20.0, ZOMBIE);
-        reward(5, 20.0, ZOMBIE_VILLAGER);
+        reward(5, 50.0, DROWNED);
+        reward(5, 50.0, HUSK);
+        reward(5, 50.0, SKELETON);
+        reward(5, 50.0, STRAY);
+        reward(5, 50.0, ZOMBIE);
+        reward(5, 50.0, ZOMBIE_VILLAGER);
 
         // Slimes
-        reward(3, 20.0, SLIME);
-        reward(3, 20.0, MAGMA_CUBE);
+        reward(3, 50.0, SLIME);
+        reward(3, 50.0, MAGMA_CUBE);
 
         // Tiny
-        reward(1, 20.0, VEX);
-        reward(1, 20.0, SILVERFISH);
-        reward(1, 20.0, ENDERMITE);
+        reward(1, 50.0, VEX);
+        reward(1, 50.0, SILVERFISH);
+        reward(1, 50.0, ENDERMITE);
 
         // Spiders
-        reward(5, 20.0, CAVE_SPIDER);
-        reward(5, 20.0, SPIDER);
+        reward(5, 50.0, CAVE_SPIDER);
+        reward(5, 50.0, SPIDER);
 
         // Overworld hard
-        reward(10, 20.0, CREEPER);
-        reward(15, 20.0, ENDERMAN);
+        reward(10, 50.0, CREEPER);
+        reward(15, 50.0, ENDERMAN);
         reward(15, 20.0, PHANTOM);
 
         // Illagers
-        reward(15, 50.0, EVOKER);
-        reward(15, 50.0, ILLUSIONER);
-        reward(15, 50.0, PILLAGER);
-        reward(15, 50.0, VINDICATOR);
-        reward(15, 50.0, WITCH);
-        reward(50, 100.0, RAVAGER);
+        reward(15, 100.0, EVOKER);
+        reward(15, 100.0, ILLUSIONER);
+        reward(15, 100.0, PILLAGER);
+        reward(15, 100.0, VINDICATOR);
+        reward(15, 100.0, WITCH);
+        reward(50, 200.0, RAVAGER);
 
         // Pigs
-        reward(15, 20.0, HOGLIN);
-        reward(15, 20.0, ZOGLIN);
-        reward(25, 20.0, PIGLIN);
-        reward(25, 20.0, ZOMBIFIED_PIGLIN);
-        reward(30, 20.0, PIGLIN_BRUTE);
+        reward(15, 50.0, HOGLIN);
+        reward(15, 50.0, ZOGLIN);
+        reward(25, 50.0, PIGLIN);
+        reward(25, 50.0, ZOMBIFIED_PIGLIN);
+        reward(30, 50.0, PIGLIN_BRUTE);
 
         // Situational
-        reward(20, 50.0, BLAZE);
-        reward(20, 50.0, GHAST);
-        reward(20, 50.0, GUARDIAN);
-        reward(20, 50.0, SHULKER);
-        reward(20, 50.0, WITHER_SKELETON);
+        reward(20, 100.0, BLAZE);
+        reward(20, 100.0, GHAST);
+        reward(20, 100.0, GUARDIAN);
+        reward(20, 100.0, SHULKER);
+        reward(20, 100.0, WITHER_SKELETON);
 
         // Bosses
-        reward(50, 100.0, ELDER_GUARDIAN);
-        reward(100, 500.0, WARDEN);
-        reward(100, 500.0, ENDER_DRAGON);
-        reward(100, 500.0, WITHER);
+        reward(50, 200.0, ELDER_GUARDIAN);
+        reward(100, 1000.0, WARDEN);
+        reward(100, 1000.0, ENDER_DRAGON);
+        reward(100, 1000.0, WITHER);
 
         // Removed
         reward(1, 1.0, GIANT);
