@@ -229,7 +229,7 @@ public final class MiningSkill extends Skill implements Listener {
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return false;
         if (rewardEvent.getPostMultiplyFactor() != 1.0) {
-            skillsPlugin().getLogger().info("[Mining] [" + block.getType() + "] " + rewardEvent.debugString());
+            skillsPlugin().getLogger().info("[Mining] [" + reward.getMaterial() + "] " + rewardEvent.debugString());
         }
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
