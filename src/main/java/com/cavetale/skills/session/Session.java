@@ -391,4 +391,8 @@ public final class Session {
         session.loadAll();
         return session;
     }
+
+    public static Session of(Player player) {
+        return skillsPlugin().sessionOf(player);
+    }
 }

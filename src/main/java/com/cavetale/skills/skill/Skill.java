@@ -2,6 +2,7 @@ package com.cavetale.skills.skill;
 
 import com.cavetale.mytems.MytemsPlugin;
 import com.cavetale.mytems.item.coin.Denomination;
+import com.cavetale.skills.session.Session;
 import com.cavetale.worldmarker.util.Tags;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -12,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.random;
 import static com.cavetale.skills.util.Players.playMode;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 public abstract class Skill {
     @Getter protected final SkillType skillType;
@@ -35,7 +38,15 @@ public abstract class Skill {
         }
         final double chance = money / deno.value;
         final double roll = random().nextDouble();
-        if (roll >= chance) return false;
+        final boolean success = roll < chance;
+        if (Session.of(player).isDebugMode()) {
+            player.sendMessage(text("[" + skillType.displayName + "]"
+                                    + " money:" + String.format("%.2f", money) + "/" + deno.value
+                                    + " roll:" + String.format("%.2f", roll * 100.0) + "/" + String.format("%.2f", chance * 100.0)
+                                    + " => " + success,
+                                    (success ? GREEN : RED)));
+        }
+        if (!success) return false;
         final ItemStack itemStack = deno.mytems.createItemStack();
         final Item item = location.getWorld().dropItem(location, itemStack, drop -> {
                 drop.setCanMobPickup(false);
