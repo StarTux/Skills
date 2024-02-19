@@ -49,9 +49,6 @@ public final class StripMiningTalent extends Talent {
         if (player.isSneaking()) return false;
         final boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_MINING);
         final boolean stone = MiningSkill.stone(block) || (hasDeep && MiningSkill.deepStone(block));
-        if (sessionOf(player).isDebugMode()) {
-            player.sendMessage(talentType + " hasDeep=" + hasDeep + " stone=" + stone);
-        }
         if (!stone) return false;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                 if (!player.isValid()) return;
