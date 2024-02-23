@@ -77,7 +77,7 @@ public final class CombatSkill extends Skill {
         if (addKillAndCheckCooldown(mob.getLocation())) return;
         final var rewardEvent = new SkillsMobKillRewardEvent(player, mob,
                                                              reward.sp * 3,
-                                                             session.computeMoneyDrop(skillType, reward.money),
+                                                             session.computeMoneyDrop(skillType, reward.money * 2),
                                                              3 * event.getDroppedExp() + session.getExpBonus(skillType));
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return;
