@@ -279,7 +279,7 @@ public final class Session {
     }
 
     public double computeMoneyDrop(SkillType skillType, final double base) {
-        final int bonus = getMoneyBonus(SkillType.COMBAT);
+        final int bonus = getMoneyBonus(skillType);
         final double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
         return base * factor;
     }
