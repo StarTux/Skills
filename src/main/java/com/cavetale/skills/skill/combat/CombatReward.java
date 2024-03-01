@@ -67,9 +67,9 @@ public final class CombatReward {
 
         // Bosses
         reward(50, 100.0, ELDER_GUARDIAN);
-        reward(100, 500.0, WARDEN);
-        reward(100, 500.0, ENDER_DRAGON);
-        reward(100, 500.0, WITHER);
+        reward(100, 100.0, WARDEN);
+        reward(100, 100.0, ENDER_DRAGON);
+        reward(100, 100.0, WITHER);
 
         // Removed
         reward(1, 1.0, GIANT);
