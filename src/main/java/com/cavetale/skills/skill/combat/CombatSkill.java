@@ -76,7 +76,7 @@ public final class CombatSkill extends Skill {
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
         if (addKillAndCheckCooldown(mob.getLocation())) return;
         final var rewardEvent = new SkillsMobKillRewardEvent(player, mob,
-                                                             reward.sp * 3,
+                                                             (reward.sp * 5 / 2),
                                                              session.computeMoneyDrop(skillType, reward.money * 2),
                                                              3 * event.getDroppedExp() + session.getExpBonus(skillType));
         rewardEvent.callEvent();
