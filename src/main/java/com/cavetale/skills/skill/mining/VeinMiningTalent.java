@@ -63,7 +63,7 @@ public final class VeinMiningTalent extends Talent {
         if (!session.isTalentEnabled(TalentType.VEIN_GEMS) && MiningSkill.gemOre(block)) return false;
         List<Block> vein = findVein(player, block, item, reward, efficiency);
         if (sessionOf(player).isDebugMode()) {
-            player.sendMessage(talentType + " vein=" + vein.size());
+            player.sendMessage(talentType + " vein=" + reward.material + " size=" + vein.size());
         }
         if (vein.size() < 2) return false;
         if (!(item.getItemMeta() instanceof Damageable itemMeta)) return false;
