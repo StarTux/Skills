@@ -18,16 +18,16 @@ public final class CombatReward {
 
     static {
         // Regular
-        reward(5, 20.0, DROWNED);
-        reward(5, 20.0, HUSK);
-        reward(5, 20.0, SKELETON);
-        reward(5, 20.0, STRAY);
-        reward(5, 20.0, ZOMBIE);
-        reward(5, 20.0, ZOMBIE_VILLAGER);
+        reward(5, 40.0, DROWNED);
+        reward(5, 40.0, HUSK);
+        reward(5, 40.0, SKELETON);
+        reward(5, 40.0, STRAY);
+        reward(5, 40.0, ZOMBIE);
+        reward(5, 40.0, ZOMBIE_VILLAGER);
 
         // Slimes
-        reward(3, 20.0, SLIME);
-        reward(3, 20.0, MAGMA_CUBE);
+        reward(3, 40.0, SLIME);
+        reward(3, 40.0, MAGMA_CUBE);
 
         // Tiny
         reward(1, 20.0, VEX);
@@ -35,13 +35,13 @@ public final class CombatReward {
         reward(1, 20.0, ENDERMITE);
 
         // Spiders
-        reward(5, 20.0, CAVE_SPIDER);
-        reward(5, 20.0, SPIDER);
+        reward(5, 40.0, CAVE_SPIDER);
+        reward(5, 40.0, SPIDER);
 
         // Overworld hard
-        reward(10, 20.0, CREEPER);
-        reward(15, 20.0, ENDERMAN);
-        reward(15, 20.0, PHANTOM);
+        reward(10, 40.0, CREEPER);
+        reward(15, 40.0, ENDERMAN);
+        reward(15, 50.0, PHANTOM);
 
         // Illagers
         reward(15, 50.0, EVOKER);
@@ -52,11 +52,11 @@ public final class CombatReward {
         reward(50, 100.0, RAVAGER);
 
         // Pigs
-        reward(10, 20.0, HOGLIN);
-        reward(10, 20.0, ZOGLIN);
-        reward(10, 20.0, PIGLIN);
-        reward(10, 20.0, ZOMBIFIED_PIGLIN);
-        reward(30, 20.0, PIGLIN_BRUTE);
+        reward(15, 40.0, HOGLIN);
+        reward(15, 40.0, ZOGLIN);
+        reward(25, 40.0, PIGLIN);
+        reward(25, 40.0, ZOMBIFIED_PIGLIN);
+        reward(30, 40.0, PIGLIN_BRUTE);
 
         // Situational
         reward(20, 50.0, BLAZE);
@@ -67,9 +67,9 @@ public final class CombatReward {
 
         // Bosses
         reward(50, 100.0, ELDER_GUARDIAN);
-        reward(100, 100.0, WARDEN);
-        reward(100, 100.0, ENDER_DRAGON);
-        reward(100, 100.0, WITHER);
+        reward(50, 100.0, WARDEN);
+        reward(50, 100.0, ENDER_DRAGON);
+        reward(50, 100.0, WITHER);
 
         // Removed
         reward(1, 1.0, GIANT);
