@@ -178,6 +178,7 @@ public final class MiningSkill extends Skill implements Listener {
     protected static boolean netherDirt(@NonNull Block block) {
         switch (block.getType()) {
         case GRAVEL:
+        case SOUL_SOIL:
             return true;
         default:
             return false;
