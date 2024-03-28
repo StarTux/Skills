@@ -45,7 +45,7 @@ public final class MineMagnetTalent extends Talent implements Listener {
      * @return true if block was broken, false otherwise.
      */
     protected boolean breakBlock(Player player, ItemStack item, Block block) {
-        if (!PlayerBreakBlockEvent.call(player, block)) return false;
+        if (!new PlayerBreakBlockEvent(player, block, item).callEvent()) return false;
         Effects.mineBlockMagic(block);
         if (isPlayerEnabled(player)) {
             dropLocation = player.getLocation();
