@@ -36,6 +36,8 @@ public final class CrossbowPierceTalent extends Talent {
     @Override
     public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
         return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.PIERCING),
-                       new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT));
+                       (session.isTalentEnabled(TalentType.XBOW_VOLLEY)
+                        ? new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT, 3)
+                        : new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT)));
     }
 }
