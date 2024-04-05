@@ -100,7 +100,7 @@ public final class CrossbowVolleyTalent extends Talent {
 
     @Override
     public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
-        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT, 3, Set.of(Enchantment.PIERCING)),
-                       new AnvilEnchantment(Material.ENCHANTED_BOOK, Enchantment.MULTISHOT, 3));
+        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT, Set.of(Enchantment.PIERCING)),
+                       new AnvilEnchantment(Material.ENCHANTED_BOOK, Enchantment.MULTISHOT));
     }
 }
