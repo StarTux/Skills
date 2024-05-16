@@ -35,6 +35,7 @@ public final class GlowMarkTalent extends Talent {
     }
 
     protected void onArrowCollide(Player player, AbstractArrow arrow, LivingEntity target) {
+        if (!isPlayerEnabled(player)) return;
         if (!target.hasPotionEffect(PotionEffectType.GLOWING)) return;
         if (!ArrowType.MARK.getOrSet(arrow)) return;
         arrow.setDamage(arrow.getDamage() * 2.0);
