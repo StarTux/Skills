@@ -4,7 +4,6 @@ import com.cavetale.core.font.DefaultFont;
 import com.cavetale.core.font.GuiOverlay;
 import com.cavetale.core.font.VanillaItems;
 import com.cavetale.mytems.Mytems;
-import com.cavetale.mytems.util.Items;
 import com.cavetale.mytems.util.Text;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
@@ -23,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.font.Unicode.tiny;
+import static com.cavetale.mytems.util.Items.tooltip;
 import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsCommand;
@@ -46,13 +46,13 @@ public final class Guis {
     private static ItemStack icon(Material material, Component... lines) {
         ItemStack icon = new ItemStack(material);
         icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
-        return Items.text(icon, List.of(lines));
+        return tooltip(icon, List.of(lines));
     }
 
     private static ItemStack icon(Mytems mytems, Component... lines) {
         ItemStack icon = mytems.createIcon();
         icon.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
-        return Items.text(icon, List.of(lines));
+        return tooltip(icon, List.of(lines));
     }
 
     public static Gui talents(Player player) {
@@ -75,7 +75,7 @@ public final class Guis {
             }
             final int otherTalentPoints = session.getTalentPoints(otherSkillType);
             final boolean focus = otherTalentPoints > 0;
-            ItemStack icon = Items.text(otherSkillType.createIcon(focus), List.of(otherSkillType.getIconTitle()));
+            ItemStack icon = tooltip(otherSkillType.createIcon(focus), List.of(otherSkillType.getIconTitle()));
             icon.setAmount(Math.max(otherTalentPoints, 1));
             gui.setItem(slot, icon, click -> {
                     if (!click.isLeftClick()) return;
@@ -99,7 +99,7 @@ public final class Guis {
             gui.setItem(8, talentItem);
         }
         // Root
-        gui.setItem(5 + 3 * 9, Items.text(skillType.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
+        gui.setItem(5 + 3 * 9, tooltip(skillType.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
                 if (!click.isLeftClick()) return;
                 skillsCommand().skill(player, skillType);
             });
@@ -137,7 +137,7 @@ public final class Guis {
                     text.add(join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GREEN, ITALIC)));
                 }
             }
-            icon = Items.text(icon, text);
+            icon = tooltip(icon, text);
             gui.setItem(slot, icon, click -> {
                     if (click.isLeftClick()) {
                         onLeftClickTalent(player, talentType);
@@ -201,12 +201,12 @@ public final class Guis {
         ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         icon.editMeta(meta -> {
-                Items.text(meta, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
-                                         join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
-                                         join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY)),
-                                         empty(),
-                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
-                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
+                tooltip(meta, List.of(join(noSeparators(), Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
+                                      join(noSeparators(), text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
+                                      join(noSeparators(), text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY)),
+                                      empty(),
+                                      join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
+                                      join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
             });
         return icon;
     }
@@ -217,12 +217,12 @@ public final class Guis {
         icon.setAmount(Math.max(1, Math.min(64, bonus)));
         icon.editMeta(meta -> {
                 meta.addItemFlags(ItemFlag.values());
-                Items.text(meta, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
-                                         join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
-                                         join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY)),
-                                         empty(),
-                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
-                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
+                tooltip(meta, List.of(join(noSeparators(), VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
+                                      join(noSeparators(), text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
+                                      join(noSeparators(), text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY)),
+                                      empty(),
+                                      join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
+                                      join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
             });
         return icon;
     }
@@ -231,11 +231,11 @@ public final class Guis {
         ItemStack icon = Mytems.REDO.createIcon();
         int tp = session.getTalentPointsSpent(skillType);
         icon.editMeta(meta -> {
-                Items.text(meta, List.of(join(noSeparators(), text(" Refund "), skillType.getIconTitle(), text(" Talent Points")).color(BLUE),
-                                         join(noSeparators(), text(tiny("total "), GRAY), text(tp, WHITE), text(tiny("tp"), GRAY)),
-                                         empty(),
-                                         join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), Mytems.KITTY_COIN),
-                                         join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Purchase", GRAY, ITALIC))));
+                tooltip(meta, List.of(join(noSeparators(), text(" Refund "), skillType.getIconTitle(), text(" Talent Points")).color(BLUE),
+                                      join(noSeparators(), text(tiny("total "), GRAY), text(tp, WHITE), text(tiny("tp"), GRAY)),
+                                      empty(),
+                                      join(noSeparators(), text(tiny("cost "), GRAY), text(1, WHITE), Mytems.KITTY_COIN),
+                                      join(noSeparators(), Mytems.MOUSE_RIGHT, text(" Purchase", GRAY, ITALIC))));
             });
         return icon;
     }

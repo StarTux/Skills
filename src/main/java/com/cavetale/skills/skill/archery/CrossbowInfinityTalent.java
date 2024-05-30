@@ -48,14 +48,14 @@ public final class CrossbowInfinityTalent extends Talent {
     @Override
     public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
         return session.isTalentEnabled(TalentType.INFINITY_MENDING)
-            ? List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.ARROW_INFINITE))
-            : List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.ARROW_INFINITE, Set.of(Enchantment.MENDING)));
+            ? List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.INFINITY))
+            : List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.INFINITY, Set.of(Enchantment.MENDING)));
     }
 
     protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
         if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) return;
-        if (crossbow.getEnchantmentLevel(Enchantment.ARROW_INFINITE) == 0) return;
+        if (crossbow.getEnchantmentLevel(Enchantment.INFINITY) == 0) return;
         Session session = sessionOf(player);
         List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
         if (arrows.isEmpty()) return;

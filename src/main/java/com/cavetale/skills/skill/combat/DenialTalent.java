@@ -73,7 +73,7 @@ public final class DenialTalent extends Talent implements Listener {
         if (EntityMarker.hasId(mob, "boss")) return;
         MobStatusEffect.DENIAL.set(mob, DURATION);
         Location eye = mob.getEyeLocation();
-        mob.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, eye, 32, 0.0, 0.0, 0.0, 0.5);
+        mob.getWorld().spawnParticle(Particle.ENCHANT, eye, 32, 0.0, 0.0, 0.0, 0.5);
         mob.getWorld().playSound(eye, Sound.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS, 0.25f, 1.8f);
     }
 

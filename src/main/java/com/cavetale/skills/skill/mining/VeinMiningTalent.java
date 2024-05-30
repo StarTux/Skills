@@ -56,7 +56,7 @@ public final class VeinMiningTalent extends Talent {
     protected boolean tryToVeinMine(Player player, ItemStack item, Block block, MiningReward reward, BlockBreakEvent event) {
         if (!isPlayerEnabled(player)) return false;
         if (player.isSneaking()) return false;
-        final int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
+        final int efficiency = item.getEnchantmentLevel(Enchantment.EFFICIENCY);
         if (efficiency == 0) return false;
         Session session = sessions().of(player);
         if (!session.isTalentEnabled(TalentType.VEIN_METALS) && MiningSkill.metalOre(block)) return false;
@@ -67,7 +67,7 @@ public final class VeinMiningTalent extends Talent {
         }
         if (vein.size() < 2) return false;
         if (!(item.getItemMeta() instanceof Damageable itemMeta)) return false;
-        final int unbreaking = itemMeta.getEnchantLevel(Enchantment.DURABILITY);
+        final int unbreaking = itemMeta.getEnchantLevel(Enchantment.UNBREAKING);
         int brokenBlockCount = 0;
         int rewardableBlockCount = 0;
         int itemDamageCount = 0;

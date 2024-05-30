@@ -66,7 +66,7 @@ public final class StripMiningTalent extends Talent {
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return 0;
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return 0;
-        int efficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
+        int efficiency = item.getEnchantmentLevel(Enchantment.EFFICIENCY);
         if (efficiency <= 0) return 0;
         // Figure out direction
         Block head = player.getEyeLocation().getBlock();
@@ -85,7 +85,7 @@ public final class StripMiningTalent extends Talent {
         // Figure out item
         Damageable dmg = null;
         ItemMeta meta = item.getItemMeta();
-        int unbreaking = item.getEnchantmentLevel(Enchantment.DURABILITY);
+        int unbreaking = item.getEnchantmentLevel(Enchantment.UNBREAKING);
         if (!meta.isUnbreakable() && meta instanceof Damageable) {
             dmg = (Damageable) meta;
         }

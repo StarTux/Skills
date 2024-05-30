@@ -37,7 +37,7 @@ public final class InfinityMendingTalent extends Talent {
     @Override
     public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
         return List.of(new AnvilEnchantment(Material.BOW, Enchantment.MENDING),
-                       new AnvilEnchantment(Material.BOW, Enchantment.ARROW_INFINITE),
+                       new AnvilEnchantment(Material.BOW, Enchantment.INFINITY),
                        new AnvilEnchantment(Material.CROSSBOW, Enchantment.MENDING));
     }
 };

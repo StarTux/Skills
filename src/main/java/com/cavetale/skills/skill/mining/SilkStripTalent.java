@@ -85,7 +85,7 @@ public final class SilkStripTalent extends Talent implements Listener {
         if (!meta.isUnbreakable() && meta instanceof Damageable) {
             Damageable dmg = (Damageable) meta;
             if (dmg.getDamage() >= item.getType().getMaxDurability()) return;
-            int unbreaking = item.getEnchantmentLevel(Enchantment.DURABILITY);
+            int unbreaking = item.getEnchantmentLevel(Enchantment.UNBREAKING);
             if (unbreaking == 0 || random().nextInt(unbreaking) == 0) {
                 dmg.setDamage(dmg.getDamage() + 1);
                 item.setItemMeta(meta);

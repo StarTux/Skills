@@ -37,11 +37,11 @@ public final class Effects {
         World w = e.getWorld();
         BoundingBox bb = e.getBoundingBox();
         Location loc = bb.getCenter().toLocation(w);
-        w.spawnParticle(Particle.REDSTONE,
+        w.spawnParticle(Particle.DUST,
                         loc,
                         32,
                         bb.getWidthX() * 0.5, bb.getHeight() * 0.5, bb.getWidthZ() * 0.5, // offset
-                        0.0, // extra/speed (REDSTONE does not care)
+                        0.0, // extra/speed (DUST does not care)
                         new Particle.DustOptions(Color.PURPLE, 2.0f));
         w.playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 1.0f, 1.0f);
     }
@@ -49,7 +49,7 @@ public final class Effects {
     public static void mineBlockMagic(@NonNull Block block) {
         World w = block.getWorld();
         Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-        w.spawnParticle(Particle.BLOCK_CRACK,
+        w.spawnParticle(Particle.BLOCK,
                         loc,
                         16, // count
                         0.25, 0.25, 0.25, // offset
@@ -81,7 +81,7 @@ public final class Effects {
         w.playSound(loc,
                     Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,
                     1.0f, 2.0f);
-        w.spawnParticle(Particle.BLOCK_CRACK,
+        w.spawnParticle(Particle.BLOCK,
                         loc,
                         3, // count
                         0.0, 0.0, 0.0, // offset
@@ -102,7 +102,7 @@ public final class Effects {
         player.playSound(loc,
                          Sound.ITEM_TOTEM_USE, SoundCategory.MASTER,
                          0.5f, 1.5f);
-        player.spawnParticle(Particle.TOTEM,
+        player.spawnParticle(Particle.TOTEM_OF_UNDYING,
                              loc, 32, // count
                              0, 0, 0, // offset
                              0.35); // speed

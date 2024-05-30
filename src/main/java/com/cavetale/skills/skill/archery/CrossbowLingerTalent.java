@@ -66,7 +66,7 @@ public final class CrossbowLingerTalent extends Talent {
                 });
         } else if (arrow instanceof Arrow arrow2) {
             final PotionType potionType = arrow2.getBasePotionType();
-            if (potionType == PotionType.UNCRAFTABLE) return;
+            if (potionType == null || potionType == PotionType.AWKWARD) return;
             location.getWorld().spawn(location, AreaEffectCloud.class, aoe -> {
                     aoe.setBasePotionType(potionType);
                     prepareCloud(player, aoe);

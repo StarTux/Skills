@@ -47,11 +47,11 @@ public final class ToxicFurorTalent extends Talent {
         if (!isPlayerEnabled(player)) return;
         if (item == null || player.getAttackCooldown() != 1.0) return;
         if (!player.hasPotionEffect(PotionEffectType.POISON) && !player.hasPotionEffect(PotionEffectType.WITHER)
-&& !player.hasPotionEffect(PotionEffectType.CONFUSION)) return;
+&& !player.hasPotionEffect(PotionEffectType.NAUSEA)) return;
         int extraDamage = 0;
         if (player.hasPotionEffect(PotionEffectType.POISON)) extraDamage += player.getPotionEffect(PotionEffectType.POISON).getAmplifier();
         if (player.hasPotionEffect(PotionEffectType.WITHER)) extraDamage += player.getPotionEffect(PotionEffectType.WITHER).getAmplifier();
-        if (player.hasPotionEffect(PotionEffectType.CONFUSION)) extraDamage += player.getPotionEffect(PotionEffectType.CONFUSION).getAmplifier();
+        if (player.hasPotionEffect(PotionEffectType.NAUSEA)) extraDamage += player.getPotionEffect(PotionEffectType.NAUSEA).getAmplifier();
         event.setDamage(event.getDamage() + extraDamage);
     }
 }

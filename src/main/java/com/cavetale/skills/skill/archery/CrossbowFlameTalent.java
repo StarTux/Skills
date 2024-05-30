@@ -38,7 +38,7 @@ public final class CrossbowFlameTalent extends Talent {
 
     protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
-        final int flame = crossbow.getEnchantmentLevel(Enchantment.ARROW_FIRE);
+        final int flame = crossbow.getEnchantmentLevel(Enchantment.FLAME);
         if (flame == 0) return;
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(talentType + " " + flame);
@@ -50,6 +50,6 @@ public final class CrossbowFlameTalent extends Talent {
 
     @Override
     public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
-        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.ARROW_FIRE));
+        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.FLAME));
     }
 }

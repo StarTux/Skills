@@ -49,10 +49,11 @@ public final class TippedInfinityTalent extends Talent {
 
     protected void onShootBow(Player player, ItemStack bow, ItemStack consumable, AbstractArrow arrow, EntityShootBowEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (bow.getEnchantmentLevel(Enchantment.ARROW_INFINITE) == 0) return;
+        if (bow.getEnchantmentLevel(Enchantment.INFINITY) == 0) return;
         if (consumable.getType() != Material.TIPPED_ARROW) return;
         if (!roll()) return;
         arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+        // TODO BROKEN in API
         event.setConsumeItem(false);
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> player.updateInventory());
     }

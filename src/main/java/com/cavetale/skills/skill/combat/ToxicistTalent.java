@@ -36,8 +36,8 @@ public final class ToxicistTalent extends Talent {
 
     protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (item == null || item.getType() == Material.ENCHANTED_BOOK || item.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS) <= 0
+        if (item == null || item.getType() == Material.ENCHANTED_BOOK || item.getEnchantmentLevel(Enchantment.BANE_OF_ARTHROPODS) <= 0
             || player.getAttackCooldown() != 1.0 || !mob.hasPotionEffect(PotionEffectType.POISON)) return;
-        event.setDamage(event.getDamage() + (item.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS) + 1) / 2);
+        event.setDamage(event.getDamage() + (item.getEnchantmentLevel(Enchantment.BANE_OF_ARTHROPODS) + 1) / 2);
     }
 }

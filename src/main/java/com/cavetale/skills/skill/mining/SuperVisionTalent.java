@@ -69,7 +69,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return;
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
-        final int fortune = item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
+        final int fortune = item.getEnchantmentLevel(Enchantment.FORTUNE);
         if (fortune == 0) return;
         if (player.isSneaking()) return;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {

@@ -86,7 +86,7 @@ public final class CrossbowVolleyTalent extends Talent {
             spam.setPierceLevel(arrow.getPierceLevel());
             spam.setFireTicks(arrow.getFireTicks());
             if (arrow instanceof Arrow arrow2 && spam instanceof Arrow spam2) {
-                if (arrow2.getBasePotionType() != PotionType.UNCRAFTABLE) {
+                if (arrow2.getBasePotionType() != PotionType.AWKWARD) {
                     spam2.setBasePotionType(arrow2.getBasePotionType());
                 }
             }
