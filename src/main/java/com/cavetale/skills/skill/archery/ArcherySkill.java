@@ -169,11 +169,12 @@ public final class ArcherySkill extends Skill implements Listener {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isPlayerEnabled(player)) return;
         if (!(event.getProjectile() instanceof AbstractArrow arrow)) return;
+        if (event.getProjectile() instanceof Trident) return;
         ItemStack bow = event.getBow();
         if (bow == null) return;
         ArrowType.PRIMARY.set(arrow);
+        final ItemStack consumable = event.getConsumable();
         if (bow.getType() == Material.BOW) {
-            ItemStack consumable = event.getConsumable();
             onShootBow(player, arrow);
             tippedInfinityTalent.onShootBow(player, bow, consumable, arrow, event);
             spectralInfinityTalent.onShootBow(player, bow, consumable, arrow, event);
@@ -188,9 +189,9 @@ public final class ArcherySkill extends Skill implements Listener {
             // - Apply flame first
             // - Volley will copy the flame state
             // - Infinity will DISALLOW the pickup status (volley)
-            crossbowFlameTalent.onShootCrossbow(player, bow, arrow);
-            crossbowVolleyTalent.onShootCrossbow(player, bow, arrow);
-            crossbowInfinityTalent.onShootCrossbow(player, bow, arrow);
+            crossbowFlameTalent.onShootCrossbow(player, bow, arrow, consumable);
+            crossbowVolleyTalent.onShootCrossbow(player, bow, arrow, consumable);
+            crossbowInfinityTalent.onShootCrossbow(player, bow, arrow, consumable);
             crossbowDualTalent.onShootCrossbow(player);
         }
         if (sessionOf(player).isDebugMode()) {

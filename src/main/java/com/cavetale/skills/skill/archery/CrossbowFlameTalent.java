@@ -10,7 +10,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.CrossbowMeta;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class CrossbowFlameTalent extends Talent {
@@ -36,15 +35,14 @@ public final class CrossbowFlameTalent extends Talent {
         return createIcon(Material.FIRE_CHARGE);
     }
 
-    protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {
+    protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow, ItemStack arrowItem) {
         if (!isPlayerEnabled(player)) return;
         final int flame = crossbow.getEnchantmentLevel(Enchantment.FLAME);
         if (flame == 0) return;
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(talentType + " " + flame);
         }
-        List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
-        if (arrows.isEmpty() || arrows.get(0).getType() != Material.ARROW) return;
+        if (arrowItem == null || arrowItem.getType() != Material.ARROW) return;
         arrow.setFireTicks(2000);
     }
 

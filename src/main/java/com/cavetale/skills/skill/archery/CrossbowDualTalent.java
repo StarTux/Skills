@@ -39,16 +39,17 @@ public final class CrossbowDualTalent extends Talent implements Listener {
     @Override
     public ItemStack createIcon() {
         ItemStack icon = createIcon(Material.CROSSBOW);
+        icon.getItemMeta().setMaxStackSize(2);
         icon.setAmount(2);
         return icon;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private void onEntityLoadCrossbow(EntityLoadCrossbowEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) return;
         if (!(event.getEntity() instanceof Player player)) return;
+        if (event.getHand() != EquipmentSlot.HAND) return;
         if (!isPlayerEnabled(player)) return;
-        ItemStack offhand = player.getInventory().getItemInOffHand();
+        final ItemStack offhand = player.getInventory().getItemInOffHand();
         if (offhand == null || offhand.getType() != Material.CROSSBOW) return;
         if (!(offhand.getItemMeta() instanceof CrossbowMeta meta)) return;
         if (!meta.getChargedProjectiles().isEmpty()) return;
@@ -62,11 +63,17 @@ public final class CrossbowDualTalent extends Talent implements Listener {
         }
         if (consumable == null) return;
         final int multishot = meta.getEnchantLevel(Enchantment.MULTISHOT);
+        final boolean infinity = offhand.getEnchantmentLevel(Enchantment.INFINITY) > 0;
+        // TODO set the intangible_projectile item component whenever
+        // it gets added to the API.
+        final ItemStack chargedItem = consumable.asOne();
         meta.setChargedProjectiles(multishot > 0
-                                   ? List.of(consumable.asOne(), consumable.asOne(), consumable.asOne())
-                                   : List.of(consumable.asOne()));
+                                   ? List.of(chargedItem, chargedItem, chargedItem)
+                                   : List.of(chargedItem));
         offhand.setItemMeta(meta);
-        consumable.subtract(1);
+        if (!infinity || consumable.getType() != Material.ARROW) {
+            consumable.subtract(1);
+        }
     }
 
     protected void onShootCrossbow(Player player) {

@@ -56,13 +56,17 @@ public final class CrossbowVolleyTalent extends Talent {
         return icon;
     }
 
-    protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {
-        if (!isPlayerEnabled(player)) return;
-        if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) return;
+    protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow, ItemStack arrowItem) {
+        if (!isPlayerEnabled(player)) {
+            return;
+        }
+        if (arrowItem == null || !Tag.ITEMS_ARROWS.isTagged(arrowItem.getType())) {
+            return;
+        }
         final int multishot = crossbow.getEnchantmentLevel(Enchantment.MULTISHOT);
-        if (multishot == 0) return;
-        List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
-        if (arrows.isEmpty() || !Tag.ITEMS_ARROWS.isTagged(arrows.get(0).getType())) return;
+        if (multishot == 0) {
+            return;
+        }
         final int arrowCount = switch (multishot) {
         case 0 -> 0;
         case 1 -> 6;

@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class CrossbowInfinityTalent extends Talent {
     public CrossbowInfinityTalent() {
@@ -52,29 +51,16 @@ public final class CrossbowInfinityTalent extends Talent {
             : List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.INFINITY, Set.of(Enchantment.MENDING)));
     }
 
-    protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow) {
-        if (!isPlayerEnabled(player)) return;
-        if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) return;
+    /**
+     * For regular arrows, this merely sets arrows to be not
+     * pick-upable until the intangible_projectile API gets added.
+     * Therefore, we do not check if this talent is even enabled.
+     *
+     * Tipped and spectral arrow talents shall remain broken for now.
+     */
+    protected void onShootCrossbow(Player player, ItemStack crossbow, AbstractArrow arrow, ItemStack arrowItem) {
         if (crossbow.getEnchantmentLevel(Enchantment.INFINITY) == 0) return;
-        Session session = sessionOf(player);
-        List<ItemStack> arrows = ((CrossbowMeta) crossbow.getItemMeta()).getChargedProjectiles();
-        if (arrows.isEmpty()) return;
-        switch (arrows.get(0).getType()) {
-        case ARROW: break;
-        case TIPPED_ARROW:
-            if (!session.isTalentEnabled(TalentType.TIPPED_INFINITY) || !TippedInfinityTalent.roll()) return;
-            break;
-        case SPECTRAL_ARROW:
-            if (!session.isTalentEnabled(TalentType.SPECTRAL_INFINITY) || !SpectralInfinityTalent.roll()) return;
-            break;
-        default: return;
-        }
-        if (session.isDebugMode()) {
-            player.sendMessage(talentType + " arrows:" + arrows.size());
-        }
+        if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) return;
         arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-        for (ItemStack drop : player.getInventory().addItem(arrows.get(0).asOne()).values()) {
-            player.getWorld().dropItem(player.getLocation(), drop).setPickupDelay(0);
-        }
     }
 }
