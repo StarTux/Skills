@@ -15,7 +15,6 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Boss;
-import org.bukkit.entity.EntityCategory;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -104,9 +103,22 @@ public final class DenialTalent extends Talent implements Listener {
      */
     protected void onMobDamagePlayer(Player player, Mob mob, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (mob.getCategory() != EntityCategory.ARTHROPOD) return;
+        if (!isArthropod(mob)) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
         sessionOf(player).combat.setPoisonFreebie(true);
+    }
+
+    private boolean isArthropod(Mob mob) {
+        switch (mob.getType()) {
+        case BEE:
+        case CAVE_SPIDER:
+        case SPIDER:
+        case ENDERMITE:
+        case SILVERFISH:
+            return true;
+        default:
+            return false;
+        }
     }
 
     /**
