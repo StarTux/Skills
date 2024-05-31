@@ -39,7 +39,7 @@ public final class CrossbowDualTalent extends Talent implements Listener {
     @Override
     public ItemStack createIcon() {
         ItemStack icon = createIcon(Material.CROSSBOW);
-        icon.getItemMeta().setMaxStackSize(2);
+        icon.editMeta(m -> m.setMaxStackSize(2));
         icon.setAmount(2);
         return icon;
     }
