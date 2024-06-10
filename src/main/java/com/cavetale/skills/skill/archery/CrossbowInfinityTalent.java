@@ -62,5 +62,6 @@ public final class CrossbowInfinityTalent extends Talent {
         if (crossbow.getEnchantmentLevel(Enchantment.INFINITY) == 0) return;
         if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) return;
         arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+        ArrowType.NO_PICKUP.set(arrow);
     }
 }

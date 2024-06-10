@@ -57,6 +57,7 @@ public final class BonusArrowTalent extends Talent {
                 Arrow bonusArrow = player.launchProjectile(Arrow.class);
                 if (bonusArrow == null) return;
                 ArrowType.BONUS.set(bonusArrow);
+                ArrowType.NO_PICKUP.set(bonusArrow);
                 bonusArrow.setCritical(true);
                 bonusArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                 archerySkill().onShootBow(player, bonusArrow);

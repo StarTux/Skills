@@ -15,6 +15,7 @@ public enum ArrowType {
     SPAM("skills:spam_arrow"), // Shot by talent
     HAIL("skills:hail_arrow"), // Do not damage shooter
     MARK("skills:mark_arrow"), // Damage already doubled
+    NO_PICKUP("skills:no_pickup"), // Spam arrow because vanilla betrays us
     ;
 
     private final NamespacedKey namespacedKey;

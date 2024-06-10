@@ -82,19 +82,22 @@ public final class CrossbowVolleyTalent extends Talent {
             float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 12.0);
             location.setYaw(yaw);
             location.setPitch(pitch);
-            AbstractArrow spam = player.launchProjectile(arrow.getClass(), location.getDirection().multiply(velocity));
+            final AbstractArrow spam = player.launchProjectile(arrow.getClass(), location.getDirection().multiply(velocity), e -> {
+                    e.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+                    e.setShotFromCrossbow(true);
+                    e.setCritical(true);
+                    e.setPierceLevel(arrow.getPierceLevel());
+                    e.setFireTicks(arrow.getFireTicks());
+                    if (arrow instanceof Arrow arrow2 && e instanceof Arrow spam2) {
+                        final PotionType potionType = arrow2.getBasePotionType();
+                        if (potionType != null && potionType != PotionType.AWKWARD) {
+                            spam2.setBasePotionType(potionType);
+                        }
+                    }
+                    ArrowType.SPAM.set(e);
+                    ArrowType.NO_PICKUP.set(e);
+                });
             if (spam == null) break;
-            spam.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-            spam.setShotFromCrossbow(true);
-            spam.setCritical(true);
-            spam.setPierceLevel(arrow.getPierceLevel());
-            spam.setFireTicks(arrow.getFireTicks());
-            if (arrow instanceof Arrow arrow2 && spam instanceof Arrow spam2) {
-                if (arrow2.getBasePotionType() != PotionType.AWKWARD) {
-                    spam2.setBasePotionType(arrow2.getBasePotionType());
-                }
-            }
-            ArrowType.SPAM.set(spam);
             archerySkill().onShootCrossbow(player, spam);
         }
         if (sessionOf(player).isDebugMode()) {

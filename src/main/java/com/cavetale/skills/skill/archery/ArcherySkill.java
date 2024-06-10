@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
@@ -241,5 +242,15 @@ public final class ArcherySkill extends Skill implements Listener {
      */
     protected void onShootCrossbow(Player player, AbstractArrow arrow) {
         crossbowHailTalent.onShootCrossbow(player, arrow);
+    }
+
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
+    private void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
+        final Player player = event.getPlayer();
+        final AbstractArrow arrow = event.getArrow();
+        if (ArrowType.NO_PICKUP.is(arrow)) {
+            event.setCancelled(true);
+            arrow.remove();
+        }
     }
 }
