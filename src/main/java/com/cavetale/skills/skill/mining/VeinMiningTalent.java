@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
@@ -66,28 +67,39 @@ public final class VeinMiningTalent extends Talent {
             player.sendMessage(talentType + " vein=" + reward.material + " size=" + vein.size());
         }
         if (vein.size() < 2) return false;
-        if (!(item.getItemMeta() instanceof Damageable itemMeta)) return false;
-        final int unbreaking = itemMeta.getEnchantLevel(Enchantment.UNBREAKING);
+        final ItemMeta meta = item.getItemMeta();
+        final Damageable dmg = !meta.isUnbreakable() && meta instanceof Damageable damageable
+            ? damageable
+            : null;
+        final int unbreaking = meta.getEnchantLevel(Enchantment.UNBREAKING);
         int brokenBlockCount = 0;
         int rewardableBlockCount = 0;
         int itemDamageCount = 0;
         for (Block v : vein) {
-            if (itemMeta.getDamage() >= item.getType().getMaxDurability()) break;
+            if (dmg != null && dmg.getDamage() >= item.getType().getMaxDurability()) {
+                break;
+            }
             if (!isPlayerPlaced(v)) {
                 rewardableBlockCount += 1;
             }
             miningSkill().getMinerSightTalent().onWillBreakBlock(player, v);
-            if (!miningSkill().mineMagnetTalent.breakBlock(player, item, v)) continue;
+            if (!miningSkill().mineMagnetTalent.breakBlock(player, item, v)) {
+                continue;
+            }
             brokenBlockCount += 1;
             // Item Damage
             double durabilityChance = 1.0 / (double) (unbreaking + 1);
             if (random().nextDouble() < durabilityChance) {
-                itemMeta.setDamage(itemMeta.getDamage() + 1);
-                itemDamageCount += 1;
+                if (dmg != null) {
+                    dmg.setDamage(dmg.getDamage() + 1);
+                    itemDamageCount += 1;
+                }
             }
         }
         if (brokenBlockCount == 0) return false;
-        if (itemDamageCount > 0) item.setItemMeta(itemMeta);
+        if (dmg != null && itemDamageCount > 0) {
+            item.setItemMeta(dmg);
+        }
         event.setCancelled(true);
         if (rewardableBlockCount > 0) {
             final Location dropLocation = session.isTalentEnabled(TalentType.MINE_MAGNET)
