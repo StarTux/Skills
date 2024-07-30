@@ -232,7 +232,9 @@ public final class MiningSkill extends Skill implements Listener {
         }
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
-        player.giveExp(rewardEvent.getFinalExp(), true);
+        if (rewardEvent.getFinalExp() > 0) {
+            player.giveExp(rewardEvent.getFinalExp(), true);
+        }
         return true;
     }
 
@@ -250,7 +252,9 @@ public final class MiningSkill extends Skill implements Listener {
         }
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, dropLocation, rewardEvent.getFinalMoney());
-        player.giveExp(rewardEvent.getFinalExp(), true);
+        if (rewardEvent.getFinalExp() > 0) {
+            player.giveExp(rewardEvent.getFinalExp(), true);
+        }
         return true;
     }
 }

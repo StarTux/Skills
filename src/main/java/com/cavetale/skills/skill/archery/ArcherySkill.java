@@ -82,9 +82,11 @@ public final class ArcherySkill extends Skill implements Listener {
             reward(player, arrow, mob, event, reward);
         }
         if (arrowMagnetTalent.isPlayerEnabled(player)) {
-            int exp = event.getDroppedExp();
+            final int exp = event.getDroppedExp();
             event.setDroppedExp(0);
-            player.giveExp(exp, true);
+            if (exp > 0) {
+                player.giveExp(exp, true);
+            }
             List<ItemStack> drops = List.copyOf(event.getDrops());
             event.getDrops().clear();
             for (ItemStack drop : drops) {
