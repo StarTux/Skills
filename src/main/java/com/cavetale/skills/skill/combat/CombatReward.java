@@ -24,6 +24,7 @@ public final class CombatReward {
         reward(5, 40.0, STRAY);
         reward(5, 40.0, ZOMBIE);
         reward(5, 40.0, ZOMBIE_VILLAGER);
+        reward(5, 40.0, BOGGED);
 
         // Slimes
         reward(3, 40.0, SLIME);
@@ -64,6 +65,7 @@ public final class CombatReward {
         reward(20, 50.0, GUARDIAN);
         reward(20, 50.0, SHULKER);
         reward(20, 50.0, WITHER_SKELETON);
+        reward(20, 50.0, BREEZE);
 
         // Bosses
         reward(50, 100.0, ELDER_GUARDIAN);
