@@ -84,7 +84,7 @@ public final class CrossbowVolleyTalent extends Talent {
             location.setPitch(pitch);
             final AbstractArrow spam = player.launchProjectile(arrow.getClass(), location.getDirection().multiply(velocity), e -> {
                     e.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-                    e.setShotFromCrossbow(true);
+                    e.setWeapon(crossbow);
                     e.setCritical(true);
                     e.setPierceLevel(arrow.getPierceLevel());
                     e.setFireTicks(arrow.getFireTicks());
