@@ -130,7 +130,10 @@ public final class ArcherySkill extends Skill implements Listener {
                                + " finalDmg=" + event.getFinalDamage()
                                + " crit=" + arrow.isCritical()
                                + " primary=" + ArrowType.PRIMARY.is(arrow)
-                               + " bonus=" + ArrowType.BONUS.is(arrow));
+                               + " bonus=" + ArrowType.BONUS.is(arrow)
+                               + " weapon=" + (arrow.getWeapon() != null
+                                               ? arrow.getWeapon().getType()
+                                               : "null"));
         }
     }
 
