@@ -85,7 +85,8 @@ public final class CrossbowVolleyTalent extends Talent {
             final AbstractArrow spam = player.launchProjectile(arrow.getClass(), location.getDirection().multiply(velocity), e -> {
                     e.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                     e.setWeapon(crossbow);
-                    e.setCritical(true);
+                    e.setCritical(false);
+                    e.setDamage(1.0);
                     e.setPierceLevel(arrow.getPierceLevel());
                     e.setFireTicks(arrow.getFireTicks());
                     if (arrow instanceof Arrow arrow2 && e instanceof Arrow spam2) {
@@ -101,7 +102,11 @@ public final class CrossbowVolleyTalent extends Talent {
             archerySkill().onShootCrossbow(player, spam);
         }
         if (sessionOf(player).isDebugMode()) {
-            player.sendMessage(talentType + " multi:" + multishot + " arrows:" + count + "/" + arrowCount);
+            player.sendMessage(talentType
+                               + " multi:"
+                               + multishot
+                               + " arrows:" + count + "/" + arrowCount
+                               + " velo:" + velocity);
         }
     }
 
