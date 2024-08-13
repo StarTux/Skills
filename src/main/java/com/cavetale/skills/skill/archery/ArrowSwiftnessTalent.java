@@ -26,7 +26,7 @@ public final class ArrowSwiftnessTalent extends Talent {
                        ":speed_effect:Movement speed, increased by the Swiftness :potion:Potion,"
                        + " :sneakers:Sneakers or certain item sets, will be added to"
                        + " your base :bow:bow damage."
-                       + "\n\nThe added movement speed is multiplied by 10.");
+                       + "\n\nThe added movement speed is multiplied by 5.");
     }
 
     @Override
@@ -36,7 +36,7 @@ public final class ArrowSwiftnessTalent extends Talent {
 
     protected void onShootBow(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
-        double bonus = 10.0 * player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue();
+        double bonus = 5.0 * player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue();
         arrow.setDamage(arrow.getDamage() + bonus);
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(talentType + " +" + bonus);

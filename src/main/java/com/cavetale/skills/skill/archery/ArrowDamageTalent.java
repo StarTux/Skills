@@ -25,7 +25,7 @@ public final class ArrowDamageTalent extends Talent {
         return List.of("Arrows from a fully charged bow receive bonus damage"
                        + " for every block they travel.",
                        "When your arrow hits its target, it will have picked up"
-                       + " one additional damage for every 20 blocks distance from you.");
+                       + " one additional damage for every 40 blocks distance from you.");
     }
 
     @Override
@@ -36,12 +36,13 @@ public final class ArrowDamageTalent extends Talent {
     protected void onArrowCollide(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical() || arrow.isShotFromCrossbow()) return;
-        Location a = player.getLocation();
-        Location b = arrow.getLocation();
+        if (!ArrowType.PRIMARY.is(arrow) && !ArrowType.BONUS.is(arrow)) return;
+        final Location a = player.getLocation();
+        final Location b = arrow.getLocation();
         if (!a.getWorld().equals(b.getWorld())) return;
-        double distance = a.distance(b);
+        final double distance = a.distance(b);
         if (Double.isNaN(distance) || Double.isInfinite(distance) || distance <= 0.0) return;
-        double bonus = distance * 0.05;
+        final double bonus = distance * 0.025;
         arrow.setDamage(arrow.getDamage() + bonus);
         if (sessionOf(player).isDebugMode()) {
             player.sendMessage(talentType

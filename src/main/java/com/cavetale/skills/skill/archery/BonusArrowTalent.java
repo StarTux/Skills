@@ -46,11 +46,20 @@ public final class BonusArrowTalent extends Talent {
 
     protected void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
-        if ((!arrow.isCritical() || !ArrowType.PRIMARY.is(arrow)) && !ArrowType.BONUS.is(arrow)) return;
+        if (!arrow.isCritical()) return;
+        final boolean primary = ArrowType.PRIMARY.is(arrow);
+        if (!primary && !ArrowType.BONUS.is(arrow)) return;
         Session session = sessionOf(player);
         if (session.archery.isBonusArrowFiring()) return;
         final ItemStack bow = player.getInventory().getItemInMainHand();
         if (bow.getType() != Material.BOW) return;
+        if (primary) {
+            session.archery.setBonusArrowCount(1);
+        } else {
+            final int bonusArrowCount = session.archery.getBonusArrowCount();
+            if (bonusArrowCount >= 2) return;
+            session.archery.setBonusArrowCount(bonusArrowCount + 1);
+        }
         final int power = bow.getEnchantmentLevel(Enchantment.POWER);
         session.archery.setBonusArrowFiring(true);
         Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
