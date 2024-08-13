@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Mob;
@@ -48,18 +49,25 @@ public final class BonusArrowTalent extends Talent {
         if ((!arrow.isCritical() || !ArrowType.PRIMARY.is(arrow)) && !ArrowType.BONUS.is(arrow)) return;
         Session session = sessionOf(player);
         if (session.archery.isBonusArrowFiring()) return;
-        if (player.getInventory().getItemInMainHand().getType() != Material.BOW) return;
+        final ItemStack bow = player.getInventory().getItemInMainHand();
+        if (bow.getType() != Material.BOW) return;
+        final int power = bow.getEnchantmentLevel(Enchantment.POWER);
         session.archery.setBonusArrowFiring(true);
         Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
                 session.archery.setBonusArrowFiring(false);
                 if (!player.isOnline()) return;
                 if (player.getInventory().getItemInMainHand().getType() != Material.BOW) return;
-                Arrow bonusArrow = player.launchProjectile(Arrow.class);
+                final Arrow bonusArrow = player.launchProjectile(Arrow.class);
                 if (bonusArrow == null) return;
                 ArrowType.BONUS.set(bonusArrow);
                 ArrowType.NO_PICKUP.set(bonusArrow);
                 bonusArrow.setCritical(true);
                 bonusArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+                // Formula from https://minecraft.wiki/w/Arrow#Damage
+                bonusArrow.setDamage(power > 0
+                                     ? 2.5 + (double) power * 0.5
+                                     : 2.0);
+                bonusArrow.setVelocity(bonusArrow.getVelocity().normalize().multiply(3.0));
                 archerySkill().onShootBow(player, bonusArrow);
                 player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, SoundCategory.MASTER, 0.2f, 1.5f);
                 if (sessionOf(player).isDebugMode()) {
