@@ -79,7 +79,7 @@ public final class ArcherZoneTalent extends Talent implements Listener {
         if (arrow.isCritical()) {
             int zone = session.archery.getArcherZone();
             if (zone == 0) return;
-            arrow.setDamage(arrow.getDamage() + (double) zone);
+            arrow.setDamage(arrow.getDamage() + (double) zone * 0.25);
             if (session.isDebugMode()) player.sendMessage(talentType + " +" + zone);
         }
     }
