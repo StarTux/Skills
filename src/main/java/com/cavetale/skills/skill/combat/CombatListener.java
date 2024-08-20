@@ -1,6 +1,6 @@
 package com.cavetale.skills.skill.combat;
 
-import com.cavetale.skills.util.Players;
+import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -8,14 +8,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 
 @RequiredArgsConstructor
 final class CombatListener implements Listener {
     protected final CombatSkill combatSkill;
 
     @EventHandler(priority = EventPriority.MONITOR)
-    protected void onEntityDeath(EntityDeathEvent event) {
+    private void onEntityDeath(EntityDeathEvent event) {
         if (!(event.getEntity() instanceof Mob)) return;
         Mob mob = (Mob) event.getEntity();
         if (!mob.isDead()) return;
@@ -33,30 +36,46 @@ final class CombatListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    protected void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Player) {
-            // Mob attacks player
-            final Player player = (Player) event.getEntity();
-            if (!Players.playMode(player)) return;
-            switch (event.getCause()) {
-            case ENTITY_ATTACK:
-                if (event.getDamager() instanceof Mob mob) {
-                    combatSkill.onMobDamagePlayer(player, mob, event);
-                }
-                break;
-            default: return;
-            }
-        } else if (event.getEntity() instanceof Mob) {
-            // Player attacks mob
-            final Mob mob = (Mob) event.getEntity();
-            switch (event.getCause()) {
-            case ENTITY_ATTACK:
-                if (event.getDamager() instanceof Player player) {
-                    combatSkill.onPlayerDamageMob(player, mob, event);
-                }
-                break;
-            default: return;
-            }
+    private void onEntityDamageByEntityHigh(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player player && event.getDamager() instanceof Mob mob) {
+            // Mob attacks Player
+            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
+            combatSkill.onMobDamagePlayerHigh(player, mob, event);
+        } else if (event.getEntity() instanceof Mob mob && event.getDamager() instanceof Player player) {
+            // Player attacks Mob
+            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
+            combatSkill.onPlayerDamageMobHigh(player, mob, event);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onEntityDamageByEntityMonitor(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player player && event.getDamager() instanceof Mob mob) {
+            // Mob attacks Player
+            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
+            combatSkill.onMobDamagePlayerMonitor(player, mob, event);
+        } else if (event.getEntity() instanceof Mob mob && event.getDamager() instanceof Player player) {
+            // Player attacks Mob
+            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
+            combatSkill.onPlayerDamageMobMonitor(player, mob, event);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private void onPlayerItemHeld(PlayerItemHeldEvent event) {
+        combatSkill.berserkerTalent.onPlayerItemHeld(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onPlayerDeath(PlayerDeathEvent event) {
+        combatSkill.berserkerTalent.onPlayerDeath(event.getPlayer());
+    }
+
+    @EventHandler
+    private void onDamageCalculation(DamageCalculationEvent event) {
+        if (!event.attackerIsPlayer()) return;
+        if (!event.getCalculation().isMeleeAttack()) return;
+        final Player player = event.getAttackerPlayer();
+        combatSkill.berserkerTalent.onDamageCalculation(player, event);
     }
 }

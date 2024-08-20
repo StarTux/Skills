@@ -33,6 +33,7 @@ public final class CombatSkill extends Skill {
     public final ImpalerTalent impalerTalent = new ImpalerTalent();
     public final ToxicistTalent toxicistTalent = new ToxicistTalent();
     public final ToxicFurorTalent toxicFurorTalent = new ToxicFurorTalent();
+    public final BerserkerTalent berserkerTalent = new BerserkerTalent();
 
     protected static final long CHUNK_KILL_DECAY_TIME = Duration.ofMinutes(5).toMillis();
 
@@ -46,12 +47,12 @@ public final class CombatSkill extends Skill {
         Bukkit.getPluginManager().registerEvents(combatListener, skillsPlugin());
     }
 
-    protected void onMobDamagePlayer(Player player, Mob mob, EntityDamageByEntityEvent event) {
+    protected void onMobDamagePlayerHigh(Player player, Mob mob, EntityDamageByEntityEvent event) {
         searingTalent.onMobDamagePlayer(player, mob, event);
         denialTalent.onMobDamagePlayer(player, mob, event);
     }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, EntityDamageByEntityEvent event) {
+    protected void onPlayerDamageMobHigh(Player player, Mob mob, EntityDamageByEntityEvent event) {
         final ItemStack item = player.getInventory().getItemInMainHand();
         pyromaniacTalent.onPlayerDamageMob(player, mob, item, event);
         denialTalent.onPlayerDamageMob(player, mob, item, event);
@@ -61,6 +62,13 @@ public final class CombatSkill extends Skill {
         impalerTalent.onPlayerDamageMob(player, mob, item, event);
         toxicistTalent.onPlayerDamageMob(player, mob, item, event);
         toxicFurorTalent.onPlayerDamageMob(player, mob, item, event);
+    }
+
+    protected void onPlayerDamageMobMonitor(Player player, Mob mob, EntityDamageByEntityEvent event) {
+        berserkerTalent.onPlayerDamageMob(player, mob, event);
+    }
+
+    protected void onMobDamagePlayerMonitor(Player player, Mob mob, EntityDamageByEntityEvent event) {
     }
 
     /**

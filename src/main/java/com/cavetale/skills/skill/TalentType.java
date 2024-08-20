@@ -45,15 +45,21 @@ public enum TalentType implements ComponentLike {
     SILK_METALS(MINING, SILK_MULTI, 4, Vec2i.of(2, 5)),
 
     // Combat
+
+    // Up: Damage
+    BERSERKER(COMBAT, null, 1, Vec2i.of(5, 2)),
+    // Down: Fire
     SEARING(COMBAT, null, 1, Vec2i.of(5, 4)),
     PYROMANIAC(COMBAT, SEARING, 2, Vec2i.of(5, 5)),
+    // Right: Magic
     DENIAL(COMBAT, null, 1, Vec2i.of(6, 3)), // +slow?
+    GOD_MODE(COMBAT, TalentType.DENIAL, 3, Vec2i.of(7, 3)),
+    TOXICIST(COMBAT, TalentType.DENIAL, 2, Vec2i.of(7, 2)),
+    TOXIC_FUROR(COMBAT, TalentType.TOXICIST, 3, Vec2i.of(8, 2)),
+    // Left: Weapons
     IRON_AGE(COMBAT, null, 1, Vec2i.of(4, 3)),
     EXECUTIONER(COMBAT, TalentType.IRON_AGE, 3, Vec2i.of(3, 3)),
     IMPALER(COMBAT, TalentType.IRON_AGE, 3, Vec2i.of(3, 2)),
-    TOXICIST(COMBAT, TalentType.DENIAL, 2, Vec2i.of(7, 2)),
-    TOXIC_FUROR(COMBAT, TalentType.TOXICIST, 3, Vec2i.of(8, 2)),
-    GOD_MODE(COMBAT, TalentType.DENIAL, 3, Vec2i.of(7, 3)),
 
     // Archery
 
