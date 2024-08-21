@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.combat;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Mob;
@@ -15,20 +14,9 @@ import org.bukkit.potion.PotionEffectType;
 
 public final class ToxicFurorTalent extends Talent {
     protected ToxicFurorTalent() {
-        super(TalentType.TOXIC_FUROR);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Toxic Furor";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Deal extra damage while you are affected"
-                       + " by Poison, Wither or Nausea",
-                       "You deal +1 damage for every level of"
-                       + " each of the listed effects");
+        super(TalentType.TOXIC_FUROR, "Toxic Furor",
+              "Deal extra damage while you are affected by Poison, Wither or Nausea");
+        addLevel(3, "Deal +1 damage for every level of each of the listed effects");
     }
 
     @Override

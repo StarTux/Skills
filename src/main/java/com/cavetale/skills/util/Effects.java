@@ -28,11 +28,6 @@ public final class Effects {
         player.playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.0f);
     }
 
-    public static void talentUnlock(@NonNull Player player) {
-        Location loc = player.getLocation();
-        player.playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.25f, 2.0f);
-    }
-
     public static void warp(@NonNull Entity e) {
         World w = e.getWorld();
         BoundingBox bb = e.getBoundingBox();

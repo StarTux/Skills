@@ -19,21 +19,11 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class CrossbowDualTalent extends Talent implements Listener {
     public CrossbowDualTalent() {
-        super(TalentType.XBOW_DUAL);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Gunslinger";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Wield a second crossbow in your off-hand for dual wielding effects",
-                       "When you reload the :crossbow:crossbow in your main hand, the one in your"
-                       + " off-hand will also reload."
-                       + "\n\nShooting the :crossbow:crossbow in your main hand will quickly"
-                       + " switch with the :crossbow:crossbow in your off-hand");
+        super(TalentType.XBOW_DUAL, "Gunslinger",
+              "Wield a second crossbow in your off-hand for dual wielding effects",
+              "When you reload the :crossbow:crossbow in your main hand, the one in your off-hand will also reload.",
+              "Shooting the :crossbow:crossbow in your main hand will quickly switch with the :crossbow:crossbow in your off-hand");
+        addLevel(5, "Dual wielding");
     }
 
     @Override

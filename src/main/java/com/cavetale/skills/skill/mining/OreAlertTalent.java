@@ -5,7 +5,6 @@ import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -20,21 +19,10 @@ import static com.cavetale.skills.SkillsPlugin.random;
 
 public final class OreAlertTalent extends Talent implements Listener {
     protected OreAlertTalent() {
-        super(TalentType.ORE_ALERT);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Diamond Ore Alert";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Get alerts when Diamond Ore is nearby",
-                       "Whenever you break stone with a pickaxe and there is"
-                       + " Diamond Ore nearby,"
-                       + " an alert sound will notify you of its existence."
-                       + " Follow that lead to earn more Diamonds.");
+        super(TalentType.ORE_ALERT, "Diamond Ore Alert",
+              "Get alerts when Diamond Ore is nearby",
+              "Whenever you break stone with a pickaxe and there is Diamond Ore nearby, an alert sound will notify you of its existence. Follow that lead to earn more Diamonds.");
+        addLevel(3, "Radius 3");
     }
 
     @Override

@@ -16,22 +16,11 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 
 public final class CrossbowInfinityTalent extends Talent {
     public CrossbowInfinityTalent() {
-        super(TalentType.XBOW_INFINITY);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Crossbow Infinity";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Infinity works on crossbows",
-                       "With this talent, you can combine a :crossbow:crossbow with an"
-                       + " :enchanted_book:enchanted book on an"
-                       + " anvil to enchant the crossbow with Infinity."
-                       + "\n\nWhen shooting a crossbow with Infinity,"
-                       + " you get the :arrow:arrow back.");
+        super(TalentType.XBOW_INFINITY, "Crossbow Infinity",
+              "Infinity works on crossbows",
+              "With this talent, you can combine a :crossbow:crossbow with an :enchanted_book:enchanted book on an anvil to enchant the crossbow with Infinity.",
+              "When shooting a crossbow with Infinity, you get the :arrow:arrow back.");
+        addLevel(3, "REMOVE");
     }
 
     @Override

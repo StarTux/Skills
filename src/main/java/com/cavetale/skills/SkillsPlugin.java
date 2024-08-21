@@ -10,7 +10,6 @@ import com.cavetale.skills.skill.mining.MiningSkill;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
-import com.cavetale.skills.util.Gui;
 import com.winthier.sql.SQLDatabase;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +40,7 @@ public final class SkillsPlugin extends JavaPlugin {
         if (!database.createAllTables()) {
             throw new IllegalStateException("Database initialization failed!");
         }
+        database.getTable(SQLTalent.class).createColumnIfMissing("level");
         this.skills = new Skills();
         this.sessions = new Sessions();
         skills.enable();
@@ -50,7 +50,6 @@ public final class SkillsPlugin extends JavaPlugin {
         highscoreCommand.enable();
         adminCommand.enable();
         craftingListener.enable();
-        Gui.enable();
     }
 
     @Override

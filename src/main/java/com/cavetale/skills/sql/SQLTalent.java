@@ -19,15 +19,17 @@ public final class SQLTalent implements SQLRow {
     private UUID player;
     @VarChar(40) private String skill;
     @VarChar(40) private String talent;
+    @Default("1") private int level;
     @Default("0") private boolean enabled;
     @Default("NOW()") private Date created;
 
     public SQLTalent() { }
 
-    public SQLTalent(final UUID player, final TalentType talentType) {
+    public SQLTalent(final UUID player, final TalentType talentType, final int level) {
         this.player = player;
         this.skill = talentType.skillType.key;
         this.talent = talentType.key;
+        this.level = level;
         this.enabled = true;
         this.created = new Date();
     }

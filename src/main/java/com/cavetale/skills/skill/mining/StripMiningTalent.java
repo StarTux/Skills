@@ -4,7 +4,6 @@ import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
-import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,22 +20,11 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class StripMiningTalent extends Talent {
     protected StripMiningTalent() {
-        super(TalentType.STRIP_MINING);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Strip Mining";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Mining stone with an Efficiency pickaxe breaks many blocks",
-                       "Unleash the full power of the Efficency enchantment."
-                       + " Mining stone type blocks will break several blocks"
-                       + " within a line while mining straight."
-                       + " Stone includes: Stone, Andesite, Diorite, Granite",
-                       "Mine without this feature by sneaking.");
+        super(TalentType.STRIP_MINING, "Strip Mining",
+              "Mining stone with an Efficiency pickaxe breaks many blocks",
+              "Unleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within a line while mining straight. Stone includes: Stone, Andesite, Diorite, Granite",
+              "Mine without this feature by sneaking.");
+        addLevel(1, "Depends on Efficiency");
     }
 
     @Override

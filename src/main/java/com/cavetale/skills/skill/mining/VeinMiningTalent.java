@@ -25,21 +25,11 @@ import static com.cavetale.skills.SkillsPlugin.sessions;
 
 public final class VeinMiningTalent extends Talent {
     protected VeinMiningTalent() {
-        super(TalentType.VEIN_MINING);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Vein Mining";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Mining rocky ores will attempt to break the entire vein",
-                       "Works on :coal_ore:coal, :redstone_ore:redstone and :lapis_ore:lapis lazuli ores."
-                       + " Requires the Efficiency enchantment on your pickaxe."
-                       + " Each level of Efficiency lets you break 4 blocks at once."
-                       + "\n\nMine without this feature by sneaking.");
+        super(TalentType.VEIN_MINING, "Vein Mining",
+              "Mining rocky ores will attempt to break the entire vein",
+              "Works on :coal_ore:coal, :redstone_ore:redstone and :lapis_ore:lapis lazuli ores. Requires the Efficiency enchantment on your pickaxe. Each level of Efficiency lets you break 4 blocks at once.",
+              "Mine without this feature by sneaking.");
+        addLevel(1, "Mine the whole vein");
     }
 
     @Override

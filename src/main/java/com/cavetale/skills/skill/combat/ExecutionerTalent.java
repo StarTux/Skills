@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.combat;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Mob;
@@ -13,17 +12,9 @@ import org.bukkit.inventory.ItemStack;
 
 public final class ExecutionerTalent extends Talent {
     protected ExecutionerTalent() {
-        super(TalentType.EXECUTIONER);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Executioner";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Fully charged axe attacks kill mobs under 10% health");
+        super(TalentType.EXECUTIONER, "Executioner",
+              "Fully charged axe attacks kill mobs low on health");
+        addLevel(3, "Instantly kill mobs under 10% health");
     }
 
     @Override

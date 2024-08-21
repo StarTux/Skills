@@ -7,7 +7,6 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -31,30 +30,12 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class SilkStripTalent extends Talent implements Listener {
     protected SilkStripTalent() {
-        super(TalentType.SILK_STRIP);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Silk Stripping";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Use a Silk Touch pickaxe to strip a natural ore of its contents",
-                       "Right-click with a Silk Touch pickaxe to use your"
-                       + " fine motory skills and remove those"
-                       + " treasures right from the ore block."
-                       + "With any luck, you may repeat the procedure"
-                       + " as long as the ore stays intact,"
-                       + " getting more and more drops.",
-                       "Eventually, the ore will turn into stone and"
-                       + " you get the usual skill points for mining."
-                       + " This method may yield as much reward as Fortune IV"
-                       + " would but with greater variance.",
-                       "Silk Stripping only works on natural ores."
-                       + " Picking up and moving the ore will compromise its structural integrity,"
-                       + " making Silk Stripping ineffective.");
+        super(TalentType.SILK_STRIP, "Silk Stripping",
+              "Use a Silk Touch pickaxe to strip a natural ore of its contents",
+              ":mouse_right: with a Silk Touch pickaxe to use your fine motory skills and remove those treasures right from the ore block.With any luck, you may repeat the procedure as long as the ore stays intact, getting more and more drops.",
+              "Eventually, the ore will turn into stone and you get the usual skill points for mining. This method may yield as much reward as Fortune IV would but with greater variance.",
+              "Silk Stripping only works on natural ores. Picking up and moving the ore will compromise its structural integrity, making Silk Stripping ineffective.");
+        addLevel(2, "Regular chance");
     }
 
     @Override

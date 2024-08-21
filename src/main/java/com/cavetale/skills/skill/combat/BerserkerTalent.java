@@ -5,7 +5,6 @@ import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import lombok.Getter;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -19,17 +18,9 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 @Getter
 public final class BerserkerTalent extends Talent {
     protected BerserkerTalent() {
-        super(TalentType.BERSERKER);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Berserker";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Build up rage by hitting enemies with a full charge. Full rage can double your damage output");
+        super(TalentType.BERSERKER, "Berserker",
+              "Build up rage by hitting enemies with a full charge. Full rage can double your damage output");
+        addLevel(1, "100% bonus damage");
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.combat;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Mob;
@@ -14,19 +13,9 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class ImpalerTalent extends Talent {
     protected ImpalerTalent() {
-        super(TalentType.IMPALER);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Impaler";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Consecutive fully charged hits with an Impaling weapon"
-                       + " against the same foe deal increasing damage",
-                       "+1 damage for each consecutive hit, up to +6");
+        super(TalentType.IMPALER, "Impaler",
+              "Consecutive fully charged hits with an Impaling weapon against the same foe deal increasing damage");
+        addLevel(3, "+1 damage for each consecutive hit, up to +6");
     }
 
     @Override

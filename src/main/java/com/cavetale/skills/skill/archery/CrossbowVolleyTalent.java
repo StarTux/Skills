@@ -23,27 +23,16 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class CrossbowVolleyTalent extends Talent {
     public CrossbowVolleyTalent() {
-        super(TalentType.XBOW_VOLLEY);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Volley";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Multishot releases a volley of arrows",
-                       "Instead of 3 arrows flat, Multishot fires a barrage of"
-                       + " :arrow:arrows where you're looking, based on the level."
-                       + " An arrow must be loaded in the :crossbow:crossbow.",
-                       "Use :enchanted_book:Enchanted Books to create higher levels of Multishot."
-                       + " You can either combine books or add books to your"
-                       + " :crossbow:crossbow on an anvil.",
-                       "Arrows shot based on your Multishot level:\n"
-                       + "\n:crossbow: I :arrow_right: :arrow:x6"
-                       + "\n:crossbow: II :arrow_right: :arrow:x9"
-                       + "\n:crossbow: III :arrow_right: :arrow:x15");
+        super(TalentType.XBOW_VOLLEY, "Volley",
+              "Multishot releases a volley of arrows",
+              "Instead of 3 arrows flat, Multishot fires a barrage of :arrow:arrows where you're looking, based on the level. An arrow must be loaded in the :crossbow:crossbow.",
+              "Use :enchanted_book:Enchanted Books to create higher levels of Multishot. You can either combine books or add books to your :crossbow:crossbow on an anvil.",
+              "",
+              "Arrows shot based on your Multishot level:",
+              ":crossbow: I :arrow_right: :arrow:x6",
+              ":crossbow: II :arrow_right: :arrow:x9",
+              ":crossbow: III :arrow_right: :arrow:x15");
+        addLevel(2, "1 bonus arrow");
     }
 
     @Override

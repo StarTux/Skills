@@ -5,7 +5,6 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -29,21 +28,10 @@ public final class NetherVisionTalent extends Talent implements Listener {
     protected static final BlockData GLASS = Material.RED_STAINED_GLASS.createBlockData();
 
     protected NetherVisionTalent() {
-        super(TalentType.NETHER_VISION);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Nether Vision";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Mining nether stone with a Fortune pickaxe"
-                       + " allows you to see through nether stones",
-                       "Nearby nether stone will be rendered see-through"
-                       + " for a few seconds so you can identify ores more easily."
-                       + " Nether stones include: Netherrack, Basalt, Blackstone");
+        super(TalentType.NETHER_VISION, "Nether Vision",
+              "Mining nether stone with a Fortune pickaxe allows you to see through nether stones",
+              "Nearby nether stone will be rendered see-through for a few seconds so you can identify ores more easily. Nether stones include: Netherrack, Basalt, Blackstone");
+        addLevel(4, "Super Vision in the Nether");
     }
 
     @Override

@@ -84,7 +84,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     }
 
     protected void skill(Player player, SkillType skillType) {
-        Session session = plugin.sessions.of(player);
+        Session session = Session.of(player);
         if (!session.isEnabled()) {
             throw new CommandWarn("Session not ready. Please try again later!");
         }
@@ -132,7 +132,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         if (args.length != 0) return false;
         List<Component> lines = new ArrayList<>();
         lines.add(text("Skills Mk2", DARK_BLUE));
-        Session session = plugin.sessions.of(player);
+        Session session = Session.of(player);
         if (!session.isEnabled()) {
             throw new CommandWarn("Session not ready. Please try again later!");
         }
@@ -182,13 +182,17 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
     }
 
     protected boolean talent(@NonNull Player player, String[] args) {
+        final Session session = Session.of(player);
+        if (!session.isEnabled()) {
+            throw new CommandWarn("Session not ready. Please try again later!");
+        }
         if (args.length == 1) {
             SkillType skillType = CommandArgCompleter.requireEnum(SkillType.class, args[0].toUpperCase());
-            plugin.sessions.of(player).setTalentGui(skillType);
+            session.setTalentGui(skillType);
         } else if (args.length != 0) {
             return false;
         }
-        Guis.talents(player);
+        new TalentMenu(player, session).open();
         return true;
     }
 

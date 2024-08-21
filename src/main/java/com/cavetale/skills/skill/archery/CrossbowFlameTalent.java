@@ -14,20 +14,10 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class CrossbowFlameTalent extends Talent {
     public CrossbowFlameTalent() {
-        super(TalentType.XBOW_FLAME);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Crossfire";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("The Flame Enchantment works on crossbows",
-                       "Use an anvil to Put the Flame Enchantment on a crossbow via"
-                       + " :enchanted_book:Enchanted Book."
-                       + " Regular :arrow:arrows will burn when launched.");
+        super(TalentType.XBOW_FLAME, "Crossfire",
+              "The Flame Enchantment works on crossbows",
+              "Use an anvil to Put the Flame Enchantment on a crossbow via :enchanted_book:Enchanted Book. Regular :arrow:arrows will burn when launched.");
+        addLevel(3, "REMOVE");
     }
 
     @Override

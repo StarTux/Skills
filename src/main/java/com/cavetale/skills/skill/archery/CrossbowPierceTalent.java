@@ -12,20 +12,10 @@ import org.bukkit.inventory.ItemStack;
 
 public final class CrossbowPierceTalent extends Talent {
     public CrossbowPierceTalent() {
-        super(TalentType.XBOW_PIERCE);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Multishot Piercing";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Piercing and Multishot work together",
-                       "You can put both the Multishot and the Piercing"
-                       + " Enchantments on the same :crossbow:crossbow via anvil."
-                       + " Both will work as usual.");
+        super(TalentType.XBOW_PIERCE, "Multishot Piercing",
+              "Piercing and Multishot work together",
+              "You can put both the Multishot and the Piercing Enchantments on the same :crossbow:crossbow via anvil. Both will work as usual.");
+        addLevel(4, "REMOVE");
     }
 
     @Override

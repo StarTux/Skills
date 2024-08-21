@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,21 +18,11 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class CrossbowHailTalent extends Talent implements Listener {
     public CrossbowHailTalent() {
-        super(TalentType.XBOW_HAIL);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Hailstorm";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Crossbow bullets fired way up high will rain down.",
-                       "You can shoot :arrow:arrows with your"
-                       + " :crossbow:crossbow way up in the air"
-                       + " and watch them rain down on your opponents."
-                       + "\n\nThese arrows will not hurt yourself.");
+        super(TalentType.XBOW_HAIL, "Hailstorm",
+              "Crossbow bullets fired way up high will rain down.",
+              "You can shoot :arrow:arrows with your :crossbow:crossbow way up in the air and watch them rain down on your opponents.",
+              "These arrows will not hurt yourself.");
+        addLevel(4, "Hailstorm");
     }
 
     @Override

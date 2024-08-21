@@ -5,7 +5,6 @@ import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
@@ -21,17 +20,9 @@ public final class MineMagnetTalent extends Talent implements Listener {
     private Location dropLocation; // ItemSpawnEvent
 
     public MineMagnetTalent() {
-        super(TalentType.MINE_MAGNET);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Mining Magnet";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Broken blocks will drop items right at your feet");
+        super(TalentType.MINE_MAGNET, "Mining Magnet",
+              "Broken blocks will drop items right at your feet");
+        addLevel(1, "Absorb mined blocks");
     }
 
     @Override

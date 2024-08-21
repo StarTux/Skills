@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.archery;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Mob;
@@ -25,20 +24,10 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 
 public final class ArcherZoneTalent extends Talent implements Listener {
     protected ArcherZoneTalent() {
-        super(TalentType.ARCHER_ZONE);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "In The Zone";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Increase bow damage by landing an unbroken series of hits",
-                       "Any :arrow:arrow hitting a hostile mob will increase :bow:bow damage."
-                       + " Breaking your focus will reset the damage bonus."
-                       + " Break focus by switching items, taking damage, or missing a shot.");
+        super(TalentType.ARCHER_ZONE, "In the Zone",
+              "Increase bow damage by landing an unbroken series of hits",
+              "Any :arrow:arrow hitting a hostile mob will increase :bow:bow damage. Breaking your focus will reset the damage bonus. Break focus by switching items, taking damage, or missing a shot.");
+        addLevel(1, "25% damage increase");
     }
 
     @Override

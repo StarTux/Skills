@@ -35,20 +35,10 @@ public final class SuperVisionTalent extends Talent implements Listener {
     protected static final BlockData DEEP_GLASS = Material.BLACK_STAINED_GLASS.createBlockData();
 
     protected SuperVisionTalent() {
-        super(TalentType.SUPER_VISION);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Super Vision";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Mining stone with a Fortune pickaxe"
-                       + " allows you to see through solid stone",
-                       "Nearby stone will be rendered see-through"
-                       + " for a few seconds so you can identify ores more easily.");
+        super(TalentType.SUPER_VISION, "Super Vision",
+              "Mining stone with a Fortune pickaxe allows you to see through solid stone",
+              "Nearby stone will be rendered see-through for a few seconds so you can identify ores more easily.");
+        addLevel(3, "Radius 2");
     }
 
     @Override

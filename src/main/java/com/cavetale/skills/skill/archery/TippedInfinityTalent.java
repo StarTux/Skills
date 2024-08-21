@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -18,21 +17,11 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class TippedInfinityTalent extends Talent {
     public TippedInfinityTalent() {
-        super(TalentType.TIPPED_INFINITY);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Tipped Infinity";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Infinity works on tipped arrows 2/3 of the time",
-                       "When you shoot a :tipped_arrow:tipped arrow with an Infinity :bow:bow,"
-                       + " you keep the :tipped_arrow:arrow 66% of the time."
-                       + "\n\nThis also works on :crossbow:crossbows, provided your have the"
-                       + " Crossbow Infinity talent.");
+        super(TalentType.TIPPED_INFINITY, "Tipped Infinity",
+              "Infinity sometimes works on tipped arrows",
+              "When you shoot a :tipped_arrow:tipped arrow with an Infinity :bow:bow, you keep the :tipped_arrow:arrow 66% of the time.",
+              "This also works on :crossbow:crossbows, provided your have the Crossbow Infinity talent.");
+        addLevel(2, "Works 2/3 of the time");
     }
 
     @Override

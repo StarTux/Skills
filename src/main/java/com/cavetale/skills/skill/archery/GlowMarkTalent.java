@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.LivingEntity;
@@ -13,20 +12,10 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class GlowMarkTalent extends Talent {
     public GlowMarkTalent() {
-        super(TalentType.GLOW_MARK);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Mark";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Glowing enemies take double arrow damage",
-                       "When your :arrow:arrow hits an enemy with the"
-                       + " :glowing_effect:Glowing Potion Effect,"
-                       + " the arrow damage will be doubled.");
+        super(TalentType.GLOW_MARK, "Mark",
+              "Glowing enemies take mroearrow damage",
+              "When your :arrow:arrow hits an enemy with the :glowing_effect:Glowing Potion Effect, the arrow damage will be doubled.");
+        addLevel(4, "Glowing enemies take double arrow damage");
     }
 
     @Override

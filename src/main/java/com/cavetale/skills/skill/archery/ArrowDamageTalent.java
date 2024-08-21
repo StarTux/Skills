@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
@@ -12,20 +11,10 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class ArrowDamageTalent extends Talent {
     public ArrowDamageTalent() {
-        super(TalentType.ARROW_DAMAGE);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Sniper";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Arrows from a fully charged bow receive bonus damage"
-                       + " for every block they travel.",
-                       "When your arrow hits its target, it will have picked up"
-                       + " one additional damage for every 40 blocks distance from you.");
+        super(TalentType.ARROW_DAMAGE, "Sniper",
+              "Arrows from a fully charged bow receive bonus damage for every block they travel.",
+              "When your arrow hits its target, it will have picked up one additional damage for every 40 blocks distance from you.");
+        addLevel(3, "2.5% of blocks travelled");
     }
 
     @Override

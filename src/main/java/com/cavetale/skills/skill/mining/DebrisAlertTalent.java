@@ -5,7 +5,6 @@ import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,22 +18,10 @@ import static com.cavetale.skills.SkillsPlugin.random;
 
 public final class DebrisAlertTalent extends Talent implements Listener {
     protected DebrisAlertTalent() {
-        super(TalentType.DEBRIS_ALERT);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Ancient Debris Alert";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Get alerts when Ancient Debris is nearby",
-                       "Whenever you break nether stones with a pickaxe and"
-                       + " there is Ancient Debris nearby,"
-                       + " an alert sound will notify you of its existence."
-                       + " Follow that lead to earn more Ancient Debris."
-                       + " Nether stones include: Netherrack, Basalt, Blackstone");
+        super(TalentType.DEBRIS_ALERT,  "Ancient Debris Alert",
+              "Get alerts when Ancient Debris is nearby",
+              "Whenever you break nether stones with a pickaxe and there is Ancient Debris nearby, an alert sound will notify you of its existence. Follow that lead to earn more Ancient Debris. Nether stones include: Netherrack, Basalt, Blackstone");
+        addLevel(5, "Alert when Ancient Debris is nearby");
     }
 
     @Override

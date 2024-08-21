@@ -5,7 +5,6 @@ import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Effects;
 import java.time.Duration;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -24,18 +23,10 @@ public final class GodModeTalent extends Talent implements Listener {
     protected static final Duration DURATION = Duration.ofSeconds(SECONDS);
 
     protected GodModeTalent() {
-        super(TalentType.GOD_MODE);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "God Mode";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Melee kills give " + SECONDS + " seconds of immortality",
-                       "Immortality stops you from dying, but you will still take damage!");
+        super(TalentType.GOD_MODE, "God Mode",
+              "Melee kills give temporary immortality",
+              "Immortality stops you from dying, but you will still take damage!");
+        addLevel(3, SECONDS + " seconds of immortality");
     }
 
     @Override

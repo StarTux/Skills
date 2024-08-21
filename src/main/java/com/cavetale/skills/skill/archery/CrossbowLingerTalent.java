@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.archery;
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,20 +21,10 @@ import org.bukkit.potion.PotionType;
 
 public final class CrossbowLingerTalent extends Talent {
     public CrossbowLingerTalent() {
-        super(TalentType.XBOW_LINGER);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Water Bomb";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Tipped crossbow bullets create a lingering effect cloud when they hit a block",
-                       "When one of your crossbow :spectral_arrow:spectral or :tipped_arrow:tipped arrows"
-                       + " hits the ground,"
-                       + " it leaves behind a brief :ucloud:lingering effect cloud on the floor.");
+        super(TalentType.XBOW_LINGER, "Water Bomb",
+              "Tipped crossbow bullets create a lingering effect cloud when they hit a block",
+              "When one of your crossbow :spectral_arrow:spectral or :tipped_arrow:tipped arrows hits the ground, it leaves behind a brief :ucloud:lingering effect cloud on the floor.");
+        addLevel(5, "Create an effect cloud");
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.cavetale.worldmarker.entity.EntityMarker;
 import com.destroystokyo.paper.event.entity.EndermanEscapeEvent;
 import com.destroystokyo.paper.event.entity.WitchThrowPotionEvent;
 import java.time.Duration;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -32,28 +31,15 @@ public final class DenialTalent extends Talent implements Listener {
     private static final Duration DURATION = Duration.ofSeconds(SECONDS);
 
     protected DenialTalent() {
-        super(TalentType.DENIAL);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Denial";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Knockback denies mob spells, projectiles,"
-                       + " poison for " + SECONDS + " seconds",
-                       "This effect denies the following for "
-                       + SECONDS + " seconds"
-                       + ":\n"
-                       + "\n:barrier: Shooting :arrow:Arrows"
-                       + "\n:barrier: Throwing :splash_potion:Potions"
-                       + "\n:barrier: :spider_face:Spider Poison"
-                       + "\n:barrier: :creeper_face:Creeper Explosion"
-                       + "\n:barrier: :enderman_face:Enderman Escape",
-                       "Use a Knockback weapon on an enemy to give it this status effect."
-                       + " You have to hit them with full strength!");
+        super(TalentType.DENIAL, "Denial",
+              "Hitting monsters with knockback denies the following:",
+              ":barrier: Shooting :arrow:Arrows",
+              ":barrier: Throwing :splash_potion:Potions",
+              ":barrier: :spider_face:Spider Poison",
+              ":barrier: :creeper_face:Creeper Explosion",
+              ":barrier: :enderman_face:Enderman Escape",
+              "Use a Knockback weapon on an enemy to give it this status effect. You have to hit them with full strength!");
+        addLevel(1, "Knockback denies mob spells, projectiles, poison for " + SECONDS + " seconds");
     }
 
     @Override

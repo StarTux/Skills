@@ -3,7 +3,7 @@ package com.cavetale.skills.session;
 import com.cavetale.core.event.hud.PlayerHudEvent;
 import com.cavetale.core.event.hud.PlayerHudPriority;
 import com.cavetale.mytems.Mytems;
-import com.cavetale.skills.Guis;
+import com.cavetale.skills.TalentMenu;
 import com.cavetale.skills.crafting.AnvilEnchantment;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
@@ -209,7 +209,7 @@ public final class Session {
     public boolean unlockTalent(@NonNull TalentType talentType, final Runnable callback) {
         if (modifyingTalents) return false;
         if (talents.containsKey(talentType)) return false;
-        final int cost = talentType.talentPointCost;
+        final int cost = talentType.getTalent().getLevel(1).getTalentPointCost();
         if (getTalentPoints(talentType.skillType) < cost) return false;
         modifyingTalents = true;
         skills.get(talentType.skillType).modifyTalents(-cost, 1, () -> {
@@ -217,12 +217,44 @@ public final class Session {
                 // fails, modifyingTalents will just get stuck until
                 // the session is reloaded.
                 modifyingTalents = false;
-                SQLTalent sqlTalent = new SQLTalent(uuid, talentType);
+                SQLTalent sqlTalent = new SQLTalent(uuid, talentType, 1);
                 talents.put(talentType, sqlTalent);
-                database().insertAsync(sqlTalent, null);
-                database().update(SQLPlayer.class)
-                    .row(sqlPlayer).add("talents", 1).async(null);
-                if (callback != null) callback.run();
+                database().scheduleAsyncTask(() -> {
+                        database().insert(sqlTalent);
+                        database().update(SQLPlayer.class)
+                            .row(sqlPlayer).add("talents", 1).sync();
+                        if (callback != null) {
+                            Bukkit.getScheduler().runTask(skillsPlugin(), callback::run);
+                        }
+                    });
+            });
+        return true;
+    }
+
+    public boolean upgradeTalent(TalentType talentType, Runnable callback) {
+        if (modifyingTalents) return false;
+        if (!talents.containsKey(talentType)) return false;
+        final int currentLevelValue = getTalentLevel(talentType);
+        final int nextLevelValue = currentLevelValue + 1;
+        if (talentType.getTalent().getMaxLevel().getLevel() < nextLevelValue) return false;
+        final int cost = talentType.getTalent().getLevel(nextLevelValue).getTalentPointCost();
+        if (getTalentPoints(talentType.skillType) < cost) return false;
+        modifyingTalents = true;
+        skills.get(talentType.skillType).modifyTalents(-cost, 1, () -> {
+                // This is silly because if the talent point removal
+                // fails, modifyingTalents will just get stuck until
+                // the session is reloaded.
+                modifyingTalents = false;
+                SQLTalent sqlTalent = talents.get(talentType);
+                sqlTalent.setLevel(nextLevelValue);
+                database().scheduleAsyncTask(() -> {
+                        database().update(sqlTalent, "level");
+                        database().update(SQLPlayer.class)
+                            .row(sqlPlayer).add("talents", 1).sync();
+                        if (callback != null) {
+                            Bukkit.getScheduler().runTask(skillsPlugin(), callback::run);
+                        }
+                    });
             });
         return true;
     }
@@ -263,6 +295,12 @@ public final class Session {
 
     public boolean hasTalent(@NonNull TalentType talentType) {
         return talents.containsKey(talentType);
+    }
+
+    public int getTalentLevel(TalentType talentType) {
+        return talents.containsKey(talentType)
+            ? talents.get(talentType).getLevel()
+            : 0;
     }
 
     public boolean canAccessTalent(@NonNull TalentType talentType) {
@@ -340,7 +378,7 @@ public final class Session {
                         .row(sqlPlayer).set("talents", talents.size()).async(null);
                 }
                 if (!player.isValid()) return;
-                Guis.talents(player);
+                new TalentMenu(player, this).open();
             });
         return true;
     }

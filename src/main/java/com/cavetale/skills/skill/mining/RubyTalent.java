@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.mining;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -14,19 +13,11 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class RubyTalent extends Talent {
     public RubyTalent() {
-        super(TalentType.RUBY);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Rubies";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Mining diamond veins will sometimes drop a ruby",
-                       "The chance depends on the size of the vein:"
-                       + " Each :diamond_ore:block adds 5% to the total drop chance.");
+        super(TalentType.RUBY, "Rubies",
+              "Mining diamond veins will sometimes drop a ruby",
+              "The chance depends on the size of the vein: Each :diamond_ore:block adds 5% to the total drop chance.");
+        addLevel(2, "REMOVE");
+        addLevel(2, "REMOVE EVEN MORE");
     }
 
     @Override

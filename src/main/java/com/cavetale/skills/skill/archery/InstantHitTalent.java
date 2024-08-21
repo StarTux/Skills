@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.archery;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.LivingEntity;
@@ -12,21 +11,11 @@ import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class InstantHitTalent extends Talent {
     public InstantHitTalent() {
-        super(TalentType.INSTANT_HIT);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Instant Hit";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Fully charged arrows reset any mob's invulnerability ticks",
-                       "Mobs are invulnerable to all attack damage for half a second after they take damage."
-                       + " This talent resets their invulnerability when you hit them"
-                       + " with a fully charged :arrow:arrow."
-                       + "\n\nThat way, mobs cannot deflect your arrows without a shield.");
+        super(TalentType.INSTANT_HIT, "Instant Hit",
+              "Fully charged arrows reset any mob's invulnerability ticks",
+              "Mobs are invulnerable to all attack damage for half a second after they take damage. This talent resets their invulnerability when you hit them with a fully charged :arrow:arrow.",
+              "That way, mobs cannot deflect your arrows without a shield.");
+        addLevel(5, "Always hit the enemy");
     }
 
     @Override

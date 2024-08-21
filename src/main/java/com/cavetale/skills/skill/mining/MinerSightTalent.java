@@ -3,7 +3,6 @@ package com.cavetale.skills.skill.mining;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -17,24 +16,10 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class MinerSightTalent extends Talent {
     protected MinerSightTalent() {
-        super(TalentType.MINER_SIGHT);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Miner Sight";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Mining stone with a pickaxe creates a light source",
-                       "Stone includes:"
-                       + " :stone:Stone,"
-                       + " :andesite:Andesite,"
-                       + " :diorite:Diorite,"
-                       + " :granite:Granite,"
-                       + " :tuff:tuff,"
-                       + " :deepslate:Deepslate.");
+        super(TalentType.MINER_SIGHT, "Miner Sight",
+              "Mining stone with a pickaxe creates a light source",
+              "Stone includes:" + " :stone:Stone, :andesite:Andesite, :diorite:Diorite, :granite:Granite, :tuff:tuff, :deepslate:Deepslate.");
+        addLevel(1, "Create a light source");
     }
 
     @Override

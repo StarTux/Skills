@@ -2,7 +2,6 @@ package com.cavetale.skills.skill.combat;
 
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -11,17 +10,9 @@ import org.bukkit.inventory.ItemStack;
 
 public final class SearingTalent extends Talent {
     protected SearingTalent() {
-        super(TalentType.SEARING);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Searing";
-    }
-
-    @Override
-    public List<String> getRawDescription() {
-        return List.of("Monsters set on fire deal -30% melee damage");
+        super(TalentType.SEARING, "Searing",
+              "Monsters set on fire deal less melee damage");
+        addLevel(1, "-30% melee damage from mobs set on fire");
     }
 
     @Override

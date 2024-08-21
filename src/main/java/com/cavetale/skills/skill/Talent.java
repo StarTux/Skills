@@ -9,6 +9,7 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.util.Players;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -24,40 +25,39 @@ import static com.cavetale.skills.SkillsPlugin.sessions;
  * register their events if they implement Listener.  Thus, enable()
  * will oftentimes be empty.
  */
+@Getter
 public abstract class Talent {
-    @Getter protected final TalentType talentType;
-    @Getter protected final List<Component> description;
+    protected final TalentType talentType;
+    protected final String displayName;
+    protected final List<String> rawDescription;
+    protected final List<Component> description;
+    protected final List<TalentLevel> levels = new ArrayList<>();
 
-    protected Talent(final TalentType talentType) {
+    protected Talent(final TalentType talentType, final String displayName, final String... rawDescription) {
         this.talentType = talentType;
-        this.description = computeDescription();
+        this.displayName = displayName;
+        this.rawDescription = List.of(rawDescription);
+        this.description = makeDescription(rawDescription);
         talentType.register(this);
     }
-
-    /**
-     * Get the display name.
-     */
-    public abstract String getDisplayName();
-
-    /**
-     * Get the raw description.
-     */
-    public abstract List<String> getRawDescription();
 
     /**
      * Create the icon.
      */
     public abstract ItemStack createIcon();
 
-    /**
-     * Get the description as components.
-     */
-    public List<Component> computeDescription() {
-        List<Component> result = new ArrayList<>();
-        for (String string : getRawDescription()) {
-            result.add(Emoji.replaceText(string, GlyphPolicy.HIDDEN, false).asComponent());
+    public final TalentLevel getLevel(int level) {
+        if (level < 1) {
+            return null;
+        } else if (level > levels.size()) {
+            return levels.get(levels.size() - 1);
+        } else {
+            return levels.get(level - 1);
         }
-        return result;
+    }
+
+    public final TalentLevel getMaxLevel() {
+        return levels.get(levels.size() - 1);
     }
 
     /**
@@ -77,22 +77,6 @@ public abstract class Talent {
         }
     }
 
-    protected final ItemStack createIcon(Material material) {
-        ItemStack item = new ItemStack(material);
-        item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
-        return item;
-    }
-
-    protected final ItemStack createIcon(Mytems mytems) {
-        ItemStack item = mytems.createItemStack();
-        item.editMeta(meta -> {
-                meta.displayName(null);
-                meta.lore(List.of());
-                meta.addItemFlags(ItemFlag.values());
-            });
-        return item;
-    }
-
     /**
      * Get the anvil enchantments which this talent unlocks.  Session
      * collects them for a player.  CraftingListener wants to know in
@@ -100,5 +84,38 @@ public abstract class Talent {
      */
     public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
         return List.of();
+    }
+
+    protected final void addLevel(final int talentPointCost, final Supplier<ItemStack> iconSupplier, String... rawLevelDescription) {
+        TalentLevel level = new TalentLevel(levels.size() + 1, talentPointCost, iconSupplier, List.of(rawLevelDescription), makeDescription(rawLevelDescription));
+        levels.add(level);
+    }
+
+    protected final void addLevel(final int talentPointCost, String... rawLevelDescription) {
+        TalentLevel level = new TalentLevel(levels.size() + 1, talentPointCost, this::createIcon, List.of(rawLevelDescription), makeDescription(rawLevelDescription));
+        levels.add(level);
+    }
+
+    /**
+     * Get the description as components.
+     */
+    private static List<Component> makeDescription(String[] raw) {
+        List<Component> result = new ArrayList<>();
+        for (String string : raw) {
+            result.add(Emoji.replaceText(string, GlyphPolicy.HIDDEN, false).asComponent());
+        }
+        return result;
+    }
+
+    protected static ItemStack createIcon(Material material) {
+        ItemStack item = new ItemStack(material);
+        item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+        return item;
+    }
+
+    protected static ItemStack createIcon(Mytems mytems) {
+        ItemStack item = mytems.createItemStack();
+        item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
+        return item;
     }
 }
