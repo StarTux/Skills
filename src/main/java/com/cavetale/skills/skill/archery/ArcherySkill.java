@@ -41,16 +41,16 @@ import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldo
  * TippedArrow is deprecated and now in Arrow!
  */
 public final class ArcherySkill extends Skill implements Listener {
-    public final ArcherZoneTalent archerZoneTalent = new ArcherZoneTalent();
-    public final ArrowSwiftnessTalent arrowSwiftnessTalent = new ArrowSwiftnessTalent();
-    public final BonusArrowTalent bonusArrowTalent = new BonusArrowTalent();
+    public final InTheZoneTalent inTheZoneTalent = new InTheZoneTalent();
+    public final SwiftSniperTalent swiftSniperTalent = new SwiftSniperTalent();
+    public final LegolasTalent legolasTalent = new LegolasTalent();
     public final ArrowDamageTalent arrowDamageTalent = new ArrowDamageTalent();
     public final HomingArrowTalent homingArrowTalent = new HomingArrowTalent();
     public final ArrowMagnetTalent arrowMagnetTalent = new ArrowMagnetTalent();
     public final InstantHitTalent instantHitTalent = new InstantHitTalent();
-    public final CrossbowVolleyTalent crossbowVolleyTalent = new CrossbowVolleyTalent();
-    public final CrossbowLingerTalent crossbowLingerTalent = new CrossbowLingerTalent();
-    public final CrossbowDualTalent crossbowDualTalent = new CrossbowDualTalent();
+    public final VolleyTalent volleyTalent = new VolleyTalent();
+    public final WaterBombTalent waterBombTalent = new WaterBombTalent();
+    public final GunslingerTalent gunslingerTalent = new GunslingerTalent();
     public final GlowMarkTalent glowMarkTalent = new GlowMarkTalent();
 
     public ArcherySkill() {
@@ -107,8 +107,8 @@ public final class ArcherySkill extends Skill implements Listener {
 
     private void onArrowDamage(Player player, AbstractArrow arrow, Mob mob, EntityDamageByEntityEvent event) {
         if (!arrow.isShotFromCrossbow()) {
-            archerZoneTalent.onBowDamage(player, arrow, mob);
-            bonusArrowTalent.onBowDamage(player, arrow, mob);
+            inTheZoneTalent.onBowDamage(player, arrow, mob);
+            legolasTalent.onBowDamage(player, arrow, mob);
         }
         if (isDebugSkill(player)) {
             player.sendMessage(skillType + " onArrowDamage "
@@ -177,8 +177,8 @@ public final class ArcherySkill extends Skill implements Listener {
             // which is a simple solution.
             // The order matters:
             // - Volley will copy the flame state
-            crossbowVolleyTalent.onShootCrossbow(player, bow, arrow, consumable);
-            crossbowDualTalent.onShootCrossbow(player);
+            volleyTalent.onShootCrossbow(player, bow, arrow, consumable);
+            gunslingerTalent.onShootCrossbow(player);
         }
         if (isDebugSkill(player)) {
             player.sendMessage(skillType + " " + event.getEventName()
@@ -197,8 +197,8 @@ public final class ArcherySkill extends Skill implements Listener {
         if (!(event.getEntity() instanceof AbstractArrow arrow) || arrow instanceof Trident) return;
         if (!(arrow.getShooter() instanceof Player player)) return;
         if (event.getHitBlock() != null) {
-            archerZoneTalent.onArrowHitBlock(player, arrow);
-            crossbowLingerTalent.onArrowHitBlock(player, arrow, event);
+            inTheZoneTalent.onArrowHitBlock(player, arrow);
+            waterBombTalent.onArrowHitBlock(player, arrow, event);
             if (arrow.isDead()) return;
             if (ArrowType.BONUS.is(arrow) || ArrowType.SPAM.is(arrow) || ArrowType.NO_PICKUP.is(arrow)) {
                 Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
@@ -222,11 +222,11 @@ public final class ArcherySkill extends Skill implements Listener {
     }
 
     /**
-     * Called by onEntityShootBow and BonusArrowTalent.
+     * Called by onEntityShootBow and LegolasTalent.
      */
     protected void onShootBow(Player player, AbstractArrow arrow) {
-        archerZoneTalent.onShootBow(player, arrow);
-        arrowSwiftnessTalent.onShootBow(player, arrow);
+        inTheZoneTalent.onShootBow(player, arrow);
+        swiftSniperTalent.onShootBow(player, arrow);
         homingArrowTalent.onShootBow(player, arrow);
     }
 

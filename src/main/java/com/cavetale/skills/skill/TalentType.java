@@ -46,15 +46,15 @@ public enum TalentType implements ComponentLike {
     // Archery
 
     // Left: Crossbow
-    XBOW_VOLLEY(ARCHERY, null, Vec2i.of(2, 3)),
-    XBOW_DUAL(ARCHERY, XBOW_VOLLEY, Vec2i.of(2, 5)),
-    XBOW_LINGER(ARCHERY, XBOW_VOLLEY, Vec2i.of(2, 1)),
+    VOLLEY(ARCHERY, null, Vec2i.of(2, 3)),
+    GUNSLINGER(ARCHERY, VOLLEY, Vec2i.of(2, 5)),
+    WATER_BOMB(ARCHERY, VOLLEY, Vec2i.of(2, 1)),
     // Right: Bow
-    ARCHER_ZONE(ARCHERY, null, Vec2i.of(6, 3)),
-    ARROW_SWIFTNESS(ARCHERY, ARCHER_ZONE, Vec2i.of(6, 1)),
-    ARROW_DAMAGE(ARCHERY, ARROW_SWIFTNESS, Vec2i.of(8, 1)),
-    BONUS_ARROW(ARCHERY, ARROW_DAMAGE, Vec2i.of(8, 3)),
-    INSTANT_HIT(ARCHERY, BONUS_ARROW, Vec2i.of(6, 5)),
+    IN_THE_ZONE(ARCHERY, null, Vec2i.of(6, 3)),
+    SWIFT_SNIPER(ARCHERY, IN_THE_ZONE, Vec2i.of(6, 1)),
+    ARROW_DAMAGE(ARCHERY, SWIFT_SNIPER, Vec2i.of(8, 1)),
+    LEGOLAS(ARCHERY, ARROW_DAMAGE, Vec2i.of(8, 3)),
+    INSTANT_HIT(ARCHERY, LEGOLAS, Vec2i.of(6, 5)),
     HOMING_ARROW(ARCHERY, INSTANT_HIT, Vec2i.of(8, 5)),
     // Down
     GLOW_MARK(ARCHERY, null, Vec2i.of(4, 5)),

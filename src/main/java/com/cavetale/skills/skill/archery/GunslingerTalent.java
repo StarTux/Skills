@@ -17,13 +17,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
-public final class CrossbowDualTalent extends Talent implements Listener {
-    public CrossbowDualTalent() {
-        super(TalentType.XBOW_DUAL, "Gunslinger",
+public final class GunslingerTalent extends Talent implements Listener {
+    public GunslingerTalent() {
+        super(TalentType.GUNSLINGER, "Gunslinger",
               "Wield a second crossbow in your off-hand for dual wielding effects",
               "When you reload the :crossbow:crossbow in your main hand, the one in your off-hand will also reload.",
               "Shooting the :crossbow:crossbow in your main hand will quickly switch with the :crossbow:crossbow in your off-hand");
-        addLevel(5, "Dual wielding");
+        addLevel(1, "Dual wielding");
     }
 
     @Override

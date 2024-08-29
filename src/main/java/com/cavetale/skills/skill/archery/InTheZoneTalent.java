@@ -21,9 +21,9 @@ import static net.kyori.adventure.text.JoinConfiguration.separator;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.*;
 
-public final class ArcherZoneTalent extends Talent implements Listener {
-    protected ArcherZoneTalent() {
-        super(TalentType.ARCHER_ZONE, "In the Zone",
+public final class InTheZoneTalent extends Talent implements Listener {
+    protected InTheZoneTalent() {
+        super(TalentType.IN_THE_ZONE, "In the Zone",
               "Increase :bow:bow damage by landing an unbroken series of :target:hits",
               "Any :arrow:arrow hitting a hostile mob will increase :bow:bow damage. Breaking your focus will reset the damage bonus. Break focus by switching items, taking damage, or missing a shot.");
         addLevel(1, levelToPercentage(1) + "% damage increase");
@@ -73,7 +73,7 @@ public final class ArcherZoneTalent extends Talent implements Listener {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical()) return;
         final Session session = Session.of(player);
-        final int zone = session.archery.getArcherZone();
+        final int zone = session.archery.getInTheZone();
         if (zone < 1) return;
         final int level = session.getTalentLevel(talentType);
         if (level < 1) return;
@@ -84,8 +84,8 @@ public final class ArcherZoneTalent extends Talent implements Listener {
 
     protected void increaseZone(Player player) {
         final Session session = Session.of(player);
-        int zone = session.archery.getArcherZone() + 1;
-        session.archery.setArcherZone(zone);
+        int zone = session.archery.getInTheZone() + 1;
+        session.archery.setInTheZone(zone);
         player.sendActionBar(join(separator(space()),
                                   text(zone, talentType.skillType.textColor, BOLD),
                                   text("In The Zone", talentType.skillType.textColor)));
@@ -93,8 +93,8 @@ public final class ArcherZoneTalent extends Talent implements Listener {
 
     protected void resetZone(Player player) {
         final Session session = Session.of(player);
-        if (session.archery.getArcherZone() == 0) return;
-        session.archery.setArcherZone(0);
+        if (session.archery.getInTheZone() == 0) return;
+        session.archery.setInTheZone(0);
         if (isPlayerEnabled(player)) {
             player.sendActionBar(text("In The Zone", DARK_GRAY, STRIKETHROUGH));
         }

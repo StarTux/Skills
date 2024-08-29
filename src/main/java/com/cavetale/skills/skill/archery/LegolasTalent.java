@@ -17,9 +17,9 @@ import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.archerySkill;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
-public final class BonusArrowTalent extends Talent {
-    public BonusArrowTalent() {
-        super(TalentType.BONUS_ARROW, "Legolas",
+public final class LegolasTalent extends Talent {
+    public LegolasTalent() {
+        super(TalentType.LEGOLAS, "Legolas",
               "Fully charged bow hits trigger another free shot",
               "As soon as a fully charged :arrow:arrow hits a mob, you launch another free :arrow:arrow. The additional :arrow:arrow is shot in the direction you are looking and may trigger yet another arrow.",
               "Your bow must be in your main hand.");
@@ -41,36 +41,36 @@ public final class BonusArrowTalent extends Talent {
         final boolean primary = ArrowType.PRIMARY.is(arrow);
         if (!primary && !ArrowType.BONUS.is(arrow)) return;
         final Session session = Session.of(player);
-        if (session.archery.isBonusArrowFiring()) return;
+        if (session.archery.isLegolasFiring()) return;
         final ItemStack bow = player.getInventory().getItemInMainHand();
         if (bow.getType() != Material.BOW) return;
         final int level = session.getTalentLevel(talentType);
         if (level < 1) return;
         if (primary) {
-            session.archery.setBonusArrowCount(1);
+            session.archery.setLegolasCount(1);
         } else {
-            final int bonusArrowCount = session.archery.getBonusArrowCount();
-            if (bonusArrowCount >= level) return;
-            session.archery.setBonusArrowCount(bonusArrowCount + 1);
+            final int legolasCount = session.archery.getLegolasCount();
+            if (legolasCount >= level) return;
+            session.archery.setLegolasCount(legolasCount + 1);
         }
         final int power = bow.getEnchantmentLevel(Enchantment.POWER);
-        session.archery.setBonusArrowFiring(true);
+        session.archery.setLegolasFiring(true);
         Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
-                session.archery.setBonusArrowFiring(false);
+                session.archery.setLegolasFiring(false);
                 if (!player.isOnline()) return;
                 if (player.getInventory().getItemInMainHand().getType() != Material.BOW) return;
-                final Arrow bonusArrow = player.launchProjectile(Arrow.class);
-                if (bonusArrow == null) return;
-                ArrowType.BONUS.set(bonusArrow);
-                ArrowType.NO_PICKUP.set(bonusArrow);
-                bonusArrow.setCritical(true);
-                bonusArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+                final Arrow legolas = player.launchProjectile(Arrow.class);
+                if (legolas == null) return;
+                ArrowType.BONUS.set(legolas);
+                ArrowType.NO_PICKUP.set(legolas);
+                legolas.setCritical(true);
+                legolas.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                 // Formula from https://minecraft.wiki/w/Arrow#Damage
-                bonusArrow.setDamage(power > 0
+                legolas.setDamage(power > 0
                                      ? 2.5 + (double) power * 0.5
                                      : 2.0);
-                bonusArrow.setVelocity(bonusArrow.getVelocity().normalize().multiply(3.0));
-                archerySkill().onShootBow(player, bonusArrow);
+                legolas.setVelocity(legolas.getVelocity().normalize().multiply(3.0));
+                archerySkill().onShootBow(player, legolas);
                 player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, SoundCategory.MASTER, 0.2f, 1.5f);
                 if (isDebugTalent(player)) {
                     player.sendMessage(talentType + "!");

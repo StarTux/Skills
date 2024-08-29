@@ -16,9 +16,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import static com.cavetale.skills.SkillsPlugin.random;
 
-public final class CrossbowVolleyTalent extends Talent {
-    public CrossbowVolleyTalent() {
-        super(TalentType.XBOW_VOLLEY, "Volley",
+public final class VolleyTalent extends Talent {
+    public VolleyTalent() {
+        super(TalentType.VOLLEY, "Volley",
               "Multishot releases a volley of arrows",
               "Instead of 3 arrows flat, Multishot fires a barrage of :arrow:arrows.");
         addLevel(1, levelToBonusArrowCount(1) + " bonus arrow");

@@ -19,9 +19,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-public final class CrossbowLingerTalent extends Talent {
-    public CrossbowLingerTalent() {
-        super(TalentType.XBOW_LINGER, "Water Bomb",
+public final class WaterBombTalent extends Talent {
+    public WaterBombTalent() {
+        super(TalentType.WATER_BOMB, "Water Bomb",
               "Tipped crossbow bullets create a lingering effect cloud when they hit a block",
               "When one of your crossbow :spectral_arrow:spectral or :tipped_arrow:tipped arrows hits the ground, it leaves behind a brief :ucloud:lingering effect cloud on the floor.");
         addLevel(5, "Create an effect cloud");
