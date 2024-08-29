@@ -10,8 +10,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.ItemStack;
 
 @RequiredArgsConstructor
 final class CombatListener implements Listener {
@@ -39,12 +41,13 @@ final class CombatListener implements Listener {
     private void onEntityDamageByEntityHigh(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player player && event.getDamager() instanceof Mob mob) {
             // Mob attacks Player
-            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
-            combatSkill.onMobDamagePlayerHigh(player, mob, event);
+            return;
         } else if (event.getEntity() instanceof Mob mob && event.getDamager() instanceof Player player) {
             // Player attacks Mob
-            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
-            combatSkill.onPlayerDamageMobHigh(player, mob, event);
+            if (event.getCause() == DamageCause.ENTITY_ATTACK) {
+                final ItemStack item = player.getInventory().getItemInMainHand();
+                combatSkill.toxicistTalent.onPlayerDamageMob(player, mob, item, event);
+            }
         }
     }
 
@@ -52,12 +55,16 @@ final class CombatListener implements Listener {
     private void onEntityDamageByEntityMonitor(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player player && event.getDamager() instanceof Mob mob) {
             // Mob attacks Player
-            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
-            combatSkill.onMobDamagePlayerMonitor(player, mob, event);
+            // if (event.getCause() == DamageCause.ENTITY_ATTACK) {
+            // }
+            return;
         } else if (event.getEntity() instanceof Mob mob && event.getDamager() instanceof Player player) {
             // Player attacks Mob
-            if (event.getCause() != DamageCause.ENTITY_ATTACK) return;
-            combatSkill.onPlayerDamageMobMonitor(player, mob, event);
+            if (event.getCause() == DamageCause.ENTITY_ATTACK) {
+                final ItemStack item = player.getInventory().getItemInMainHand();
+                combatSkill.berserkerTalent.onPlayerDamageMob(player, mob, event);
+                combatSkill.denialTalent.onPlayerDamageMob(player, mob, item, event);
+            }
         }
     }
 
@@ -71,11 +78,21 @@ final class CombatListener implements Listener {
         combatSkill.berserkerTalent.onPlayerDeath(event.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)
     private void onDamageCalculation(DamageCalculationEvent event) {
-        if (!event.attackerIsPlayer()) return;
-        if (!event.getCalculation().isMeleeAttack()) return;
-        final Player player = event.getAttackerPlayer();
-        combatSkill.berserkerTalent.onDamageCalculation(player, event);
+        if (event.getTarget() == null) return;
+        if (event.attackerIsPlayer()) {
+            if (!event.getCalculation().isMeleeAttack()) return;
+            final Player player = event.getAttackerPlayer();
+            combatSkill.pyromaniacTalent.onDamageCalculation(player, event);
+            combatSkill.berserkerTalent.onDamageCalculation(player, event);
+            combatSkill.executionerTalent.onDamageCalculation(player, event);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
+    private void onEntityResurrect(EntityResurrectEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        combatSkill.godModeTalent.onEntityResurrect(player, event);
     }
 }

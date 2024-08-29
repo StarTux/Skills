@@ -6,7 +6,6 @@ import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.util.Players;
-import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.EnumMap;
 import java.util.List;
@@ -14,8 +13,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,7 +21,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static org.bukkit.Material.*;
 
@@ -35,34 +31,10 @@ public final class MiningSkill extends Skill implements Listener {
     public final DeepMiningTalent deepMiningTalent = new DeepMiningTalent();
     public final VeinMiningTalent veinMiningTalent = new VeinMiningTalent();
     public final MineMagnetTalent mineMagnetTalent = new MineMagnetTalent();
-    public final VeinGemsTalent veinGemsTalent = new VeinGemsTalent();
-    public final VeinMetalsTalent veinMetalsTalent = new VeinMetalsTalent();
     public final SilkStripTalent silkStripTalent = new SilkStripTalent();
-    public final SilkMetalsTalent silkMetalsTalent = new SilkMetalsTalent();
-    public final SilkMultiTalent silkMultiTalent = new SilkMultiTalent();
     public final MinerSightTalent minerSightTalent = new MinerSightTalent();
     public final SuperVisionTalent superVisionTalent = new SuperVisionTalent();
-    public final DeepVisionTalent deepVisionTalent = new DeepVisionTalent();
-    public final NetherVisionTalent netherVisionTalent = new NetherVisionTalent();
     public final OreAlertTalent oreAlertTalent = new OreAlertTalent();
-    public final EmeraldAlertTalent emeraldAlertTalent = new EmeraldAlertTalent();
-    public final DebrisAlertTalent debrisAlertTalent = new DebrisAlertTalent();
-    public final RubyTalent rubyTalent = new RubyTalent();
-    private static final MaterialSetTag STONE_TYPES = new
-        MaterialSetTag(NamespacedKey.fromString("skills:stone_types"),
-                       STONE, DIORITE, ANDESITE, GRANITE).lock();
-    private static final MaterialSetTag DEEP_STONE_TYPES = new
-        MaterialSetTag(NamespacedKey.fromString("skills:deep_stone_types"),
-                       DEEPSLATE, TUFF).lock();
-    private static final MaterialSetTag ALL_STONE_TYPES = new
-        MaterialSetTag(NamespacedKey.fromString("skills:all_stone_types"))
-        .add(STONE_TYPES.getValues())
-        .add(DEEP_STONE_TYPES.getValues()).lock();
-    private static final MaterialSetTag BUILDING_STONE_TYPES = new
-        MaterialSetTag(NamespacedKey.fromString("skills:building_stone_types"))
-        .add(Tag.STONE_BRICKS.getValues())
-        .add(COBBLESTONE).add(MOSSY_COBBLESTONE)
-        .lock();
 
     public MiningSkill() {
         super(SkillType.MINING);
@@ -98,70 +70,11 @@ public final class MiningSkill extends Skill implements Listener {
         reward(RAW_IRON_BLOCK, 15, 50.0, 3, 0, null, 0, null);
         reward(RAW_GOLD_BLOCK, 25, 50.0, 3, 0, null, 0, null); // currently does not generate
         reward(BUDDING_AMETHYST, 10, 10.0, 1, 0, AMETHYST_SHARD, 2, AMETHYST_BLOCK);
+        reward(GLOWSTONE, 1, 1.0, 1, 0, GLOWSTONE, 0, null);
     }
 
     private void reward(Material material, int sp, double money, int exp, int veinExp, Material item, int drops, Material replaceable) {
         rewards.put(material, new MiningReward(material, sp, money, exp, veinExp, item, drops, replaceable));
-    }
-
-    protected static boolean stone(@NonNull Block block) {
-        return STONE_TYPES.isTagged(block.getType());
-    }
-
-    protected static boolean deepStone(@NonNull Block block) {
-        return DEEP_STONE_TYPES.isTagged(block.getType());
-    }
-
-    protected static boolean anyStone(Block block) {
-        return ALL_STONE_TYPES.isTagged(block.getType());
-    }
-
-    protected static boolean buildingStone(Block block) {
-        return BUILDING_STONE_TYPES.isTagged(block.getType());
-    }
-
-    private static final MaterialSetTag DIRT_TYPES = new MaterialSetTag(NamespacedKey.fromString("skills:dirt_types"),
-                                                                        GRAVEL, DIRT).lock();
-
-    protected static boolean dirt(@NonNull Block block) {
-        return DIRT_TYPES.isTagged(block.getType());
-    }
-
-    protected static boolean otherOre(@NonNull Block block) {
-        final Material mat = block.getType();
-        return Tag.LAPIS_ORES.isTagged(mat)
-            || Tag.REDSTONE_ORES.isTagged(mat)
-            || Tag.COAL_ORES.isTagged(mat);
-    }
-
-    protected static boolean metalOre(@NonNull Block block) {
-        switch (block.getType()) {
-        case COPPER_ORE:
-        case DEEPSLATE_COPPER_ORE:
-        case IRON_ORE:
-        case DEEPSLATE_IRON_ORE:
-        case GOLD_ORE:
-        case DEEPSLATE_GOLD_ORE:
-        case NETHER_GOLD_ORE:
-        case GILDED_BLACKSTONE:
-        case ANCIENT_DEBRIS:
-            return true;
-        default:
-            return false;
-        }
-    }
-
-    protected static boolean gemOre(@NonNull Block block) {
-        switch (block.getType()) {
-        case DIAMOND_ORE:
-        case DEEPSLATE_DIAMOND_ORE:
-        case EMERALD_ORE:
-        case DEEPSLATE_EMERALD_ORE:
-        case NETHER_QUARTZ_ORE:
-            return true;
-        default:
-            return false;
-        }
     }
 
     protected static boolean netherStone(@NonNull Block block) {
@@ -199,7 +112,7 @@ public final class MiningSkill extends Skill implements Listener {
         stripMiningTalent.onWillBreakBlock(player, block);
         minerSightTalent.onWillBreakBlock(player, block);
         if (reward == null) return;
-        final Location dropLocation = sessionOf(player).isTalentEnabled(TalentType.MINE_MAGNET)
+        final Location dropLocation = Session.of(player).isTalentEnabled(TalentType.MINE_MAGNET)
             ? player.getLocation()
             : block.getLocation().add(0.5, 0.25, 0.0);
         giveReward(player, block, reward, dropLocation);
@@ -219,7 +132,7 @@ public final class MiningSkill extends Skill implements Listener {
      */
     protected boolean giveReward(Player player, Block block, MiningReward reward, Location dropLocation) {
         if (isPlayerPlaced(block)) return false;
-        Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (!session.isEnabled()) return false;
         final var rewardEvent = new SkillsBlockBreakRewardEvent(player, block,
                                                                 reward.sp,
@@ -239,7 +152,7 @@ public final class MiningSkill extends Skill implements Listener {
     }
 
     protected boolean giveStackedReward(Player player, ItemStack item, List<Block> blocks, MiningReward reward, Location dropLocation, int stackCount) {
-        Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (!session.isEnabled()) return false;
         final var rewardEvent = new SkillsBlockBreakRewardEvent(player, blocks,
                                                                 reward.sp * stackCount,

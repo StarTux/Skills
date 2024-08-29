@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,6 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
+@Getter
 public final class Sessions implements Listener {
     protected final Map<UUID, Session> sessionsMap = new HashMap<>();
 

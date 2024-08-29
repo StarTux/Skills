@@ -1,7 +1,5 @@
 package com.cavetale.skills;
 
-import com.cavetale.skills.crafting.CraftingListener;
-import com.cavetale.skills.session.Session;
 import com.cavetale.skills.session.Sessions;
 import com.cavetale.skills.skill.Skills;
 import com.cavetale.skills.skill.archery.ArcherySkill;
@@ -14,9 +12,11 @@ import com.winthier.sql.SQLDatabase;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import org.bukkit.entity.Player;
+import lombok.Getter;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Getter
 public final class SkillsPlugin extends JavaPlugin {
     private static SkillsPlugin instance;
     protected SkillsCommand skillsCommand = new SkillsCommand(this);
@@ -27,7 +27,6 @@ public final class SkillsPlugin extends JavaPlugin {
     protected final SQLDatabase database = new SQLDatabase(this);
     protected Skills skills;
     protected Sessions sessions;
-    protected CraftingListener craftingListener = new CraftingListener();
 
     @Override
     public void onLoad() {
@@ -49,7 +48,6 @@ public final class SkillsPlugin extends JavaPlugin {
         talentCommand.enable();
         highscoreCommand.enable();
         adminCommand.enable();
-        craftingListener.enable();
     }
 
     @Override
@@ -67,14 +65,6 @@ public final class SkillsPlugin extends JavaPlugin {
 
     public static SkillsPlugin skillsPlugin() {
         return instance;
-    }
-
-    public static Sessions sessions() {
-        return instance.sessions;
-    }
-
-    public static Session sessionOf(Player player) {
-        return instance.sessions.of(player);
     }
 
     public static Skills skills() {
@@ -103,5 +93,9 @@ public final class SkillsPlugin extends JavaPlugin {
 
     public static SkillsCommand skillsCommand() {
         return instance.skillsCommand;
+    }
+
+    public static NamespacedKey namespacedKey(String key) {
+        return new NamespacedKey(instance, key);
     }
 }

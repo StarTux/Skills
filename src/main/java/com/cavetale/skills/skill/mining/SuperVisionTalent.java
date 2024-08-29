@@ -7,9 +7,11 @@ import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -17,7 +19,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,43 +28,50 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class SuperVisionTalent extends Talent implements Listener {
-    protected static final BlockData STONE_GLASS = Material.LIGHT_GRAY_STAINED_GLASS.createBlockData();
-    protected static final BlockData DEEP_GLASS = Material.BLACK_STAINED_GLASS.createBlockData();
+    private static final BlockData FAKE_GLASS = Material.TINTED_GLASS.createBlockData();
+    private final Set<Material> superVisionMaterials = new HashSet<>();
 
     protected SuperVisionTalent() {
         super(TalentType.SUPER_VISION, "Super Vision",
               "Mining stone with a Fortune pickaxe allows you to see through solid stone",
               "Nearby stone will be rendered see-through for a few seconds so you can identify ores more easily.");
-        addLevel(3, "Radius 2");
+        addLevel(2, "Super Vision radius " + levelToRadius(1));
+        addLevel(1, "Super Vision radius " + levelToRadius(2));
+        // Materials
+        superVisionMaterials.add(Material.STONE);
+        superVisionMaterials.add(Material.DIORITE);
+        superVisionMaterials.add(Material.ANDESITE);
+        superVisionMaterials.add(Material.GRANITE);
+        superVisionMaterials.add(Material.DEEPSLATE);
+        superVisionMaterials.add(Material.TUFF);
+        superVisionMaterials.add(Material.GRAVEL);
+        superVisionMaterials.add(Material.DIRT);
+        superVisionMaterials.add(Material.NETHERRACK);
+    }
+
+    private static int levelToRadius(int level) {
+        return level + 1;
     }
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.LIGHT_GRAY_STAINED_GLASS);
+        return createIcon(Material.TINTED_GLASS);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
+        if (player.isSneaking()) return;
         if (!isPlayerEnabled(player)) return;
-        final boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_VISION);
-        if (!hasDeep) {
-            if (!MiningSkill.stone(event.getBlock())) return;
-        } else {
-            if (!MiningSkill.anyStone(event.getBlock())) return;
-        }
+        if (!isSuperVisionBlock(event.getBlock())) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return;
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
-        final int fortune = item.getEnchantmentLevel(Enchantment.FORTUNE);
-        if (fortune == 0) return;
-        if (player.isSneaking()) return;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
-                xray(player, event.getBlock(), hasDeep);
+                xray(player, event.getBlock());
             });
     }
 
@@ -74,7 +82,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
     @EventHandler(ignoreCancelled = false, priority = EventPriority.HIGHEST)
     private void onBlockDamage(BlockDamageEvent event) {
         final Player player = event.getPlayer();
-        final Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (!session.isEnabled()) return;
         final Tag tag = session.getMining().getSuperVisionTag();
         if (tag == null || tag.fakeBlockMap.isEmpty()) return;
@@ -92,16 +100,17 @@ public final class SuperVisionTalent extends Talent implements Listener {
     /**
      * Turn stone blocks within a radius into glass.
      */
-    protected int xray(@NonNull Player player, @NonNull Block block, final boolean hasDeep) {
+    protected int xray(@NonNull Player player, @NonNull Block block) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
-        final Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (!session.isEnabled()) return 0;
         final Tag tag = getOrCreateTag(session);
-        final int radius = 3;
-        final int realRadius = 2;
+        final int level = session.getTalentLevel(talentType);
+        final int radius = levelToRadius(level);
+        final int radiusPlusOne = radius + 1;
         // Send vision blocks
-        final List<Block> visionBlocks = getVisionBlocks(player, radius);
+        final List<Block> visionBlocks = getVisionBlocks(player, radiusPlusOne);
         for (var it : visionBlocks) {
             final var vec = Vec3i.of(it);
             if (tag.fakeBlockMap.remove(vec) == null) continue;
@@ -114,9 +123,9 @@ public final class SuperVisionTalent extends Talent implements Listener {
         int px = loc.getBlockX();
         int pz = loc.getBlockZ();
         final int min = block.getWorld().getMinHeight();
-        for (int y = -radius; y <= radius; y += 1) {
-            for (int z = -radius; z <= radius; z += 1) {
-                for (int x = -radius; x <= radius; x += 1) {
+        for (int y = -radiusPlusOne; y <= radiusPlusOne; y += 1) {
+            for (int z = -radiusPlusOne; z <= radiusPlusOne; z += 1) {
+                for (int x = -radiusPlusOne; x <= radiusPlusOne; x += 1) {
                     if (x == 0 && y == 0 && z == 0) continue;
                     Block nbor = block.getRelative(x, y, z);
                     if (nbor.getY() < min) continue;
@@ -124,17 +133,13 @@ public final class SuperVisionTalent extends Talent implements Listener {
                     int d = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
                     if (visionBlocks.contains(nbor)) {
                         no.add(nbor);
-                    } else if (d > realRadius) {
+                    } else if (d > radius) {
                         // Blocks right outside the visible area
                         if (tag.fakeBlockMap.containsKey(Vec3i.of(nbor))) {
                             continue;
                         }
                         no.add(nbor);
-                    } else if (MiningSkill.dirt(nbor)) {
-                        yes.add(nbor);
-                    } else if (!hasDeep && MiningSkill.stone(nbor)) {
-                        yes.add(nbor);
-                    } else if (hasDeep && MiningSkill.anyStone(nbor)) {
+                    } else if (isSuperVisionBlock(nbor)) {
                         yes.add(nbor);
                     } else {
                         no.add(nbor);
@@ -144,11 +149,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
         }
         if (yes.isEmpty()) return 0;
         for (Block b : yes) {
-            if (MiningSkill.deepStone(b)) {
-                sendFakeBlock(player, b, DEEP_GLASS);
-            } else {
-                sendFakeBlock(player, b, STONE_GLASS);
-            }
+            sendFakeBlock(player, b, FAKE_GLASS);
             tag.fakeBlockMap.put(Vec3i.of(b), System.currentTimeMillis() + 5000L);
         }
         for (Block b : no) {
@@ -232,5 +233,9 @@ public final class SuperVisionTalent extends Talent implements Listener {
         private boolean cleanupScheduled;
         private String worldName = "";
         private Map<Vec3i, Long> fakeBlockMap = new HashMap<>();
+    }
+
+    private boolean isSuperVisionBlock(Block block) {
+        return superVisionMaterials.contains(block.getType());
     }
 }

@@ -14,25 +14,18 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
 
 public final class CombatSkill extends Skill {
     protected final CombatListener combatListener = new CombatListener(this);;
-    public final SearingTalent searingTalent = new SearingTalent();
     public final PyromaniacTalent pyromaniacTalent = new PyromaniacTalent();
     public final DenialTalent denialTalent = new DenialTalent();
     public final GodModeTalent godModeTalent = new GodModeTalent();
-    public final IronAgeTalent ironAgeTalent = new IronAgeTalent();
     public final ExecutionerTalent executionerTalent = new ExecutionerTalent();
-    public final ImpalerTalent impalerTalent = new ImpalerTalent();
     public final ToxicistTalent toxicistTalent = new ToxicistTalent();
-    public final ToxicFurorTalent toxicFurorTalent = new ToxicFurorTalent();
     public final BerserkerTalent berserkerTalent = new BerserkerTalent();
 
     protected static final long CHUNK_KILL_DECAY_TIME = Duration.ofMinutes(5).toMillis();
@@ -47,30 +40,6 @@ public final class CombatSkill extends Skill {
         Bukkit.getPluginManager().registerEvents(combatListener, skillsPlugin());
     }
 
-    protected void onMobDamagePlayerHigh(Player player, Mob mob, EntityDamageByEntityEvent event) {
-        searingTalent.onMobDamagePlayer(player, mob, event);
-        denialTalent.onMobDamagePlayer(player, mob, event);
-    }
-
-    protected void onPlayerDamageMobHigh(Player player, Mob mob, EntityDamageByEntityEvent event) {
-        final ItemStack item = player.getInventory().getItemInMainHand();
-        pyromaniacTalent.onPlayerDamageMob(player, mob, item, event);
-        denialTalent.onPlayerDamageMob(player, mob, item, event);
-        denialTalent.onPlayerDamageMob(player, mob, item, event);
-        ironAgeTalent.onPlayerDamageMob(player, mob, item, event);
-        executionerTalent.onPlayerDamageMob(player, mob, item, event);
-        impalerTalent.onPlayerDamageMob(player, mob, item, event);
-        toxicistTalent.onPlayerDamageMob(player, mob, item, event);
-        toxicFurorTalent.onPlayerDamageMob(player, mob, item, event);
-    }
-
-    protected void onPlayerDamageMobMonitor(Player player, Mob mob, EntityDamageByEntityEvent event) {
-        berserkerTalent.onPlayerDamageMob(player, mob, event);
-    }
-
-    protected void onMobDamagePlayerMonitor(Player player, Mob mob, EntityDamageByEntityEvent event) {
-    }
-
     /**
      * Give skill points when a player kills a mob.
      */
@@ -79,7 +48,7 @@ public final class CombatSkill extends Skill {
         CombatReward reward = combatReward(mob);
         if (reward == null) return;
         if (!Players.playMode(player)) return;
-        Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (!session.isEnabled()) return;
         if (mob instanceof Ageable && !((Ageable) mob).isAdult()) return;
         if (addKillAndCheckCooldown(mob.getLocation())) return;

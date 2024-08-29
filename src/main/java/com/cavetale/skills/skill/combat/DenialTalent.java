@@ -24,12 +24,8 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class DenialTalent extends Talent implements Listener {
-    private static final int SECONDS = 20;
-    private static final Duration DURATION = Duration.ofSeconds(SECONDS);
-
     protected DenialTalent() {
         super(TalentType.DENIAL, "Denial",
               "Hitting monsters with knockback denies the following:",
@@ -39,7 +35,15 @@ public final class DenialTalent extends Talent implements Listener {
               ":barrier: :creeper_face:Creeper Explosion",
               ":barrier: :enderman_face:Enderman Escape",
               "Use a Knockback weapon on an enemy to give it this status effect. You have to hit them with full strength!");
-        addLevel(1, "Knockback denies mob spells, projectiles, poison for " + SECONDS + " seconds");
+        addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(1) + " seconds");
+        addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(2) + " seconds");
+        addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(3) + " seconds");
+        addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(4) + " seconds");
+        addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(5) + " seconds");
+    }
+
+    private static int levelToSeconds(int level) {
+        return level * 5;
     }
 
     @Override
@@ -56,7 +60,10 @@ public final class DenialTalent extends Talent implements Listener {
         if (item == null || item.getEnchantmentLevel(Enchantment.KNOCKBACK) == 0) return;
         if (mob instanceof Boss) return;
         if (EntityMarker.hasId(mob, "boss")) return;
-        MobStatusEffect.DENIAL.set(mob, DURATION);
+        final int level = Session.of(player).getTalentLevel(talentType);
+        if (level < 1) return;
+        final int seconds = levelToSeconds(level);
+        MobStatusEffect.DENIAL.set(mob, Duration.ofSeconds(seconds));
         Location eye = mob.getEyeLocation();
         mob.getWorld().spawnParticle(Particle.ENCHANT, eye, 32, 0.0, 0.0, 0.0, 0.5);
         mob.getWorld().playSound(eye, Sound.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS, 0.25f, 1.8f);
@@ -91,7 +98,7 @@ public final class DenialTalent extends Talent implements Listener {
         if (!isPlayerEnabled(player)) return;
         if (!isArthropod(mob)) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
-        sessionOf(player).combat.setPoisonFreebie(true);
+        Session.of(player).combat.setPoisonFreebie(true);
     }
 
     private boolean isArthropod(Mob mob) {
@@ -113,7 +120,7 @@ public final class DenialTalent extends Talent implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     protected void onEntityPotionEffect(EntityPotionEffectEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        Session session = sessionOf(player);
+        Session session = Session.of(player);
         if (!session.combat.isPoisonFreebie()) return;
         session.combat.setPoisonFreebie(false);
         if (event.getCause() != EntityPotionEffectEvent.Cause.ATTACK) {

@@ -1,13 +1,12 @@
 package com.cavetale.skills.skill.combat;
 
+import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 public final class ExecutionerTalent extends Talent {
@@ -22,14 +21,16 @@ public final class ExecutionerTalent extends Talent {
         return createIcon(Material.IRON_AXE);
     }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
+    protected void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (item == null
-            || !MaterialTags.AXES.isTagged(item.getType())
-            || (mob.getHealth() / mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) > 0.1
-            || player.getAttackCooldown() != 1.0) {
-            return;
-        }
-        event.setDamage(event.getDamage() + mob.getHealth());
+        if (player.getAttackCooldown() < 1.0) return;
+        final ItemStack item = player.getInventory().getItemInMainHand();
+        if (item == null || !MaterialTags.AXES.isTagged(item.getType())) return;
+        final double health = event.getTarget().getHealth();
+        if (health < 0.01) return;
+        final double maxHealth = event.getTarget().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        if (maxHealth < 0.01) return;
+        if (health / maxHealth > 0.1) return;
+        event.getCalculation().getOrCreateFinalDamageModifier().addFlatDamage(health, "skills:executioner");
     }
 }

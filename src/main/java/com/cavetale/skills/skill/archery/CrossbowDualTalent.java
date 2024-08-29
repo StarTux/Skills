@@ -54,9 +54,8 @@ public final class CrossbowDualTalent extends Talent implements Listener {
         if (consumable == null) return;
         final int multishot = meta.getEnchantLevel(Enchantment.MULTISHOT);
         final boolean infinity = offhand.getEnchantmentLevel(Enchantment.INFINITY) > 0;
-        // TODO set the intangible_projectile item component whenever
-        // it gets added to the API.
         final ItemStack chargedItem = consumable.asOne();
+        ArrowType.NO_PICKUP.set(consumable);
         meta.setChargedProjectiles(multishot > 0
                                    ? List.of(chargedItem, chargedItem, chargedItem)
                                    : List.of(chargedItem));

@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
@@ -15,7 +16,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class StripMiningTalent extends Talent {
@@ -32,12 +32,25 @@ public final class StripMiningTalent extends Talent {
         return createIcon(Material.STONE);
     }
 
+    private boolean isStone(Block block) {
+        switch (block.getType()) {
+        case STONE:
+        case DIORITE:
+        case ANDESITE:
+        case GRANITE:
+        case DEEPSLATE:
+        case TUFF:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     protected boolean onWillBreakBlock(Player player, Block block) {
         if (!isPlayerEnabled(player)) return false;
         if (player.isSneaking()) return false;
-        final boolean hasDeep = sessionOf(player).isTalentEnabled(TalentType.DEEP_MINING);
-        final boolean stone = MiningSkill.stone(block) || (hasDeep && MiningSkill.deepStone(block));
-        if (!stone) return false;
+        final boolean hasDeep = Session.of(player).isTalentEnabled(TalentType.DEEP_MINING);
+        if (!isStone(block)) return false;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
                 if (!player.isValid()) return;
                 if (!player.getWorld().equals(block.getWorld())) return;
@@ -83,9 +96,7 @@ public final class StripMiningTalent extends Talent {
         int total = efficiency / 2 + 1;
         for (int i = 0; i < total; i += 1) {
             nbor = nbor.getRelative(dx, 0, dz);
-            if (hasDeep && !MiningSkill.anyStone(nbor)) {
-                break;
-            } else if (!hasDeep && !MiningSkill.stone(nbor)) {
+            if (!isStone(nbor)) {
                 break;
             }
             if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, nbor)) return result;

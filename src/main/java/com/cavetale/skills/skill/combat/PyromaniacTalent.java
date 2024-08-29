@@ -1,18 +1,26 @@
 package com.cavetale.skills.skill.combat;
 
+import com.cavetale.mytems.event.combat.DamageCalculationEvent;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import org.bukkit.Material;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 public final class PyromaniacTalent extends Talent {
     protected PyromaniacTalent() {
         super(TalentType.PYROMANIAC, "Pyromaniac",
-              "Monsters set on fire take more damage");
-        addLevel(2, "+30% damage to monsters set on fire");
+              "Monsters set on fire take more damage.");
+        addLevel(1, "+" + levelToPercentage(1) + "% damage to monsters set on fire");
+        addLevel(1, "+" + levelToPercentage(2) + "% damage to monsters set on fire");
+        addLevel(1, "+" + levelToPercentage(3) + "% damage to monsters set on fire");
+        addLevel(1, "+" + levelToPercentage(4) + "% damage to monsters set on fire");
+        addLevel(1, "+" + levelToPercentage(5) + "% damage to monsters set on fire");
+    }
+
+    private static int levelToPercentage(int level) {
+        return level * 10;
     }
 
     @Override
@@ -20,9 +28,14 @@ public final class PyromaniacTalent extends Talent {
         return createIcon(Material.CAMPFIRE);
     }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
+    protected void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (mob.getFireTicks() <= 0) return;
-        event.setDamage(event.getFinalDamage() * 1.3);
+        if (event.getTarget().getFireTicks() <= 0) return;
+        final int level = Session.of(player).getTalentLevel(talentType);
+        if (level < 1) return;
+        final int percentage = levelToPercentage(level);
+        if (percentage < 1) return;
+        event.getCalculation().getOrCreateBaseDamageModifier().addFactorBonus(percentage * 0.01, "skills:pyromaniac");
+        event.setHandled(true);
     }
 }

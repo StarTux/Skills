@@ -3,6 +3,7 @@ package com.cavetale.skills.skill.archery;
 import com.cavetale.worldmarker.util.Tags;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.AbstractArrow;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Arrows marked by this plugin.  They are treated differently
@@ -14,7 +15,6 @@ public enum ArrowType {
     BONUS("skills:bonus_arrow"), // Shot by talent
     SPAM("skills:spam_arrow"), // Shot by talent
     HAIL("skills:hail_arrow"), // Do not damage shooter
-    MARK("skills:mark_arrow"), // Damage already doubled
     NO_PICKUP("skills:no_pickup"), // Spam arrow because vanilla betrays us
     ;
 
@@ -25,11 +25,22 @@ public enum ArrowType {
     }
 
     public boolean is(AbstractArrow arrow) {
-        return arrow.getPersistentDataContainer().has(namespacedKey);
+        return arrow.getPersistentDataContainer().has(namespacedKey)
+            || is(arrow.getItemStack());
     }
 
     public void set(AbstractArrow arrow) {
         Tags.set(arrow.getPersistentDataContainer(), namespacedKey, (byte) 1);
+    }
+
+    public void set(ItemStack arrow) {
+        arrow.editMeta(meta -> {
+                Tags.set(meta.getPersistentDataContainer(), namespacedKey, (byte) 1);
+            });
+    }
+
+    public boolean is(ItemStack arrow) {
+        return arrow.getItemMeta().getPersistentDataContainer().has(namespacedKey);
     }
 
     /**

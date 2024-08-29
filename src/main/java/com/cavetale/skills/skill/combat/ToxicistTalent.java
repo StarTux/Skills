@@ -14,7 +14,7 @@ public final class ToxicistTalent extends Talent {
     protected ToxicistTalent() {
         super(TalentType.TOXICIST, "Toxicist",
               "Bane of Arthropods deals extra damage against poisoned mobs");
-        addLevel(2, "You deal +1 damage for every level of the Bane of Arthropods enchantment on your weapon");
+        addLevel(2, "+1 damage");
     }
 
     @Override

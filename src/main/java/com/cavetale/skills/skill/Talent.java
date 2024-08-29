@@ -4,7 +4,6 @@ import com.cavetale.core.connect.NetworkServer;
 import com.cavetale.core.font.Emoji;
 import com.cavetale.core.font.GlyphPolicy;
 import com.cavetale.mytems.Mytems;
-import com.cavetale.skills.crafting.AnvilEnchantment;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.util.Players;
 import java.util.ArrayList;
@@ -14,9 +13,7 @@ import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.sessions;
 
 /**
  * Implementation of a talent.  Talents are constructed by their
@@ -72,18 +69,20 @@ public abstract class Talent {
         case FESTIVAL:
             return false;
         default:
-            return Players.playMode(player)
-                && sessions().isTalentEnabled(player, talentType);
+            final Session session = Session.of(player);
+            return session.isEnabled()
+                && Players.playMode(player)
+                && session.isTalentEnabled(talentType)
+                && session.getTalentLevel(talentType) > 0;
         }
     }
 
-    /**
-     * Get the anvil enchantments which this talent unlocks.  Session
-     * collects them for a player.  CraftingListener wants to know in
-     * order to modify the recipe.
-     */
-    public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
-        return List.of();
+    public final boolean isDebugTalent(Player player) {
+        return Session.of(player).hasDebugTalent(talentType);
+    }
+
+    public final int getTalentLevel(Player player) {
+        return Session.of(player).getTalentLevel(talentType);
     }
 
     protected final void addLevel(final int talentPointCost, final Supplier<ItemStack> iconSupplier, String... rawLevelDescription) {
@@ -108,14 +107,10 @@ public abstract class Talent {
     }
 
     protected static ItemStack createIcon(Material material) {
-        ItemStack item = new ItemStack(material);
-        item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
-        return item;
+        return new ItemStack(material);
     }
 
     protected static ItemStack createIcon(Mytems mytems) {
-        ItemStack item = mytems.createItemStack();
-        item.editMeta(meta -> meta.addItemFlags(ItemFlag.values()));
-        return item;
+        return mytems.createIcon();
     }
 }

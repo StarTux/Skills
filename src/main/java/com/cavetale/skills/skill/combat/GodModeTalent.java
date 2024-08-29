@@ -3,30 +3,25 @@ package com.cavetale.skills.skill.combat;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import com.cavetale.skills.util.Effects;
-import java.time.Duration;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
-public final class GodModeTalent extends Talent implements Listener {
-    protected static final int SECONDS = 3;
-    protected static final Duration DURATION = Duration.ofSeconds(SECONDS);
-
+public final class GodModeTalent extends Talent {
     protected GodModeTalent() {
         super(TalentType.GOD_MODE, "God Mode",
-              "Melee kills give temporary immortality",
+              "Melee kills give temporary immortality.",
               "Immortality stops you from dying, but you will still take damage!");
-        addLevel(3, SECONDS + " seconds of immortality");
+        addLevel(1, levelToSeconds(1) + " seconds of immortality");
+        addLevel(1, levelToSeconds(2) + " seconds of immortality");
+        addLevel(1, levelToSeconds(3) + " seconds of immortality");
+        addLevel(1, levelToSeconds(4) + " seconds of immortality");
+    }
+
+    private static int levelToSeconds(int level) {
+        return level * 2;
     }
 
     @Override
@@ -39,32 +34,23 @@ public final class GodModeTalent extends Talent implements Listener {
      */
     protected void onMeleeKill(Player player, Mob mob) {
         if (!isPlayerEnabled(player)) return;
-        Session session = sessionOf(player);
-        if (session.combat.getGodModeDuration() == 0) {
-            player.sendActionBar(Component.text("God Mode!", NamedTextColor.GOLD, TextDecoration.BOLD));
-        }
-        session.combat.setGodModeDuration(System.currentTimeMillis() + DURATION.toMillis());
+        final Session session = Session.of(player);
+        final int level = session.getTalentLevel(talentType);
+        if (level < 1) return;
+        final int seconds = levelToSeconds(level);
+        session.combat.setGodModeDuration(System.currentTimeMillis() + (long) seconds * 1000L);
     }
 
     /**
-     * Intercept killing blows and reduce their damage to 1 minus
-     * health.
+     * Resurrect without a totem.
      */
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    protected void onEntityDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
+    protected void onEntityResurrect(Player player, EntityResurrectEvent event) {
+        if (event.getHand() != null) return;
         if (!isPlayerEnabled(player)) return;
-        Session session = sessionOf(player);
-        long godModeDuration = session.combat.getGodModeDuration();
-        if (godModeDuration == 0L) return;
-        if (godModeDuration < System.currentTimeMillis()) {
-            session.combat.setGodModeDuration(0L);
-            return;
-        }
-        final double health = player.getHealth();
-        if (health - event.getFinalDamage() >= 1.0) return;
-        event.setDamage(Math.max(0.0, health - 1.0));
-        Effects.godMode(player);
-        player.sendActionBar(Component.text("God Mode Save!", NamedTextColor.GOLD));
+        final Session session = Session.of(player);
+        final long duration = session.combat.getGodModeDuration();
+        if (duration < System.currentTimeMillis()) return;
+        session.combat.setGodModeDuration(0L);
+        event.setCancelled(false);
     }
 }

@@ -4,14 +4,13 @@ import com.cavetale.core.event.hud.PlayerHudEvent;
 import com.cavetale.core.event.hud.PlayerHudPriority;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.TalentMenu;
-import com.cavetale.skills.crafting.AnvilEnchantment;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
-import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,7 +27,6 @@ import static com.cavetale.core.font.Unicode.subscript;
 import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.skills.SkillsPlugin.database;
 import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
-import static com.cavetale.skills.SkillsPlugin.sessions;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.textOfChildren;
@@ -56,7 +54,8 @@ public final class Session {
     // Status effects, ticks remaining
     @Setter protected boolean netherVisionActive;
     private SkillType talentGui = SkillType.MINING;
-    @Setter protected boolean debugMode;
+    protected final Set<TalentType> debugTalents = EnumSet.noneOf(TalentType.class);
+    protected final Set<SkillType> debugSkills = EnumSet.noneOf(SkillType.class);
     protected boolean modifyingTalents = false; // big talent lock
 
     public Session(@NonNull final UUID uuid) {
@@ -123,7 +122,7 @@ public final class Session {
      * Enable for live use.
      */
     protected void enable() {
-        if (sessions().sessionsMap.get(uuid) != this) return;
+        if (skillsPlugin().getSessions().getSessionsMap().get(uuid) != this) return;
         enabled = true;
         for (SkillSession skillSession : skills.values()) {
             skillSession.enable();
@@ -334,16 +333,6 @@ public final class Session {
         return getTotalTalentPoints(skillType) - getTalentPoints(skillType);
     }
 
-    public List<AnvilEnchantment> getAnvilEnchantments() {
-        List<AnvilEnchantment> anvilEnchantments = new ArrayList<>();
-        for (TalentType talent : TalentType.values()) {
-            if (isTalentEnabled(talent)) {
-                anvilEnchantments.addAll(talent.getTalent().getAnvilEnchantments(this));
-            }
-        }
-        return anvilEnchantments;
-    }
-
     public boolean respec(Player player, SkillType skillType) {
         if (modifyingTalents) return false;
         final int talentPointsSpent = getTalentPointsSpent(skillType);
@@ -384,11 +373,8 @@ public final class Session {
     }
 
     protected void onPlayerHud(PlayerHudEvent event) {
-        if (showSkillBar || debugMode) {
-            event.bossbar(PlayerHudPriority.DEFAULT,
-                          (debugMode
-                           ? textOfChildren(text("Debug ", YELLOW, BOLD), skillBar.name())
-                           : skillBar.name()),
+        if (showSkillBar) {
+            event.bossbar(PlayerHudPriority.DEFAULT, skillBar.name(),
                           skillBar.color(), skillBar.overlay(), skillBar.progress());
         }
         for (SkillSession sk : skills.values()) {
@@ -431,6 +417,50 @@ public final class Session {
     }
 
     public static Session of(Player player) {
-        return skillsPlugin().sessionOf(player);
+        return skillsPlugin().getSessions().of(player);
+    }
+
+    public void setDebugTalent(TalentType talentType, boolean value) {
+        if (value) {
+            debugTalents.add(talentType);
+        } else {
+            debugTalents.remove(talentType);
+        }
+    }
+
+    public boolean toggleDebugTalent(TalentType talentType) {
+        if (!debugTalents.contains(talentType)) {
+            debugTalents.add(talentType);
+            return true;
+        } else {
+            debugTalents.remove(talentType);
+            return false;
+        }
+    }
+
+    public boolean hasDebugTalent(TalentType talentType) {
+        return debugTalents.contains(talentType);
+    }
+
+    public void setDebugSkill(SkillType skillType, boolean value) {
+        if (value) {
+            debugSkills.add(skillType);
+        } else {
+            debugSkills.remove(skillType);
+        }
+    }
+
+    public boolean toggleDebugSkill(SkillType skillType) {
+        if (!debugSkills.contains(skillType)) {
+            debugSkills.add(skillType);
+            return true;
+        } else {
+            debugSkills.remove(skillType);
+            return false;
+        }
+    }
+
+    public boolean hasDebugSkill(SkillType skillType) {
+        return debugSkills.contains(skillType);
     }
 }

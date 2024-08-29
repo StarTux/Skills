@@ -3,6 +3,8 @@ package com.cavetale.skills;
 import com.cavetale.core.font.DefaultFont;
 import com.cavetale.core.font.GuiOverlay;
 import com.cavetale.core.font.VanillaItems;
+import com.cavetale.core.struct.Vec2i;
+import com.cavetale.core.text.LineWrap;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.mytems.util.Gui;
 import com.cavetale.mytems.util.Text;
@@ -43,10 +45,13 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 
 @RequiredArgsConstructor
 public final class TalentMenu {
-    protected static final int LINELENGTH = 24;
+    private static final Vec2i ROOT_VECTOR = Vec2i.of(4, 3);
     private final Player player;
     private final Session session;
     private Gui gui;
+    private final LineWrap lineWrap = new LineWrap()
+        .componentMaker(input -> text(input, GRAY))
+        .maxLineLength(18);
 
     private static ItemStack icon(Material material, Component... lines) {
         ItemStack icon = new ItemStack(material);
@@ -81,7 +86,9 @@ public final class TalentMenu {
             final int otherTalentPoints = session.getTalentPoints(otherSkillType);
             final boolean focus = otherTalentPoints > 0;
             ItemStack icon = tooltip(otherSkillType.createIcon(focus), List.of(otherSkillType.getIconTitle()));
-            icon.setAmount(Math.max(otherTalentPoints, 1));
+            final int stackSize = Math.max(1, Math.min(99, otherTalentPoints));
+            icon.editMeta(meta -> meta.setMaxStackSize(stackSize));
+            icon.setAmount(stackSize);
             gui.setItem(slot, icon, click -> {
                     if (!click.isLeftClick()) return;
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 2.0f);
@@ -100,33 +107,26 @@ public final class TalentMenu {
                                         text(talentPoints + " "
                                              + skillType.displayName + " Talent Point"
                                              + (talentPoints > 1 ? "s" : "")));
-            talentItem.setAmount(Math.min(64, talentPoints));
+            talentItem.editMeta(meta -> meta.setMaxStackSize(Math.min(99, talentPoints)));
+            talentItem.setAmount(Math.min(99, talentPoints));
             gui.setItem(8, talentItem);
         }
         // Root
-        gui.setItem(5 + 3 * 9, tooltip(skillType.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
+        gui.setItem(ROOT_VECTOR.x, ROOT_VECTOR.z, tooltip(skillType.createIcon(), List.of(text("Back to skill page", GRAY))), click -> {
                 if (!click.isLeftClick()) return;
                 skillsCommand().skill(player, skillType);
             });
-        gui.highlight(5 + 3 * 9, GOLD);
+        gui.highlight(ROOT_VECTOR.x, ROOT_VECTOR.z, GOLD);
         // Talents
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
-            if (!talentType.isEnabled() && !session.isDebugMode()) continue;
+            if (!talentType.isEnabled()) continue;
             makeTalentIcon(talentType);
+            makeDependencyArrow(talentType);
         }
         gui.highlight(9, skillType.textColor);
         gui.setItem(9, getMoneyIcon(skillType), click -> {
                 if (!click.isRightClick()) return;
                 boolean r = session.unlockMoneyBonus(skillType, () -> {
-                        open();
-                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 1.0f);
-                    });
-                if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
-            });
-        gui.highlight(18, skillType.textColor);
-        gui.setItem(18, getExpIcon(skillType), click -> {
-                if (!click.isRightClick()) return;
-                boolean r = session.unlockExpBonus(skillType, () -> {
                         open();
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 1.0f);
                     });
@@ -173,17 +173,17 @@ public final class TalentMenu {
             icon = Mytems.SILVER_KEYHOLE.createIcon();
         } else if (level > 0 && !enabled) {
             icon = Mytems.CROSSED_CHECKBOX.createIcon();
+        } else if (currentLevel != null) {
+            icon = currentLevel.createIcon();
+            icon.editMeta(meta -> meta.setMaxStackSize(currentLevel.getLevel()));
+            icon.setAmount(currentLevel.getLevel());
         } else {
             icon = talent.createIcon();
         }
         // Make tooltip
         List<Component> tooltip = new ArrayList<>();
-        for (String raw : talent.getRawDescription()) {
-            for (String line : Text.wrapLine(raw, LINELENGTH)) {
-                tooltip.add(text(line, GRAY));
-            }
-        }
         tooltip.add(talentType.asComponent());
+        tooltip.addAll(lineWrap.wrap(talent.getRawDescription().get(0)));
         if (currentLevel != null) {
             tooltip.add(DIVIDER);
             if (maxLevel.getLevel() > 1) {
@@ -191,12 +191,10 @@ public final class TalentMenu {
                                            text(tiny(" lv ") + currentLevel.getLevel() + "/" + maxLevel.getLevel(), GREEN)));
             } else {
                 tooltip.add(textOfChildren(Mytems.CHECKED_CHECKBOX,
-                                           text(tiny(" unlocked"), GREEN)));
+                                           text(tiny(" unlocked for " + currentLevel.getTalentPointCost() + tiny("tp")), GREEN)));
             }
             for (String raw : currentLevel.getRawDescription()) {
-                for (String line : Text.wrapLine(raw, LINELENGTH)) {
-                    tooltip.add(text(line, GRAY));
-                }
+                tooltip.addAll(lineWrap.wrap(raw));
             }
         }
         if (nextLevel != null) {
@@ -207,9 +205,7 @@ public final class TalentMenu {
                 tooltip.add(textOfChildren(Mytems.ARROW_RIGHT, text(tiny(" unlock"), RED)));
             }
             for (String raw : nextLevel.getRawDescription()) {
-                for (String line : Text.wrapLine(raw, LINELENGTH)) {
-                    tooltip.add(text(line, GRAY));
-                }
+                tooltip.addAll(lineWrap.wrap(raw));
             }
             tooltip.add(textOfChildren(text(tiny("cost "), GRAY), text(cost, WHITE), text(tiny("tp"), GRAY)));
             if (!canAccess) {
@@ -248,6 +244,32 @@ public final class TalentMenu {
                     onDropTalent(talentType);
                 }
             });
+    }
+
+    private void makeDependencyArrow(TalentType talentType) {
+        final Vec2i dep = talentType.depends != null
+            ? talentType.depends.slot
+            : ROOT_VECTOR;
+        final Vec2i vec = talentType.slot.subtract(dep);
+        if (vec.equals(2, 0)) {
+            gui.setItem(dep.x + 1, dep.z, noTooltip(Mytems.ARROW_RIGHT), null);
+        } else if (vec.equals(-2, 0)) {
+            gui.setItem(dep.x - 1, dep.z, noTooltip(Mytems.ARROW_LEFT), null);
+        } else if (vec.equals(0, 2)) {
+            gui.setItem(dep.x, dep.z + 1, noTooltip(Mytems.ARROW_DOWN), null);
+        } else if (vec.equals(0, -2)) {
+            gui.setItem(dep.x, dep.z - 1, noTooltip(Mytems.ARROW_UP), null);
+        } else if (vec.equals(1, -1)) {
+            gui.setItem(dep.x, dep.z - 1, noTooltip(Mytems.TURN_RIGHT), null);
+        } else if (vec.equals(-1, -1)) {
+            gui.setItem(dep.x, dep.z - 1, noTooltip(Mytems.TURN_LEFT), null);
+        }
+    }
+
+    private static ItemStack noTooltip(Mytems mytems) {
+        ItemStack result = mytems.createIcon();
+        result.editMeta(meta -> meta.setHideTooltip(true));
+        return result;
     }
 
     private ItemStack getMoneyIcon(SkillType skillType) {

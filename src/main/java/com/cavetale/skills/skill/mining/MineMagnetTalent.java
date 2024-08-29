@@ -4,8 +4,10 @@ import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import com.cavetale.skills.util.Effects;
 import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -37,7 +39,8 @@ public final class MineMagnetTalent extends Talent implements Listener {
      */
     protected boolean breakBlock(Player player, ItemStack item, Block block) {
         if (!new PlayerBreakBlockEvent(player, block, item).callEvent()) return false;
-        Effects.mineBlockMagic(block);
+        player.spawnParticle(Particle.BLOCK, block.getLocation().add(0.5, 0.5, 0.5), 16, 0.25, 0.25, 0.25, 0.0, block.getBlockData());
+        player.playSound(block.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_STONE_BREAK, SoundCategory.BLOCKS, 1.0f, 1.5f);
         if (isPlayerEnabled(player)) {
             dropLocation = player.getLocation();
         }

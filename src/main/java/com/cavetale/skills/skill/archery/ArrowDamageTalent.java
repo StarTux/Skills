@@ -1,20 +1,27 @@
 package com.cavetale.skills.skill.archery;
 
+import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class ArrowDamageTalent extends Talent {
     public ArrowDamageTalent() {
         super(TalentType.ARROW_DAMAGE, "Sniper",
               "Arrows from a fully charged bow receive bonus damage for every block they travel.",
-              "When your arrow hits its target, it will have picked up one additional damage for every 40 blocks distance from you.");
-        addLevel(3, "2.5% of blocks travelled");
+              "When your arrow hits its target, it will have picked up one additional damage for every block distance from you.");
+        addLevel(1, levelToPercentage(1) + "% damage of blocks travelled");
+        addLevel(1, levelToPercentage(2) + "% damage of blocks travelled");
+        addLevel(1, levelToPercentage(3) + "% damage of blocks travelled");
+    }
+
+    private static int levelToPercentage(int level) {
+        return level;
     }
 
     @Override
@@ -22,21 +29,30 @@ public final class ArrowDamageTalent extends Talent {
         return createIcon(Material.SPYGLASS);
     }
 
-    protected void onArrowCollide(Player player, AbstractArrow arrow) {
+    protected void onPlayerDamageEntityCalculation(Player player, AbstractArrow arrow, LivingEntity target, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical() || arrow.isShotFromCrossbow()) return;
         if (!ArrowType.PRIMARY.is(arrow) && !ArrowType.BONUS.is(arrow)) return;
-        final Location a = player.getLocation();
+        final int level = getTalentLevel(player);
+        if (level < 1) return;
+        // Get distance
+        final Location a = arrow.getOrigin();
+        if (a == null) return;
         final Location b = arrow.getLocation();
         if (!a.getWorld().equals(b.getWorld())) return;
         final double distance = a.distance(b);
         if (Double.isNaN(distance) || Double.isInfinite(distance) || distance <= 0.0) return;
-        final double bonus = distance * 0.025;
-        arrow.setDamage(arrow.getDamage() + bonus);
-        if (sessionOf(player).isDebugMode()) {
+        // Compute bonus
+        final int percentage = levelToPercentage(level);
+        final double bonus = distance * (double) percentage * 0.01;
+        event.getCalculation().getOrCreateBaseDamageModifier().addFlatBonus(bonus, "skills:sniper");
+        event.setHandled(true);
+        if (isDebugTalent(player)) {
             player.sendMessage(talentType
-                               + " d=" + String.format("%.2f", distance)
-                               + " +" + String.format("%.2f", bonus));
+                               + " level:" + level
+                               + " %:" + percentage
+                               + " distance:" + String.format("%.2f", distance)
+                               + " = bonus:" + String.format("%.2f", bonus));
         }
     }
 };

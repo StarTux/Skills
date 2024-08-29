@@ -39,7 +39,7 @@ public abstract class Skill {
         final double chance = money / deno.value;
         final double roll = random().nextDouble();
         final boolean success = roll < chance;
-        if (Session.of(player).isDebugMode()) {
+        if (isDebugSkill(player)) {
             player.sendMessage(text("[" + skillType.displayName + "]"
                                     + " money:" + String.format("%.2f", money) + "/" + deno.value
                                     + " roll:" + String.format("%.2f", roll * 100.0) + "/" + String.format("%.2f", chance * 100.0)
@@ -64,5 +64,9 @@ public abstract class Skill {
 
     protected final boolean isPlayerEnabled(Player player) {
         return playMode(player);
+    }
+
+    protected final boolean isDebugSkill(Player player) {
+        return Session.of(player).hasDebugSkill(skillType);
     }
 }

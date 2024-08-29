@@ -5,10 +5,12 @@ import com.cavetale.core.event.block.PlayerChangeBlockEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
-import com.cavetale.skills.util.Effects;
 import com.destroystokyo.paper.MaterialTags;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
@@ -26,16 +28,36 @@ import org.bukkit.util.Vector;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class SilkStripTalent extends Talent implements Listener {
     protected SilkStripTalent() {
         super(TalentType.SILK_STRIP, "Silk Stripping",
-              "Use a Silk Touch pickaxe to strip a natural ore of its contents",
+              "Use a :diamond_pickaxe:Silk Touch pickaxe to strip a natural :diamond_ore:ore of its contents",
               ":mouse_right: with a Silk Touch pickaxe to use your fine motory skills and remove those treasures right from the ore block.With any luck, you may repeat the procedure as long as the ore stays intact, getting more and more drops.",
               "Eventually, the ore will turn into stone and you get the usual skill points for mining. This method may yield as much reward as Fortune IV would but with greater variance.",
               "Silk Stripping only works on natural ores. Picking up and moving the ore will compromise its structural integrity, making Silk Stripping ineffective.");
-        addLevel(2, "Regular chance");
+        addLevel(1, levelToPercentage(1) + "% drop chance (Fortune IV)");
+        addLevel(1, levelToPercentage(2) + "% drop chance");
+        addLevel(1, levelToPercentage(3) + "% drop chance (Fortune V)");
+        addLevel(1, levelToPercentage(4) + "% drop chance");
+        addLevel(1, levelToPercentage(5) + "% drop chance (Fortune VI)");
+    }
+
+    // Calculation: https://minecraft.fandom.com/wiki/Fortune#Ore
+    // 1/(lvl+2) + (lvl + 1)/2
+    // Fortune 3 => 2.20
+    // Fortune 4 => 2.6666
+    // Fortune 5 => 3.1428
+    // Fortune 6 => 3.625
+    private double levelToPercentage(int level) {
+        return switch (level) {
+        case 1 -> 266;
+        case 2 -> 290;
+        case 3 -> 314;
+        case 4 -> 338;
+        case 5 -> 362;
+        default -> 0;
+        };
     }
 
     @Override
@@ -45,21 +67,20 @@ public final class SilkStripTalent extends Talent implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     protected void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (!event.hasItem()) return;
         final ItemStack item = event.getItem();
         final Block block = event.getClickedBlock();
         if (isPlayerPlaced(block)) return;
-        final boolean metal = MiningSkill.metalOre(block);
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
-        MiningReward reward = miningSkill().rewards.get(block.getType());
+        final MiningReward reward = miningSkill().rewards.get(block.getType());
         if (reward == null || reward.item == null || reward.drops <= 0) return;
         if (item == null || item.getType() == Material.AIR) return;
         if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, block)) return;
-        int silk = item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
+        final int silk = item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
         if (silk == 0) return;
         // Damage the pickaxe
         ItemMeta meta = item.getItemMeta();
@@ -73,48 +94,40 @@ public final class SilkStripTalent extends Talent implements Listener {
             }
         }
         // Drop an item (point of no return)
-        ItemStack drop = new ItemStack(reward.item);
-        BlockFace face = event.getBlockFace();
-        double off = 0.7;
-        Location dropLocation = block
-            .getLocation().add(0.5 + (double) face.getModX() * off,
-                               0.5 + (double) face.getModY() * off,
-                               0.5 + (double) face.getModZ() * off);
+        final ItemStack drop = new ItemStack(reward.item);
+        final BlockFace face = event.getBlockFace();
+        final double off = 0.7;
+        final Location dropLocation = block.getLocation().add(0.5 + (double) face.getModX() * off,
+                                                              0.5 + (double) face.getModY() * off,
+                                                              0.5 + (double) face.getModZ() * off);
         if (face.getModY() == -1) {
-            dropLocation = dropLocation.add(0, -0.5, 0);
+            dropLocation.add(0, -0.5, 0);
         } else if (face.getModY() != 1) {
-            dropLocation = dropLocation.add(0, -0.25, 0);
+            dropLocation.add(0, -0.25, 0);
         }
-        double spd = 0.125;
-        Vector vel = new Vector(face.getModX() * spd,
-                                face.getModY() * spd,
-                                face.getModZ() * spd);
+        final double spd = 0.125;
+        final Vector vel = new Vector(face.getModX() * spd,
+                                      face.getModY() * spd,
+                                      face.getModZ() * spd);
         player.getWorld().dropItem(dropLocation, drop).setVelocity(vel);
-        // Calculation: https://minecraft.fandom.com/wiki/Fortune#Ore
-        // 1/(lvl+2) + (lvl + 1)/2
-        // Fortune 3 => 2.20
-        // Fortune 4 => 2.6666
-        // Fortune 5 => 3.1428
-        // Fortune 6 => 3.625
-        double factor = 2.6666;
-        Session session = sessionOf(player);
-        if (metal && session.isTalentEnabled(TalentType.SILK_METALS)) factor = 3.1428;
-        if (!metal && session.isTalentEnabled(TalentType.SILK_MULTI)) factor = 3.1428;
-        final double amount; // Expected value of additionally dropped items.
-        amount = (double) reward.drops * factor;
-        final double chance; // Chance at NOT getting another drop.
-        chance = 1.0 / amount;
+        final Session session = Session.of(player);
+        final int percentage = session.getTalentLevel(talentType);
+        final double factor = percentage * 0.01;
+        // Expected value of additionally dropped items.
+        final double amount = (double) reward.drops * factor;
+        // Chance at NOT getting another drop.
+        final double chance = amount > 0.01
+            ? 1.0 / amount
+            : 1.0;
         final double roll = random().nextDouble();
-        Effects.useSilk(player, block, dropLocation);
+        block.getWorld().playSound(block.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS, 1.0f, 2.0f);
+        block.getWorld().spawnParticle(Particle.BLOCK, block.getLocation().add(0.5, 0.5, 0.5), 3, 0.0, 0.0, 0.0, 0.0, block.getBlockData());
         if (roll < chance) {
             miningSkill().giveReward(player, block, reward, dropLocation);
-            Effects.failSilk(player, block);
+            block.getWorld().playSound(block.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 1.0f, 2.0f);
             new PlayerChangeBlockEvent(player, block, reward.replaceable.createBlockData()).callEvent();
             block.setType(reward.replaceable);
         }
         event.setCancelled(true);
-        if (session.isDebugMode()) {
-            player.sendMessage(talentType + " metal=" + metal + " factor=" + factor);
-        }
     }
 }

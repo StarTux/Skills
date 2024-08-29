@@ -3,7 +3,10 @@ package com.cavetale.skills.skill.mining;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import com.destroystokyo.paper.MaterialTags;
+import java.util.HashSet;
+import java.util.Set;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
@@ -15,11 +18,23 @@ import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class MinerSightTalent extends Talent {
+    private final Set<Material> minerSightMaterials = new HashSet<>();
+
     protected MinerSightTalent() {
         super(TalentType.MINER_SIGHT, "Miner Sight",
               "Mining stone with a pickaxe creates a light source",
               "Stone includes:" + " :stone:Stone, :andesite:Andesite, :diorite:Diorite, :granite:Granite, :tuff:tuff, :deepslate:Deepslate.");
         addLevel(1, "Create a light source");
+        // Materials
+        minerSightMaterials.add(Material.STONE);
+        minerSightMaterials.add(Material.DIORITE);
+        minerSightMaterials.add(Material.ANDESITE);
+        minerSightMaterials.add(Material.GRANITE);
+        minerSightMaterials.add(Material.DEEPSLATE);
+        minerSightMaterials.add(Material.TUFF);
+        minerSightMaterials.add(Material.COBBLESTONE);
+        minerSightMaterials.add(Material.MOSSY_COBBLESTONE);
+        minerSightMaterials.addAll(Tag.STONE_BRICKS.getValues());
     }
 
     @Override
@@ -29,14 +44,13 @@ public final class MinerSightTalent extends Talent {
 
     protected void onWillBreakBlock(Player player, Block block) {
         if (!isPlayerEnabled(player)) return;
-        if (!MiningSkill.anyStone(block) && !MiningSkill.buildingStone(block) && miningSkill().getReward(block) == null) return;
+        if (!isMinerSightBlock(block) && miningSkill().getReward(block) == null) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !MaterialTags.PICKAXES.isTagged(item.getType())) return;
         final String worldName = player.getWorld().getName();
         final int distance = player.getWorld().getViewDistance() * 16;
         new BukkitRunnable() {
             private int ticks = 0;
-
             @Override
             public void run() {
                 ticks += 1;
@@ -58,5 +72,9 @@ public final class MinerSightTalent extends Talent {
                 }
             }
         }.runTaskTimer(skillsPlugin(), 6L, 1L);
+    }
+
+    private boolean isMinerSightBlock(Block block) {
+        return minerSightMaterials.contains(block.getType());
     }
 }

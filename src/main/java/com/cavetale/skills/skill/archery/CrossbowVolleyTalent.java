@@ -1,11 +1,9 @@
 package com.cavetale.skills.skill.archery;
 
-import com.cavetale.skills.crafting.AnvilEnchantment;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentType;
 import java.util.List;
-import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -16,23 +14,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
-import org.bukkit.potion.PotionType;
-import static com.cavetale.skills.SkillsPlugin.archerySkill;
 import static com.cavetale.skills.SkillsPlugin.random;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 
 public final class CrossbowVolleyTalent extends Talent {
     public CrossbowVolleyTalent() {
         super(TalentType.XBOW_VOLLEY, "Volley",
               "Multishot releases a volley of arrows",
-              "Instead of 3 arrows flat, Multishot fires a barrage of :arrow:arrows where you're looking, based on the level. An arrow must be loaded in the :crossbow:crossbow.",
-              "Use :enchanted_book:Enchanted Books to create higher levels of Multishot. You can either combine books or add books to your :crossbow:crossbow on an anvil.",
-              "",
-              "Arrows shot based on your Multishot level:",
-              ":crossbow: I :arrow_right: :arrow:x6",
-              ":crossbow: II :arrow_right: :arrow:x9",
-              ":crossbow: III :arrow_right: :arrow:x15");
-        addLevel(2, "1 bonus arrow");
+              "Instead of 3 arrows flat, Multishot fires a barrage of :arrow:arrows.");
+        addLevel(1, levelToBonusArrowCount(1) + " bonus arrow");
+        addLevel(1, levelToBonusArrowCount(2) + " bonus arrows");
+        addLevel(1, levelToBonusArrowCount(3) + " bonus arrows");
+        addLevel(1, levelToBonusArrowCount(4) + " bonus arrows");
+        addLevel(1, levelToBonusArrowCount(5) + " bonus arrows");
+    }
+
+    private static int levelToBonusArrowCount(int level) {
+        return level;
     }
 
     @Override
@@ -56,52 +53,35 @@ public final class CrossbowVolleyTalent extends Talent {
         if (multishot == 0) {
             return;
         }
-        final int arrowCount = switch (multishot) {
-        case 0 -> 0;
-        case 1 -> 6;
-        case 2 -> 9;
-        case 3 -> 15;
-        default -> 0;
-        };
+        final int level = Session.of(player).getTalentLevel(talentType);
+        if (level < 1) return;
+        final int bonusArrowCount = levelToBonusArrowCount(level);
         final double velocity = arrow.getVelocity().length();
-        int count;
-        for (count = 0; count < arrowCount - 3; count += 1) {
-            Location location = player.getLocation();
-            float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 35.0);
-            float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 12.0);
+        int count = 0;
+        for (int i = 0; i < bonusArrowCount; i += 1) {
+            final Location location = player.getEyeLocation();
+            location.setDirection(arrow.getVelocity());
+            final float yaw = location.getYaw() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 15.0);
+            final float pitch = location.getPitch() + (float) ((random().nextDouble() * (random().nextBoolean() ? 1.0 : -1.0)) * 15.0);
             location.setYaw(yaw);
             location.setPitch(pitch);
-            final AbstractArrow spam = player.launchProjectile(arrow.getClass(), location.getDirection().multiply(velocity), e -> {
+            final AbstractArrow spam = player.launchProjectile(Arrow.class, location.getDirection().multiply(velocity), e -> {
                     e.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                     e.setWeapon(crossbow);
                     e.setCritical(true);
-                    e.setDamage(1.0);
-                    e.setPierceLevel(arrow.getPierceLevel());
-                    e.setFireTicks(arrow.getFireTicks());
-                    if (arrow instanceof Arrow arrow2 && e instanceof Arrow spam2) {
-                        final PotionType potionType = arrow2.getBasePotionType();
-                        if (potionType != null && potionType != PotionType.AWKWARD) {
-                            spam2.setBasePotionType(potionType);
-                        }
-                    }
+                    e.setDamage(1.0 / (double) bonusArrowCount);
                     ArrowType.SPAM.set(e);
                     ArrowType.NO_PICKUP.set(e);
                 });
             if (spam == null) break;
-            archerySkill().onShootCrossbow(player, spam);
+            count += 1;
         }
-        if (sessionOf(player).isDebugMode()) {
+        if (isDebugTalent(player)) {
             player.sendMessage(talentType
                                + " multi:"
                                + multishot
-                               + " arrows:" + count + "/" + arrowCount
+                               + " arrows:" + count + "/" + bonusArrowCount
                                + " velo:" + velocity);
         }
-    }
-
-    @Override
-    public List<AnvilEnchantment> getAnvilEnchantments(Session session) {
-        return List.of(new AnvilEnchantment(Material.CROSSBOW, Enchantment.MULTISHOT, 3, Set.of(Enchantment.PIERCING)),
-                       new AnvilEnchantment(Material.ENCHANTED_BOOK, Enchantment.MULTISHOT, 3));
     }
 }

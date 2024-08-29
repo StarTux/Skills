@@ -13,7 +13,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.space;
@@ -25,9 +24,17 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 public final class ArcherZoneTalent extends Talent implements Listener {
     protected ArcherZoneTalent() {
         super(TalentType.ARCHER_ZONE, "In the Zone",
-              "Increase bow damage by landing an unbroken series of hits",
+              "Increase :bow:bow damage by landing an unbroken series of :target:hits",
               "Any :arrow:arrow hitting a hostile mob will increase :bow:bow damage. Breaking your focus will reset the damage bonus. Break focus by switching items, taking damage, or missing a shot.");
-        addLevel(1, "25% damage increase");
+        addLevel(1, levelToPercentage(1) + "% damage increase");
+        addLevel(1, levelToPercentage(2) + "% damage increase");
+        addLevel(1, levelToPercentage(3) + "% damage increase");
+        addLevel(1, levelToPercentage(4) + "% damage increase");
+        addLevel(1, levelToPercentage(5) + "% damage increase");
+    }
+
+    private static int levelToPercentage(int level) {
+        return level * 5;
     }
 
     @Override
@@ -64,17 +71,19 @@ public final class ArcherZoneTalent extends Talent implements Listener {
 
     protected void onShootBow(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
-        Session session = sessionOf(player);
-        if (arrow.isCritical()) {
-            int zone = session.archery.getArcherZone();
-            if (zone == 0) return;
-            arrow.setDamage(arrow.getDamage() + (double) zone * 0.25);
-            if (session.isDebugMode()) player.sendMessage(talentType + " +" + zone);
-        }
+        if (!arrow.isCritical()) return;
+        final Session session = Session.of(player);
+        final int zone = session.archery.getArcherZone();
+        if (zone < 1) return;
+        final int level = session.getTalentLevel(talentType);
+        if (level < 1) return;
+        final int percentage = levelToPercentage(level);
+        arrow.setDamage(arrow.getDamage() + (double) zone * (double) percentage * 0.01);
+        if (isDebugTalent(player)) player.sendMessage(talentType + " +" + zone);
     }
 
     protected void increaseZone(Player player) {
-        Session session = sessionOf(player);
+        final Session session = Session.of(player);
         int zone = session.archery.getArcherZone() + 1;
         session.archery.setArcherZone(zone);
         player.sendActionBar(join(separator(space()),
@@ -83,7 +92,7 @@ public final class ArcherZoneTalent extends Talent implements Listener {
     }
 
     protected void resetZone(Player player) {
-        Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (session.archery.getArcherZone() == 0) return;
         session.archery.setArcherZone(0);
         if (isPlayerEnabled(player)) {

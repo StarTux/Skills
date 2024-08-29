@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.archery;
 
 import com.cavetale.core.event.skills.SkillsMobKillRewardEvent;
+import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
@@ -10,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -22,9 +24,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
 import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldown;
@@ -39,28 +41,16 @@ import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldo
  * TippedArrow is deprecated and now in Arrow!
  */
 public final class ArcherySkill extends Skill implements Listener {
-    // Right
     public final ArcherZoneTalent archerZoneTalent = new ArcherZoneTalent();
-    public final ArcherZoneDeathTalent archerZoneDeathTalent = new ArcherZoneDeathTalent();
     public final ArrowSwiftnessTalent arrowSwiftnessTalent = new ArrowSwiftnessTalent();
     public final BonusArrowTalent bonusArrowTalent = new BonusArrowTalent();
     public final ArrowDamageTalent arrowDamageTalent = new ArrowDamageTalent();
-    public final ArrowVelocityTalent arrowVelocityTalent = new ArrowVelocityTalent();
-    // Up
+    public final HomingArrowTalent homingArrowTalent = new HomingArrowTalent();
     public final ArrowMagnetTalent arrowMagnetTalent = new ArrowMagnetTalent();
-    public final InfinityMendingTalent infinityMendingTalent = new InfinityMendingTalent();
     public final InstantHitTalent instantHitTalent = new InstantHitTalent();
-    // Left
-    public final CrossbowInfinityTalent crossbowInfinityTalent = new CrossbowInfinityTalent();
     public final CrossbowVolleyTalent crossbowVolleyTalent = new CrossbowVolleyTalent();
-    public final CrossbowFlameTalent crossbowFlameTalent = new CrossbowFlameTalent();
-    public final CrossbowHailTalent crossbowHailTalent = new CrossbowHailTalent();
     public final CrossbowLingerTalent crossbowLingerTalent = new CrossbowLingerTalent();
-    public final CrossbowPierceTalent crossbowPierceTalent = new CrossbowPierceTalent();
     public final CrossbowDualTalent crossbowDualTalent = new CrossbowDualTalent();
-    // Down
-    public final TippedInfinityTalent tippedInfinityTalent = new TippedInfinityTalent();
-    public final SpectralInfinityTalent spectralInfinityTalent = new SpectralInfinityTalent();
     public final GlowMarkTalent glowMarkTalent = new GlowMarkTalent();
 
     public ArcherySkill() {
@@ -72,9 +62,6 @@ public final class ArcherySkill extends Skill implements Listener {
     }
 
     private void onArrowKill(Player player, AbstractArrow arrow, Mob mob, EntityDeathEvent event) {
-        if (!arrow.isShotFromCrossbow()) {
-            archerZoneDeathTalent.onBowKill(player, arrow, mob);
-        }
         final CombatReward reward = addKillAndCheckCooldown(mob.getLocation())
             ? null
             : combatReward(mob);
@@ -98,7 +85,7 @@ public final class ArcherySkill extends Skill implements Listener {
     }
 
     private boolean reward(Player player, AbstractArrow arrow, Mob mob, EntityDeathEvent event, CombatReward reward) {
-        final Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (!session.isEnabled()) return false;
         final var rewardEvent = new SkillsMobKillRewardEvent(player, mob,
                                                              reward.sp,
@@ -123,7 +110,7 @@ public final class ArcherySkill extends Skill implements Listener {
             archerZoneTalent.onBowDamage(player, arrow, mob);
             bonusArrowTalent.onBowDamage(player, arrow, mob);
         }
-        if (sessionOf(player).isDebugMode()) {
+        if (isDebugSkill(player)) {
             player.sendMessage(skillType + " onArrowDamage "
                                + " arrowDmg=" + arrow.getDamage()
                                + " eventDmg=" + event.getDamage()
@@ -182,25 +169,18 @@ public final class ArcherySkill extends Skill implements Listener {
         final ItemStack consumable = event.getConsumable();
         if (bow.getType() == Material.BOW) {
             onShootBow(player, arrow);
-            tippedInfinityTalent.onShootBow(player, bow, consumable, arrow, event);
-            spectralInfinityTalent.onShootBow(player, bow, consumable, arrow, event);
         } else if (bow.getType() == Material.CROSSBOW) {
             // Called 3 times in case of Multishot
-            onShootCrossbow(player, arrow);
             // The ones below we do not want to be called for custom
             // arrows.  Flame would be a consideration, but it will
             // simply adopt the flame status of the original arrow,
             // which is a simple solution.
             // The order matters:
-            // - Apply flame first
             // - Volley will copy the flame state
-            // - Infinity will DISALLOW the pickup status (volley)
-            crossbowFlameTalent.onShootCrossbow(player, bow, arrow, consumable);
             crossbowVolleyTalent.onShootCrossbow(player, bow, arrow, consumable);
-            crossbowInfinityTalent.onShootCrossbow(player, bow, arrow, consumable);
             crossbowDualTalent.onShootCrossbow(player);
         }
-        if (sessionOf(player).isDebugMode()) {
+        if (isDebugSkill(player)) {
             player.sendMessage(skillType + " " + event.getEventName()
                                + " " + bow.getType()
                                + " velo:" + arrow.getVelocity().length()
@@ -220,15 +200,24 @@ public final class ArcherySkill extends Skill implements Listener {
             archerZoneTalent.onArrowHitBlock(player, arrow);
             crossbowLingerTalent.onArrowHitBlock(player, arrow, event);
             if (arrow.isDead()) return;
-            if (ArrowType.BONUS.is(arrow) || ArrowType.SPAM.is(arrow)) {
+            if (ArrowType.BONUS.is(arrow) || ArrowType.SPAM.is(arrow) || ArrowType.NO_PICKUP.is(arrow)) {
                 Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
             } else if (arrow.getPickupStatus() != AbstractArrow.PickupStatus.ALLOWED) {
                 Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> arrow.remove(), 10L);
             }
-        } else if (event.getHitEntity() instanceof LivingEntity target) {
-            arrowDamageTalent.onArrowCollide(player, arrow);
-            glowMarkTalent.onArrowCollide(player, arrow, target);
-            instantHitTalent.onArrowCollide(player, arrow, target);
+        }
+        if (event.getHitEntity() != null) {
+            final LivingEntity target;
+            if (event.getHitEntity() instanceof LivingEntity living) {
+                target = living;
+            } else if (event.getHitEntity() instanceof ComplexEntityPart part) {
+                target = part.getParent();
+            } else {
+                target = null;
+            }
+            if (target != null) {
+                instantHitTalent.onArrowCollide(player, arrow, target);
+            }
         }
     }
 
@@ -238,15 +227,7 @@ public final class ArcherySkill extends Skill implements Listener {
     protected void onShootBow(Player player, AbstractArrow arrow) {
         archerZoneTalent.onShootBow(player, arrow);
         arrowSwiftnessTalent.onShootBow(player, arrow);
-        arrowVelocityTalent.onShootBow(player, arrow);
-    }
-
-    /**
-     * Contains functions to be called for every crossbow arrow.
-     * Called by onEntityShootBow and CrossbowVolleyTalent.
-     */
-    protected void onShootCrossbow(Player player, AbstractArrow arrow) {
-        crossbowHailTalent.onShootCrossbow(player, arrow);
+        homingArrowTalent.onShootBow(player, arrow);
     }
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
@@ -256,6 +237,28 @@ public final class ArcherySkill extends Skill implements Listener {
         if (ArrowType.NO_PICKUP.is(arrow)) {
             event.setCancelled(true);
             arrow.remove();
+        }
+    }
+
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.LOW)
+    private void onPlayerAttemptPickupItem(PlayerAttemptPickupItemEvent event) {
+        if (ArrowType.NO_PICKUP.is(event.getItem().getItemStack())) {
+            event.setCancelled(true);
+            event.getItem().remove();
+        }
+    }
+
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)
+    private void onDamageCalculation(DamageCalculationEvent event) {
+        if (event.getTarget() == null) return;
+        if (!event.getCalculation().isArrowAttack()) return;
+        if (event.getCalculation().getTarget() == null) return;
+        if (event.attackerIsPlayer()) {
+            final Player player = event.getAttackerPlayer();
+            final AbstractArrow arrow = event.getCalculation().getArrow();
+            final LivingEntity target = event.getTarget();
+            arrowDamageTalent.onPlayerDamageEntityCalculation(player, arrow, target, event);
+            glowMarkTalent.onPlayerDamageEntityCalculation(player, arrow, target, event);
         }
     }
 }

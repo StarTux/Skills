@@ -21,71 +21,45 @@ import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
 @Getter
 public enum TalentType implements ComponentLike {
     // Mining
-    MINE_MAGNET(MINING, null, Vec2i.of(5, 4)),
-
-    STRIP_MINING(MINING, null, Vec2i.of(6, 3)),
-    DEEP_MINING(MINING, STRIP_MINING, Vec2i.of(6, 2)),
-    VEIN_MINING(MINING, STRIP_MINING, Vec2i.of(7, 3)),
-    VEIN_METALS(MINING, VEIN_MINING, Vec2i.of(8, 3)),
-    VEIN_GEMS(MINING, VEIN_MINING, Vec2i.of(8, 4)),
-    RUBY(MINING, VEIN_GEMS, Vec2i.of(8, 5)),
-
-    MINER_SIGHT(MINING, null, Vec2i.of(4, 3)),
-
-    SUPER_VISION(MINING, MINER_SIGHT, Vec2i.of(4, 2)),
-    NETHER_VISION(MINING, SUPER_VISION, Vec2i.of(4, 1)),
-    DEEP_VISION(MINING, NETHER_VISION, Vec2i.of(3, 1)),
-
-    ORE_ALERT(MINING, MINER_SIGHT, Vec2i.of(3, 3)),
-    EMERALD_ALERT(MINING, ORE_ALERT, Vec2i.of(2, 3)),
-    DEBRIS_ALERT(MINING, EMERALD_ALERT, Vec2i.of(1, 3)),
-
-    SILK_STRIP(MINING, ORE_ALERT, Vec2i.of(3, 4)),
-    SILK_MULTI(MINING, SILK_STRIP, Vec2i.of(3, 5)),
-    SILK_METALS(MINING, SILK_MULTI, Vec2i.of(2, 5)),
+    MINE_MAGNET(MINING, null, Vec2i.of(4, 5)),
+    STRIP_MINING(MINING, null, Vec2i.of(2, 3)),
+    DEEP_MINING(MINING, STRIP_MINING, Vec2i.of(2, 1)),
+    VEIN_MINING(MINING, STRIP_MINING, Vec2i.of(2, 5)),
+    MINER_SIGHT(MINING, null, Vec2i.of(6, 3)),
+    SUPER_VISION(MINING, MINER_SIGHT, Vec2i.of(6, 1)),
+    ORE_ALERT(MINING, MINER_SIGHT, Vec2i.of(8, 3)),
+    SILK_STRIP(MINING, ORE_ALERT, Vec2i.of(8, 5)),
 
     // Combat
 
     // Up: Damage
-    BERSERKER(COMBAT, null, Vec2i.of(5, 2)),
+    BERSERKER(COMBAT, null, Vec2i.of(6, 2)),
     // Down: Fire
-    SEARING(COMBAT, null, Vec2i.of(5, 4)),
-    PYROMANIAC(COMBAT, SEARING, Vec2i.of(5, 5)),
+    PYROMANIAC(COMBAT, null, Vec2i.of(6, 5)),
+    TOXICIST(COMBAT, TalentType.PYROMANIAC, Vec2i.of(7, 5)),
     // Right: Magic
-    DENIAL(COMBAT, null, Vec2i.of(6, 3)), // +slow?
-    GOD_MODE(COMBAT, TalentType.DENIAL, Vec2i.of(7, 3)),
-    TOXICIST(COMBAT, TalentType.DENIAL, Vec2i.of(7, 2)),
-    TOXIC_FUROR(COMBAT, TalentType.TOXICIST, Vec2i.of(8, 2)),
+    DENIAL(COMBAT, null, Vec2i.of(7, 3)), // +slow?
+    GOD_MODE(COMBAT, TalentType.DENIAL, Vec2i.of(8, 3)),
     // Left: Weapons
-    IRON_AGE(COMBAT, null, Vec2i.of(4, 3)),
-    EXECUTIONER(COMBAT, TalentType.IRON_AGE, Vec2i.of(3, 3)),
-    IMPALER(COMBAT, TalentType.IRON_AGE, Vec2i.of(3, 2)),
+    EXECUTIONER(COMBAT, null, Vec2i.of(4, 3)),
 
     // Archery
 
-    // Right: Bow Precision (16)
+    // Left: Crossbow
+    XBOW_VOLLEY(ARCHERY, null, Vec2i.of(2, 3)),
+    XBOW_DUAL(ARCHERY, XBOW_VOLLEY, Vec2i.of(2, 5)),
+    XBOW_LINGER(ARCHERY, XBOW_VOLLEY, Vec2i.of(2, 1)),
+    // Right: Bow
     ARCHER_ZONE(ARCHERY, null, Vec2i.of(6, 3)),
-    ARCHER_ZONE_DEATH(ARCHERY, ARCHER_ZONE, Vec2i.of(7, 3)),
-    ARROW_SWIFTNESS(ARCHERY, ARCHER_ZONE_DEATH, Vec2i.of(8, 3)),
-    ARROW_DAMAGE(ARCHERY, ARROW_SWIFTNESS, Vec2i.of(8, 2)), // up
-    BONUS_ARROW(ARCHERY, ARROW_DAMAGE, Vec2i.of(8, 1)),
-    ARROW_VELOCITY(ARCHERY, BONUS_ARROW, Vec2i.of(7, 1)),
-    // Left: Crossbow AoE (15/15)
-    XBOW_INFINITY(ARCHERY, null, Vec2i.of(4, 3)),
-    XBOW_VOLLEY(ARCHERY, XBOW_INFINITY, Vec2i.of(3, 3)),
-    XBOW_FLAME(ARCHERY, XBOW_VOLLEY, Vec2i.of(2, 3)),
-    XBOW_PIERCE(ARCHERY, XBOW_FLAME, Vec2i.of(2, 4)), // down
-    XBOW_DUAL(ARCHERY, XBOW_PIERCE, Vec2i.of(2, 5)),
-    XBOW_HAIL(ARCHERY, XBOW_FLAME, Vec2i.of(2, 2)), // up
-    XBOW_LINGER(ARCHERY, XBOW_HAIL, Vec2i.of(2, 1)),
-    // Down: Tipped (8)
-    TIPPED_INFINITY(ARCHERY, null, Vec2i.of(5, 4)),
-    SPECTRAL_INFINITY(ARCHERY, TIPPED_INFINITY, Vec2i.of(5, 5)),
-    GLOW_MARK(ARCHERY, SPECTRAL_INFINITY, Vec2i.of(4, 5)),
-    // Up: Utility (9)
-    ARROW_MAGNET(ARCHERY, null, Vec2i.of(5, 2)),
-    INFINITY_MENDING(ARCHERY, ARROW_MAGNET, Vec2i.of(5, 1)),
-    INSTANT_HIT(ARCHERY, INFINITY_MENDING, Vec2i.of(4, 1)),
+    ARROW_SWIFTNESS(ARCHERY, ARCHER_ZONE, Vec2i.of(6, 1)),
+    ARROW_DAMAGE(ARCHERY, ARROW_SWIFTNESS, Vec2i.of(8, 1)),
+    BONUS_ARROW(ARCHERY, ARROW_DAMAGE, Vec2i.of(8, 3)),
+    INSTANT_HIT(ARCHERY, BONUS_ARROW, Vec2i.of(6, 5)),
+    HOMING_ARROW(ARCHERY, INSTANT_HIT, Vec2i.of(8, 5)),
+    // Down
+    GLOW_MARK(ARCHERY, null, Vec2i.of(4, 5)),
+    // Up
+    ARROW_MAGNET(ARCHERY, null, Vec2i.of(4, 1)),
     ;
 
     public final String key;

@@ -20,21 +20,27 @@ import org.bukkit.inventory.meta.ItemMeta;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
-import static com.cavetale.skills.SkillsPlugin.sessions;
 
 public final class VeinMiningTalent extends Talent {
     protected VeinMiningTalent() {
         super(TalentType.VEIN_MINING, "Vein Mining",
               "Mining rocky ores will attempt to break the entire vein",
-              "Works on :coal_ore:coal, :redstone_ore:redstone and :lapis_ore:lapis lazuli ores. Requires the Efficiency enchantment on your pickaxe. Each level of Efficiency lets you break 4 blocks at once.",
+              "Works on :coal_ore:coal, :redstone_ore:redstone and :lapis_ore:lapis lazuli ores.",
               "Mine without this feature by sneaking.");
-        addLevel(1, "Mine the whole vein");
+        addLevel(1, "Mine veins with up to " + levelToBlocks(1) + " blocks");
+        addLevel(1, "Mine veins with up to " + levelToBlocks(2) + " blocks");
+        addLevel(1, "Mine veins with up to " + levelToBlocks(3) + " blocks");
+        addLevel(1, "Mine veins with up to " + levelToBlocks(4) + " blocks");
+        addLevel(1, "Mine veins with up to " + levelToBlocks(5) + " blocks");
     }
 
     @Override
     public ItemStack createIcon() {
         return createIcon(Material.IRON_PICKAXE);
+    }
+
+    private static int levelToBlocks(int level) {
+        return level * 4;
     }
 
     /**
@@ -47,13 +53,10 @@ public final class VeinMiningTalent extends Talent {
     protected boolean tryToVeinMine(Player player, ItemStack item, Block block, MiningReward reward, BlockBreakEvent event) {
         if (!isPlayerEnabled(player)) return false;
         if (player.isSneaking()) return false;
-        final int efficiency = item.getEnchantmentLevel(Enchantment.EFFICIENCY);
-        if (efficiency == 0) return false;
-        Session session = sessions().of(player);
-        if (!session.isTalentEnabled(TalentType.VEIN_METALS) && MiningSkill.metalOre(block)) return false;
-        if (!session.isTalentEnabled(TalentType.VEIN_GEMS) && MiningSkill.gemOre(block)) return false;
-        List<Block> vein = findVein(player, block, item, reward, efficiency);
-        if (sessionOf(player).isDebugMode()) {
+        Session session = Session.of(player);
+        final int level = session.getTalentLevel(talentType);
+        List<Block> vein = findVein(player, block, item, reward, levelToBlocks(level));
+        if (isDebugTalent(player)) {
             player.sendMessage(talentType + " vein=" + reward.material + " size=" + vein.size());
         }
         if (vein.size() < 2) return false;
@@ -96,18 +99,16 @@ public final class VeinMiningTalent extends Talent {
                 ? player.getLocation()
                 : block.getLocation().add(0.5, 0.25, 0.5);
             miningSkill().giveStackedReward(player, item, vein, reward, dropLocation, rewardableBlockCount);
-            miningSkill().rubyTalent.onVeinMine(player, block, reward, rewardableBlockCount);
         }
         return true;
     }
 
-    private List<Block> findVein(Player player, Block originalBlock, ItemStack item, MiningReward reward, final int efficiency) {
+    private List<Block> findVein(Player player, Block originalBlock, ItemStack item, MiningReward reward, final int total) {
         Material mat = reward.material;
         HashSet<Block> done = new HashSet<>();
         ArrayList<Block> vein = new ArrayList<>();
         done.add(originalBlock);
         vein.add(originalBlock);
-        final int total = efficiency * 4;
         for (int veinIndex = 0; veinIndex < vein.size() && vein.size() < total; veinIndex += 1) {
             Block pivot = vein.get(veinIndex);
             List<Block> nbors = new ArrayList<>();

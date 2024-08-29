@@ -15,7 +15,6 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.archerySkill;
-import static com.cavetale.skills.SkillsPlugin.sessionOf;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class BonusArrowTalent extends Talent {
@@ -24,7 +23,11 @@ public final class BonusArrowTalent extends Talent {
               "Fully charged bow hits trigger another free shot",
               "As soon as a fully charged :arrow:arrow hits a mob, you launch another free :arrow:arrow. The additional :arrow:arrow is shot in the direction you are looking and may trigger yet another arrow.",
               "Your bow must be in your main hand.");
-        addLevel(4, "2 extra arrows");
+        addLevel(1, 1 + " extra arrow");
+        addLevel(1, 2 + " extra arrows");
+        addLevel(1, 3 + " extra arrows");
+        addLevel(1, 4 + " extra arrows");
+        addLevel(1, 5 + " extra arrows");
     }
 
     @Override
@@ -37,15 +40,17 @@ public final class BonusArrowTalent extends Talent {
         if (!arrow.isCritical()) return;
         final boolean primary = ArrowType.PRIMARY.is(arrow);
         if (!primary && !ArrowType.BONUS.is(arrow)) return;
-        Session session = sessionOf(player);
+        final Session session = Session.of(player);
         if (session.archery.isBonusArrowFiring()) return;
         final ItemStack bow = player.getInventory().getItemInMainHand();
         if (bow.getType() != Material.BOW) return;
+        final int level = session.getTalentLevel(talentType);
+        if (level < 1) return;
         if (primary) {
             session.archery.setBonusArrowCount(1);
         } else {
             final int bonusArrowCount = session.archery.getBonusArrowCount();
-            if (bonusArrowCount >= 2) return;
+            if (bonusArrowCount >= level) return;
             session.archery.setBonusArrowCount(bonusArrowCount + 1);
         }
         final int power = bow.getEnchantmentLevel(Enchantment.POWER);
@@ -67,7 +72,7 @@ public final class BonusArrowTalent extends Talent {
                 bonusArrow.setVelocity(bonusArrow.getVelocity().normalize().multiply(3.0));
                 archerySkill().onShootBow(player, bonusArrow);
                 player.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, SoundCategory.MASTER, 0.2f, 1.5f);
-                if (sessionOf(player).isDebugMode()) {
+                if (isDebugTalent(player)) {
                     player.sendMessage(talentType + "!");
                 }
             }, 8L);
