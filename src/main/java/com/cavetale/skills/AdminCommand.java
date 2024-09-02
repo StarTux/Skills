@@ -134,7 +134,7 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
             final int talents = talentCount.getOrDefault(skillType, 0);
             final int levels = levelCount.getOrDefault(skillType, 0);
             final int cost = talentPointCost.getOrDefault(skillType, 0);
-            sender.sendMessage(talents + " " + " " + levels + " " + cost + " " + skillType.getDisplayName());
+            sender.sendMessage(talents + " " + cost + " " + skillType.getDisplayName());
         }
     }
 
