@@ -44,7 +44,7 @@ public final class ArcherySkill extends Skill implements Listener {
     public final InTheZoneTalent inTheZoneTalent = new InTheZoneTalent();
     public final SwiftSniperTalent swiftSniperTalent = new SwiftSniperTalent();
     public final LegolasTalent legolasTalent = new LegolasTalent();
-    public final ArrowDamageTalent arrowDamageTalent = new ArrowDamageTalent();
+    public final SniperTalent sniperTalent = new SniperTalent();
     public final HomingArrowTalent homingArrowTalent = new HomingArrowTalent();
     public final ArrowMagnetTalent arrowMagnetTalent = new ArrowMagnetTalent();
     public final InstantHitTalent instantHitTalent = new InstantHitTalent();
@@ -257,7 +257,7 @@ public final class ArcherySkill extends Skill implements Listener {
             final Player player = event.getAttackerPlayer();
             final AbstractArrow arrow = event.getCalculation().getArrow();
             final LivingEntity target = event.getTarget();
-            arrowDamageTalent.onPlayerDamageEntityCalculation(player, arrow, target, event);
+            sniperTalent.onPlayerDamageEntityCalculation(player, arrow, target, event);
             glowMarkTalent.onPlayerDamageEntityCalculation(player, arrow, target, event);
         }
     }

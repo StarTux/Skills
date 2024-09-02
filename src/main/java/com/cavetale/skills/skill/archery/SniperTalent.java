@@ -10,9 +10,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public final class ArrowDamageTalent extends Talent {
-    public ArrowDamageTalent() {
-        super(TalentType.ARROW_DAMAGE, "Sniper",
+public final class SniperTalent extends Talent {
+    public SniperTalent() {
+        super(TalentType.SNIPER, "Sniper",
               "Arrows from a fully charged bow receive bonus damage for every block they travel.",
               "When your arrow hits its target, it will have picked up one additional damage for every block distance from you.");
         addLevel(1, levelToPercentage(1) + "% damage of blocks travelled");
