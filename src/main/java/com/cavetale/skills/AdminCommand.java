@@ -6,6 +6,7 @@ import com.cavetale.core.command.CommandNode;
 import com.cavetale.core.playercache.PlayerCache;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentLevel;
 import com.cavetale.skills.skill.TalentType;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Map;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import static com.cavetale.core.font.Unicode.tiny;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
@@ -47,6 +49,10 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
         talentNode.addChild("printstats").denyTabCompletion()
             .description("Print some talent stats")
             .senderCaller(this::talentPrintStats);
+        talentNode.addChild("list").arguments("<skill>")
+            .completers(CommandArgCompleter.enumLowerList(SkillType.class))
+            .description("List talents")
+            .senderCaller(this::talentList);
         // Skills
         CommandNode skillNode = rootNode.addChild("skill")
             .description("Skill subcommands");
@@ -134,8 +140,40 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
             final int talents = talentCount.getOrDefault(skillType, 0);
             final int levels = levelCount.getOrDefault(skillType, 0);
             final int cost = talentPointCost.getOrDefault(skillType, 0);
-            sender.sendMessage(talents + " " + cost + " " + skillType.getDisplayName());
+            sender.sendMessage(textOfChildren(text(talents), text(tiny("tal "), GRAY),
+                                              text(levels), text(tiny("lvl "), GRAY),
+                                              text(cost), text(tiny("tp "), GRAY),
+                                              skillType));
         }
+    }
+
+    private boolean talentList(CommandSender sender, String[] args) {
+        if (args.length != 1) return false;
+        final SkillType skillType = CommandArgCompleter.requireEnum(SkillType.class, args[0]);
+        int totalCost = 0;
+        int totalLevels = 0;
+        for (TalentType talentType : TalentType.values()) {
+            if (talentType.getSkillType() != skillType) continue;
+            for (TalentLevel level : talentType.getTalent().getLevels()) {
+                totalLevels += 1;
+                totalCost += level.getTalentPointCost();
+            }
+        }
+        sender.sendMessage(textOfChildren(text(totalLevels, YELLOW), text(tiny("lvl "), AQUA),
+                                          text(totalCost, YELLOW), text(tiny("tp "), AQUA),
+                                          skillType));
+        for (TalentType talentType : TalentType.values()) {
+            if (talentType.getSkillType() != skillType) continue;
+            final Talent talent = talentType.getTalent();
+            int cost = 0;
+            for (TalentLevel level : talent.getLevels()) {
+                cost += level.getTalentPointCost();
+            }
+            sender.sendMessage(textOfChildren(text(talent.getMaxLevel().getLevel()), text(tiny("lvl "), GRAY),
+                                              text(cost), text(tiny("tp "), GRAY),
+                                              talentType));
+        }
+        return true;
     }
 
     private boolean skillInfo(CommandSender sender, String[] args) {

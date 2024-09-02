@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.Getter;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -20,7 +21,7 @@ import static net.kyori.adventure.text.Component.textOfChildren;
 import static net.kyori.adventure.text.format.TextColor.color;
 
 @Getter
-public enum SkillType {
+public enum SkillType implements ComponentLike {
     MINING("Mining", NamedTextColor.DARK_AQUA, BossBar.Color.BLUE) {
         @Override public ItemStack createIcon(boolean focus) {
             return icon(focus ? Material.GOLDEN_PICKAXE : Material.IRON_PICKAXE);
@@ -77,6 +78,11 @@ public enum SkillType {
     }
 
     public abstract List<String> getRawDescription();
+
+    @Override
+    public Component asComponent() {
+        return getIconTitle();
+    }
 
     public Component getIconComponent() {
         return ItemKinds.icon(createIcon());
