@@ -224,6 +224,7 @@ public final class TalentMenu {
             }
         }
         // Toggles
+        tooltip.add(DIVIDER);
         if (currentLevel != null) {
             if (enabled) {
                 tooltip.add(textOfChildren(text("DROP", RED), text(tiny(" to disable"), RED)));
@@ -334,6 +335,15 @@ public final class TalentMenu {
         pages.add(join(separator(newline()), page));
         for (int i = 1; i < description.size(); i += 1) {
             pages.add(description.get(i));
+        }
+        for (TalentLevel level : talent.getLevels()) {
+            page.clear();
+            page.add(text("Level " + level.getLevel(), BLUE));
+            page.add(textOfChildren((session.getTalentLevel(talentType) >= level.getLevel() ? Mytems.CHECKED_CHECKBOX : Mytems.CHECKBOX),
+                                    text(tiny("unlock cost "), GRAY), text(level.getTalentPointCost())));
+            page.add(empty());
+            page.addAll(level.getDescription());
+            pages.add(join(separator(newline()), page));
         }
         Books.open(player, pages);
     }
