@@ -213,6 +213,17 @@ public class SkillSession {
             : 0;
     }
 
+    public final double moneyBonusToPercentage(final int bonus) {
+        final int cutoff = 50;
+        final int major = Math.min(cutoff, bonus);
+        final int minor = Math.max(0, bonus - cutoff);
+        return major * 2.5 + minor * 1.0;
+    }
+
+    public final double getMoneyBonusPercentage() {
+        return moneyBonusToPercentage(getMoneyBonus());
+    }
+
     public final void setSkillLevel(int level) {
         row.setLevel(level);
         database().updateAsync(row, Set.of("level"), null);

@@ -26,7 +26,6 @@ import org.bukkit.scheduler.BukkitTask;
 import static com.cavetale.core.font.Unicode.subscript;
 import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.skills.SkillsPlugin.database;
-import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.textOfChildren;
@@ -315,9 +314,12 @@ public final class Session {
         return skills.get(skillType).getMoneyBonus();
     }
 
+    public double getMoneyBonusPercentage(SkillType skillType) {
+        return skills.get(skillType).getMoneyBonusPercentage();
+    }
+
     public double computeMoneyDrop(SkillType skillType, final double base) {
-        final int bonus = getMoneyBonus(skillType);
-        final double factor = 1.0 + 0.01 * moneyBonusPercentage(bonus);
+        final double factor = 1.0 + 0.01 * getMoneyBonusPercentage(skillType);
         return base * factor;
     }
 

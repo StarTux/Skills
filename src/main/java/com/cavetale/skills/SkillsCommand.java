@@ -113,7 +113,7 @@ public final class SkillsCommand extends AbstractCommand<SkillsPlugin> {
         lines.add(empty());
         lines.add(prop("Level ", "" + level));
         lines.add(prop("Exp Bonus ", "" + session.getExpBonus(skillType), "/tal " + skillType.key));
-        lines.add(prop("Money Bonus ", "" + SkillsPlugin.moneyBonusPercentage(session.getMoneyBonus(skillType)) + "%", "/tal " + skillType.key));
+        lines.add(prop("Money Bonus ", "" + session.getMoneyBonusPercentage(skillType) + "%", "/tal " + skillType.key));
         lines.add(prop("Points ", points + "/" + req));
         lines.add(prop("Talents ", talentsHas + "/" + talentCount, "/tal " + skillType.key));
         if (talentsHas < talentCount) {

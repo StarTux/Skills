@@ -59,10 +59,6 @@ public final class SkillsPlugin extends JavaPlugin {
         return 100 * lvl;
     }
 
-    public static int moneyBonusPercentage(final int bonus) {
-        return bonus * 5;
-    }
-
     public static SkillsPlugin skillsPlugin() {
         return instance;
     }

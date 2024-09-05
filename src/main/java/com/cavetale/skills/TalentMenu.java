@@ -27,8 +27,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.mytems.util.Items.tooltip;
-import static com.cavetale.skills.SkillsPlugin.moneyBonusPercentage;
 import static com.cavetale.skills.SkillsPlugin.skillsCommand;
+import static com.cavetale.skills.util.Text.formatDouble;
 import static java.awt.Color.HSBtoRGB;
 import static java.awt.Color.RGBtoHSB;
 import static net.kyori.adventure.text.Component.empty;
@@ -123,8 +123,8 @@ public final class TalentMenu {
             makeTalentIcon(talentType);
             makeDependencyArrow(talentType);
         }
-        gui.highlight(9, skillType.textColor);
-        gui.setItem(9, getMoneyIcon(skillType), click -> {
+        gui.highlight(27, skillType.textColor);
+        gui.setItem(27, getMoneyIcon(skillType), click -> {
                 if (!click.isRightClick()) return;
                 boolean r = session.unlockMoneyBonus(skillType, () -> {
                         open();
@@ -132,7 +132,17 @@ public final class TalentMenu {
                     });
                 if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
             });
+        gui.highlight(18, skillType.textColor);
+        gui.setItem(18, getExpIcon(skillType), click -> {
+                if (!click.isRightClick()) return;
+                boolean r = session.unlockExpBonus(skillType, () -> {
+                        open();
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.5f, 1.0f);
+                    });
+                if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
+            });
         if (session.getTalentPointsSpent(skillType) > 0) {
+            gui.highlight(45, color(0x202020));
             gui.setItem(45, getRespecIcon(skillType), click -> {
                     if (!click.isRightClick()) return;
                     if (!session.respec(player, skillType)) {
@@ -274,34 +284,56 @@ public final class TalentMenu {
     }
 
     private ItemStack getMoneyIcon(SkillType skillType) {
-        int bonus = session.getMoneyBonus(skillType);
-        int perc = moneyBonusPercentage(bonus);
-        int next = moneyBonusPercentage(bonus + 1);
-        ItemStack icon = Mytems.GOLDEN_COIN.createIcon();
-        icon.setAmount(Math.max(1, Math.min(64, bonus)));
+        final int bonus = session.getMoneyBonus(skillType);
+        final ItemStack icon = bonus < 100
+            ? Mytems.GOLDEN_COIN.createIcon()
+            : Mytems.DIAMOND_COIN.createIcon();
+        final int stackSize = Math.max(1, bonus % 100);
+        icon.editMeta(meta -> meta.setMaxStackSize(stackSize));
+        icon.setAmount(stackSize);
         icon.editMeta(meta -> {
-                tooltip(meta, List.of(textOfChildren(Mytems.GOLDEN_COIN, text(" Money Bonus", GOLD)),
-                                      textOfChildren(text(tiny("current "), GRAY), text(perc, WHITE), text("%", GRAY)),
-                                      textOfChildren(text(tiny("next "), GRAY), text(next, WHITE), text("%", GRAY)),
-                                      empty(),
-                                      textOfChildren(text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
-                                      textOfChildren(Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
+                final List<Component> tooltip = new ArrayList<>();
+                tooltip.add(textOfChildren(Mytems.GOLDEN_COIN, text("Money Bonus", GOLD)));
+                tooltip.add(text("Increase your money", GRAY));
+                tooltip.add(textOfChildren(text("income from ", GRAY), skillType));
+                if (bonus > 0) {
+                    tooltip.add(DIVIDER);
+                    final double percentage = session.getMoneyBonusPercentage(skillType);
+                    tooltip.add(textOfChildren(Mytems.CHECKED_CHECKBOX, text(tiny(" lv ") + bonus, GREEN)));
+                    tooltip.add(text(formatDouble(percentage) + "% money bonus", GRAY));
+                }
+                tooltip.add(DIVIDER);
+                tooltip.add(textOfChildren(Mytems.ARROW_RIGHT, text(tiny(" lv ") + (bonus + 1), GREEN)));
+                final double nextPercentage = session.getSkill(skillType).moneyBonusToPercentage(bonus + 1);
+                tooltip.add(text(formatDouble(nextPercentage) + "% money bonus", GRAY));
+                tooltip.add(textOfChildren(Mytems.MOUSE_RIGHT, text(tiny(" unlock for ") + 1 + tiny("tp"), GREEN)));
+                tooltip(meta, tooltip);
             });
         return icon;
     }
 
     private ItemStack getExpIcon(SkillType skillType) {
-        int bonus = session.getExpBonus(skillType);
-        ItemStack icon = new ItemStack(Material.EXPERIENCE_BOTTLE);
-        icon.setAmount(Math.max(1, Math.min(64, bonus)));
+        final int bonus = session.getExpBonus(skillType);
+        final ItemStack icon = new ItemStack(Material.EXPERIENCE_BOTTLE);
+        final int stackSize = Math.max(1, bonus % 100);
+        icon.editMeta(meta -> meta.setMaxStackSize(stackSize));
+        icon.setAmount(stackSize);
         icon.editMeta(meta -> {
-                meta.addItemFlags(ItemFlag.values());
-                tooltip(meta, List.of(textOfChildren(VanillaItems.EXPERIENCE_BOTTLE, text(" Exp Bonus", GOLD)),
-                                      textOfChildren(text(tiny("current bonus "), GRAY), text(bonus, WHITE), text("xp", GRAY)),
-                                      textOfChildren(text(tiny("next bonus "), GRAY), text((bonus + 1), WHITE), text("xp", GRAY)),
-                                      empty(),
-                                      textOfChildren(text(tiny("cost "), GRAY), text(1, WHITE), text(tiny("tp"), GRAY)),
-                                      textOfChildren(Mytems.MOUSE_RIGHT, text(" Unlock", GRAY, ITALIC))));
+                final List<Component> tooltip = new ArrayList<>();
+                tooltip.add(textOfChildren(VanillaItems.EXPERIENCE_BOTTLE, text("Exp Bonus", GREEN)));
+                tooltip.add(text("Increase your exp", GRAY));
+                tooltip.add(textOfChildren(text("drops from ", GRAY), skillType));
+                if (bonus > 0) {
+                    tooltip.add(DIVIDER);
+                    tooltip.add(textOfChildren(Mytems.CHECKED_CHECKBOX, text(tiny(" lv ") + bonus, GREEN)));
+                    tooltip.add(text(bonus + " bonus exp", GRAY));
+                }
+                tooltip.add(DIVIDER);
+                tooltip.add(textOfChildren(Mytems.ARROW_RIGHT, text(tiny(" lv ") + (bonus + 1), GREEN)));
+                final double nextPercentage = session.getSkill(skillType).moneyBonusToPercentage(bonus + 1);
+                tooltip.add(text((bonus + 1) + " bonus exp", GRAY));
+                tooltip.add(textOfChildren(Mytems.MOUSE_RIGHT, text(tiny(" unlock for ") + 1 + tiny("tp"), GREEN)));
+                tooltip(meta, tooltip);
             });
         return icon;
     }
@@ -310,7 +342,8 @@ public final class TalentMenu {
         ItemStack icon = Mytems.REDO.createIcon();
         int tp = session.getTalentPointsSpent(skillType);
         icon.editMeta(meta -> {
-                tooltip(meta, List.of(textOfChildren(text(" Refund "), skillType.getIconTitle(), text(" Talent Points")).color(BLUE),
+                tooltip(meta, List.of(textOfChildren(text("Refund ", BLUE), skillType.getIconTitle()),
+                                      text(" Talent Points", BLUE),
                                       textOfChildren(text(tiny("total "), GRAY), text(tp, WHITE), text(tiny("tp"), GRAY)),
                                       empty(),
                                       textOfChildren(text(tiny("cost "), GRAY), text(1, WHITE), Mytems.KITTY_COIN),
