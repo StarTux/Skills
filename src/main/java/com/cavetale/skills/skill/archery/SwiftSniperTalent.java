@@ -13,21 +13,12 @@ import org.bukkit.util.Vector;
 public final class SwiftSniperTalent extends Talent {
     public SwiftSniperTalent() {
         super(TalentType.SWIFT_SNIPER, "Swift Sniper",
-              "Your :speed_effect:movement speed is added to bow :arrow:arrow speed",
-              ":speed_effect:Movement speed, increased by the potions or certain :sneakers:equipment, will be added to the velocity of your :arrows:bow arrows. Arrows deal more damage if they move faster.");
-        addLevel(1, levelToFactor(1) + " times the movement speed");
-        addLevel(1, levelToFactor(2) + " times the movement speed");
-        addLevel(1, levelToFactor(3) + " times the movement speed");
-        addLevel(1, levelToFactor(4) + " times the movement speed");
-        addLevel(1, levelToFactor(5) + " times the movement speed");
-    }
-
-    /**
-     * The series goes like so.
-     * 1, 3, 5, 7, 9
-     */
-    private static int levelToFactor(int level) {
-        return level * 2 - 1;
+              "Your extra :speed_effect:movement speed is added to bow :arrow:arrow speed",
+              "Your :speed_effect:movement speed increase by the potions or certain :sneakers:equipment, will be added to the velocity of your :arrows:bow arrows. Arrows deal more damage if they move faster.");
+        addLevel(1, "Add the movement speed");
+        addLevel(1, "Add " + 2 + " times the movement speed");
+        addLevel(1, "Add " + 3 + " times the movement speed");
+        addLevel(1, "Add " + 4 + " times the movement speed");
     }
 
     @Override
@@ -40,13 +31,15 @@ public final class SwiftSniperTalent extends Talent {
         final Session session = Session.of(player);
         final int level = session.getTalentLevel(talentType);
         if (level < 1) return;
-        final int factor = levelToFactor(level);
-        final double movementSpeed = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue();
-        final double bonus = (double) factor * movementSpeed;
+        final int factor = level;
+        final double extraSpeed = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue()
+            - player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue();
+        if (extraSpeed < 0.01) return;
+        final double bonus = (double) factor * extraSpeed;
         final Vector velocity = arrow.getVelocity().multiply(1.0 + bonus);
         arrow.setVelocity(velocity);
         if (isDebugTalent(player)) {
-            player.sendMessage(talentType + " " + factor + "*" + movementSpeed + " = " + bonus);
+            player.sendMessage(talentType + " " + factor + " x " + String.format("%.02f", extraSpeed) + " = " + String.format("%.02f", bonus));
         }
     }
 };
