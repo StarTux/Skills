@@ -29,7 +29,6 @@ import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.mytems.util.Items.tooltip;
 import static com.cavetale.skills.SkillsPlugin.skillsCommand;
 import static com.cavetale.skills.util.Text.formatDouble;
-import static java.awt.Color.HSBtoRGB;
 import static java.awt.Color.RGBtoHSB;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.join;
@@ -80,7 +79,7 @@ public final class TalentMenu {
                 float[] hsb = RGBtoHSB(skillType.textColor.red(),
                                        skillType.textColor.green(),
                                        skillType.textColor.blue(), null);
-                gui.layer(GuiOverlay.TAB_BG, color(HSBtoRGB(hsb[0], hsb[1] * 0.65f, hsb[2] * 0.65f)));
+                gui.layer(GuiOverlay.TAB_BG, color(0x404040));
                 gui.layer(GuiOverlay.tab(slot), skillType.textColor);
             }
             final int otherTalentPoints = session.getTalentPoints(otherSkillType);
