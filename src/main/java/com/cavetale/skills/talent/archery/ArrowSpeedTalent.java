@@ -42,4 +42,4 @@ public final class ArrowSpeedTalent extends Talent {
             player.sendMessage(talentType + " " + factor + " x " + String.format("%.02f", extraSpeed) + " = " + String.format("%.02f", bonus));
         }
     }
-};
+}

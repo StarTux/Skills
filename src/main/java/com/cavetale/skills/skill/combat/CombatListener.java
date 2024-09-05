@@ -87,6 +87,8 @@ final class CombatListener implements Listener {
             combatSkill.pyromaniacTalent.onDamageCalculation(player, event);
             combatSkill.berserkerTalent.onDamageCalculation(player, event);
             combatSkill.executionerTalent.onDamageCalculation(player, event);
+            combatSkill.humanCannonballTalent.onDamageCalculation(player, event);
+            combatSkill.chevalierTalent.onDamageCalculation(player, event);
         }
     }
 

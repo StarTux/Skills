@@ -33,12 +33,16 @@ public enum TalentType implements ComponentLike {
     // Combat
 
     COMBAT_MAGNET(SkillType.COMBAT, null, Vec2i.of(4, 1)),
-    BERSERKER(SkillType.COMBAT, null, Vec2i.of(6, 2)),
-    PYROMANIAC(SkillType.COMBAT, null, Vec2i.of(6, 5)),
-    TOXICIST(SkillType.COMBAT, TalentType.PYROMANIAC, Vec2i.of(7, 5)),
-    DENIAL(SkillType.COMBAT, null, Vec2i.of(7, 3)), // +slow?
-    GOD_MODE(SkillType.COMBAT, TalentType.DENIAL, Vec2i.of(8, 3)),
-    EXECUTIONER(SkillType.COMBAT, null, Vec2i.of(4, 3)),
+    HUMAN_CANNONBALL(SkillType.COMBAT, null, Vec2i.of(4, 5)),
+    // Left Magic
+    PYROMANIAC(SkillType.COMBAT, null, Vec2i.of(2, 3)),
+    TOXICIST(SkillType.COMBAT, PYROMANIAC, Vec2i.of(2, 1)),
+    DENIAL(SkillType.COMBAT, PYROMANIAC, Vec2i.of(2, 5)),
+    // Right
+    EXECUTIONER(SkillType.COMBAT, null, Vec2i.of(6, 3)),
+    BERSERKER(SkillType.COMBAT, EXECUTIONER, Vec2i.of(6, 1)),
+    CHEVALIER(SkillType.COMBAT, BERSERKER, Vec2i.of(8, 1)),
+    GOD_MODE(SkillType.COMBAT, EXECUTIONER, Vec2i.of(6, 5)),
 
     // Archery
 

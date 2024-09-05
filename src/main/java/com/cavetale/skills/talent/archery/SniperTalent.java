@@ -56,4 +56,4 @@ public final class SniperTalent extends Talent {
                                + " = bonus:" + String.format("%.2f", bonus));
         }
     }
-};
+}

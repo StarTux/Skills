@@ -13,4 +13,4 @@ public final class DefaultTalent extends Talent {
     public ItemStack createIcon() {
         return createIcon(Material.DIAMOND);
     }
-};
+}

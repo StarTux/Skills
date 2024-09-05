@@ -31,4 +31,4 @@ public final class CombatMagnetTalent extends Talent {
             player.sendMessage(talentType.name());
         }
     }
-};
+}

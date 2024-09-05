@@ -17,4 +17,4 @@ public final class ArrowMagnetTalent extends Talent {
     public ItemStack createIcon() {
         return createIcon(Mytems.MAGNET);
     }
-};
+}

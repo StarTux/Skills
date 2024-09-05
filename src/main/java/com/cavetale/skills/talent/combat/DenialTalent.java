@@ -29,13 +29,14 @@ import org.bukkit.inventory.ItemStack;
 public final class DenialTalent extends Talent implements Listener {
     public DenialTalent() {
         super(TalentType.DENIAL, "Denial",
-              "Hitting monsters with knockback denies the following:",
-              ":barrier: Shooting :arrow:Arrows",
-              ":barrier: Throwing :splash_potion:Potions",
-              ":barrier: :spider_face:Spider Poison",
-              ":barrier: :creeper_face:Creeper Explosion",
-              ":barrier: :enderman_face:Enderman Escape",
-              "Use a Knockback weapon on an enemy to give it this status effect. You have to hit them with full strength!");
+              "Hitting monsters with knockback denies mob spells, projectiles, poison",
+              "Denied are the following:"
+              + "\n:barrier: Shooting :arrow:Arrows"
+              + "\n:barrier: Throwing :splash_potion:Potions"
+              + "\n:barrier: :spider_face:Spider Poison"
+              + "\n:barrier: :creeper_face:Creeper Explosion"
+              + "\n:barrier: :enderman_face:Enderman Escape"
+              + "\n\nYou have to hit them with full strength!");
         addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(1) + " seconds");
         addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(2) + " seconds");
         addLevel(1, "Knockback denies mob spells, projectiles, poison for " + levelToSeconds(3) + " seconds");

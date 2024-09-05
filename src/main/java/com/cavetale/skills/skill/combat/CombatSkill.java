@@ -29,6 +29,8 @@ public final class CombatSkill extends Skill {
     public final ExecutionerTalent executionerTalent = new ExecutionerTalent();
     public final ToxicistTalent toxicistTalent = new ToxicistTalent();
     public final BerserkerTalent berserkerTalent = new BerserkerTalent();
+    public final HumanCannonballTalent humanCannonballTalent = new HumanCannonballTalent();
+    public final ChevalierTalent chevalierTalent = new ChevalierTalent();
 
     protected static final long CHUNK_KILL_DECAY_TIME = Duration.ofMinutes(5).toMillis();
 
