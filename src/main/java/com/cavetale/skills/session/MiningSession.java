@@ -1,7 +1,7 @@
 package com.cavetale.skills.session;
 
 import com.cavetale.skills.skill.SkillType;
-import com.cavetale.skills.skill.mining.SuperVisionTalent;
+import com.cavetale.skills.talent.mining.SuperVisionTalent;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

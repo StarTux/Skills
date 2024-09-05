@@ -3,6 +3,7 @@ package com.cavetale.skills.skill;
 import com.cavetale.skills.skill.archery.ArcherySkill;
 import com.cavetale.skills.skill.combat.CombatSkill;
 import com.cavetale.skills.skill.mining.MiningSkill;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;

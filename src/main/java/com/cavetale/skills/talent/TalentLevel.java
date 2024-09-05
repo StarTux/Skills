@@ -1,4 +1,4 @@
-package com.cavetale.skills.skill;
+package com.cavetale.skills.talent;
 
 import java.util.List;
 import java.util.function.Supplier;

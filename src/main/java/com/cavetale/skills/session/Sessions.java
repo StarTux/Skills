@@ -1,7 +1,7 @@
 package com.cavetale.skills.session;
 
 import com.cavetale.core.event.hud.PlayerHudEvent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.TalentType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

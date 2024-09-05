@@ -1,4 +1,4 @@
-package com.cavetale.skills.skill;
+package com.cavetale.skills.talent;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

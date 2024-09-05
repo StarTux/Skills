@@ -1,10 +1,10 @@
-package com.cavetale.skills.skill.combat;
+package com.cavetale.skills.talent.combat;
 
 import com.cavetale.mytems.Mytems;
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import lombok.Getter;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -17,7 +17,7 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 
 @Getter
 public final class BerserkerTalent extends Talent {
-    protected BerserkerTalent() {
+    public BerserkerTalent() {
         super(TalentType.BERSERKER, "Berserker",
               "Build up rage by hitting enemies with a full charge. Full rage can double your damage output");
         addLevel(1, "100% bonus damage");
@@ -33,7 +33,7 @@ public final class BerserkerTalent extends Talent {
         return Math.max(0, Math.min(100, (int) value));
     }
 
-    protected void onPlayerDamageMob(Player player, Mob mob, EntityDamageByEntityEvent event) {
+    public void onPlayerDamageMob(Player player, Mob mob, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (player.getAttackCooldown() < 1f) return;
         final Session session = Session.of(player);
@@ -44,7 +44,7 @@ public final class BerserkerTalent extends Talent {
                                             text(rageToPercentage(rage) + "%", YELLOW)));
     }
 
-    protected void onPlayerItemHeld(Player player) {
+    public void onPlayerItemHeld(Player player) {
         if (!isPlayerEnabled(player)) return;
         final Session session = Session.of(player);
         final double rage = session.combat.getRage();
@@ -55,13 +55,13 @@ public final class BerserkerTalent extends Talent {
                              .decorate(STRIKETHROUGH));
     }
 
-    protected void onPlayerDeath(Player player) {
+    public void onPlayerDeath(Player player) {
         if (!isPlayerEnabled(player)) return;
         final Session session = Session.of(player);
         session.combat.resetRage();
     }
 
-    protected void onDamageCalculation(Player player, DamageCalculationEvent event) {
+    public void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
         final Session session = Session.of(player);
         final double rage = session.combat.getRage();

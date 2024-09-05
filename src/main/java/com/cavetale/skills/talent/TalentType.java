@@ -1,7 +1,8 @@
-package com.cavetale.skills.skill;
+package com.cavetale.skills.talent;
 
 import com.cavetale.core.item.ItemKinds;
 import com.cavetale.core.struct.Vec2i;
+import com.cavetale.skills.skill.SkillType;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -13,7 +14,6 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
-import static com.cavetale.skills.skill.SkillType.*;
 import static net.kyori.adventure.text.Component.join;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
@@ -21,45 +21,45 @@ import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
 @Getter
 public enum TalentType implements ComponentLike {
     // Mining
-    MINE_MAGNET(MINING, null, Vec2i.of(4, 5)),
-    STRIP_MINING(MINING, null, Vec2i.of(2, 3)),
-    DEEP_MINING(MINING, STRIP_MINING, Vec2i.of(2, 1)),
-    VEIN_MINING(MINING, STRIP_MINING, Vec2i.of(2, 5)),
-    MINER_SIGHT(MINING, null, Vec2i.of(6, 3)),
-    SUPER_VISION(MINING, MINER_SIGHT, Vec2i.of(6, 1)),
-    ORE_ALERT(MINING, MINER_SIGHT, Vec2i.of(8, 3)),
-    SILK_STRIP(MINING, ORE_ALERT, Vec2i.of(8, 5)),
+    MINE_MAGNET(SkillType.MINING, null, Vec2i.of(4, 5)),
+    STRIP_MINING(SkillType.MINING, null, Vec2i.of(2, 3)),
+    DEEP_MINING(SkillType.MINING, STRIP_MINING, Vec2i.of(2, 1)),
+    VEIN_MINING(SkillType.MINING, STRIP_MINING, Vec2i.of(2, 5)),
+    MINER_SIGHT(SkillType.MINING, null, Vec2i.of(6, 3)),
+    SUPER_VISION(SkillType.MINING, MINER_SIGHT, Vec2i.of(6, 1)),
+    ORE_ALERT(SkillType.MINING, MINER_SIGHT, Vec2i.of(8, 3)),
+    SILK_STRIP(SkillType.MINING, ORE_ALERT, Vec2i.of(8, 5)),
 
     // Combat
 
     // Up: Damage
-    BERSERKER(COMBAT, null, Vec2i.of(6, 2)),
+    BERSERKER(SkillType.COMBAT, null, Vec2i.of(6, 2)),
     // Down: Fire
-    PYROMANIAC(COMBAT, null, Vec2i.of(6, 5)),
-    TOXICIST(COMBAT, TalentType.PYROMANIAC, Vec2i.of(7, 5)),
+    PYROMANIAC(SkillType.COMBAT, null, Vec2i.of(6, 5)),
+    TOXICIST(SkillType.COMBAT, TalentType.PYROMANIAC, Vec2i.of(7, 5)),
     // Right: Magic
-    DENIAL(COMBAT, null, Vec2i.of(7, 3)), // +slow?
-    GOD_MODE(COMBAT, TalentType.DENIAL, Vec2i.of(8, 3)),
+    DENIAL(SkillType.COMBAT, null, Vec2i.of(7, 3)), // +slow?
+    GOD_MODE(SkillType.COMBAT, TalentType.DENIAL, Vec2i.of(8, 3)),
     // Left: Weapons
-    EXECUTIONER(COMBAT, null, Vec2i.of(4, 3)),
+    EXECUTIONER(SkillType.COMBAT, null, Vec2i.of(4, 3)),
 
     // Archery
 
     // Left: Crossbow
-    VOLLEY(ARCHERY, null, Vec2i.of(2, 3)),
-    GUNSLINGER(ARCHERY, VOLLEY, Vec2i.of(2, 5)),
-    WATER_BOMB(ARCHERY, VOLLEY, Vec2i.of(2, 1)),
+    VOLLEY(SkillType.ARCHERY, null, Vec2i.of(2, 3)),
+    GUNSLINGER(SkillType.ARCHERY, VOLLEY, Vec2i.of(2, 5)),
+    WATER_BOMB(SkillType.ARCHERY, VOLLEY, Vec2i.of(2, 1)),
     // Right: Bow
-    ARROW_SPEED(ARCHERY, null, Vec2i.of(6, 3)),
-    IN_THE_ZONE(ARCHERY, ARROW_SPEED, Vec2i.of(8, 3)),
-    SNIPER(ARCHERY, IN_THE_ZONE, Vec2i.of(8, 1)),
-    LEGOLAS(ARCHERY, SNIPER, Vec2i.of(6, 1)),
-    INSTANT_HIT(ARCHERY, IN_THE_ZONE, Vec2i.of(8, 5)),
-    HOMING_ARROW(ARCHERY, INSTANT_HIT, Vec2i.of(6, 5)),
+    ARROW_SPEED(SkillType.ARCHERY, null, Vec2i.of(6, 3)),
+    IN_THE_ZONE(SkillType.ARCHERY, ARROW_SPEED, Vec2i.of(8, 3)),
+    SNIPER(SkillType.ARCHERY, IN_THE_ZONE, Vec2i.of(8, 1)),
+    LEGOLAS(SkillType.ARCHERY, SNIPER, Vec2i.of(6, 1)),
+    INSTANT_HIT(SkillType.ARCHERY, IN_THE_ZONE, Vec2i.of(8, 5)),
+    HOMING_ARROW(SkillType.ARCHERY, INSTANT_HIT, Vec2i.of(6, 5)),
     // Down
-    GLOW_MARK(ARCHERY, null, Vec2i.of(4, 5)),
+    GLOW_MARK(SkillType.ARCHERY, null, Vec2i.of(4, 5)),
     // Up
-    ARROW_MAGNET(ARCHERY, null, Vec2i.of(4, 1)),
+    ARROW_MAGNET(SkillType.ARCHERY, null, Vec2i.of(4, 1)),
     ;
 
     public final String key;

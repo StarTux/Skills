@@ -1,8 +1,8 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.mytems.Mytems;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.inventory.ItemStack;
 
 public final class ArrowMagnetTalent extends Talent {

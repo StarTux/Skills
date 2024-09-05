@@ -1,8 +1,8 @@
-package com.cavetale.skills.skill.combat;
+package com.cavetale.skills.talent.combat;
 
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Material;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -10,7 +10,7 @@ import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.inventory.ItemStack;
 
 public final class GodModeTalent extends Talent {
-    protected GodModeTalent() {
+    public GodModeTalent() {
         super(TalentType.GOD_MODE, "God Mode",
               "Melee kills give temporary immortality.",
               "Immortality stops you from dying, but you will still take damage!");
@@ -32,7 +32,7 @@ public final class GodModeTalent extends Talent {
     /**
      * Kills grant god mode.
      */
-    protected void onMeleeKill(Player player, Mob mob) {
+    public void onMeleeKill(Player player, Mob mob) {
         if (!isPlayerEnabled(player)) return;
         final Session session = Session.of(player);
         final int level = session.getTalentLevel(talentType);
@@ -44,7 +44,7 @@ public final class GodModeTalent extends Talent {
     /**
      * Resurrect without a totem.
      */
-    protected void onEntityResurrect(Player player, EntityResurrectEvent event) {
+    public void onEntityResurrect(Player player, EntityResurrectEvent event) {
         if (event.getHand() != null) return;
         if (!isPlayerEnabled(player)) return;
         final Session session = Session.of(player);

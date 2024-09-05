@@ -1,8 +1,9 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.skill.archery.ArrowType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Mob;
@@ -22,7 +23,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.*;
 
 public final class InTheZoneTalent extends Talent implements Listener {
-    protected InTheZoneTalent() {
+    public InTheZoneTalent() {
         super(TalentType.IN_THE_ZONE, "In the Zone",
               "Increase :bow:bow damage by landing an unbroken series of :target:hits",
               "Any :arrow:arrow hitting a hostile mob will increase :bow:bow damage. Breaking your focus will reset the damage bonus. Break focus by switching items, taking damage, or missing a shot.");
@@ -56,20 +57,20 @@ public final class InTheZoneTalent extends Talent implements Listener {
         resetZone(player);
     }
 
-    protected void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
+    public void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
         if (combatReward(mob) == null) return;
         if (!ArrowType.PRIMARY.is(arrow)) return;
         increaseZone(player);
     }
 
-    protected void onArrowHitBlock(Player player, AbstractArrow arrow) {
+    public void onArrowHitBlock(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
         if (!ArrowType.PRIMARY.is(arrow)) return;
         resetZone(player);
     }
 
-    protected void onShootBow(Player player, AbstractArrow arrow) {
+    public void onShootBow(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical()) return;
         final Session session = Session.of(player);
@@ -82,7 +83,7 @@ public final class InTheZoneTalent extends Talent implements Listener {
         if (isDebugTalent(player)) player.sendMessage(talentType + " +" + zone);
     }
 
-    protected void increaseZone(Player player) {
+    public void increaseZone(Player player) {
         final Session session = Session.of(player);
         int zone = session.archery.getInTheZone() + 1;
         session.archery.setInTheZone(zone);
@@ -91,7 +92,7 @@ public final class InTheZoneTalent extends Talent implements Listener {
                                   text("In The Zone", talentType.skillType.textColor)));
     }
 
-    protected void resetZone(Player player) {
+    public void resetZone(Player player) {
         final Session session = Session.of(player);
         if (session.archery.getInTheZone() == 0) return;
         session.archery.setInTheZone(0);

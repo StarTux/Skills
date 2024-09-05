@@ -1,9 +1,9 @@
-package com.cavetale.skills.skill.mining;
+package com.cavetale.skills.talent.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
@@ -19,7 +19,7 @@ import static com.cavetale.skills.SkillsPlugin.random;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class StripMiningTalent extends Talent {
-    protected StripMiningTalent() {
+    public StripMiningTalent() {
         super(TalentType.STRIP_MINING, "Strip Mining",
               "Mining stone with an Efficiency pickaxe breaks many blocks",
               "Unleash the full power of the Efficency enchantment. Mining stone type blocks will break several blocks within a line while mining straight. Stone includes: Stone, Andesite, Diorite, Granite",
@@ -46,7 +46,7 @@ public final class StripMiningTalent extends Talent {
         }
     }
 
-    protected boolean onWillBreakBlock(Player player, Block block) {
+    public boolean onWillBreakBlock(Player player, Block block) {
         if (!isPlayerEnabled(player)) return false;
         if (player.isSneaking()) return false;
         final boolean hasDeep = Session.of(player).isTalentEnabled(TalentType.DEEP_MINING);
@@ -62,7 +62,7 @@ public final class StripMiningTalent extends Talent {
     /**
      * Called via scheduler.
      */
-    protected int stripMine(@NonNull Player player, @NonNull Block block, boolean hasDeep) {
+    public int stripMine(@NonNull Player player, @NonNull Block block, boolean hasDeep) {
         // Check item
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null) return 0;

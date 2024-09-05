@@ -4,7 +4,8 @@ import com.cavetale.core.event.skills.SkillsBlockBreakRewardEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.TalentType;
+import com.cavetale.skills.talent.mining.*;
 import com.cavetale.skills.util.Players;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.EnumMap;
@@ -99,7 +100,7 @@ public final class MiningSkill extends Skill implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    protected void onBlockBreak(BlockBreakEvent event) {
+    private void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!Players.playMode(player)) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
@@ -130,7 +131,7 @@ public final class MiningSkill extends Skill implements Listener {
      * Give the SP reward for the broken block and roll talent points
      * where it applies.
      */
-    protected boolean giveReward(Player player, Block block, MiningReward reward, Location dropLocation) {
+    public boolean giveReward(Player player, Block block, MiningReward reward, Location dropLocation) {
         if (isPlayerPlaced(block)) return false;
         final Session session = Session.of(player);
         if (!session.isEnabled()) return false;
@@ -151,7 +152,7 @@ public final class MiningSkill extends Skill implements Listener {
         return true;
     }
 
-    protected boolean giveStackedReward(Player player, ItemStack item, List<Block> blocks, MiningReward reward, Location dropLocation, int stackCount) {
+    public boolean giveStackedReward(Player player, ItemStack item, List<Block> blocks, MiningReward reward, Location dropLocation, int stackCount) {
         final Session session = Session.of(player);
         if (!session.isEnabled()) return false;
         final var rewardEvent = new SkillsBlockBreakRewardEvent(player, blocks,

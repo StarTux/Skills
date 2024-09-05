@@ -1,9 +1,9 @@
-package com.cavetale.skills.skill.mining;
+package com.cavetale.skills.talent.mining;
 
 import com.cavetale.core.struct.Vec3i;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
     private static final BlockData FAKE_GLASS = Material.TINTED_GLASS.createBlockData();
     private final Set<Material> superVisionMaterials = new HashSet<>();
 
-    protected SuperVisionTalent() {
+    public SuperVisionTalent() {
         super(TalentType.SUPER_VISION, "Super Vision",
               "Mining stone with a Fortune pickaxe allows you to see through solid stone",
               "Nearby stone will be rendered see-through for a few seconds so you can identify ores more easily.");
@@ -100,7 +100,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
     /**
      * Turn stone blocks within a radius into glass.
      */
-    protected int xray(@NonNull Player player, @NonNull Block block) {
+    public int xray(@NonNull Player player, @NonNull Block block) {
         if (!player.isValid()) return 0;
         if (!player.getWorld().equals(block.getWorld())) return 0;
         final Session session = Session.of(player);
@@ -202,7 +202,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
         }
     }
 
-    protected void sendRealBlock(Player player, Block block) {
+    public void sendRealBlock(Player player, Block block) {
         player.sendBlockChange(block.getLocation(), block.getBlockData());
     }
 

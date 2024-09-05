@@ -2,10 +2,10 @@ package com.cavetale.skills.session;
 
 import com.cavetale.skills.SkillsPlugin;
 import com.cavetale.skills.skill.SkillType;
-import com.cavetale.skills.skill.TalentType;
 import com.cavetale.skills.sql.SQLPlayer;
 import com.cavetale.skills.sql.SQLSkill;
 import com.cavetale.skills.sql.SQLTalent;
+import com.cavetale.skills.talent.TalentType;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;

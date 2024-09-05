@@ -1,7 +1,8 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.skill.archery.ArrowType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -65,7 +66,7 @@ public final class GunslingerTalent extends Talent implements Listener {
         }
     }
 
-    protected void onShootCrossbow(Player player) {
+    public void onShootCrossbow(Player player) {
         if (!isPlayerEnabled(player)) return;
         // Main Hand
         ItemStack hand = player.getInventory().getItemInMainHand();

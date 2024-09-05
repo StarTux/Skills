@@ -1,7 +1,7 @@
 package com.cavetale.skills;
 
 import com.cavetale.skills.skill.SkillType;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.TalentType;
 import java.util.Collection;
 import org.junit.Test;
 

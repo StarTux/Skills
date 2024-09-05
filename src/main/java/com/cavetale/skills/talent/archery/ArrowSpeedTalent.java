@@ -1,9 +1,9 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
@@ -26,7 +26,7 @@ public final class ArrowSpeedTalent extends Talent {
         return createIcon(Mytems.SNEAKERS);
     }
 
-    protected void onShootBow(Player player, AbstractArrow arrow) {
+    public void onShootBow(Player player, AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
         final Session session = Session.of(player);
         final int level = session.getTalentLevel(talentType);

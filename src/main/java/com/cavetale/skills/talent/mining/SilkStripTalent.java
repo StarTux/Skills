@@ -1,10 +1,11 @@
-package com.cavetale.skills.skill.mining;
+package com.cavetale.skills.talent.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerChangeBlockEvent;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.skill.mining.MiningReward;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,7 +31,7 @@ import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
 
 public final class SilkStripTalent extends Talent implements Listener {
-    protected SilkStripTalent() {
+    public SilkStripTalent() {
         super(TalentType.SILK_STRIP, "Silk Stripping",
               "Use a :diamond_pickaxe:Silk Touch pickaxe to strip a natural :diamond_ore:ore of its contents",
               ":mouse_right: with a Silk Touch pickaxe to use your fine motory skills and remove those treasures right from the ore block.With any luck, you may repeat the procedure as long as the ore stays intact, getting more and more drops.",
@@ -66,7 +67,7 @@ public final class SilkStripTalent extends Talent implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    protected void onPlayerInteract(PlayerInteractEvent event) {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -76,8 +77,10 @@ public final class SilkStripTalent extends Talent implements Listener {
         if (isPlayerPlaced(block)) return;
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
-        final MiningReward reward = miningSkill().rewards.get(block.getType());
-        if (reward == null || reward.item == null || reward.drops <= 0) return;
+        final MiningReward reward = miningSkill().getReward(block.getType());
+        if (reward == null || reward.getItem() == null || reward.getDrops() <= 0 || reward.getReplaceable() == null) {
+            return;
+        }
         if (item == null || item.getType() == Material.AIR) return;
         if (!PlayerBlockAbilityQuery.Action.BUILD.query(player, block)) return;
         final int silk = item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
@@ -94,7 +97,7 @@ public final class SilkStripTalent extends Talent implements Listener {
             }
         }
         // Drop an item (point of no return)
-        final ItemStack drop = new ItemStack(reward.item);
+        final ItemStack drop = new ItemStack(reward.getItem());
         final BlockFace face = event.getBlockFace();
         final double off = 0.7;
         final Location dropLocation = block.getLocation().add(0.5 + (double) face.getModX() * off,
@@ -114,7 +117,7 @@ public final class SilkStripTalent extends Talent implements Listener {
         final int percentage = session.getTalentLevel(talentType);
         final double factor = percentage * 0.01;
         // Expected value of additionally dropped items.
-        final double amount = (double) reward.drops * factor;
+        final double amount = (double) reward.getDrops() * factor;
         // Chance at NOT getting another drop.
         final double chance = amount > 0.01
             ? 1.0 / amount
@@ -125,8 +128,8 @@ public final class SilkStripTalent extends Talent implements Listener {
         if (roll < chance) {
             miningSkill().giveReward(player, block, reward, dropLocation);
             block.getWorld().playSound(block.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 1.0f, 2.0f);
-            new PlayerChangeBlockEvent(player, block, reward.replaceable.createBlockData()).callEvent();
-            block.setType(reward.replaceable);
+            new PlayerChangeBlockEvent(player, block, reward.getReplaceable().createBlockData()).callEvent();
+            block.setType(reward.getReplaceable());
         }
         event.setCancelled(true);
     }

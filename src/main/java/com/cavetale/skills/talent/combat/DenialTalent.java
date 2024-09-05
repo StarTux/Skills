@@ -1,8 +1,9 @@
-package com.cavetale.skills.skill.combat;
+package com.cavetale.skills.talent.combat;
 
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.skill.combat.MobStatusEffect;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.cavetale.worldmarker.entity.EntityMarker;
 import com.destroystokyo.paper.event.entity.EndermanEscapeEvent;
 import com.destroystokyo.paper.event.entity.WitchThrowPotionEvent;
@@ -26,7 +27,7 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.inventory.ItemStack;
 
 public final class DenialTalent extends Talent implements Listener {
-    protected DenialTalent() {
+    public DenialTalent() {
         super(TalentType.DENIAL, "Denial",
               "Hitting monsters with knockback denies the following:",
               ":barrier: Shooting :arrow:Arrows",
@@ -54,7 +55,7 @@ public final class DenialTalent extends Talent implements Listener {
     /**
      * When a mob is damaged, apply the Denial effect.
      */
-    protected void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
+    public void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
         if (player.getAttackCooldown() < 1.0f) return;
         if (!isPlayerEnabled(player)) return;
         if (item == null || item.getEnchantmentLevel(Enchantment.KNOCKBACK) == 0) return;
@@ -73,7 +74,7 @@ public final class DenialTalent extends Talent implements Listener {
      * Deny shooting bow.
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    protected void onEntityShootBow(EntityShootBowEvent event) {
+    public void onEntityShootBow(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Mob shooter)) return;
         if (!MobStatusEffect.DENIAL.has(shooter)) return;
         event.setCancelled(true);
@@ -83,7 +84,7 @@ public final class DenialTalent extends Talent implements Listener {
      * Deny throwing potions.
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    protected void onWitchThrowPotion(WitchThrowPotionEvent event) {
+    public void onWitchThrowPotion(WitchThrowPotionEvent event) {
         Mob witch = event.getEntity();
         if (!MobStatusEffect.DENIAL.has(witch)) return;
         event.setCancelled(true);
@@ -94,7 +95,7 @@ public final class DenialTalent extends Talent implements Listener {
      * this by setting the PoisonFreebie, so that the effect below,
      * which does not know the causing entity, can pick up on it.
      */
-    protected void onMobDamagePlayer(Player player, Mob mob, EntityDamageByEntityEvent event) {
+    public void onMobDamagePlayer(Player player, Mob mob, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (!isArthropod(mob)) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
@@ -118,7 +119,7 @@ public final class DenialTalent extends Talent implements Listener {
      * Disable the event if PoisonFreebie is set, see above.
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    protected void onEntityPotionEffect(EntityPotionEffectEvent event) {
+    public void onEntityPotionEffect(EntityPotionEffectEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         Session session = Session.of(player);
         if (!session.combat.isPoisonFreebie()) return;
@@ -134,14 +135,14 @@ public final class DenialTalent extends Talent implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    protected void onExplosionPrime(ExplosionPrimeEvent event) {
+    public void onExplosionPrime(ExplosionPrimeEvent event) {
         if (!(event.getEntity() instanceof Mob mob)) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
         event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    protected void onEndermanEscape(EndermanEscapeEvent event) {
+    public void onEndermanEscape(EndermanEscapeEvent event) {
         if (!MobStatusEffect.DENIAL.has(event.getEntity())) return;
         event.setCancelled(true);
     }

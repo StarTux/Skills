@@ -6,6 +6,7 @@ import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.combat.CombatReward;
+import com.cavetale.skills.talent.archery.*;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -224,7 +225,7 @@ public final class ArcherySkill extends Skill implements Listener {
     /**
      * Called by onEntityShootBow and LegolasTalent.
      */
-    protected void onShootBow(Player player, AbstractArrow arrow) {
+    public void onShootBow(Player player, AbstractArrow arrow) {
         inTheZoneTalent.onShootBow(player, arrow);
         arrowSpeedTalent.onShootBow(player, arrow);
         homingArrowTalent.onShootBow(player, arrow);

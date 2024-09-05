@@ -1,6 +1,6 @@
 package com.cavetale.skills.sql;
 
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.TalentType;
 import com.winthier.sql.SQLRow;
 import com.winthier.sql.SQLRow.Name;
 import com.winthier.sql.SQLRow.NotNull;

@@ -4,7 +4,7 @@ import lombok.Value;
 import org.bukkit.Material;
 
 @Value
-final class MiningReward {
+public final class MiningReward {
     protected final Material material;
     protected final int sp;
     protected final double money;

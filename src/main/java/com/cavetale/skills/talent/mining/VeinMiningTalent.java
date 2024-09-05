@@ -1,9 +1,10 @@
-package com.cavetale.skills.skill.mining;
+package com.cavetale.skills.talent.mining;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.skill.mining.MiningReward;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,7 +23,7 @@ import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
 
 public final class VeinMiningTalent extends Talent {
-    protected VeinMiningTalent() {
+    public VeinMiningTalent() {
         super(TalentType.VEIN_MINING, "Vein Mining",
               "Mining rocky ores will attempt to break the entire vein",
               "Works on :coal_ore:coal, :redstone_ore:redstone and :lapis_ore:lapis lazuli ores.",
@@ -50,14 +51,14 @@ public final class VeinMiningTalent extends Talent {
      * - Item is pickaxe
      * - Block has reward: Reward is not null
      */
-    protected boolean tryToVeinMine(Player player, ItemStack item, Block block, MiningReward reward, BlockBreakEvent event) {
+    public boolean tryToVeinMine(Player player, ItemStack item, Block block, MiningReward reward, BlockBreakEvent event) {
         if (!isPlayerEnabled(player)) return false;
         if (player.isSneaking()) return false;
         Session session = Session.of(player);
         final int level = session.getTalentLevel(talentType);
         List<Block> vein = findVein(player, block, item, reward, levelToBlocks(level));
         if (isDebugTalent(player)) {
-            player.sendMessage(talentType + " vein=" + reward.material + " size=" + vein.size());
+            player.sendMessage(talentType + " vein=" + reward.getMaterial() + " size=" + vein.size());
         }
         if (vein.size() < 2) return false;
         final ItemMeta meta = item.getItemMeta();
@@ -104,9 +105,9 @@ public final class VeinMiningTalent extends Talent {
     }
 
     private List<Block> findVein(Player player, Block originalBlock, ItemStack item, MiningReward reward, final int total) {
-        Material mat = reward.material;
-        HashSet<Block> done = new HashSet<>();
-        ArrayList<Block> vein = new ArrayList<>();
+        final Material mat = reward.getMaterial();
+        final HashSet<Block> done = new HashSet<>();
+        final ArrayList<Block> vein = new ArrayList<>();
         done.add(originalBlock);
         vein.add(originalBlock);
         for (int veinIndex = 0; veinIndex < vein.size() && vein.size() < total; veinIndex += 1) {

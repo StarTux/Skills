@@ -1,4 +1,4 @@
-package com.cavetale.skills.skill;
+package com.cavetale.skills.talent;
 
 import com.cavetale.core.connect.NetworkServer;
 import com.cavetale.core.font.Emoji;

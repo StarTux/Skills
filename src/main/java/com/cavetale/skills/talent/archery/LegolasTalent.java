@@ -1,9 +1,10 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.skill.archery.ArrowType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -35,7 +36,7 @@ public final class LegolasTalent extends Talent {
         return createIcon(Mytems.GOLDEN_QUIVER);
     }
 
-    protected void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
+    public void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical()) return;
         final boolean primary = ArrowType.PRIMARY.is(arrow);

@@ -1,8 +1,8 @@
-package com.cavetale.skills.skill.mining;
+package com.cavetale.skills.talent.mining;
 
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,7 +23,7 @@ import static com.cavetale.skills.SkillsPlugin.random;
 public final class OreAlertTalent extends Talent implements Listener {
     private final HashSet<Material> oreAlertMaterials = new HashSet<>();
 
-    protected OreAlertTalent() {
+    public OreAlertTalent() {
         super(TalentType.ORE_ALERT, "Ore Alert",
               "Get alerts when a valuable :diamond_ore:ore is nearby",
               "Whenever you break stone with a pickaxe and there is :diamond_ore:Diamond Ore, :emerald_ore:Emerald Ore, or :ancient_debris:Ancient Debris nearby, an alert sound will notify you of its existence..");
@@ -50,7 +50,7 @@ public final class OreAlertTalent extends Talent implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    protected void onBlockBreak(BlockBreakEvent event) {
+    public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!isPlayerEnabled(player)) return;
         Block block = event.getBlock();
@@ -60,7 +60,7 @@ public final class OreAlertTalent extends Talent implements Listener {
         oreAlert(player, block);
     }
 
-    protected boolean oreAlert(@NonNull Player player, @NonNull Block block) {
+    public boolean oreAlert(@NonNull Player player, @NonNull Block block) {
         final int level = Session.of(player).getTalentLevel(talentType);
         final int radius = levelToRadius(level);
         final int radius2 = radius * radius;

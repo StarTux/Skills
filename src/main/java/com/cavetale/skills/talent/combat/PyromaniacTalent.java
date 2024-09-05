@@ -1,15 +1,15 @@
-package com.cavetale.skills.skill.combat;
+package com.cavetale.skills.talent.combat;
 
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public final class PyromaniacTalent extends Talent {
-    protected PyromaniacTalent() {
+    public PyromaniacTalent() {
         super(TalentType.PYROMANIAC, "Pyromaniac",
               "Monsters set on fire take more damage.");
         addLevel(1, "+" + levelToPercentage(1) + "% damage to monsters set on fire");
@@ -28,7 +28,7 @@ public final class PyromaniacTalent extends Talent {
         return createIcon(Material.CAMPFIRE);
     }
 
-    protected void onDamageCalculation(Player player, DamageCalculationEvent event) {
+    public void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (event.getTarget().getFireTicks() <= 0) return;
         final int level = Session.of(player).getTalentLevel(talentType);

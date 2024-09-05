@@ -1,8 +1,9 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.skill.archery.ArrowType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
@@ -29,7 +30,7 @@ public final class SniperTalent extends Talent {
         return createIcon(Material.SPYGLASS);
     }
 
-    protected void onPlayerDamageEntityCalculation(Player player, AbstractArrow arrow, LivingEntity target, DamageCalculationEvent event) {
+    public void onPlayerDamageEntityCalculation(Player player, AbstractArrow arrow, LivingEntity target, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical() || arrow.isShotFromCrossbow()) return;
         if (!ArrowType.PRIMARY.is(arrow) && !ArrowType.BONUS.is(arrow)) return;

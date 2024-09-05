@@ -1,8 +1,8 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.LivingEntity;
@@ -31,7 +31,7 @@ public final class GlowMarkTalent extends Talent {
         return createIcon(Material.GLOW_BERRIES);
     }
 
-    protected void onPlayerDamageEntityCalculation(Player player, AbstractArrow arrow, LivingEntity target, DamageCalculationEvent event) {
+    public void onPlayerDamageEntityCalculation(Player player, AbstractArrow arrow, LivingEntity target, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (!target.hasPotionEffect(PotionEffectType.GLOWING)) return;
         final int level = getTalentLevel(player);

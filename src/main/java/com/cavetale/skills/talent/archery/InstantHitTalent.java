@@ -1,7 +1,7 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.LivingEntity;
@@ -22,7 +22,7 @@ public final class InstantHitTalent extends Talent {
         return createIcon(Material.MUSIC_DISC_CAT);
     }
 
-    protected void onArrowCollide(Player player, AbstractArrow arrow, LivingEntity target) {
+    public void onArrowCollide(Player player, AbstractArrow arrow, LivingEntity target) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical()) return;
         if (arrow.getWeapon() == null || arrow.getWeapon().getType() != Material.BOW) return;

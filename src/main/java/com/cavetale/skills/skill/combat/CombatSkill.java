@@ -5,6 +5,7 @@ import com.cavetale.core.event.skills.SkillsMobKillRewardEvent;
 import com.cavetale.skills.session.Session;
 import com.cavetale.skills.skill.Skill;
 import com.cavetale.skills.skill.SkillType;
+import com.cavetale.skills.talent.combat.*;
 import com.cavetale.skills.util.Players;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;

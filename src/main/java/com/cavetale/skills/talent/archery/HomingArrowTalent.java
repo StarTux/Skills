@@ -1,8 +1,8 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.skills.session.Session;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.cavetale.worldmarker.util.Tags;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +87,7 @@ public final class HomingArrowTalent extends Talent {
         }
     }
 
-    protected void onShootBow(final Player player, final AbstractArrow arrow) {
+    public void onShootBow(final Player player, final AbstractArrow arrow) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical()) return;
         final Session session = Session.of(player);

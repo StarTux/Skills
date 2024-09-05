@@ -1,8 +1,8 @@
-package com.cavetale.skills.skill.combat;
+package com.cavetale.skills.talent.combat;
 
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public final class ExecutionerTalent extends Talent {
-    protected ExecutionerTalent() {
+    public ExecutionerTalent() {
         super(TalentType.EXECUTIONER, "Executioner",
               "Fully charged axe attacks kill mobs low on health");
         addLevel(3, "Instantly kill mobs under 10% health");
@@ -21,7 +21,7 @@ public final class ExecutionerTalent extends Talent {
         return createIcon(Material.IRON_AXE);
     }
 
-    protected void onDamageCalculation(Player player, DamageCalculationEvent event) {
+    public void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (player.getAttackCooldown() < 1.0) return;
         final ItemStack item = player.getInventory().getItemInMainHand();

@@ -1,9 +1,9 @@
-package com.cavetale.skills.skill.mining;
+package com.cavetale.skills.talent.mining;
 
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.mytems.Mytems;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -37,7 +37,7 @@ public final class MineMagnetTalent extends Talent implements Listener {
      * talents should funnel their custom block breaks through here.
      * @return true if block was broken, false otherwise.
      */
-    protected boolean breakBlock(Player player, ItemStack item, Block block) {
+    public boolean breakBlock(Player player, ItemStack item, Block block) {
         if (!new PlayerBreakBlockEvent(player, block, item).callEvent()) return false;
         player.spawnParticle(Particle.BLOCK, block.getLocation().add(0.5, 0.5, 0.5), 16, 0.25, 0.25, 0.25, 0.0, block.getBlockData());
         player.playSound(block.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_STONE_BREAK, SoundCategory.BLOCKS, 1.0f, 1.5f);

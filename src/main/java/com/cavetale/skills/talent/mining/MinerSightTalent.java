@@ -1,7 +1,7 @@
-package com.cavetale.skills.skill.mining;
+package com.cavetale.skills.talent.mining;
 
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +20,7 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 public final class MinerSightTalent extends Talent {
     private final Set<Material> minerSightMaterials = new HashSet<>();
 
-    protected MinerSightTalent() {
+    public MinerSightTalent() {
         super(TalentType.MINER_SIGHT, "Miner Sight",
               "Mining stone with a pickaxe creates a light source",
               "Stone includes:" + " :stone:Stone, :andesite:Andesite, :diorite:Diorite, :granite:Granite, :tuff:tuff, :deepslate:Deepslate.");
@@ -42,7 +42,7 @@ public final class MinerSightTalent extends Talent {
         return createIcon(Material.LANTERN);
     }
 
-    protected void onWillBreakBlock(Player player, Block block) {
+    public void onWillBreakBlock(Player player, Block block) {
         if (!isPlayerEnabled(player)) return;
         if (!isMinerSightBlock(block) && miningSkill().getReward(block) == null) return;
         final ItemStack item = player.getInventory().getItemInMainHand();

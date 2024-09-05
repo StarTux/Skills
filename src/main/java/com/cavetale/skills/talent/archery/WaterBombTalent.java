@@ -1,8 +1,8 @@
-package com.cavetale.skills.skill.archery;
+package com.cavetale.skills.talent.archery;
 
 import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
-import com.cavetale.skills.skill.Talent;
-import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.talent.Talent;
+import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,7 +38,7 @@ public final class WaterBombTalent extends Talent {
         return icon;
     }
 
-    protected void onArrowHitBlock(Player player, AbstractArrow arrow, ProjectileHitEvent event) {
+    public void onArrowHitBlock(Player player, AbstractArrow arrow, ProjectileHitEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isShotFromCrossbow()) return;
         Block block = event.getHitBlockFace() != null
