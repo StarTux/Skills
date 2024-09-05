@@ -23,7 +23,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
-import static org.bukkit.Material.*;
 
 @Getter
 public final class MiningSkill extends Skill implements Listener {
@@ -46,36 +45,36 @@ public final class MiningSkill extends Skill implements Listener {
         // exp values are maximal according to the wiki, used for Silk Stripping
         // veinExp values are averages rounded up, used for Vein Mining
         // Last three values are used by Silk Fortune, "null, 0, null" any values to disable
-        reward(DIAMOND_ORE, 10, 50.0, 7, 5, DIAMOND, 1, STONE);
-        reward(DEEPSLATE_DIAMOND_ORE, 10, 50.0, 7, 5, DIAMOND, 1, DEEPSLATE);
-        reward(EMERALD_ORE, 10, 30.0, 7, 5, EMERALD, 1, STONE);
-        reward(DEEPSLATE_EMERALD_ORE, 10, 30.0, 7, 5, EMERALD, 1, DEEPSLATE);
-        reward(IRON_ORE, 3, 10.0, 3, 0, RAW_IRON, 1, STONE);
-        reward(DEEPSLATE_IRON_ORE, 3, 10.0, 3, 0, RAW_IRON, 1, DEEPSLATE);
-        reward(COPPER_ORE, 1, 10.0, 3, 0, RAW_COPPER, 4, STONE); // 2-5
-        reward(DEEPSLATE_COPPER_ORE, 1, 10.0, 3, 0, RAW_COPPER, 4, DEEPSLATE);
-        reward(GOLD_ORE, 5, 10.0, 3, 0, RAW_GOLD, 1, STONE);
-        reward(DEEPSLATE_GOLD_ORE, 5, 10.0, 3, 0, RAW_GOLD, 1, DEEPSLATE);
-        reward(NETHER_GOLD_ORE, 5, 10.0, 1, 1, GOLD_NUGGET, 4, NETHERRACK); // 2-6
-        reward(GILDED_BLACKSTONE, 5, 10.0, 0, 0, GOLD_NUGGET, 0, BLACKSTONE); // 10% to drop 2-5
-        reward(COAL_ORE, 1, 1.0, 2, 1, COAL, 1, STONE);
-        reward(DEEPSLATE_COAL_ORE, 1, 1.0, 2, 1, COAL, 1, DEEPSLATE);
-        reward(LAPIS_ORE, 8, 40.0, 5, 4, LAPIS_LAZULI, 7, STONE); // 4-9
-        reward(DEEPSLATE_LAPIS_ORE, 8, 40.0, 5, 4, LAPIS_LAZULI, 7, DEEPSLATE);
-        reward(NETHER_QUARTZ_ORE, 1, 1.0, 5, 4, QUARTZ, 1, NETHERRACK);
-        reward(REDSTONE_ORE, 1, 3.0, 5, 3, REDSTONE, 5, STONE); // 4-5
-        reward(DEEPSLATE_REDSTONE_ORE, 1, 3.0, 5, 3, REDSTONE, 5, DEEPSLATE);
+        reward(MiningReward.builder().material(Material.DIAMOND_ORE).sp(10).money(50.0).exp(7).veinExp(5).silkStripItem(Material.DIAMOND).drops(1).replaceable(Material.STONE).build());
+        reward(MiningReward.builder().material(Material.DEEPSLATE_DIAMOND_ORE).sp(10).money(50.0).exp(7).veinExp(5).silkStripItem(Material.DIAMOND).drops(1).replaceable(Material.DEEPSLATE).build());
+        reward(MiningReward.builder().material(Material.EMERALD_ORE).sp(10).money(30.0).exp(7).veinExp(5).silkStripItem(Material.EMERALD).drops(1).replaceable(Material.STONE).build());
+        reward(MiningReward.builder().material(Material.DEEPSLATE_EMERALD_ORE).sp(10).money(30.0).exp(7).veinExp(5).silkStripItem(Material.EMERALD).drops(1).replaceable(Material.DEEPSLATE).build());
+        reward(MiningReward.builder().material(Material.IRON_ORE).sp(3).money(10.0).exp(3).silkStripItem(Material.RAW_IRON).drops(1).replaceable(Material.STONE).build());
+        reward(MiningReward.builder().material(Material.DEEPSLATE_IRON_ORE).sp(3).money(10.0).exp(3).silkStripItem(Material.RAW_IRON).drops(1).replaceable(Material.DEEPSLATE).build());
+        reward(MiningReward.builder().material(Material.COPPER_ORE).sp(1).money(10.0).exp(3).silkStripItem(Material.RAW_COPPER).drops(4).replaceable(Material.STONE).build()); // 2-5
+        reward(MiningReward.builder().material(Material.DEEPSLATE_COPPER_ORE).sp(1).money(10.0).exp(3).silkStripItem(Material.RAW_COPPER).drops(4).replaceable(Material.DEEPSLATE).build());
+        reward(MiningReward.builder().material(Material.GOLD_ORE).sp(5).money(10.0).exp(3).silkStripItem(Material.RAW_GOLD).drops(1).replaceable(Material.STONE).build());
+        reward(MiningReward.builder().material(Material.DEEPSLATE_GOLD_ORE).sp(5).money(10.0).exp(3).silkStripItem(Material.RAW_GOLD).drops(1).replaceable(Material.DEEPSLATE).build());
+        reward(MiningReward.builder().material(Material.NETHER_GOLD_ORE).sp(5).money(10.0).exp(1).veinExp(1).silkStripItem(Material.GOLD_NUGGET).drops(4).replaceable(Material.NETHERRACK).build()); // 2-6
+        reward(MiningReward.builder().material(Material.GILDED_BLACKSTONE).sp(5).money(10.0).silkStripItem(Material.GOLD_NUGGET).replaceable(Material.BLACKSTONE).build()); // 10% to drop 2-5
+        reward(MiningReward.builder().material(Material.COAL_ORE).sp(1).money(1.0).exp(2).veinExp(1).silkStripItem(Material.COAL).drops(1).replaceable(Material.STONE).build());
+        reward(MiningReward.builder().material(Material.DEEPSLATE_COAL_ORE).sp(1).money(1.0).exp(2).veinExp(1).silkStripItem(Material.COAL).drops(1).replaceable(Material.DEEPSLATE).build());
+        reward(MiningReward.builder().material(Material.LAPIS_ORE).sp(8).money(40.0).exp(5).veinExp(4).silkStripItem(Material.LAPIS_LAZULI).drops(7).replaceable(Material.STONE).build()); // 4-9
+        reward(MiningReward.builder().material(Material.DEEPSLATE_LAPIS_ORE).sp(8).money(40.0).exp(5).veinExp(4).silkStripItem(Material.LAPIS_LAZULI).drops(7).replaceable(Material.DEEPSLATE).build());
+        reward(MiningReward.builder().material(Material.NETHER_QUARTZ_ORE).sp(1).money(1.0).exp(5).veinExp(4).silkStripItem(Material.QUARTZ).drops(1).replaceable(Material.NETHERRACK).build());
+        reward(MiningReward.builder().material(Material.REDSTONE_ORE).sp(1).money(3.0).exp(5).veinExp(3).silkStripItem(Material.REDSTONE).drops(5).replaceable(Material.STONE).build()); // 4-5
+        reward(MiningReward.builder().material(Material.DEEPSLATE_REDSTONE_ORE).sp(1).money(3.0).exp(5).veinExp(3).silkStripItem(Material.REDSTONE).drops(5).replaceable(Material.DEEPSLATE).build());
         // technically not ores
-        reward(ANCIENT_DEBRIS, 10, 50.0, 10, 0, NETHERITE_SCRAP, 1, NETHERRACK);
-        reward(RAW_COPPER_BLOCK, 5, 50.0, 3, 0, null, 0, null);
-        reward(RAW_IRON_BLOCK, 15, 50.0, 3, 0, null, 0, null);
-        reward(RAW_GOLD_BLOCK, 25, 50.0, 3, 0, null, 0, null); // currently does not generate
-        reward(BUDDING_AMETHYST, 10, 10.0, 1, 0, AMETHYST_SHARD, 2, AMETHYST_BLOCK);
-        reward(GLOWSTONE, 1, 1.0, 1, 0, GLOWSTONE, 0, null);
+        reward(MiningReward.builder().material(Material.ANCIENT_DEBRIS).sp(10).money(50.0).exp(10).silkStripItem(Material.NETHERITE_SCRAP).drops(1).replaceable(Material.NETHERRACK).build());
+        reward(MiningReward.builder().material(Material.RAW_COPPER_BLOCK).sp(5).money(50.0).exp(3).build());
+        reward(MiningReward.builder().material(Material.RAW_IRON_BLOCK).sp(15).money(50.0).exp(3).build());
+        reward(MiningReward.builder().material(Material.RAW_GOLD_BLOCK).sp(25).money(50.0).exp(3).build()); // currently does not generate
+        reward(MiningReward.builder().material(Material.BUDDING_AMETHYST).sp(10).money(10.0).exp(1).silkStripItem(Material.AMETHYST_SHARD).drops(2).replaceable(Material.AMETHYST_BLOCK).build());
+        reward(MiningReward.builder().material(Material.GLOWSTONE).sp(1).money(1.0).exp(1).silkStripItem(Material.GLOWSTONE).build());
     }
 
-    private void reward(Material material, int sp, double money, int exp, int veinExp, Material item, int drops, Material replaceable) {
-        rewards.put(material, new MiningReward(material, sp, money, exp, veinExp, item, drops, replaceable));
+    private void reward(MiningReward miningReward) {
+        rewards.put(miningReward.getMaterial(), miningReward);
     }
 
     protected static boolean netherStone(@NonNull Block block) {

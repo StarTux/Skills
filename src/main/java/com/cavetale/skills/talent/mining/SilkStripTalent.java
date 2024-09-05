@@ -78,7 +78,7 @@ public final class SilkStripTalent extends Talent implements Listener {
         if (!MaterialTags.PICKAXES.isTagged(item.getType())) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
         final MiningReward reward = miningSkill().getReward(block.getType());
-        if (reward == null || reward.getItem() == null || reward.getDrops() <= 0 || reward.getReplaceable() == null) {
+        if (reward == null || reward.getSilkStripItem() == null || reward.getDrops() <= 0 || reward.getReplaceable() == null) {
             return;
         }
         if (item == null || item.getType() == Material.AIR) return;
@@ -97,7 +97,7 @@ public final class SilkStripTalent extends Talent implements Listener {
             }
         }
         // Drop an item (point of no return)
-        final ItemStack drop = new ItemStack(reward.getItem());
+        final ItemStack drop = new ItemStack(reward.getSilkStripItem());
         final BlockFace face = event.getBlockFace();
         final double off = 0.7;
         final Location dropLocation = block.getLocation().add(0.5 + (double) face.getModX() * off,
