@@ -9,6 +9,9 @@ import com.cavetale.skills.skill.SkillType;
 import com.cavetale.skills.skill.Talent;
 import com.cavetale.skills.skill.TalentLevel;
 import com.cavetale.skills.skill.TalentType;
+import com.cavetale.skills.sql.SQLPlayer;
+import com.cavetale.skills.sql.SQLSkill;
+import com.cavetale.skills.sql.SQLTalent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +56,9 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
             .completers(CommandArgCompleter.enumLowerList(SkillType.class))
             .description("List talents")
             .senderCaller(this::talentList);
+        talentNode.addChild("resetall").arguments("IKnowWhatImDoing")
+            .description("Reset all player talents")
+            .senderCaller(this::talentResetAll);
         // Skills
         CommandNode skillNode = rootNode.addChild("skill")
             .description("Skill subcommands");
@@ -97,8 +103,6 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
                                           text(session.getTotalTalentPoints(skillType))));
         sender.sendMessage(textOfChildren(text("Money Bonus ", GRAY),
                                           text(session.getMoneyBonus(skillType))));
-        sender.sendMessage(textOfChildren(text("Exp Bonus ", GRAY),
-                                          text(session.getExpBonus(skillType))));
         List<Component> components = new ArrayList<>();
         for (TalentType talentType : TalentType.SKILL_MAP.get(skillType)) {
             if (session.isTalentEnabled(talentType)) {
@@ -173,6 +177,27 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
                                               text(cost), text(tiny("tp "), GRAY),
                                               talentType));
         }
+        return true;
+    }
+
+    private boolean talentResetAll(CommandSender sender, String[] args) {
+        if (args.length != 1 || !args[0].equals("IKnowWhatImDoing")) {
+            return false;
+        }
+        final int deleteTalentCount = plugin.getDatabase().find(SQLTalent.class).delete();
+        final int resetTalentCount = plugin.getDatabase().update(SQLPlayer.class).set("talents", 0).sync();
+        final var sqlSkillTable = plugin.getDatabase().getTable(SQLSkill.class);
+        final int updateSkillCount = plugin.getDatabase().executeUpdate("UPDATE `" + sqlSkillTable.getTableName() + "` SET"
+                                                                        + " `talents` = 0"
+                                                                        + ", `talent_points` = `total_talent_points`"
+                                                                        + ", `money_bonus` = 0"
+                                                                        + ", `reminder` = 0");
+        plugin.getSessions().reloadAll();
+        sender.sendMessage(text("Reset all talents:"
+                                + " deleteTalents=" + deleteTalentCount
+                                + " resetTalents=" + resetTalentCount
+                                + " updateSkills=" + updateSkillCount,
+                                YELLOW));
         return true;
     }
 

@@ -35,6 +35,11 @@ public final class Sessions implements Listener {
         sessionsMap.clear();
     }
 
+    public void reloadAll() {
+        disable();
+        enable();
+    }
+
     /**
      * Load and prepare for live use.
      */
