@@ -298,7 +298,7 @@ public final class Session {
 
     public int getTalentLevel(TalentType talentType) {
         return talents.containsKey(talentType)
-            ? talents.get(talentType).getLevel()
+            ? Math.min(talents.get(talentType).getLevel(), talentType.getTalent().getMaxLevel().getLevel())
             : 0;
     }
 
