@@ -21,7 +21,8 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
 
 public final class CombatSkill extends Skill {
-    protected final CombatListener combatListener = new CombatListener(this);;
+    protected final CombatListener combatListener = new CombatListener(this);
+    public final CombatMagnetTalent combatMagnetTalent = new CombatMagnetTalent();
     public final PyromaniacTalent pyromaniacTalent = new PyromaniacTalent();
     public final DenialTalent denialTalent = new DenialTalent();
     public final GodModeTalent godModeTalent = new GodModeTalent();
@@ -65,6 +66,7 @@ public final class CombatSkill extends Skill {
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
         dropMoney(player, mob.getLocation(), rewardEvent.getFinalMoney());
         event.setDroppedExp(rewardEvent.getFinalExp());
+        combatMagnetTalent.onPlayerMobMeleeKill(player, event);
     }
 
     private static final NamespacedKey KEY_KILLS = NamespacedKey.fromString("skills:kills");

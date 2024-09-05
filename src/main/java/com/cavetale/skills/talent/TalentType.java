@@ -21,7 +21,7 @@ import static net.kyori.adventure.text.JoinConfiguration.noSeparators;
 @Getter
 public enum TalentType implements ComponentLike {
     // Mining
-    MINE_MAGNET(SkillType.MINING, null, Vec2i.of(4, 5)),
+    MINE_MAGNET(SkillType.MINING, null, Vec2i.of(4, 1)),
     STRIP_MINING(SkillType.MINING, null, Vec2i.of(2, 3)),
     DEEP_MINING(SkillType.MINING, STRIP_MINING, Vec2i.of(2, 1)),
     VEIN_MINING(SkillType.MINING, STRIP_MINING, Vec2i.of(2, 5)),
@@ -32,19 +32,18 @@ public enum TalentType implements ComponentLike {
 
     // Combat
 
-    // Up: Damage
+    COMBAT_MAGNET(SkillType.COMBAT, null, Vec2i.of(4, 1)),
     BERSERKER(SkillType.COMBAT, null, Vec2i.of(6, 2)),
-    // Down: Fire
     PYROMANIAC(SkillType.COMBAT, null, Vec2i.of(6, 5)),
     TOXICIST(SkillType.COMBAT, TalentType.PYROMANIAC, Vec2i.of(7, 5)),
-    // Right: Magic
     DENIAL(SkillType.COMBAT, null, Vec2i.of(7, 3)), // +slow?
     GOD_MODE(SkillType.COMBAT, TalentType.DENIAL, Vec2i.of(8, 3)),
-    // Left: Weapons
     EXECUTIONER(SkillType.COMBAT, null, Vec2i.of(4, 3)),
 
     // Archery
 
+    // Up
+    ARROW_MAGNET(SkillType.ARCHERY, null, Vec2i.of(4, 1)),
     // Left: Crossbow
     VOLLEY(SkillType.ARCHERY, null, Vec2i.of(2, 3)),
     GUNSLINGER(SkillType.ARCHERY, VOLLEY, Vec2i.of(2, 5)),
@@ -58,8 +57,6 @@ public enum TalentType implements ComponentLike {
     HOMING_ARROW(SkillType.ARCHERY, INSTANT_HIT, Vec2i.of(6, 5)),
     // Down
     GLOW_MARK(SkillType.ARCHERY, null, Vec2i.of(4, 5)),
-    // Up
-    ARROW_MAGNET(SkillType.ARCHERY, null, Vec2i.of(4, 1)),
     ;
 
     public final String key;
