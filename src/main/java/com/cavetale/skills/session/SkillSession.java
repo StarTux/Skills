@@ -214,7 +214,7 @@ public class SkillSession {
     }
 
     public final double moneyBonusToPercentage(final int bonus) {
-        final int cutoff = 50;
+        final int cutoff = 20;
         final int major = Math.min(cutoff, bonus);
         final int minor = Math.max(0, bonus - cutoff);
         return major * 2.5 + minor * 1.0;
