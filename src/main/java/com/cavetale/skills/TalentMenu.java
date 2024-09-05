@@ -330,7 +330,6 @@ public final class TalentMenu {
                 }
                 tooltip.add(DIVIDER);
                 tooltip.add(textOfChildren(Mytems.ARROW_RIGHT, text(tiny(" lv ") + (bonus + 1), GREEN)));
-                final double nextPercentage = session.getSkill(skillType).moneyBonusToPercentage(bonus + 1);
                 tooltip.add(text((bonus + 1) + " bonus exp", GRAY));
                 tooltip.add(textOfChildren(Mytems.MOUSE_RIGHT, text(tiny(" unlock for ") + 1 + tiny("tp"), GREEN)));
                 tooltip(meta, tooltip);
