@@ -10,9 +10,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-public final class SwiftSniperTalent extends Talent {
-    public SwiftSniperTalent() {
-        super(TalentType.SWIFT_SNIPER, "Swift Sniper",
+public final class ArrowSpeedTalent extends Talent {
+    public ArrowSpeedTalent() {
+        super(TalentType.ARROW_SPEED, "Arrow Speed",
               "Your extra :speed_effect:movement speed is added to bow :arrow:arrow speed",
               "Your :speed_effect:movement speed increase by the potions or certain :sneakers:equipment, will be added to the velocity of your :arrows:bow arrows. Arrows deal more damage if they move faster.");
         addLevel(1, "Add the movement speed");

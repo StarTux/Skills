@@ -50,8 +50,8 @@ public enum TalentType implements ComponentLike {
     GUNSLINGER(ARCHERY, VOLLEY, Vec2i.of(2, 5)),
     WATER_BOMB(ARCHERY, VOLLEY, Vec2i.of(2, 1)),
     // Right: Bow
-    SWIFT_SNIPER(ARCHERY, null, Vec2i.of(6, 3)),
-    IN_THE_ZONE(ARCHERY, SWIFT_SNIPER, Vec2i.of(8, 3)),
+    ARROW_SPEED(ARCHERY, null, Vec2i.of(6, 3)),
+    IN_THE_ZONE(ARCHERY, ARROW_SPEED, Vec2i.of(8, 3)),
     SNIPER(ARCHERY, IN_THE_ZONE, Vec2i.of(8, 1)),
     LEGOLAS(ARCHERY, SNIPER, Vec2i.of(6, 1)),
     INSTANT_HIT(ARCHERY, IN_THE_ZONE, Vec2i.of(8, 5)),

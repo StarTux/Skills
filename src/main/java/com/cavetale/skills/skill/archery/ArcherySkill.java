@@ -42,7 +42,7 @@ import static com.cavetale.skills.skill.combat.CombatSkill.addKillAndCheckCooldo
  */
 public final class ArcherySkill extends Skill implements Listener {
     public final InTheZoneTalent inTheZoneTalent = new InTheZoneTalent();
-    public final SwiftSniperTalent swiftSniperTalent = new SwiftSniperTalent();
+    public final ArrowSpeedTalent arrowSpeedTalent = new ArrowSpeedTalent();
     public final LegolasTalent legolasTalent = new LegolasTalent();
     public final SniperTalent sniperTalent = new SniperTalent();
     public final HomingArrowTalent homingArrowTalent = new HomingArrowTalent();
@@ -226,7 +226,7 @@ public final class ArcherySkill extends Skill implements Listener {
      */
     protected void onShootBow(Player player, AbstractArrow arrow) {
         inTheZoneTalent.onShootBow(player, arrow);
-        swiftSniperTalent.onShootBow(player, arrow);
+        arrowSpeedTalent.onShootBow(player, arrow);
         homingArrowTalent.onShootBow(player, arrow);
     }
 
