@@ -191,6 +191,7 @@ public final class AdminCommand extends AbstractCommand<SkillsPlugin> {
                                                                         + " `talents` = 0"
                                                                         + ", `talent_points` = `total_talent_points`"
                                                                         + ", `money_bonus` = 0"
+                                                                        + ", `exp_bonus` = 0"
                                                                         + ", `reminder` = 0");
         plugin.getSessions().reloadAll();
         sender.sendMessage(text("Reset all talents:"
