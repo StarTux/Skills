@@ -33,7 +33,7 @@ import static com.cavetale.skills.SkillsPlugin.random;
 public final class SilkStripTalent extends Talent implements Listener {
     public SilkStripTalent() {
         super(TalentType.SILK_STRIP, "Silk Stripping",
-              "Use a :diamond_pickaxe:Silk Touch pickaxe to strip a natural :diamond_ore:ore of its contents",
+              "Use a :diamond_pickaxe:Silk Touch pickaxe to strip a natural :diamond_ore:ore of its contents.",
               ":mouse_right: with a Silk Touch pickaxe to use your fine motory skills and remove those treasures right from the ore block.With any luck, you may repeat the procedure as long as the ore stays intact, getting more and more drops.",
               "Eventually, the ore will turn into stone and you get the usual skill points for mining. This method may yield as much reward as Fortune IV would but with greater variance.",
               "Silk Stripping only works on natural ores. Picking up and moving the ore will compromise its structural integrity, making Silk Stripping ineffective.");

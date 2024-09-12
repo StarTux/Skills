@@ -28,7 +28,6 @@ import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 public final class MiningSkill extends Skill implements Listener {
     protected final EnumMap<Material, MiningReward> rewards = new EnumMap<>(Material.class);
     public final StripMiningTalent stripMiningTalent = new StripMiningTalent();
-    public final DeepMiningTalent deepMiningTalent = new DeepMiningTalent();
     public final VeinMiningTalent veinMiningTalent = new VeinMiningTalent();
     public final MineMagnetTalent mineMagnetTalent = new MineMagnetTalent();
     public final SilkStripTalent silkStripTalent = new SilkStripTalent();

@@ -23,7 +23,7 @@ public final class MineMagnetTalent extends Talent implements Listener {
 
     public MineMagnetTalent() {
         super(TalentType.MINE_MAGNET, "Mining Magnet",
-              "Broken blocks will drop items right at your feet");
+              "Broken blocks will drop items right at your feet.");
         addLevel(1, "Absorb mined blocks");
     }
 

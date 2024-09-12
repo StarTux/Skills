@@ -25,7 +25,7 @@ import static com.cavetale.skills.SkillsPlugin.random;
 public final class VeinMiningTalent extends Talent {
     public VeinMiningTalent() {
         super(TalentType.VEIN_MINING, "Vein Mining",
-              "Mining rocky ores will attempt to break the entire vein",
+              "Mining rocky ores will attempt to break the entire vein.",
               "Works on :coal_ore:coal, :redstone_ore:redstone and :lapis_ore:lapis lazuli ores.",
               "Mine without this feature by sneaking.");
         addLevel(1, "Mine veins with up to " + levelToBlocks(1) + " blocks");

@@ -25,11 +25,13 @@ public final class OreAlertTalent extends Talent implements Listener {
 
     public OreAlertTalent() {
         super(TalentType.ORE_ALERT, "Ore Alert",
-              "Get alerts when a valuable :diamond_ore:ore is nearby",
-              "Whenever you break stone with a pickaxe and there is :diamond_ore:Diamond Ore, :emerald_ore:Emerald Ore, or :ancient_debris:Ancient Debris nearby, an alert sound will notify you of its existence..");
+              "Get alerts when a valuable :diamond_ore:ore is nearby.",
+              "Whenever you break stone with a pickaxe and there is :diamond_ore:Diamond Ore, :emerald_ore:Emerald Ore, or :ancient_debris:Ancient Debris nearby, an alert sound will notify you of its existence.");
         addLevel(1, "Ore Alert radius " + levelToRadius(1));
         addLevel(1, "Ore Alert radius " + levelToRadius(2));
         addLevel(1, "Ore Alert radius " + levelToRadius(3));
+        addLevel(1, "Ore Alert radius " + levelToRadius(4));
+        addLevel(1, "Ore Alert radius " + levelToRadius(5));
         // Materials
         oreAlertMaterials.add(Material.NETHERRACK);
         oreAlertMaterials.add(Material.STONE);

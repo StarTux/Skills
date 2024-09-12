@@ -23,7 +23,6 @@ public enum TalentType implements ComponentLike {
     // Mining
     MINE_MAGNET(SkillType.MINING, null, Vec2i.of(4, 1)),
     STRIP_MINING(SkillType.MINING, null, Vec2i.of(2, 3)),
-    DEEP_MINING(SkillType.MINING, STRIP_MINING, Vec2i.of(2, 1)),
     VEIN_MINING(SkillType.MINING, STRIP_MINING, Vec2i.of(2, 5)),
     MINER_SIGHT(SkillType.MINING, null, Vec2i.of(6, 3)),
     SUPER_VISION(SkillType.MINING, MINER_SIGHT, Vec2i.of(6, 1)),

@@ -36,10 +36,13 @@ public final class SuperVisionTalent extends Talent implements Listener {
 
     public SuperVisionTalent() {
         super(TalentType.SUPER_VISION, "Super Vision",
-              "Mining stone with a Fortune pickaxe allows you to see through solid stone",
+              "Mining stone with a Fortune pickaxe allows you to see through solid stone.",
               "Nearby stone will be rendered see-through for a few seconds so you can identify ores more easily.");
-        addLevel(2, "Super Vision radius " + levelToRadius(1));
+        addLevel(1, "Super Vision radius " + levelToRadius(1));
         addLevel(1, "Super Vision radius " + levelToRadius(2));
+        addLevel(1, "Super Vision radius " + levelToRadius(3));
+        addLevel(1, "Super Vision radius " + levelToRadius(4));
+        addLevel(1, "Super Vision radius " + levelToRadius(5));
         // Materials
         superVisionMaterials.add(Material.STONE);
         superVisionMaterials.add(Material.DIORITE);
@@ -164,7 +167,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
         final Tag tag = getOrCreateTag(session);
         if (tag.cleanupScheduled) return;
         tag.cleanupScheduled = true;
-        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> cleanup(session), 20L);
+        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> cleanup(session), 1L);
     }
 
     private void cleanup(Session session) {
