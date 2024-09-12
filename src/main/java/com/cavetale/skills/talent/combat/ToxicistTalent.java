@@ -14,9 +14,9 @@ public final class ToxicistTalent extends Talent {
         super(TalentType.TOXICIST, "Toxicist",
               "Bane of Arthropods deals extra raw damage against poisoned mobs.");
         addLevel(1, "+" + levelToBonus(1) + " raw damage");
-        addLevel(2, "+" + levelToBonus(2) + " raw damage");
-        addLevel(3, "+" + levelToBonus(3) + " raw damage");
-        addLevel(4, "+" + levelToBonus(4) + " raw damage");
+        addLevel(1, "+" + levelToBonus(2) + " raw damage");
+        addLevel(1, "+" + levelToBonus(3) + " raw damage");
+        addLevel(1, "+" + levelToBonus(4) + " raw damage");
     }
 
     private static int levelToBonus(int level) {
