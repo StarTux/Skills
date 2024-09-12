@@ -43,6 +43,8 @@ public enum TalentType implements ComponentLike {
     BERSERKER(SkillType.COMBAT, EXECUTIONER, Vec2i.of(6, 1)),
     CHEVALIER(SkillType.COMBAT, BERSERKER, Vec2i.of(8, 1)),
     GOD_MODE(SkillType.COMBAT, EXECUTIONER, Vec2i.of(6, 5)),
+    STUN_PIKE(SkillType.COMBAT, GOD_MODE, Vec2i.of(8, 5)),
+    SLASH_ATTACK(SkillType.COMBAT, EXECUTIONER, Vec2i.of(8, 3)),
 
     // Archery
 

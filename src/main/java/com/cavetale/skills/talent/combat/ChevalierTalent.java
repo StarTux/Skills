@@ -14,7 +14,7 @@ import static com.cavetale.skills.util.Text.formatDouble;
 public final class ChevalierTalent extends Talent {
     public ChevalierTalent() {
         super(TalentType.CHEVALIER, "Chevalier",
-              "Bonus damage while mounted on a :saddle:horse");
+              "Bonus damage while mounted on a :saddle:horse.");
         addLevel(1, "Add :iron_horse_armor:horse armor");
         addLevel(1, "Add horse :jump_boost_effect:jump strength");
         addLevel(1, "Add horse :speed_effect:movement speed ability");

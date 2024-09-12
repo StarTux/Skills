@@ -12,7 +12,7 @@ import org.bukkit.util.Vector;
 
 public final class ArrowSpeedTalent extends Talent {
     public ArrowSpeedTalent() {
-        super(TalentType.ARROW_SPEED, "Arrow Speed",
+        super(TalentType.ARROW_SPEED, "Dart Swiftness",
               "Your extra :speed_effect:movement speed is added to bow :arrow:arrow speed",
               "Your :speed_effect:movement speed increase by the potions or certain :sneakers:equipment, will be added to the velocity of your :arrows:bow arrows. Arrows deal more damage if they move faster.");
         addLevel(1, "Add the movement speed");
@@ -23,7 +23,7 @@ public final class ArrowSpeedTalent extends Talent {
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Mytems.SNEAKERS);
+        return createIcon(Mytems.MOUSE_CURSOR);
     }
 
     public void onShootBow(Player player, AbstractArrow arrow) {
@@ -39,7 +39,11 @@ public final class ArrowSpeedTalent extends Talent {
         final Vector velocity = arrow.getVelocity().multiply(1.0 + bonus);
         arrow.setVelocity(velocity);
         if (isDebugTalent(player)) {
-            player.sendMessage(talentType + " " + factor + " x " + String.format("%.02f", extraSpeed) + " = " + String.format("%.02f", bonus));
+            player.sendMessage(talentType
+                               + " lvl:" + level
+                               + " factor:" + factor
+                               + " speed:" + String.format("%.02f", extraSpeed)
+                               + " bonus:" + String.format("%.02f", bonus));
         }
     }
 }

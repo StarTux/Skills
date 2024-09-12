@@ -21,7 +21,7 @@ public final class GodModeTalent extends Talent {
     }
 
     private static int levelToSeconds(int level) {
-        return level * 2;
+        return level * 3;
     }
 
     @Override

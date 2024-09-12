@@ -11,9 +11,9 @@ import org.bukkit.inventory.ItemStack;
 public final class InstantHitTalent extends Talent {
     public InstantHitTalent() {
         super(TalentType.INSTANT_HIT, "Instant Hit",
-              "Fully charged :bow:bow arrows reset any mob's :iron_chestplate:invulnerability ticks",
-              "Mobs are invulnerable to all attack damage for half a second after they take damage. This talent resets their invulnerability when you hit them with a fully charged :bow:bow arrow.",
-              "That way, mobs cannot deflect your arrows without a shield.");
+              "Fully charged :bow:bow arrows reset any mob's :clock:invulnerability ticks",
+              "Mobs are invulnerable to all attack damage for half a second after they take damage. This talent resets their invulnerability when you hit them with a fully charged :bow:bow arrow."
+              + "\nThat way, mobs cannot deflect your arrows without a shield.");
         addLevel(1, "Always hit the enemy");
     }
 
@@ -26,9 +26,9 @@ public final class InstantHitTalent extends Talent {
         if (!isPlayerEnabled(player)) return;
         if (!arrow.isCritical()) return;
         if (arrow.getWeapon() == null || arrow.getWeapon().getType() != Material.BOW) return;
+        target.setNoDamageTicks(0);
         if (isDebugTalent(player)) {
             player.sendMessage(talentType + " ticks:" + target.getNoDamageTicks());
         }
-        target.setNoDamageTicks(0);
     }
 }

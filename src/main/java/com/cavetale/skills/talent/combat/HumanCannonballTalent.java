@@ -23,6 +23,7 @@ public final class HumanCannonballTalent extends Talent {
     public void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!player.isGliding()) return;
         if (!isPlayerEnabled(player)) return;
+        if (!MeleeWeapon.hasMeleeWeapon(player)) return;
         final double speed = player.getVelocity().length();
         if (speed < 0.01) return;
         event.getCalculation().getOrCreateBaseDamageModifier().addFactorBonus(speed, "skills:human_cannonball");

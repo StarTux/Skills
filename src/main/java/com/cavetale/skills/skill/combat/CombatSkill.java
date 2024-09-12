@@ -31,6 +31,8 @@ public final class CombatSkill extends Skill {
     public final BerserkerTalent berserkerTalent = new BerserkerTalent();
     public final HumanCannonballTalent humanCannonballTalent = new HumanCannonballTalent();
     public final ChevalierTalent chevalierTalent = new ChevalierTalent();
+    public final StunPikeTalent stunPikeTalent = new StunPikeTalent();
+    public final SlashAttackTalent slashAttackTalent = new SlashAttackTalent();
 
     protected static final long CHUNK_KILL_DECAY_TIME = Duration.ofMinutes(5).toMillis();
 
@@ -40,7 +42,7 @@ public final class CombatSkill extends Skill {
 
     @Override
     protected void enable() {
-        MobStatusEffect.enable();
+        MobStatusEffect.enableAll();
         Bukkit.getPluginManager().registerEvents(combatListener, skillsPlugin());
     }
 

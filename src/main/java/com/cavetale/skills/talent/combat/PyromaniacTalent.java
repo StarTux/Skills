@@ -31,11 +31,15 @@ public final class PyromaniacTalent extends Talent {
     public void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
         if (event.getTarget().getFireTicks() <= 0) return;
+        if (!MeleeWeapon.hasMeleeWeapon(player)) return;
         final int level = Session.of(player).getTalentLevel(talentType);
         if (level < 1) return;
         final int percentage = levelToPercentage(level);
         if (percentage < 1) return;
         event.getCalculation().getOrCreateBaseDamageModifier().addFactorBonus(percentage * 0.01, "skills:pyromaniac");
         event.setHandled(true);
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + " lvl:" + level + " percentage:" + percentage);
+        }
     }
 }

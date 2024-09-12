@@ -217,7 +217,7 @@ public class SkillSession {
         final int cutoff = 20;
         final int major = Math.min(cutoff, bonus);
         final int minor = Math.max(0, bonus - cutoff);
-        return major * 2.5 + minor * 1.0;
+        return major * 5 + minor * 2.5;
     }
 
     public final double getMoneyBonusPercentage() {
