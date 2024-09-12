@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 public final class StunPikeTalent extends Talent {
     public StunPikeTalent() {
-        super(TalentType.STUN_PIKE, "Icy Fork",
+        super(TalentType.STUN_PIKE, "Stun Pike",
               "Monsters struck by thrown Channeling :trident:tridents are stunned for a while.");
         addLevel(1, "+" + levelToSeconds(1) + " seconds");
         addLevel(1, "+" + levelToSeconds(2) + " seconds");

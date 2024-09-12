@@ -32,19 +32,21 @@ public enum TalentType implements ComponentLike {
 
     // Combat
 
-    COMBAT_MAGNET(SkillType.COMBAT, null, Vec2i.of(4, 1)),
-    HUMAN_CANNONBALL(SkillType.COMBAT, null, Vec2i.of(4, 5)),
-    // Left Magic
-    PYROMANIAC(SkillType.COMBAT, null, Vec2i.of(2, 3)),
-    TOXICIST(SkillType.COMBAT, PYROMANIAC, Vec2i.of(2, 1)),
-    DENIAL(SkillType.COMBAT, PYROMANIAC, Vec2i.of(2, 5)),
-    // Right
-    EXECUTIONER(SkillType.COMBAT, null, Vec2i.of(6, 3)),
-    BERSERKER(SkillType.COMBAT, EXECUTIONER, Vec2i.of(6, 1)),
+    // Up, Power
+    SLASH_ATTACK(SkillType.COMBAT, null, Vec2i.of(4, 1)),
+    BERSERKER(SkillType.COMBAT, SLASH_ATTACK, Vec2i.of(6, 1)),
     CHEVALIER(SkillType.COMBAT, BERSERKER, Vec2i.of(8, 1)),
-    GOD_MODE(SkillType.COMBAT, EXECUTIONER, Vec2i.of(6, 5)),
-    STUN_PIKE(SkillType.COMBAT, GOD_MODE, Vec2i.of(8, 5)),
-    SLASH_ATTACK(SkillType.COMBAT, EXECUTIONER, Vec2i.of(8, 3)),
+    // Right, Crowd Control
+    DENIAL(SkillType.COMBAT, null, Vec2i.of(6, 3)),
+    STUN_PIKE(SkillType.COMBAT, DENIAL, Vec2i.of(8, 3)),
+    // Down, Damage Magic
+    EXECUTIONER(SkillType.COMBAT, null, Vec2i.of(4, 5)),
+    PYROMANIAC(SkillType.COMBAT, EXECUTIONER, Vec2i.of(6, 5)),
+    TOXICIST(SkillType.COMBAT, PYROMANIAC, Vec2i.of(8, 5)),
+    // Left, Utility
+    COMBAT_MAGNET(SkillType.COMBAT, null, Vec2i.of(2, 3)),
+    HUMAN_CANNONBALL(SkillType.COMBAT, COMBAT_MAGNET, Vec2i.of(2, 1)),
+    GOD_MODE(SkillType.COMBAT, COMBAT_MAGNET, Vec2i.of(2, 5)),
 
     // Archery
 

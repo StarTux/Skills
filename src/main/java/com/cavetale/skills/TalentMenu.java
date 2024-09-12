@@ -131,8 +131,8 @@ public final class TalentMenu {
                     });
                 if (!r) player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 0.5f);
             });
-        gui.highlight(18, talentPoints > 0 ? BLUE : skillType.textColor);
-        gui.setItem(18, getExpIcon(skillType), click -> {
+        gui.highlight(9, talentPoints > 0 ? BLUE : skillType.textColor);
+        gui.setItem(9, getExpIcon(skillType), click -> {
                 if (!click.isRightClick()) return;
                 boolean r = session.unlockExpBonus(skillType, () -> {
                         open();

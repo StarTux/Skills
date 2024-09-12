@@ -39,7 +39,7 @@ public final class BerserkerTalent extends Talent {
 
     @Override
     public ItemStack createIcon() {
-        return Mytems.LIGHTNING.createIcon();
+        return createIcon(Mytems.IRON_BROAD_AXE);
     }
 
     public void onPlayerDamageMob(Player player, Mob mob, EntityDamageByEntityEvent event) {
