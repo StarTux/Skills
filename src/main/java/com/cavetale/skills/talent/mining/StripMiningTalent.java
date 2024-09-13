@@ -51,6 +51,9 @@ public final class StripMiningTalent extends Talent {
         case GRANITE -> 1;
         case DEEPSLATE -> 2;
         case TUFF -> 2;
+        case BASALT -> 2;
+        case END_STONE -> 2;
+        case BLACKSTONE -> 2;
         default -> 0;
         };
     }
