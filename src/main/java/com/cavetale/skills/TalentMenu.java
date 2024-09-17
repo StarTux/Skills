@@ -28,6 +28,7 @@ import org.bukkit.inventory.ItemStack;
 import static com.cavetale.core.font.Unicode.tiny;
 import static com.cavetale.mytems.util.Items.tooltip;
 import static com.cavetale.skills.SkillsPlugin.skillsCommand;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.util.Text.formatDouble;
 import static java.awt.Color.RGBtoHSB;
 import static net.kyori.adventure.text.Component.empty;
@@ -68,7 +69,7 @@ public final class TalentMenu {
         if (!session.isEnabled()) return null;
         final SkillType skillType = session.getTalentGui();
         final int size = 6 * 9;
-        gui = new Gui()
+        gui = new Gui(skillsPlugin())
             .size(size)
             .title(skillType.getIconTitle())
             .layer(GuiOverlay.BLANK, skillType.textColor);
