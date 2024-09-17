@@ -22,7 +22,7 @@ public final class MinerSightTalent extends Talent {
 
     public MinerSightTalent() {
         super(TalentType.MINER_SIGHT, "Miner Sight",
-              "Mining stone with a pickaxe creates a light source",
+              "Mining stone with a pickaxe creates a temporary light source.",
               "Stone includes:" + " :stone:Stone, :andesite:Andesite, :diorite:Diorite, :granite:Granite, :tuff:tuff, :deepslate:Deepslate.");
         addLevel(1, "Create a light source");
         // Materials
@@ -39,7 +39,7 @@ public final class MinerSightTalent extends Talent {
 
     @Override
     public ItemStack createIcon() {
-        return createIcon(Material.LANTERN);
+        return createIcon(Material.LIGHT);
     }
 
     public void onWillBreakBlock(Player player, Block block) {

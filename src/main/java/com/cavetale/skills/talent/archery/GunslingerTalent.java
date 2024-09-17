@@ -24,7 +24,8 @@ public final class GunslingerTalent extends Talent implements Listener {
               "Wield a second crossbow in your off-hand for dual wielding effects",
               "When you reload the :crossbow:crossbow in your main hand, the one in your off-hand will also reload.",
               "Shooting the :crossbow:crossbow in your main hand will quickly switch with the :crossbow:crossbow in your off-hand");
-        addLevel(1, "Dual wielding");
+        addLevel(2, "Fast Reload");
+        addLevel(2, "Fast Shooting");
     }
 
     @Override
@@ -40,6 +41,8 @@ public final class GunslingerTalent extends Talent implements Listener {
         if (!(event.getEntity() instanceof Player player)) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
         if (!isPlayerEnabled(player)) return;
+        final int level = getTalentLevel(player);
+        if (level < 1) return;
         final ItemStack offhand = player.getInventory().getItemInOffHand();
         if (offhand == null || offhand.getType() != Material.CROSSBOW) return;
         if (!(offhand.getItemMeta() instanceof CrossbowMeta meta)) return;
@@ -64,10 +67,15 @@ public final class GunslingerTalent extends Talent implements Listener {
         if (!infinity || consumable.getType() != Material.ARROW) {
             consumable.subtract(1);
         }
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + " " + event.getEventName() + " lvl:" + level);
+        }
     }
 
     public void onShootCrossbow(Player player) {
         if (!isPlayerEnabled(player)) return;
+        final int level = getTalentLevel(player);
+        if (level < 2) return;
         // Main Hand
         ItemStack hand = player.getInventory().getItemInMainHand();
         if (hand == null || hand.getType() != Material.CROSSBOW) return;
@@ -80,5 +88,8 @@ public final class GunslingerTalent extends Talent implements Listener {
                 player.getInventory().setItemInOffHand(player.getInventory().getItemInMainHand());
                 player.getInventory().setItemInMainHand(tmp);
             });
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + "lvl:" + level + " shoot");
+        }
     }
 }

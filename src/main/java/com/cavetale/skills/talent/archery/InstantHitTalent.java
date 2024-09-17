@@ -14,7 +14,7 @@ public final class InstantHitTalent extends Talent {
               "Fully charged :bow:bow arrows reset any mob's :clock:invulnerability ticks",
               "Mobs are invulnerable to all attack damage for half a second after they take damage. This talent resets their invulnerability when you hit them with a fully charged :bow:bow arrow."
               + "\nThat way, mobs cannot deflect your arrows without a shield.");
-        addLevel(1, "Always hit the enemy");
+        addLevel(3, "Always hit the enemy");
     }
 
     @Override

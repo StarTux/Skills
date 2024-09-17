@@ -24,7 +24,7 @@ public final class WaterBombTalent extends Talent {
         super(TalentType.WATER_BOMB, "Water Bomb",
               "Tipped crossbow bullets create a lingering effect cloud when they hit a block",
               "When one of your crossbow :spectral_arrow:spectral or :tipped_arrow:tipped arrows hits the ground, it leaves behind a brief :ucloud:lingering effect cloud on the floor.");
-        addLevel(3, "Create an effect cloud");
+        addLevel(1, "Create an effect cloud");
     }
 
     @Override

@@ -28,7 +28,7 @@ public final class HomingArrowTalent extends Talent {
         super(TalentType.HOMING_ARROW, "Homing Arrow",
               ":bow:Bow arrows :magnet:follow their target by adjusting their trajectory",
               "Hitting a mob will make it your next target. Otherwise, :arrow:arrows will try to seek out a target.");
-        addLevel(1, "Homing Arrow");
+        addLevel(3, "Homing Arrow");
     }
 
     @Override
