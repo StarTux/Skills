@@ -83,6 +83,7 @@ public final class SlashAttackTalent extends Talent {
         }
     }
 
+    @SuppressWarnings("deprecation") // isOnGround is deprecated
     private static boolean isCrit(Player player) {
         // A player must be falling.
         // A player must not be on the ground.
