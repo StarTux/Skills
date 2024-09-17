@@ -66,6 +66,9 @@ public final class DenialTalent extends Talent implements Listener {
         Location eye = mob.getEyeLocation();
         mob.getWorld().spawnParticle(Particle.ENCHANT, eye, 32, 0.0, 0.0, 0.0, 0.5);
         mob.getWorld().playSound(eye, Sound.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS, 0.25f, 1.8f);
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + " lvl:" + level + " secs: " + seconds);
+        }
     }
 
     /**
@@ -98,6 +101,9 @@ public final class DenialTalent extends Talent implements Listener {
         if (!isArthropod(mob)) return;
         if (!MobStatusEffect.DENIAL.has(mob)) return;
         Session.of(player).combat.setPoisonFreebie(true);
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + " " + event.getEventName());
+        }
     }
 
     private boolean isArthropod(Mob mob) {
@@ -130,6 +136,9 @@ public final class DenialTalent extends Talent implements Listener {
         default: return;
         }
         event.setCancelled(true);
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + " " + event.getEventName());
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

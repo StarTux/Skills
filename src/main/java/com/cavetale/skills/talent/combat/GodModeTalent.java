@@ -39,6 +39,9 @@ public final class GodModeTalent extends Talent {
         if (level < 1) return;
         final int seconds = levelToSeconds(level);
         session.combat.setGodModeDuration(System.currentTimeMillis() + (long) seconds * 1000L);
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + " lvl:" + level + " secs:" + seconds);
+        }
     }
 
     /**
@@ -52,5 +55,8 @@ public final class GodModeTalent extends Talent {
         if (duration < System.currentTimeMillis()) return;
         session.combat.setGodModeDuration(0L);
         event.setCancelled(false);
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType + " resurrect");
+        }
     }
 }
