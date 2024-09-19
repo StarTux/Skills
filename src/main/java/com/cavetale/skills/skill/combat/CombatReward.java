@@ -55,9 +55,11 @@ public final class CombatReward {
         // Pigs
         reward(15, 40.0, HOGLIN);
         reward(15, 40.0, ZOGLIN);
-        reward(25, 40.0, PIGLIN);
-        reward(25, 40.0, ZOMBIFIED_PIGLIN);
-        reward(30, 40.0, PIGLIN_BRUTE);
+
+        // Piglins
+        reward(10, 20.0, PIGLIN);
+        reward(10, 20.0, ZOMBIFIED_PIGLIN);
+        reward(15, 30.0, PIGLIN_BRUTE);
 
         // Situational
         reward(20, 50.0, BLAZE);
