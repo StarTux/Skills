@@ -39,23 +39,6 @@ public final class SlashAttackTalent extends Talent {
         if (target == null) return;
         double baseDamage = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();
         final boolean crit = isCrit(player);
-        // Potion Effects
-        final int strength = player.hasPotionEffect(PotionEffectType.STRENGTH)
-            ? player.getPotionEffect(PotionEffectType.STRENGTH).getAmplifier() + 1
-            : 0;
-        if (strength > 0) {
-            // 3 x level
-            // See https://minecraft.wiki/w/Strength#Effect
-            baseDamage += strength * 3.0;
-        }
-        final int weakness = player.hasPotionEffect(PotionEffectType.WEAKNESS)
-            ? player.getPotionEffect(PotionEffectType.WEAKNESS).getAmplifier() + 1
-            : 0;
-        if (weakness > 0) {
-            // level * 4
-            // See https://minecraft.wiki/w/Weakness#Effect
-            baseDamage -= weakness * 4.0;
-        }
         // Crit
         if (crit) {
             baseDamage *= 1.5;
@@ -75,8 +58,6 @@ public final class SlashAttackTalent extends Talent {
                       .build());
         if (isDebugTalent(player)) {
             player.sendMessage(talentType.name() + " target:" + target.getType()
-                               + " strength: " + strength
-                               + " weak: " + weakness
                                + " crit:" + crit
                                + " sharp:" + sharpness
                                + " dmg:" + formatDouble(baseDamage));
