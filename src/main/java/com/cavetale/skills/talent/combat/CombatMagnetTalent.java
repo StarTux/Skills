@@ -13,7 +13,7 @@ public final class CombatMagnetTalent extends Talent {
     public CombatMagnetTalent() {
         super(TalentType.COMBAT_MAGNET, "Combat Magnet",
               "Drops from mobs killed in combat are warped to you",
-              "When you shoot and kill a mob, its drops and exp will land at your feet for you to collect");
+              "When you kill a mob in combat, its drops and exp will land at your feet for you to collect");
         addLevel(1, "Pick up mob drops");
     }
 
