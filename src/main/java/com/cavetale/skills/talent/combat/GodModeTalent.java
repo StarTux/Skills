@@ -13,7 +13,7 @@ public final class GodModeTalent extends Talent {
     public GodModeTalent() {
         super(TalentType.GOD_MODE, "God Mode",
               "Melee kills give temporary immortality.",
-              "Immortality stops you from dying, but you will still take damage!");
+              "Immortality resurrects you once in case you die.");
         addLevel(1, levelToSeconds(1) + " seconds of immortality");
         addLevel(1, levelToSeconds(2) + " seconds of immortality");
         addLevel(1, levelToSeconds(3) + " seconds of immortality");
