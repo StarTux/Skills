@@ -24,9 +24,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
@@ -261,5 +265,26 @@ public final class ArcherySkill extends Skill implements Listener {
             sniperTalent.onPlayerDamageEntityCalculation(player, arrow, target, event);
             glowMarkTalent.onPlayerDamageEntityCalculation(player, arrow, target, event);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        inTheZoneTalent.resetZone(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        inTheZoneTalent.resetZone(player);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        inTheZoneTalent.resetZone(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onPlayerDeath(PlayerDeathEvent event) {
+        inTheZoneTalent.resetZone(event.getPlayer());
     }
 }

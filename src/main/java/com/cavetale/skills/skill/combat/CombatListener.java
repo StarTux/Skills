@@ -13,8 +13,11 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
 @RequiredArgsConstructor
@@ -59,12 +62,28 @@ final class CombatListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private void onPlayerItemHeld(PlayerItemHeldEvent event) {
-        combatSkill.berserkerTalent.onPlayerItemHeld(event.getPlayer());
+        combatSkill.berserkerTalent.resetRage(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private void onPlayerDeath(PlayerDeathEvent event) {
-        combatSkill.berserkerTalent.onPlayerDeath(event.getPlayer());
+        combatSkill.berserkerTalent.resetRage(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        combatSkill.berserkerTalent.resetRage(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        combatSkill.berserkerTalent.resetRage(player);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        combatSkill.berserkerTalent.resetRage(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.NORMAL)

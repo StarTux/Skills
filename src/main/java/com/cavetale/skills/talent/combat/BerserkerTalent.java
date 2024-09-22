@@ -57,8 +57,7 @@ public final class BerserkerTalent extends Talent {
                                             text(Math.min(ragePercentage, bonusPercentage) + "%", YELLOW)));
     }
 
-    public void onPlayerItemHeld(Player player) {
-        if (!isPlayerEnabled(player)) return;
+    public void resetRage(Player player) {
         final Session session = Session.of(player);
         final double rage = session.combat.getRage();
         if (rage < 0.01) return;
@@ -66,12 +65,6 @@ public final class BerserkerTalent extends Talent {
         player.sendActionBar(textOfChildren(Mytems.LIGHTNING.asComponent().color(DARK_GRAY),
                                             text("Rage 0%", DARK_GRAY))
                              .decorate(STRIKETHROUGH));
-    }
-
-    public void onPlayerDeath(Player player) {
-        if (!isPlayerEnabled(player)) return;
-        final Session session = Session.of(player);
-        session.combat.resetRage();
     }
 
     public void onDamageCalculation(Player player, DamageCalculationEvent event) {
