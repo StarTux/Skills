@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import static com.cavetale.skills.SkillsPlugin.random;
+import static com.cavetale.skills.util.Text.formatDouble;
 
 public final class VolleyTalent extends Talent {
     public VolleyTalent() {
@@ -58,6 +59,7 @@ public final class VolleyTalent extends Talent {
         if (level < 1) return;
         final int bonusArrowCount = levelToBonusArrowCount(level);
         final double velocity = arrow.getVelocity().length();
+        final double damage = 2.0 / (double) bonusArrowCount;
         int count = 0;
         for (int i = 0; i < bonusArrowCount; i += 1) {
             final Location location = player.getEyeLocation();
@@ -70,7 +72,7 @@ public final class VolleyTalent extends Talent {
                     e.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                     e.setWeapon(crossbow);
                     e.setCritical(true);
-                    e.setDamage(1.0 / (double) bonusArrowCount);
+                    e.setDamage(damage);
                     ArrowType.SPAM.set(e);
                     ArrowType.NO_PICKUP.set(e);
                 });
@@ -82,7 +84,8 @@ public final class VolleyTalent extends Talent {
                                + " multi:"
                                + multishot
                                + " arrows:" + count + "/" + bonusArrowCount
-                               + " velo:" + velocity);
+                               + " velo:" + formatDouble(velocity)
+                               + " damage:" + formatDouble(damage));
         }
     }
 }
