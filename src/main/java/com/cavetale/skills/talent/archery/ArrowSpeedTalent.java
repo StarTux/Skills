@@ -14,7 +14,7 @@ public final class ArrowSpeedTalent extends Talent {
     public ArrowSpeedTalent() {
         super(TalentType.ARROW_SPEED, "Dart Swiftness",
               "Your extra :speed_effect:movement speed is added to bow :arrow:arrow speed",
-              "Your :speed_effect:movement speed increase by the potions or certain :sneakers:equipment, will be added to the velocity of your :arrows:bow arrows. Arrows deal more damage if they move faster.");
+              "Your :speed_effect:movement speed increase by the potions or certain :sneakers:equipment, will be added to the velocity of your :arrow:bow arrows, increasing their damage.");
         addLevel(1, "Add the movement speed");
         addLevel(1, "Add " + 2 + " times the movement speed");
         addLevel(1, "Add " + 3 + " times the movement speed");
