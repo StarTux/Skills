@@ -36,7 +36,7 @@ public final class SuperVisionTalent extends Talent implements Listener {
 
     public SuperVisionTalent() {
         super(TalentType.SUPER_VISION, "Super Vision",
-              "Mining stone with a Fortune pickaxe allows you to see through solid stone.",
+              "Mining stone allows you to see through solid stone.",
               "Nearby stone will be rendered see-through for a few seconds so you can identify ores more easily.");
         addLevel(1, "Super Vision radius " + levelToRadius(1));
         addLevel(1, "Super Vision radius " + levelToRadius(2));
