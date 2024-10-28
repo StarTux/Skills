@@ -12,6 +12,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
@@ -95,6 +96,7 @@ public final class SlashAttackTalent extends Talent {
         Mob result = null;
         for (Entity nearby : player.getNearbyEntities(range, range, range)) {
             if (!(nearby instanceof Mob mob)) continue;
+            if (mob instanceof Tameable) continue;
             if (!PlayerEntityAbilityQuery.Action.DAMAGE.query(player, mob)) continue;
             if (!player.hasLineOfSight(mob)) continue;
             final Vector mobDirection = mob.getEyeLocation().subtract(playerLocation).toVector();
