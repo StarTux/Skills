@@ -29,6 +29,7 @@ import org.bukkit.util.Vector;
 import static com.cavetale.core.exploits.PlayerPlacedBlocks.isPlayerPlaced;
 import static com.cavetale.skills.SkillsPlugin.miningSkill;
 import static com.cavetale.skills.SkillsPlugin.random;
+import static com.cavetale.skills.util.Text.formatDouble;
 
 public final class SilkStripTalent extends Talent implements Listener {
     public SilkStripTalent() {
@@ -38,10 +39,10 @@ public final class SilkStripTalent extends Talent implements Listener {
               "Eventually, the ore will turn into stone and you get the usual skill points for mining. This method may yield as much reward as Fortune IV would but with greater variance.",
               "Silk Stripping only works on natural ores. Picking up and moving the ore will compromise its structural integrity, making Silk Stripping ineffective.");
         addLevel(1, levelToPercentage(1) + "% drop chance (Fortune IV)");
-        addLevel(1, levelToPercentage(2) + "% drop chance");
-        addLevel(1, levelToPercentage(3) + "% drop chance (Fortune V)");
-        addLevel(1, levelToPercentage(4) + "% drop chance");
-        addLevel(1, levelToPercentage(5) + "% drop chance (Fortune VI)");
+        addLevel(1, levelToPercentage(2) + "% drop chance (Fortune V)");
+        addLevel(1, levelToPercentage(3) + "% drop chance (Fortune VI)");
+        addLevel(1, levelToPercentage(4) + "% drop chance (Fortune VII)");
+        addLevel(1, levelToPercentage(5) + "% drop chance (Fortune VIII)");
     }
 
     // Calculation: https://minecraft.fandom.com/wiki/Fortune#Ore
@@ -50,15 +51,10 @@ public final class SilkStripTalent extends Talent implements Listener {
     // Fortune 4 => 2.6666
     // Fortune 5 => 3.1428
     // Fortune 6 => 3.625
-    private double levelToPercentage(int level) {
-        return switch (level) {
-        case 1 -> 266;
-        case 2 -> 290;
-        case 3 -> 314;
-        case 4 -> 338;
-        case 5 -> 362;
-        default -> 0;
-        };
+    private int levelToPercentage(int level) {
+        final double lvl = level + 3;
+        final double dbl = 1.0 / (lvl + 2.0) + (lvl + 1.0) / 2.0;
+        return (int) (dbl * 100.0);
     }
 
     @Override
@@ -114,7 +110,8 @@ public final class SilkStripTalent extends Talent implements Listener {
                                       face.getModZ() * spd);
         player.getWorld().dropItem(dropLocation, drop).setVelocity(vel);
         final Session session = Session.of(player);
-        final int percentage = session.getTalentLevel(talentType);
+        final int level = getTalentLevel(player);
+        final int percentage = levelToPercentage(level);
         final double factor = percentage * 0.01;
         // Expected value of additionally dropped items.
         final double amount = (double) reward.getDrops() * factor;
@@ -130,6 +127,15 @@ public final class SilkStripTalent extends Talent implements Listener {
             block.getWorld().playSound(block.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 1.0f, 2.0f);
             new PlayerChangeBlockEvent(player, block, reward.getReplaceable().createBlockData()).callEvent();
             block.setType(reward.getReplaceable());
+        }
+        if (isDebugTalent(player)) {
+            player.sendMessage(talentType
+                               + " level:" + level
+                               + " percentage:" + percentage
+                               + " factor:" + formatDouble(factor)
+                               + " amount:" + formatDouble(amount)
+                               + " chance:" + formatDouble(chance)
+                               + " roll:" + formatDouble(roll));
         }
         event.setCancelled(true);
     }
