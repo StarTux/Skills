@@ -23,12 +23,12 @@ public final class LegolasTalent extends Talent {
         super(TalentType.LEGOLAS, "Legolas",
               "Fully charged bow hits trigger another free shot",
               "As soon as a fully charged :arrow:arrow hits a mob, you launch another free :arrow:arrow. The additional :arrow:arrow is shot in the direction you are looking and may trigger yet another arrow.",
-              "Your bow must be in your main hand.");
+              "Your bow must be in your main hand.  Additional extra arrows are fired if the previous one also hits.");
         addLevel(1, 1 + " extra arrow");
-        addLevel(1, 2 + " extra arrows");
-        addLevel(1, 3 + " extra arrows");
-        addLevel(1, 4 + " extra arrows");
-        addLevel(1, 5 + " extra arrows");
+        addLevel(1, "Up to " + 2 + " extra arrows");
+        addLevel(1, "Up to " + 3 + " extra arrows");
+        addLevel(1, "Up to " + 4 + " extra arrows");
+        addLevel(1, "Up to " + 5 + " extra arrows");
     }
 
     @Override
