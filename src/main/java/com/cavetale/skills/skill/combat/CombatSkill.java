@@ -68,7 +68,7 @@ public final class CombatSkill extends Skill {
             skillsPlugin().getLogger().info("[Combat] [" + mob.getType() + "] " + player.getName() + " " + rewardEvent.debugString());
         }
         session.addSkillPoints(skillType, rewardEvent.getFinalSkillPoints());
-        dropMoney(player, mob.getLocation(), rewardEvent.getFinalMoney());
+        dropMoney(player, (combatMagnetTalent.isPlayerEnabled(player) ? player.getLocation() : mob.getLocation()), rewardEvent.getFinalMoney());
         event.setDroppedExp(rewardEvent.getFinalExp());
         combatMagnetTalent.onPlayerMobMeleeKill(player, event);
     }
