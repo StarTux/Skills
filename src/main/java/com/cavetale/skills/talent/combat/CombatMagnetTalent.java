@@ -1,10 +1,10 @@
 package com.cavetale.skills.talent.combat;
 
-import com.cavetale.core.event.item.PlayerReceiveItemsEvent;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.talent.Talent;
 import com.cavetale.skills.talent.TalentType;
 import java.util.List;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +26,11 @@ public final class CombatMagnetTalent extends Talent {
         if (!isPlayerEnabled(player)) return;
         final List<ItemStack> drops = List.copyOf(event.getDrops());
         event.getDrops().clear();
-        PlayerReceiveItemsEvent.receiveItems(player, drops);
+        for (ItemStack drop : drops) {
+            final Item item = player.getWorld().dropItem(player.getLocation(), drop);
+            item.setPickupDelay(0);
+            item.setOwner(player.getUniqueId());
+        }
         if (isDebugTalent(player)) {
             player.sendMessage(talentType.name());
         }
