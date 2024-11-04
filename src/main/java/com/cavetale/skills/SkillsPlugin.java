@@ -39,7 +39,6 @@ public final class SkillsPlugin extends JavaPlugin {
         if (!database.createAllTables()) {
             throw new IllegalStateException("Database initialization failed!");
         }
-        database.getTable(SQLTalent.class).createColumnIfMissing("level");
         this.skills = new Skills();
         this.sessions = new Sessions();
         skills.enable();
