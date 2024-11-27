@@ -40,16 +40,16 @@ public final class ChevalierTalent extends Talent {
         } else if (level >= 4) {
             factor = 1.5;
         }
-        double horseArmor = 0.5 * horse.getAttribute(Attribute.GENERIC_ARMOR).getValue();
+        double horseArmor = 0.5 * horse.getAttribute(Attribute.ARMOR).getValue();
         event.getCalculation().getOrCreateBaseDamageModifier().addFlatBonus(factor * horseArmor, "skills:chevalier_armor");
         double horseJumpStrength = 0;
         if (level >= 2) {
-            horseJumpStrength = 5 * horse.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).getValue();
+            horseJumpStrength = 5 * horse.getAttribute(Attribute.JUMP_STRENGTH).getValue();
             event.getCalculation().getOrCreateBaseDamageModifier().addFlatBonus(factor * horseJumpStrength, "skills:chevalier_jump");
         }
         double horseMovementSpeed = 0;
         if (level >= 3) {
-            horseMovementSpeed = 10 * horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue();
+            horseMovementSpeed = 10 * horse.getAttribute(Attribute.MOVEMENT_SPEED).getValue();
             event.getCalculation().getOrCreateBaseDamageModifier().addFlatBonus(factor * horseMovementSpeed, "skills:chevalier_speed");
         }
         if (isDebugTalent(player)) {

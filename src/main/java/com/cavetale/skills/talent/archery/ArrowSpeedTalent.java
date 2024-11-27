@@ -32,8 +32,8 @@ public final class ArrowSpeedTalent extends Talent {
         final int level = session.getTalentLevel(talentType);
         if (level < 1) return;
         final int factor = level;
-        final double extraSpeed = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue()
-            - player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue();
+        final double extraSpeed = player.getAttribute(Attribute.MOVEMENT_SPEED).getValue()
+            - player.getAttribute(Attribute.MOVEMENT_SPEED).getBaseValue();
         if (extraSpeed < 0.01) return;
         final double bonus = (double) factor * extraSpeed;
         final Vector velocity = arrow.getVelocity().multiply(1.0 + bonus);

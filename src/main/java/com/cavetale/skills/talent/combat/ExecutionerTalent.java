@@ -41,7 +41,7 @@ public final class ExecutionerTalent extends Talent {
         final int percentage = levelToPercentage(level);
         final double health = event.getTarget().getHealth();
         if (health < 0.01) return;
-        final double maxHealth = event.getTarget().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        final double maxHealth = event.getTarget().getAttribute(Attribute.MAX_HEALTH).getValue();
         if (maxHealth < 0.01) return;
         if (health / maxHealth > (percentage * 0.01)) return;
         event.getCalculation().getOrCreateFinalDamageModifier().addFlatDamage(health, "skills:executioner");

@@ -39,7 +39,7 @@ public final class SlashAttackTalent extends Talent {
         if (!MeleeWeapon.isMeleeWeapon(weapon)) return;
         final Mob target = getLookAtEntity(player);
         if (target == null) return;
-        double baseDamage = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();
+        double baseDamage = player.getAttribute(Attribute.ATTACK_DAMAGE).getValue();
         final boolean crit = isCrit(player);
         // Crit
         if (crit) {
@@ -90,7 +90,7 @@ public final class SlashAttackTalent extends Talent {
     }
 
     private Mob getLookAtEntity(Player player) {
-        final double range = player.getAttribute(Attribute.PLAYER_ENTITY_INTERACTION_RANGE).getValue();
+        final double range = player.getAttribute(Attribute.ENTITY_INTERACTION_RANGE).getValue();
         final Location playerLocation = player.getEyeLocation();
         final Vector playerDirection = playerLocation.getDirection();
         double minAngle = 0.0;
