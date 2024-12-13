@@ -59,7 +59,7 @@ public final class VolleyTalent extends Talent {
         if (level < 1) return;
         final int bonusArrowCount = levelToBonusArrowCount(level);
         final double velocity = arrow.getVelocity().length();
-        final double damage = 2.0 / (double) bonusArrowCount;
+        final double damage = 1.0;
         int count = 0;
         for (int i = 0; i < bonusArrowCount; i += 1) {
             final Location location = player.getEyeLocation();
