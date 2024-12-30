@@ -33,7 +33,7 @@ public final class BerserkerTalent extends Talent {
     }
 
     private static int rageToPercentage(double rage) {
-        final double value = rage * 0.1;
+        final double value = rage * 0.2;
         return Math.max(0, Math.min(100, (int) value));
     }
 

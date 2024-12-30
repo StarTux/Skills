@@ -35,7 +35,7 @@ public final class InTheZoneTalent extends Talent implements Listener {
     }
 
     private static int levelToPercentage(int level) {
-        return level * 5;
+        return level * 10;
     }
 
     @Override
