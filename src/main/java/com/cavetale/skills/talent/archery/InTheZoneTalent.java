@@ -45,6 +45,12 @@ public final class InTheZoneTalent extends Talent implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private void onEntityDamage(EntityDamageEvent event) {
+        switch (event.getCause()) {
+        case ENTITY_ATTACK:
+        case PROJECTILE:
+            break;
+        default: return;
+        }
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isPlayerEnabled(player)) return;
         resetZone(player);
