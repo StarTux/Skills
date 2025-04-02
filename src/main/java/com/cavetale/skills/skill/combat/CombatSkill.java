@@ -62,7 +62,8 @@ public final class CombatSkill extends Skill {
         final var rewardEvent = new SkillsMobKillRewardEvent(player, mob,
                                                              (reward.sp * 5 / 2),
                                                              session.computeMoneyDrop(skillType, reward.money * 1.5),
-                                                             3 * event.getDroppedExp() + session.getExpBonus(skillType));
+                                                             3 * event.getDroppedExp() + session.getExpBonus(skillType),
+                                                             event);
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return;
         if (rewardEvent.getPostMultiplyFactor() != 1.0) {

@@ -95,7 +95,8 @@ public final class ArcherySkill extends Skill implements Listener {
         final var rewardEvent = new SkillsMobKillRewardEvent(player, mob,
                                                              reward.sp,
                                                              session.computeMoneyDrop(skillType, reward.money),
-                                                             3 * event.getDroppedExp() + session.getExpBonus(skillType));
+                                                             3 * event.getDroppedExp() + session.getExpBonus(skillType),
+                                                             event);
         rewardEvent.callEvent();
         if (rewardEvent.isCancelled()) return false;
         if (rewardEvent.getPostMultiplyFactor() != 1.0) {
