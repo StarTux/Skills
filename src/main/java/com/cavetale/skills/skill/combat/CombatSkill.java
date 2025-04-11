@@ -50,8 +50,12 @@ public final class CombatSkill extends Skill {
      * Give skill points when a player kills a mob.
      */
     protected void onMeleeKill(Player player, Mob mob, EntityDeathEvent event) {
-        combatMagnetTalent.onPlayerMobMeleeKill(player, event);
+        meleeReward(player, mob, event);
         godModeTalent.onMeleeKill(player, mob);
+        combatMagnetTalent.onPlayerMobMeleeKill(player, event); // clears drops
+    }
+
+    private void meleeReward(Player player, Mob mob, EntityDeathEvent event) {
         CombatReward reward = combatReward(mob);
         if (reward == null) return;
         if (!Players.playMode(player)) return;
