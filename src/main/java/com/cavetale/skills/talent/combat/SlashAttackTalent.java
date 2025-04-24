@@ -10,8 +10,10 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.Boss;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -89,6 +91,27 @@ public final class SlashAttackTalent extends Talent {
         return true;
     }
 
+    private static boolean isHostileMob(Mob mob) {
+        switch (mob.getType()) {
+        case GHAST:
+        case SLIME:
+        case PHANTOM:
+        case MAGMA_CUBE:
+        case ENDER_DRAGON:
+        case SHULKER:
+        case SHULKER_BULLET:
+        case HOGLIN:
+            return true;
+        case IRON_GOLEM:
+            return false;
+        default:
+            if (mob instanceof Tameable) return false;
+            if (mob instanceof AbstractVillager) return false;
+            return mob instanceof Monster
+                || mob instanceof Boss;
+        }
+    }
+
     private Mob getLookAtEntity(Player player) {
         final double range = player.getAttribute(Attribute.ENTITY_INTERACTION_RANGE).getValue();
         final Location playerLocation = player.getEyeLocation();
@@ -97,8 +120,7 @@ public final class SlashAttackTalent extends Talent {
         Mob result = null;
         for (Entity nearby : player.getNearbyEntities(range, range, range)) {
             if (!(nearby instanceof Mob mob)) continue;
-            if (mob instanceof Tameable) continue;
-            if (mob instanceof AbstractVillager) continue;
+            if (!isHostileMob(mob)) continue;
             if (!PlayerEntityAbilityQuery.Action.DAMAGE.query(player, mob)) continue;
             if (!player.hasLineOfSight(mob)) continue;
             final Vector mobDirection = mob.getEyeLocation().subtract(playerLocation).toVector();
