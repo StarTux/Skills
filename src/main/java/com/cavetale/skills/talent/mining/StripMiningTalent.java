@@ -81,8 +81,11 @@ public final class StripMiningTalent extends Talent {
      * Called via scheduler.
      */
     private int stripMine(Player player, final Block block, final int range) {
+        final Block foot = player.getLocation().getBlock();
+        if (block.getY() < foot.getY()) return 0;
         // Figure out direction
         final Block head = player.getEyeLocation().getBlock();
+        if (block.getY() > head.getY()) return 0;
         // Require straight mining
         if (head.getX() != block.getX() && head.getZ() != block.getZ()) return 0;
         int dx = block.getX() - head.getX();
