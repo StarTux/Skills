@@ -151,15 +151,17 @@ public final class SuperVisionTalent extends Talent implements Listener {
             }
         }
         if (yes.isEmpty()) return 0;
-        for (Block b : yes) {
-            sendFakeBlock(player, b, FAKE_GLASS);
-            tag.fakeBlockMap.put(Vec3i.of(b), System.currentTimeMillis() + 5000L);
-        }
-        for (Block b : no) {
-            sendRealBlock(player, b);
-            tag.fakeBlockMap.remove(Vec3i.of(b));
-        }
-        scheduleCleanup(session);
+        Bukkit.getScheduler().runTaskLater(skillsPlugin(), () -> {
+                for (Block b : yes) {
+                    sendFakeBlock(player, b, FAKE_GLASS);
+                    tag.fakeBlockMap.put(Vec3i.of(b), System.currentTimeMillis() + 5000L);
+                }
+                for (Block b : no) {
+                    sendRealBlock(player, b);
+                    tag.fakeBlockMap.remove(Vec3i.of(b));
+                }
+                scheduleCleanup(session);
+            }, 2L);
         return yes.size();
     }
 
