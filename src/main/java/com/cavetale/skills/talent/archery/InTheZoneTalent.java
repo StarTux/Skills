@@ -11,8 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
 import static net.kyori.adventure.text.Component.join;
@@ -26,7 +25,7 @@ public final class InTheZoneTalent extends Talent implements Listener {
     public InTheZoneTalent() {
         super(TalentType.IN_THE_ZONE, "In the Zone",
               "Increase :bow:bow damage by landing an unbroken series of :target:hits",
-              "Any :arrow:arrow hitting a hostile mob will increase :bow:bow damage. Breaking your focus will reset the damage bonus. Break focus by switching items, taking damage, or missing a shot.");
+              "Any :arrow:arrow hitting a hostile mob will increase :bow:bow damage. Lose all stacks if you die, or give or take melee damage.");
         addLevel(1, levelToPercentage(1) + "% damage increase");
         addLevel(1, levelToPercentage(2) + "% damage increase");
         addLevel(1, levelToPercentage(3) + "% damage increase");
@@ -44,23 +43,26 @@ public final class InTheZoneTalent extends Talent implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    private void onEntityDamage(EntityDamageEvent event) {
-        switch (event.getCause()) {
-        case ENTITY_ATTACK:
-        case PROJECTILE:
-            break;
-        default: return;
+    private void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            // Player gets damaged by mob or projectile: reset
+            switch (event.getCause()) {
+            case ENTITY_ATTACK:
+            case PROJECTILE:
+                if (!isPlayerEnabled(player)) return;
+                resetZone(player);
+            default: return;
+            }
         }
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (!isPlayerEnabled(player)) return;
-        resetZone(player);
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    private void onPlayerItemHeld(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        if (!isPlayerEnabled(player)) return;
-        resetZone(player);
+        if (event.getDamager() instanceof Player player) {
+            // Player deals damage via melee: reset
+            switch (event.getCause()) {
+            case ENTITY_ATTACK:
+                if (!isPlayerEnabled(player)) return;
+                resetZone(player);
+            default: return;
+            }
+        }
     }
 
     public void onBowDamage(Player player, AbstractArrow arrow, Mob mob) {
@@ -68,12 +70,6 @@ public final class InTheZoneTalent extends Talent implements Listener {
         if (combatReward(mob) == null) return;
         if (!ArrowType.PRIMARY.is(arrow)) return;
         increaseZone(player);
-    }
-
-    public void onArrowHitBlock(Player player, AbstractArrow arrow) {
-        if (!isPlayerEnabled(player)) return;
-        if (!ArrowType.PRIMARY.is(arrow)) return;
-        resetZone(player);
     }
 
     public void onShootBow(Player player, AbstractArrow arrow) {

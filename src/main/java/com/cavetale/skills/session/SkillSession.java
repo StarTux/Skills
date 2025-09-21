@@ -59,6 +59,11 @@ public class SkillSession {
         return row != null;
     }
 
+    /**
+     * Override to implement ticking behavior.
+     */
+    public void tick(Player player) { }
+
     public final int getSkillPoints() {
         if (row == null) return 0;
         return row.getSkillPoints();

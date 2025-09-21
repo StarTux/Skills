@@ -397,6 +397,11 @@ public final class Session {
                 showSkillBar = false;
             }
         }
+        final Player player = getPlayer();
+        if (player == null) return;
+        for (SkillSession sk : skills.values()) {
+            sk.tick(player);
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ import com.cavetale.skills.talent.combat.*;
 import com.cavetale.skills.util.Players;
 import com.cavetale.worldmarker.util.Tags;
 import java.time.Duration;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -20,6 +21,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 import static com.cavetale.skills.skill.combat.CombatReward.combatReward;
 
+@Getter
 public final class CombatSkill extends Skill {
     protected final CombatListener combatListener = new CombatListener(this);
     public final CombatMagnetTalent combatMagnetTalent = new CombatMagnetTalent();
