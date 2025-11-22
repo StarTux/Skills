@@ -4,6 +4,7 @@ import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.talent.Talent;
 import com.cavetale.skills.talent.TalentType;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -17,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.inventory.ItemStack;
+import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class MineMagnetTalent extends Talent implements Listener {
     private Location dropLocation; // ItemSpawnEvent
@@ -55,18 +57,24 @@ public final class MineMagnetTalent extends Talent implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     private void onItemSpawn(ItemSpawnEvent event) {
         if (dropLocation == null) return;
-        event.getEntity().teleport(dropLocation);
-        event.getEntity().setPickupDelay(0);
+        final Location dropLocationCopy = dropLocation;
+        final Item item = event.getEntity();
+        Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
+                item.teleport(dropLocationCopy);
+                item.setPickupDelay(0);
+            });
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     private void onBlockDropItem(BlockDropItemEvent event) {
         Player player = event.getPlayer();
         if (player == null || !isPlayerEnabled(player)) return;
-        for (Item item : event.getItems()) {
-            item.teleport(player.getLocation());
-            item.setPickupDelay(0);
-            item.setOwner(player.getUniqueId());
-        }
+        Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
+                for (Item item : event.getItems()) {
+                    item.teleport(player.getLocation());
+                    item.setPickupDelay(0);
+                    item.setOwner(player.getUniqueId());
+                }
+            });
     }
 }
