@@ -4,8 +4,8 @@ import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.talent.Talent;
 import com.cavetale.skills.talent.TalentType;
+import java.util.UUID;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class MineMagnetTalent extends Talent implements Listener {
-    private Location dropLocation; // ItemSpawnEvent
+    private UUID magnetPlayer; // ItemSpawnEvent
 
     public MineMagnetTalent() {
         super(TalentType.MINE_MAGNET, "Mining Magnet",
@@ -44,10 +44,10 @@ public final class MineMagnetTalent extends Talent implements Listener {
         player.spawnParticle(Particle.BLOCK, block.getLocation().add(0.5, 0.5, 0.5), 16, 0.25, 0.25, 0.25, 0.0, block.getBlockData());
         player.playSound(block.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_STONE_BREAK, SoundCategory.BLOCKS, 1.0f, 1.5f);
         if (isPlayerEnabled(player)) {
-            dropLocation = player.getLocation();
+            magnetPlayer = player.getUniqueId();
         }
         block.breakNaturally(item, true);
-        dropLocation = null;
+        magnetPlayer = null;
         return true;
     }
 
@@ -56,11 +56,13 @@ public final class MineMagnetTalent extends Talent implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     private void onItemSpawn(ItemSpawnEvent event) {
-        if (dropLocation == null) return;
-        final Location dropLocationCopy = dropLocation;
-        final Item item = event.getEntity();
+        if (magnetPlayer == null) return;
+        final Player player = Bukkit.getPlayer(magnetPlayer);
+        if (player == null) return;
         Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
-                item.teleport(dropLocationCopy);
+                final Item item = event.getEntity();
+                if (item == null || !item.isValid()) return;
+                item.teleport(player.getLocation());
                 item.setPickupDelay(0);
             });
     }
