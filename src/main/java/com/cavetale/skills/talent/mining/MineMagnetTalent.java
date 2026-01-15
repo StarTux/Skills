@@ -21,7 +21,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.inventory.ItemStack;
-import static com.cavetale.skills.SkillsPlugin.skillsPlugin;
 
 public final class MineMagnetTalent extends Talent implements Listener {
     private UUID magnetPlayer; // ItemSpawnEvent

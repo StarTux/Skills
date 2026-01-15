@@ -1,5 +1,6 @@
 package com.cavetale.skills.skill.archery;
 
+import com.cavetale.core.event.item.PlayerReceiveItemsEvent;
 import com.cavetale.core.event.skills.SkillsMobKillRewardEvent;
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
 import com.cavetale.skills.session.Session;
@@ -13,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.ComplexEntityPart;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -79,11 +79,7 @@ public final class ArcherySkill extends Skill implements Listener {
             }
             List<ItemStack> drops = List.copyOf(event.getDrops());
             event.getDrops().clear();
-            for (ItemStack drop : drops) {
-                Item item = player.getWorld().dropItem(player.getLocation(), drop);
-                item.setPickupDelay(0);
-                item.setOwner(player.getUniqueId());
-            }
+            PlayerReceiveItemsEvent.receiveItems(player, drops);
         }
     }
 
