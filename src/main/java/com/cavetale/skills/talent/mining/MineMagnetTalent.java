@@ -1,9 +1,12 @@
 package com.cavetale.skills.talent.mining;
 
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
+import com.cavetale.core.event.item.PlayerReceiveItemsEvent;
 import com.cavetale.mytems.Mytems;
 import com.cavetale.skills.talent.Talent;
 import com.cavetale.skills.talent.TalentType;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
@@ -71,12 +74,12 @@ public final class MineMagnetTalent extends Talent implements Listener {
     private void onBlockDropItem(BlockDropItemEvent event) {
         Player player = event.getPlayer();
         if (player == null || !isPlayerEnabled(player)) return;
-        Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
-                for (Item item : event.getItems()) {
-                    item.teleport(player.getLocation());
-                    item.setPickupDelay(0);
-                    item.setOwner(player.getUniqueId());
-                }
-            });
+        final List<ItemStack> items = new ArrayList<>();
+        for (Item item : event.getItems()) {
+            items.add(item.getItemStack());
+        }
+        event.getItems().clear();
+        event.setCancelled(true);
+        PlayerReceiveItemsEvent.receiveItems(player, items);
     }
 }
