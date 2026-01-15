@@ -62,12 +62,8 @@ public final class MineMagnetTalent extends Talent implements Listener {
         if (magnetPlayer == null) return;
         final Player player = Bukkit.getPlayer(magnetPlayer);
         if (player == null) return;
-        Bukkit.getScheduler().runTask(skillsPlugin(), () -> {
-                final Item item = event.getEntity();
-                if (item == null || !item.isValid()) return;
-                item.teleport(player.getLocation());
-                item.setPickupDelay(0);
-            });
+        event.setCancelled(true);
+        PlayerReceiveItemsEvent.receiveItems(player, List.of(event.getEntity().getItemStack()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
