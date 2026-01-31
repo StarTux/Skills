@@ -22,6 +22,7 @@ public final class CombatReward {
         reward(5, 40.0, HUSK);
         reward(5, 40.0, SKELETON);
         reward(5, 40.0, STRAY);
+        reward(5, 40.0, PARCHED);
         reward(5, 40.0, ZOMBIE);
         reward(5, 40.0, ZOMBIE_VILLAGER);
         reward(5, 40.0, BOGGED);
