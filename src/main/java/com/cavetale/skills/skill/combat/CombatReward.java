@@ -97,6 +97,7 @@ public final class CombatReward {
             case SPAWNER:
             case SPELL:
             case REINFORCEMENTS:
+            case POTION_EFFECT:
                 return null;
             default: break;
             }
