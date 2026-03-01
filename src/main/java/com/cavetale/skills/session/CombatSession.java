@@ -28,7 +28,7 @@ public final class CombatSession extends SkillSession {
     @Override
     public void tick(final Player player) {
         if (rage > 0.0) {
-            if (lastRage == null || Duration.between(lastRage, Instant.now()).toSeconds() >= 5) {
+            if (lastRage == null || Duration.between(lastRage, Instant.now()).toSeconds() >= 10) {
                 lastRage = null;
                 rage = Math.max(0.0, rage - 0.5);
                 if (rage == 0.0) {
