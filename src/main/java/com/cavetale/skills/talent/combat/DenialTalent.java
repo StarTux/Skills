@@ -7,6 +7,8 @@ import com.cavetale.skills.talent.TalentType;
 import com.destroystokyo.paper.event.entity.EndermanEscapeEvent;
 import com.destroystokyo.paper.event.entity.WitchThrowPotionEvent;
 import java.time.Duration;
+
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -54,7 +56,7 @@ public final class DenialTalent extends Talent implements Listener {
     /**
      * When a mob is damaged, apply the Denial effect.
      */
-    public void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
+    public void onPlayerDamageMob(Player player, Mob mob, ItemStack item, PrePlayerAttackEntityEvent event) {
         if (player.getAttackCooldown() < 1.0f) return;
         if (!isPlayerEnabled(player)) return;
         if (item == null || item.getEnchantmentLevel(Enchantment.KNOCKBACK) == 0) return;

@@ -1,6 +1,7 @@
 package com.cavetale.skills.skill.combat;
 
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -48,9 +49,7 @@ final class CombatListener implements Listener {
         } else if (event.getEntity() instanceof Mob mob && event.getDamager() instanceof Player player) {
             // Player attacks Mob
             if (event.getCause() == DamageCause.ENTITY_ATTACK) {
-                final ItemStack item = player.getInventory().getItemInMainHand();
                 combatSkill.berserkerTalent.onPlayerDamageMob(player, mob, event);
-                combatSkill.denialTalent.onPlayerDamageMob(player, mob, item, event);
             }
         } else if (event.getEntity() instanceof Mob mob && event.getDamager() instanceof Trident trident && trident.getShooter() instanceof Player player) {
             combatSkill.stunPikeTalent.onPlayerHitMobWithTrident(player, trident, mob);
@@ -90,14 +89,18 @@ final class CombatListener implements Listener {
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
     private void onPlayerLeftClick(PlayerInteractEvent event) {
-        switch (event.getAction()) {
-        case LEFT_CLICK_AIR:
-        case LEFT_CLICK_BLOCK:
-            break;
-        default:
-            return;
-        }
+        if (!event.getAction().isLeftClick()) return;
         final Player player = event.getPlayer();
         combatSkill.slashAttackTalent.onPlayerLeftClick(player, event);
+    }
+
+    @EventHandler(ignoreCancelled = false,priority = EventPriority.MONITOR)
+    private void onPrePlayerAttackEntityMonitor(PrePlayerAttackEntityEvent event){
+        if(event.getAttacked() instanceof Mob mob) {
+            final Player player = event.getPlayer();
+            final ItemStack item = player.getInventory().getItemInMainHand();
+            combatSkill.denialTalent.onPlayerDamageMob(player, mob, item, event);
+        }
+
     }
 }
