@@ -1,6 +1,7 @@
 package com.cavetale.skills.talent.combat;
 
 import com.cavetale.mytems.event.combat.DamageCalculationEvent;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.talent.Talent;
 import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Material;
@@ -33,7 +34,7 @@ public final class ExecutionerTalent extends Talent {
 
     public void onDamageCalculation(Player player, DamageCalculationEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (player.getAttackCooldown() < 1.0) return;
+        if (Session.of(player).getAttackCooldown() < 1.0) return;
         final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || item.getType() != Material.MACE) return;
         final int level = getTalentLevel(player);

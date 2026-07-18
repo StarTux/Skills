@@ -2,6 +2,7 @@ package com.cavetale.skills.talent.combat;
 
 import com.cavetale.core.event.entity.PlayerEntityAbilityQuery;
 import com.cavetale.mytems.Mytems;
+import com.cavetale.skills.session.Session;
 import com.cavetale.skills.talent.Talent;
 import com.cavetale.skills.talent.TalentType;
 import org.bukkit.Location;
@@ -36,7 +37,7 @@ public final class SlashAttackTalent extends Talent {
 
     public void onPlayerLeftClick(Player player, PlayerInteractEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (player.getAttackCooldown() < 1f) return;
+        if (Session.of(player).getAttackCooldown() < 1f) return;
         final ItemStack weapon = player.getInventory().getItemInMainHand();
         if (!MeleeWeapon.isMeleeWeapon(weapon)) return;
         final Mob target = getLookAtEntity(player);

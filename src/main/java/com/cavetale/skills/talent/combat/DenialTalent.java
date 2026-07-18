@@ -55,11 +55,12 @@ public final class DenialTalent extends Talent implements Listener {
      * When a mob is damaged, apply the Denial effect.
      */
     public void onPlayerDamageMob(Player player, Mob mob, ItemStack item, EntityDamageByEntityEvent event) {
-        if (player.getAttackCooldown() < 1.0f) return;
+        final Session session = Session.of(player);
+        if (session.getAttackCooldown() < 1.0f) return;
         if (!isPlayerEnabled(player)) return;
         if (item == null || item.getEnchantmentLevel(Enchantment.KNOCKBACK) == 0) return;
         if (BossMob.isBossMob(mob)) return;
-        final int level = Session.of(player).getTalentLevel(talentType);
+        final int level = session.getTalentLevel(talentType);
         if (level < 1) return;
         final int seconds = levelToSeconds(level);
         MobStatusEffect.DENIAL.set(mob, Duration.ofSeconds(seconds));

@@ -53,8 +53,8 @@ public final class BerserkerTalent extends Talent {
      */
     public void onPlayerDamageMob(Player player, Mob mob, EntityDamageByEntityEvent event) {
         if (!isPlayerEnabled(player)) return;
-        if (player.getAttackCooldown() < 1f) return;
         final Session session = Session.of(player);
+        if (session.getAttackCooldown() < 1f) return;
         final double rage = session.combat.increaseRage(event.getDamage());
         sendRageUpdate(player, session, rage);
     }

@@ -56,6 +56,7 @@ public final class Session {
     protected final Set<TalentType> debugTalents = EnumSet.noneOf(TalentType.class);
     protected final Set<SkillType> debugSkills = EnumSet.noneOf(SkillType.class);
     protected boolean modifyingTalents = false; // big talent lock
+    private float attackCooldown;
 
     public Session(@NonNull final UUID uuid) {
         this.uuid = uuid;
@@ -399,6 +400,7 @@ public final class Session {
         }
         final Player player = getPlayer();
         if (player == null) return;
+        attackCooldown = player.getAttackCooldown();
         for (SkillSession sk : skills.values()) {
             sk.tick(player);
         }
